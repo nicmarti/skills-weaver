@@ -12,13 +12,13 @@ Skill pour générer des personnages non-joueurs complets avec description physi
 
 ```bash
 # Compiler si nécessaire
-go build -o npc ./cmd/npc
+go build -o sw-npc ./cmd/npc
 
 # Générer un PNJ complet
-./npc generate
+./sw-npc generate
 
 # Générer plusieurs PNJ rapidement
-./npc quick --count=5
+./sw-npc quick --count=5
 ```
 
 ## Commandes Disponibles
@@ -26,7 +26,7 @@ go build -o npc ./cmd/npc
 ### Génération Complète
 
 ```bash
-./npc generate [options]
+./sw-npc generate [options]
 
 # Options:
 #   --race=<race>          Race (human, dwarf, elf, halfling)
@@ -39,7 +39,7 @@ go build -o npc ./cmd/npc
 ### Génération Rapide
 
 ```bash
-./npc quick [options]
+./sw-npc quick [options]
 
 # Mêmes options + --count=N pour plusieurs PNJ
 ```
@@ -68,7 +68,7 @@ go build -o npc ./cmd/npc
 ### PNJ Complet
 
 ```bash
-./npc generate --race=dwarf --gender=m --occupation=skilled
+./sw-npc generate --race=dwarf --gender=m --occupation=skilled
 ```
 
 Résultat:
@@ -100,7 +100,7 @@ Petit trapu, de stature trapu. Cheveux bruns tressés, yeux noisette...
 ### Liste Rapide de PNJ
 
 ```bash
-./npc quick --occupation=commoner --count=5
+./sw-npc quick --occupation=commoner --count=5
 ```
 
 Résultat:
@@ -114,7 +114,7 @@ Legolas Moonwhisper - elfe homme, berger (distant, poli mais pressé)
 ### Export JSON
 
 ```bash
-./npc generate --format=json
+./sw-npc generate --format=json
 ```
 
 ## Intégration avec Adventure Manager
@@ -123,10 +123,10 @@ Pour logger les rencontres de PNJ :
 
 ```bash
 # Générer un PNJ
-./npc generate --occupation=authority --attitude=positive
+./sw-npc generate --occupation=authority --attitude=positive
 
 # Logger dans l'aventure
-./adventure log "Mon Aventure" npc "Rencontre avec le capitaine Aldric"
+./sw-adventure log "Mon Aventure" npc "Rencontre avec le capitaine Aldric"
 ```
 
 ## Structure des Données
@@ -165,25 +165,25 @@ Le générateur utilise deux fichiers de données :
 
 ### Pour un PNJ récurrent
 ```bash
-./npc generate --format=md
+./sw-npc generate --format=md
 ```
 Sauvegardez la description complète pour référence future.
 
 ### Pour une foule de figurants
 ```bash
-./npc quick --count=10 --occupation=commoner
+./sw-npc quick --count=10 --occupation=commoner
 ```
 Descriptions courtes pour des PNJ de passage.
 
 ### Pour un antagoniste
 ```bash
-./npc generate --attitude=negative --occupation=underworld
+./sw-npc generate --attitude=negative --occupation=underworld
 ```
 Un PNJ avec des motivations hostiles.
 
 ### Pour un allié potentiel
 ```bash
-./npc generate --attitude=positive --occupation=adventurer
+./sw-npc generate --attitude=positive --occupation=adventurer
 ```
 Un PNJ qui pourrait aider le groupe.
 

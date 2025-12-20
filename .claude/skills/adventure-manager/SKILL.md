@@ -12,10 +12,10 @@ Skill pour créer et gérer des aventures/campagnes dans Basic Fantasy RPG.
 
 ```bash
 # Compiler si nécessaire
-go build -o adventure ./cmd/adventure
+go build -o sw-adventure ./cmd/adventure
 
 # Créer une aventure
-./adventure create "La Mine Perdue" "Une aventure dans les montagnes"
+./sw-adventure create "La Mine Perdue" "Une aventure dans les montagnes"
 ```
 
 ## Commandes Disponibles
@@ -24,83 +24,83 @@ go build -o adventure ./cmd/adventure
 
 ```bash
 # Créer une aventure
-./adventure create "La Mine Perdue" "Description optionnelle"
+./sw-adventure create "La Mine Perdue" "Description optionnelle"
 
 # Lister les aventures
-./adventure list
+./sw-adventure list
 
 # Afficher une aventure
-./adventure show "La Mine Perdue"
+./sw-adventure show "La Mine Perdue"
 
 # Statut complet
-./adventure status "La Mine Perdue"
+./sw-adventure status "La Mine Perdue"
 
 # Supprimer
-./adventure delete "La Mine Perdue"
+./sw-adventure delete "La Mine Perdue"
 ```
 
 ### Gestion du Groupe
 
 ```bash
 # Ajouter un personnage à l'aventure
-./adventure add-character "La Mine Perdue" "Aldric"
-./adventure add-character "La Mine Perdue" "Lyra"
+./sw-adventure add-character "La Mine Perdue" "Aldric"
+./sw-adventure add-character "La Mine Perdue" "Lyra"
 
 # Retirer un personnage
-./adventure remove-character "La Mine Perdue" "Aldric"
+./sw-adventure remove-character "La Mine Perdue" "Aldric"
 
 # Afficher le groupe
-./adventure party "La Mine Perdue"
+./sw-adventure party "La Mine Perdue"
 ```
 
 ### Inventaire Partagé
 
 ```bash
 # Voir l'inventaire
-./adventure inventory "La Mine Perdue"
+./sw-adventure inventory "La Mine Perdue"
 
 # Ajouter de l'or
-./adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
-./adventure add-gold "La Mine Perdue" -10 "Achat de rations"
+./sw-adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
+./sw-adventure add-gold "La Mine Perdue" -10 "Achat de rations"
 
 # Ajouter des objets
-./adventure add-item "La Mine Perdue" "Potion de soin" 3
-./adventure add-item "La Mine Perdue" "Corde 50 pieds"
+./sw-adventure add-item "La Mine Perdue" "Potion de soin" 3
+./sw-adventure add-item "La Mine Perdue" "Corde 50 pieds"
 
 # Retirer des objets
-./adventure remove-item "La Mine Perdue" "Potion de soin" 1
+./sw-adventure remove-item "La Mine Perdue" "Potion de soin" 1
 ```
 
 ### Sessions de Jeu
 
 ```bash
 # Démarrer une session
-./adventure start-session "La Mine Perdue"
+./sw-adventure start-session "La Mine Perdue"
 
 # Terminer une session
-./adventure end-session "La Mine Perdue" "Le groupe a exploré le premier niveau"
+./sw-adventure end-session "La Mine Perdue" "Le groupe a exploré le premier niveau"
 
 # Lister les sessions
-./adventure sessions "La Mine Perdue"
+./sw-adventure sessions "La Mine Perdue"
 ```
 
 ### Journal Automatique
 
 ```bash
 # Ajouter une entrée au journal
-./adventure log "La Mine Perdue" combat "Le groupe affronte 3 gobelins"
-./adventure log "La Mine Perdue" loot "Trouvé 20 po et une dague +1"
-./adventure log "La Mine Perdue" story "Les aventuriers arrivent à Valdris"
-./adventure log "La Mine Perdue" quest "Nouvelle quête: Retrouver le marchand"
+./sw-adventure log "La Mine Perdue" combat "Le groupe affronte 3 gobelins"
+./sw-adventure log "La Mine Perdue" loot "Trouvé 20 po et une dague +1"
+./sw-adventure log "La Mine Perdue" story "Les aventuriers arrivent à Valdris"
+./sw-adventure log "La Mine Perdue" quest "Nouvelle quête: Retrouver le marchand"
 
 # Voir le journal
-./adventure journal "La Mine Perdue"
+./sw-adventure journal "La Mine Perdue"
 
 # Journal d'une session spécifique
-./adventure journal "La Mine Perdue" --session=1
+./sw-adventure journal "La Mine Perdue" --session=1
 
 # Dernières entrées
-./adventure journal "La Mine Perdue" --recent=10
+./sw-adventure journal "La Mine Perdue" --recent=10
 ```
 
 ## Types d'Entrées Journal
@@ -139,38 +139,38 @@ data/adventures/la-mine-perdue/
 
 ### 1. Créer l'aventure
 ```bash
-./adventure create "La Mine Perdue" "Les aventuriers explorent une mine abandonnée"
+./sw-adventure create "La Mine Perdue" "Les aventuriers explorent une mine abandonnée"
 ```
 
 ### 2. Ajouter les personnages
 ```bash
-./adventure add-character "La Mine Perdue" "Aldric"
-./adventure add-character "La Mine Perdue" "Lyra"
-./adventure add-character "La Mine Perdue" "Gorim"
+./sw-adventure add-character "La Mine Perdue" "Aldric"
+./sw-adventure add-character "La Mine Perdue" "Lyra"
+./sw-adventure add-character "La Mine Perdue" "Gorim"
 ```
 
 ### 3. Démarrer une session
 ```bash
-./adventure start-session "La Mine Perdue"
+./sw-adventure start-session "La Mine Perdue"
 ```
 
 ### 4. Pendant la partie
 ```bash
 # Noter les événements importants
-./adventure log "La Mine Perdue" story "Les aventuriers arrivent à l'entrée de la mine"
-./adventure log "La Mine Perdue" combat "Combat contre 4 gobelins - victoire"
-./adventure add-gold "La Mine Perdue" 35 "Butin gobelins"
-./adventure log "La Mine Perdue" loot "Trouvé: épée courte, 35 po"
+./sw-adventure log "La Mine Perdue" story "Les aventuriers arrivent à l'entrée de la mine"
+./sw-adventure log "La Mine Perdue" combat "Combat contre 4 gobelins - victoire"
+./sw-adventure add-gold "La Mine Perdue" 35 "Butin gobelins"
+./sw-adventure log "La Mine Perdue" loot "Trouvé: épée courte, 35 po"
 ```
 
 ### 5. Terminer la session
 ```bash
-./adventure end-session "La Mine Perdue" "Premier niveau de la mine exploré"
+./sw-adventure end-session "La Mine Perdue" "Premier niveau de la mine exploré"
 ```
 
 ### 6. Consulter le statut
 ```bash
-./adventure status "La Mine Perdue"
+./sw-adventure status "La Mine Perdue"
 ```
 
 ## Intégration avec autres Skills

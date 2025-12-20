@@ -3,14 +3,15 @@
 .env
 .env.local
 
-# Binaries (root level only)
-/dice
-/character
-/adventure
-/names
-/npc
-/image
-/monster
+# Binaries (root level only) - SkillsWeaver CLI tools
+/sw-dice
+/sw-character
+/sw-adventure
+/sw-names
+/sw-npc
+/sw-image
+/sw-monster
+/sw-treasure
 
 # IDE
 .idea/

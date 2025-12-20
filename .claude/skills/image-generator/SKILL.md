@@ -15,25 +15,23 @@ Skill pour générer des illustrations fantasy de haute qualité via l'API fal.a
 export FAL_KEY="votre_clé_api_fal"
 ```
 
-Obtenir une clé API sur [fal.ai](https://fal.ai/dashboard/keys).
-
 ## Utilisation Rapide
 
 ```bash
 # Compiler si nécessaire
-go build -o image ./cmd/image
+go build -o sw-image ./cmd/image
 
 # Portrait de personnage existant
-./image character "Aldric"
+./sw-image character "Aldric"
 
 # Portrait de PNJ généré
-./image npc --race=elf --gender=f --occupation=skilled
+./sw-image npc --race=elf --gender=f --occupation=skilled
 
 # Scène d'aventure
-./image scene "Des aventuriers explorent une crypte"
+./sw-image scene "Des aventuriers explorent une crypte"
 
 # Monstre
-./image monster dragon --style=epic
+./sw-image monster dragon --style=epic
 ```
 
 ## Commandes Disponibles
@@ -41,17 +39,17 @@ go build -o image ./cmd/image
 ### Portrait de Personnage
 
 ```bash
-./image character <nom> [options]
+./sw-image character <nom> [options]
 
 # Exemples:
-./image character "Aldric" --style=realistic
-./image character "Lyra" --style=painted
+./sw-image character "Aldric" --style=realistic
+./sw-image character "Lyra" --style=painted
 ```
 
 ### Portrait de PNJ
 
 ```bash
-./image npc [options]
+./sw-image npc [options]
 
 # Options:
 #   --race=<race>          Race (human, dwarf, elf, halfling)
@@ -60,14 +58,14 @@ go build -o image ./cmd/image
 #   --style=<style>        Style artistique
 
 # Exemples:
-./image npc --race=dwarf --gender=m --occupation=authority
-./image npc --race=elf --occupation=religious --style=dark_fantasy
+./sw-image npc --race=dwarf --gender=m --occupation=authority
+./sw-image npc --race=elf --occupation=religious --style=dark_fantasy
 ```
 
 ### Scène d'Aventure
 
 ```bash
-./image scene "<description>" [options]
+./sw-image scene "<description>" [options]
 
 # Options:
 #   --type=<type>          Type de scène prédéfini
@@ -79,15 +77,15 @@ go build -o image ./cmd/image
 #   cave, battle, treasure, camp, ruins
 
 # Exemples:
-./image scene "Combat contre des gobelins" --type=battle --style=epic
-./image scene "Repos au coin du feu" --type=camp --style=painted
-./image scene "Une taverne animée" --type=tavern
+./sw-image scene "Combat contre des gobelins" --type=battle --style=epic
+./sw-image scene "Repos au coin du feu" --type=camp --style=painted
+./sw-image scene "Une taverne animée" --type=tavern
 ```
 
 ### Illustration de Monstre
 
 ```bash
-./image monster <type> [options]
+./sw-image monster <type> [options]
 
 # Monstres disponibles:
 #   goblin, orc, skeleton, zombie, dragon,
@@ -96,30 +94,30 @@ go build -o image ./cmd/image
 #   chimera, hydra, lich
 
 # Exemples:
-./image monster dragon --style=epic
-./image monster lich --style=dark_fantasy
-./image monster goblin --style=illustrated
+./sw-image monster dragon --style=epic
+./sw-image monster lich --style=dark_fantasy
+./sw-image monster goblin --style=illustrated
 ```
 
 ### Objet Magique
 
 ```bash
-./image item <type> [description] [options]
+./sw-image item <type> [description] [options]
 
 # Types d'objets:
 #   weapon, armor, potion, scroll, ring,
 #   amulet, staff, wand, book, artifact
 
 # Exemples:
-./image item weapon "épée flamboyante ancienne"
-./image item potion "potion de guérison rouge brillante"
-./image item artifact "orbe de pouvoir mystérieux"
+./sw-image item weapon "épée flamboyante ancienne"
+./sw-image item potion "potion de guérison rouge brillante"
+./sw-image item artifact "orbe de pouvoir mystérieux"
 ```
 
 ### Lieu / Carte
 
 ```bash
-./image location <type> [nom] [options]
+./sw-image location <type> [nom] [options]
 
 # Types de lieux:
 #   city, town, village, castle, dungeon,
@@ -127,21 +125,21 @@ go build -o image ./cmd/image
 #   island, underworld
 
 # Exemples:
-./image location dungeon "Les Mines Abandonnées"
-./image location castle "Forteresse de Shadowkeep"
-./image location forest "La Forêt des Murmures"
+./sw-image location dungeon "Les Mines Abandonnées"
+./sw-image location castle "Forteresse de Shadowkeep"
+./sw-image location forest "La Forêt des Murmures"
 ```
 
 ### Prompt Personnalisé
 
 ```bash
-./image custom "<prompt>" [options]
+./sw-image custom "<prompt>" [options]
 
 # Pour des besoins spécifiques non couverts par les autres commandes
 
 # Exemples:
-./image custom "Un groupe d'aventuriers traversant un pont de corde au-dessus d'un gouffre"
-./image custom "Une bibliothèque magique avec des livres volants"
+./sw-image custom "Un groupe d'aventuriers traversant un pont de corde au-dessus d'un gouffre"
+./sw-image custom "Une bibliothèque magique avec des livres volants"
 ```
 
 ## Styles Artistiques
@@ -179,20 +177,20 @@ go build -o image ./cmd/image
 
 ```bash
 # Créer le personnage
-./character create "Thorin" --race=dwarf --class=fighter
+./sw-character create "Thorin" --race=dwarf --class=fighter
 
 # Générer son portrait
-./image character "Thorin" --style=epic
+./sw-image character "Thorin" --style=epic
 ```
 
 ### Illustrer un PNJ rencontré
 
 ```bash
 # Générer le PNJ
-./npc generate --race=human --occupation=authority --attitude=negative
+./sw-npc generate --race=human --occupation=authority --attitude=negative
 
 # Générer son portrait dans la foulée
-./image npc --race=human --occupation=authority --style=dark_fantasy
+./sw-image npc --race=human --occupation=authority --style=dark_fantasy
 ```
 
 ### Illustrer une scène de combat
@@ -202,7 +200,7 @@ go build -o image ./cmd/image
 ./adventure log "Mon Aventure" combat "Embuscade de gobelins dans la forêt"
 
 # Générer l'illustration
-./image scene "Embuscade de gobelins dans une forêt sombre" --type=battle --style=epic
+./sw-image scene "Embuscade de gobelins dans une forêt sombre" --type=battle --style=epic
 ```
 
 ## Sortie
@@ -241,11 +239,11 @@ Vérifiez que votre clé API est valide sur [fal.ai/dashboard/keys](https://fal.
 ## Lister les Options
 
 ```bash
-./image list              # Toutes les options
-./image list styles       # Styles disponibles
-./image list scenes       # Types de scènes
-./image list monsters     # Types de monstres
-./image list items        # Types d'objets
-./image list locations    # Types de lieux
-./image list sizes        # Tailles d'image
+./sw-image list              # Toutes les options
+./sw-image list styles       # Styles disponibles
+./sw-image list scenes       # Types de scènes
+./sw-image list monsters     # Types de monstres
+./sw-image list items        # Types d'objets
+./sw-image list locations    # Types de lieux
+./sw-image list sizes        # Tailles d'image
 ```

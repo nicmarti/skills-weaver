@@ -12,12 +12,12 @@ Skill pour générer des noms de personnages pour Basic Fantasy RPG.
 
 ```bash
 # Compiler si nécessaire
-go build -o names ./cmd/names
+go build -o sw-names ./cmd/names
 
 # Générer un nom
-./names generate dwarf              # Nom de nain
-./names generate elf --gender=f     # Nom d'elfe féminin
-./names npc innkeeper               # Nom de tavernier
+./sw-names generate dwarf              # Nom de nain
+./sw-names generate elf --gender=f     # Nom d'elfe féminin
+./sw-names npc innkeeper               # Nom de tavernier
 ```
 
 ## Commandes Disponibles
@@ -26,7 +26,7 @@ go build -o names ./cmd/names
 
 ```bash
 # Races disponibles: dwarf, elf, halfling, human
-./names generate <race> [options]
+./sw-names generate <race> [options]
 
 # Options:
 #   --gender=m|f     Sexe (m=masculin, f=féminin, omis=aléatoire)
@@ -38,59 +38,59 @@ go build -o names ./cmd/names
 
 ```bash
 # Nains
-./names generate dwarf                    # Thorin Ironfoot
-./names generate dwarf --gender=f         # Disa Stoneheart
+./sw-names generate dwarf                    # Thorin Ironfoot
+./sw-names generate dwarf --gender=f         # Disa Stoneheart
 
 # Elfes
-./names generate elf                      # Legolas Moonwhisper
-./names generate elf --gender=f           # Arwen Starweaver
+./sw-names generate elf                      # Legolas Moonwhisper
+./sw-names generate elf --gender=f           # Arwen Starweaver
 
 # Halfelins
-./names generate halfling                 # Bilbo Baggins
-./names generate halfling --gender=f      # Rose Greenhill
+./sw-names generate halfling                 # Bilbo Baggins
+./sw-names generate halfling --gender=f      # Rose Greenhill
 
 # Humains
-./names generate human                    # Aragorn Ironhand
-./names generate human --gender=f         # Eowyn Stormrider
+./sw-names generate human                    # Aragorn Ironhand
+./sw-names generate human --gender=f         # Eowyn Stormrider
 ```
 
 ### Génération Multiple
 
 ```bash
 # Générer plusieurs noms pour une liste de choix
-./names generate dwarf --count=5
-./names generate elf --gender=f --count=3
+./sw-names generate dwarf --count=5
+./sw-names generate elf --gender=f --count=3
 ```
 
 ### Prénoms Uniquement
 
 ```bash
 # Pour les PNJ simples ou les alias
-./names generate human --first-only
-./names generate halfling --first-only --count=5
+./sw-names generate human --first-only
+./sw-names generate halfling --first-only --count=5
 ```
 
 ### Noms de PNJ
 
 ```bash
 # Types disponibles: innkeeper, merchant, guard, noble, wizard, villain
-./names npc <type> [--count=N]
+./sw-names npc <type> [--count=N]
 
 # Exemples
-./names npc innkeeper     # Barnabas (tavernier)
-./names npc merchant      # Cornelius (marchand)
-./names npc guard         # Bruno (garde)
-./names npc noble         # Casimir (noble)
-./names npc wizard        # Balthazar (mage)
-./names npc villain       # Malachar (méchant)
+./sw-names npc innkeeper     # Barnabas (tavernier)
+./sw-names npc merchant      # Cornelius (marchand)
+./sw-names npc guard         # Bruno (garde)
+./sw-names npc noble         # Casimir (noble)
+./sw-names npc wizard        # Balthazar (mage)
+./sw-names npc villain       # Malachar (méchant)
 ```
 
 ### Lister les Options
 
 ```bash
-./names list              # Tout lister
-./names list races        # Races disponibles
-./names list npc          # Types de PNJ
+./sw-names list              # Tout lister
+./sw-names list races        # Races disponibles
+./sw-names list npc          # Types de PNJ
 ```
 
 ## Correspondances Français-Anglais
@@ -114,11 +114,11 @@ Après avoir généré un nom, utilisez-le pour créer un personnage :
 
 ```bash
 # 1. Générer un nom
-./names generate dwarf --gender=m
+./sw-names generate dwarf --gender=m
 # Output: Thorin Ironfoot
 
 # 2. Créer le personnage avec ce nom
-./character create "Thorin Ironfoot" --race=dwarf --class=fighter
+./sw-character create "Thorin Ironfoot" --race=dwarf --class=fighter
 ```
 
 ## Intégration avec Adventure Manager
@@ -127,11 +127,11 @@ Pour nommer les PNJ rencontrés dans une aventure :
 
 ```bash
 # Générer un nom de tavernier
-./names npc innkeeper
+./sw-names npc innkeeper
 # Output: Barnabas
 
 # Logger la rencontre
-./adventure log "Mon Aventure" npc "Rencontre avec Barnabas, le tavernier"
+./sw-adventure log "Mon Aventure" npc "Rencontre avec Barnabas, le tavernier"
 ```
 
 ## Structure des Données
@@ -153,7 +153,7 @@ Les noms sont stockés dans `data/names.json` avec :
 
 ## Conseils d'Utilisation
 
-- Pour un **joueur** : `./names generate <race> --gender=<m|f>`
-- Pour un **PNJ récurrent** : `./names generate <race>` (nom complet)
-- Pour un **PNJ mineur** : `./names npc <type>` ou `--first-only`
+- Pour un **joueur** : `./sw-names generate <race> --gender=<m|f>`
+- Pour un **PNJ récurrent** : `./sw-names generate <race>` (nom complet)
+- Pour un **PNJ mineur** : `./sw-names npc <type>` ou `--first-only`
 - Pour une **liste de choix** : `--count=5`

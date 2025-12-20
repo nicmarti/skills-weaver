@@ -446,68 +446,68 @@ func cmdList(args []string) error {
 
 	switch listType {
 	case "styles", "style":
-		fmt.Println("## Styles Disponibles\n")
+		fmt.Print("## Styles Disponibles\n\n")
 		for _, style := range image.GetAvailableStyles() {
 			fmt.Printf("- %s\n", style)
 		}
 
 	case "scenes", "scene":
-		fmt.Println("## Types de Scènes Disponibles\n")
+		fmt.Print("## Types de Scènes Disponibles\n\n")
 		for _, scene := range image.GetAvailableSceneTypes() {
 			fmt.Printf("- %s\n", scene)
 		}
 
 	case "monsters", "monster":
-		fmt.Println("## Types de Monstres Disponibles\n")
+		fmt.Print("## Types de Monstres Disponibles\n\n")
 		for _, monster := range image.GetAvailableMonsterTypes() {
 			fmt.Printf("- %s\n", monster)
 		}
 
 	case "items", "item":
-		fmt.Println("## Types d'Objets Disponibles\n")
+		fmt.Print("## Types d'Objets Disponibles\n\n")
 		for _, item := range image.GetAvailableItemTypes() {
 			fmt.Printf("- %s\n", item)
 		}
 
 	case "locations", "location":
-		fmt.Println("## Types de Lieux Disponibles\n")
+		fmt.Print("## Types de Lieux Disponibles\n\n")
 		for _, loc := range image.GetAvailableLocationTypes() {
 			fmt.Printf("- %s\n", loc)
 		}
 
 	case "sizes", "size":
-		fmt.Println("## Tailles d'Image Disponibles\n")
+		fmt.Print("## Tailles d'Image Disponibles\n\n")
 		for _, size := range image.GetAvailableImageSizes() {
 			fmt.Printf("- %s\n", size)
 		}
 
 	default:
-		fmt.Println("## Styles Disponibles\n")
+		fmt.Print("## Styles Disponibles\n\n")
 		for _, style := range image.GetAvailableStyles() {
 			fmt.Printf("- %s\n", style)
 		}
 
-		fmt.Println("\n## Types de Scènes\n")
+		fmt.Print("\n## Types de Scènes\n\n")
 		for _, scene := range image.GetAvailableSceneTypes() {
 			fmt.Printf("- %s\n", scene)
 		}
 
-		fmt.Println("\n## Types de Monstres\n")
+		fmt.Print("\n## Types de Monstres\n\n")
 		for _, monster := range image.GetAvailableMonsterTypes() {
 			fmt.Printf("- %s\n", monster)
 		}
 
-		fmt.Println("\n## Types d'Objets\n")
+		fmt.Print("\n## Types d'Objets\n\n")
 		for _, item := range image.GetAvailableItemTypes() {
 			fmt.Printf("- %s\n", item)
 		}
 
-		fmt.Println("\n## Types de Lieux\n")
+		fmt.Print("\n## Types de Lieux\n\n")
 		for _, loc := range image.GetAvailableLocationTypes() {
 			fmt.Printf("- %s\n", loc)
 		}
 
-		fmt.Println("\n## Tailles d'Image\n")
+		fmt.Print("\n## Tailles d'Image\n\n")
 		for _, size := range image.GetAvailableImageSizes() {
 			fmt.Printf("- %s\n", size)
 		}

@@ -48,12 +48,12 @@ Explique brièvement chaque classe :
 Utilise la CLI pour générer les caractéristiques :
 
 ```bash
-./dice stats
+./sw-dice stats
 ```
 
 Ou méthode classique (plus difficile) :
 ```bash
-./dice stats --classic
+./sw-dice stats --classic
 ```
 
 Explique chaque caractéristique et son utilité pour la classe choisie.
@@ -63,7 +63,7 @@ Explique chaque caractéristique et son utilité pour la classe choisie.
 Une fois tous les choix faits, crée le personnage avec :
 
 ```bash
-./character create "Nom" --race=<race> --class=<classe>
+./sw-character create "Nom" --race=<race> --class=<classe>
 ```
 
 ### Étape 6 : Présentation Finale
@@ -71,7 +71,7 @@ Une fois tous les choix faits, crée le personnage avec :
 Affiche la fiche du personnage avec :
 
 ```bash
-./character show "Nom"
+./sw-character show "Nom"
 ```
 
 Propose une brève description narrative du personnage basée sur ses statistiques.
@@ -80,15 +80,15 @@ Propose une brève description narrative du personnage basée sur ses statistiqu
 
 ```bash
 # Lancer des dés
-./dice roll <notation>      # Ex: ./dice roll 4d6kh3
-./dice stats                # 6 caractéristiques (4d6kh3)
-./dice stats --classic      # 6 caractéristiques (3d6)
+./sw-dice roll <notation>      # Ex: ./sw-dice roll 4d6kh3
+./sw-dice stats                # 6 caractéristiques (4d6kh3)
+./sw-dice stats --classic      # 6 caractéristiques (3d6)
 
 # Gérer les personnages
-./character create "Nom" --race=<race> --class=<classe>
-./character list
-./character show "Nom"
-./character export "Nom" --format=md
+./sw-character create "Nom" --race=<race> --class=<classe>
+./sw-character list
+./sw-character show "Nom"
+./sw-character export "Nom" --format=md
 ```
 
 ## Valeurs de Race et Classe

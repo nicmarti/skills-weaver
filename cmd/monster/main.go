@@ -177,7 +177,7 @@ func cmdList(b *monster.Bestiary, args []string) error {
 		fmt.Printf("## Monstres de type '%s'\n\n", opts["type"])
 	} else {
 		monsters = b.ListAll()
-		fmt.Println("## Tous les Monstres\n")
+		fmt.Print("## Tous les Monstres\n\n")
 	}
 
 	format := opts["format"]
@@ -300,7 +300,7 @@ func cmdRoll(b *monster.Bestiary, args []string) error {
 func cmdTypes(b *monster.Bestiary) error {
 	types := b.GetTypes()
 
-	fmt.Println("## Types de Monstres\n")
+	fmt.Print("## Types de Monstres\n\n")
 	for _, t := range types {
 		monsters := b.ListByType(t)
 		fmt.Printf("- **%s** (%d monstres)\n", t, len(monsters))
@@ -312,7 +312,7 @@ func cmdTypes(b *monster.Bestiary) error {
 func cmdTables(b *monster.Bestiary) error {
 	tables := b.GetEncounterTables()
 
-	fmt.Println("## Tables de Rencontres\n")
+	fmt.Print("## Tables de Rencontres\n\n")
 	for _, t := range tables {
 		fmt.Printf("- %s\n", t)
 	}

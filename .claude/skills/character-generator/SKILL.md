@@ -12,10 +12,10 @@ Skill pour créer et gérer des personnages dans Basic Fantasy RPG.
 
 ```bash
 # Compiler si nécessaire
-go build -o character ./cmd/character
+go build -o sw-character ./cmd/character
 
 # Créer un personnage
-./character create "Nom" --race=human --class=fighter
+./sw-character create "Nom" --race=human --class=fighter
 ```
 
 ## Commandes Disponibles
@@ -23,28 +23,28 @@ go build -o character ./cmd/character
 ### Créer un personnage
 
 ```bash
-./character create "Aldric" --race=human --class=fighter
-./character create "Lyra" --race=elf --class=magic-user
-./character create "Gorim" --race=dwarf --class=cleric
-./character create "Pip" --race=halfling --class=thief
+./sw-character create "Aldric" --race=human --class=fighter
+./sw-character create "Lyra" --race=elf --class=magic-user
+./sw-character create "Gorim" --race=dwarf --class=cleric
+./sw-character create "Pip" --race=halfling --class=thief
 
 # Méthode classique (3d6)
-./character create "Vieux Sage" --race=human --class=magic-user --method=classic
+./sw-character create "Vieux Sage" --race=human --class=magic-user --method=classic
 ```
 
 ### Gérer les personnages
 
 ```bash
-./character list              # Liste tous les personnages
-./character show "Aldric"     # Affiche la fiche complète
-./character delete "Aldric"   # Supprime un personnage
+./sw-character list              # Liste tous les personnages
+./sw-character show "Aldric"     # Affiche la fiche complète
+./sw-character delete "Aldric"   # Supprime un personnage
 ```
 
 ### Exporter
 
 ```bash
-./character export "Aldric" --format=json    # Export JSON
-./character export "Aldric" --format=md      # Export Markdown
+./sw-character export "Aldric" --format=json    # Export JSON
+./sw-character export "Aldric" --format=md      # Export Markdown
 ```
 
 ## Races Disponibles

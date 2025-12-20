@@ -124,16 +124,16 @@ Jet réussi : d20 >= valeur cible
 
 ```bash
 # Lancer un jet d'attaque
-./dice roll d20+1
+./sw-dice roll d20+1
 
 # Jet de dégâts
-./dice roll 1d8+2
+./sw-dice roll 1d8+2
 
 # Jet de sauvegarde
-./dice roll d20
+./sw-dice roll d20
 
 # Vérifier un personnage
-./character show "Nom"
+./sw-character show "Nom"
 ```
 
 ## Format de Réponse

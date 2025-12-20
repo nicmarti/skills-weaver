@@ -14,12 +14,12 @@ Exécutez la CLI `dice` depuis le répertoire du projet :
 
 ```bash
 # Compiler si nécessaire
-go build -o dice ./cmd/dice
+go build -o sw-dice ./cmd/dice
 
 # Lancer des dés
-./dice roll d20
-./dice roll 2d6+3
-./dice roll 4d6kh3
+./sw-dice roll d20
+./sw-dice roll 2d6+3
+./sw-dice roll 4d6kh3
 ```
 
 ## Commandes Disponibles
@@ -27,37 +27,37 @@ go build -o dice ./cmd/dice
 ### Lancer un dé simple
 
 ```bash
-./dice roll d20           # Lance 1d20
-./dice roll 2d6           # Lance 2d6
-./dice roll d100          # Lance 1d100 (percentile)
+./sw-dice roll d20           # Lance 1d20
+./sw-dice roll 2d6           # Lance 2d6
+./sw-dice roll d100          # Lance 1d100 (percentile)
 ```
 
 ### Avec modificateur
 
 ```bash
-./dice roll 2d6+3         # Lance 2d6 et ajoute 3
-./dice roll d20-2         # Lance d20 et soustrait 2
+./sw-dice roll 2d6+3         # Lance 2d6 et ajoute 3
+./sw-dice roll d20-2         # Lance d20 et soustrait 2
 ```
 
 ### Keep Highest / Keep Lowest
 
 ```bash
-./dice roll 4d6kh3        # Lance 4d6, garde les 3 plus hauts (génération de stats)
-./dice roll 2d20kl1       # Lance 2d20, garde le plus bas (désavantage)
+./sw-dice roll 4d6kh3        # Lance 4d6, garde les 3 plus hauts (génération de stats)
+./sw-dice roll 2d20kl1       # Lance 2d20, garde le plus bas (désavantage)
 ```
 
 ### Avantage et Désavantage
 
 ```bash
-./dice roll d20 --advantage      # ou -a : Lance 2d20, garde le plus haut
-./dice roll d20 --disadvantage   # ou -d : Lance 2d20, garde le plus bas
+./sw-dice roll d20 --advantage      # ou -a : Lance 2d20, garde le plus haut
+./sw-dice roll d20 --disadvantage   # ou -d : Lance 2d20, garde le plus bas
 ```
 
 ### Génération de Caractéristiques
 
 ```bash
-./dice stats              # Méthode standard : 4d6kh3 × 6
-./dice stats --classic    # Méthode classique : 3d6 × 6
+./sw-dice stats              # Méthode standard : 4d6kh3 × 6
+./sw-dice stats --classic    # Méthode classique : 3d6 × 6
 ```
 
 ## Exemples de Résultats
@@ -98,7 +98,7 @@ Les dés barrés (`~2~`) sont ceux qui n'ont pas été gardés.
 
 ## Conseils
 
-- Pour les jets de combat: `./dice roll d20+<bonus>`
+- Pour les jets de combat: `./sw-dice roll d20+<bonus>`
 - Pour les dégâts: utilisez le dé approprié à l'arme
-- Pour les sauvegardes: `./dice roll d20` et comparez au seuil
-- Pour créer un personnage: `./dice stats`
+- Pour les sauvegardes: `./sw-dice roll d20` et comparez au seuil
+- Pour créer un personnage: `./sw-dice stats`

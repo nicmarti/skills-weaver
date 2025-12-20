@@ -1,4 +1,4 @@
-# Plan d'Implémentation - Moteur de Jeu de Rôle
+# Plan d'Implémentation - SkillsWeaver
 
 ## Vision du Projet
 
@@ -31,6 +31,7 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 | Phase 5 | Générateur de PNJ | Terminée |
 | Phase 6 | Générateur d'images | Terminée |
 | Phase 7 | Bestiaire BFRPG | Terminée |
+| Phase 8 | Tables de trésors | Terminée |
 
 ---
 
@@ -50,11 +51,11 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./dice roll 2d6+3
-./dice roll 4d6kh3
-./dice roll d20 --advantage
-./dice stats
-./dice stats --classic
+./sw-dice roll 2d6+3
+./sw-dice roll 4d6kh3
+./sw-dice roll d20 --advantage
+./sw-dice stats
+./sw-dice stats --classic
 ```
 
 ---
@@ -104,12 +105,12 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./character create "Aldric" --race=human --class=fighter
-./character create "Lyra" --race=elf --class=magic-user --method=classic
-./character list
-./character show "Aldric"
-./character delete "Aldric"
-./character export "Aldric" --format=json
+./sw-character create "Aldric" --race=human --class=fighter
+./sw-character create "Lyra" --race=elf --class=magic-user --method=classic
+./sw-character list
+./sw-character show "Aldric"
+./sw-character delete "Aldric"
+./sw-character export "Aldric" --format=json
 ```
 
 ---
@@ -134,13 +135,13 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./adventure create "Nom" "Description"
-./adventure add-character "Aventure" "Personnage"
-./adventure start-session "Aventure"
-./adventure log "Aventure" combat "Description"
-./adventure end-session "Aventure" "Résumé"
-./adventure status "Aventure"
-./adventure journal "Aventure"
+./sw-adventure create "Nom" "Description"
+./sw-adventure add-character "Aventure" "Personnage"
+./sw-adventure start-session "Aventure"
+./sw-adventure log "Aventure" combat "Description"
+./sw-adventure end-session "Aventure" "Résumé"
+./sw-adventure status "Aventure"
+./sw-adventure journal "Aventure"
 ```
 
 ### Types de Journal
@@ -204,11 +205,11 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./names generate dwarf --gender=m       # Nom de nain masculin
-./names generate elf --gender=f         # Nom d'elfe féminin
-./names generate human --count=5        # 5 noms humains
-./names npc innkeeper                   # Nom de tavernier
-./names npc villain                     # Nom de méchant
+./sw-names generate dwarf --gender=m       # Nom de nain masculin
+./sw-names generate elf --gender=f         # Nom d'elfe féminin
+./sw-names generate human --count=5        # 5 noms humains
+./sw-names npc innkeeper                   # Nom de tavernier
+./sw-names npc villain                     # Nom de méchant
 ```
 
 ### Sources des noms
@@ -239,13 +240,13 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./npc generate                              # PNJ aléatoire complet
-./npc generate --race=dwarf --gender=m      # Nain masculin
-./npc generate --occupation=authority       # Figure d'autorité
-./npc generate --attitude=negative          # PNJ hostile
-./npc quick --count=5                       # 5 PNJ en description courte
-./npc generate --format=json                # Sortie JSON
-./npc list                                  # Options disponibles
+./sw-npc generate                              # PNJ aléatoire complet
+./sw-npc generate --race=dwarf --gender=m      # Nain masculin
+./sw-npc generate --occupation=authority       # Figure d'autorité
+./sw-npc generate --attitude=negative          # PNJ hostile
+./sw-npc quick --count=5                       # 5 PNJ en description courte
+./sw-npc generate --format=json                # Sortie JSON
+./sw-npc list                                  # Options disponibles
 ```
 
 ### Types d'Occupation
@@ -281,14 +282,14 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./image character "Aldric" --style=epic
-./image npc --race=dwarf --occupation=skilled
-./image scene "Combat contre un dragon" --type=battle
-./image monster dragon --style=dark_fantasy
-./image item weapon "épée flamboyante"
-./image location dungeon "Les Mines Perdues"
-./image custom "Un elfe archer dans une forêt enchantée"
-./image list
+./sw-image character "Aldric" --style=epic
+./sw-image npc --race=dwarf --occupation=skilled
+./sw-image scene "Combat contre un dragon" --type=battle
+./sw-image monster dragon --style=dark_fantasy
+./sw-image item weapon "épée flamboyante"
+./sw-image location dungeon "Les Mines Perdues"
+./sw-image custom "Un elfe archer dans une forêt enchantée"
+./sw-image list
 ```
 
 ### API
@@ -317,13 +318,13 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 
 ### Usage
 ```bash
-./monster show goblin              # Fiche complète
-./monster search dragon            # Recherche
-./monster list --type=undead       # Par type
-./monster encounter dungeon_level_1 # Rencontre aléatoire
-./monster encounter --level=3      # Par niveau de groupe
-./monster roll orc --count=4       # 4 orcs avec PV
-./monster types                    # Types disponibles
+./sw-monster show goblin              # Fiche complète
+./sw-monster search dragon            # Recherche
+./sw-monster list --type=undead       # Par type
+./sw-monster encounter dungeon_level_1 # Rencontre aléatoire
+./sw-monster encounter --level=3      # Par niveau de groupe
+./sw-monster roll orc --count=4       # 4 orcs avec PV
+./sw-monster types                    # Types disponibles
 ```
 
 ### Monstres inclus (33)
@@ -335,6 +336,43 @@ Créer un moteur de jeu de rôle interactif utilisant Claude Code comme orchestr
 - **Dragons** : dragon rouge (jeune, adulte)
 - **Vases** : gelée verte, cube gélatineux
 - **Vermines** : araignée géante, mille-pattes géant
+
+---
+
+## Phase 8: Tables de Trésors [TERMINÉE]
+
+### Fichiers créés
+- `data/treasure.json` - Tables de trésors A-U avec objets magiques
+- `internal/treasure/treasure.go` - Package génération de trésors
+- `cmd/treasure/main.go` - CLI complète
+- `.claude/skills/treasure-generator/SKILL.md` - Skill Claude Code
+
+### Fonctionnalités
+- 21 types de trésors (A-U) selon les règles BFRPG
+- Génération de pièces (cp, sp, ep, gp, pp)
+- Génération de gemmes (6 tiers de valeur)
+- Génération de bijoux (5 tiers de valeur)
+- Objets magiques : potions (10), parchemins (6), anneaux (5), armes (11), armures (7), baguettes (5), objets divers (10)
+- Probabilités configurables par type de trésor
+- Export Markdown et JSON
+
+### Usage
+```bash
+./sw-treasure generate R              # Trésor type R (Gobelin)
+./sw-treasure generate A              # Trésor type A (Dragon)
+./sw-treasure generate B --count=3    # 3 trésors type B
+./sw-treasure types                   # Liste des types A-U
+./sw-treasure info A                  # Probabilités du type A
+./sw-treasure items potions           # Liste des potions
+./sw-treasure items weapons           # Liste des armes magiques
+```
+
+### Types de Trésors
+| Type | Description | Exemple |
+|------|-------------|---------|
+| A-H | Trésors de repaire | Dragon, Ogre, Orc |
+| I-O | Trésors individuels | Garde, Mage |
+| P-U | Trésors mineurs | Gobelin, Paysan |
 
 ---
 
@@ -350,7 +388,8 @@ dungeons/
 │   │   ├── name-generator/      # Génération de noms
 │   │   ├── npc-generator/       # Génération de PNJ
 │   │   ├── image-generator/     # Génération d'images
-│   │   └── monster-manual/      # Bestiaire
+│   │   ├── monster-manual/      # Bestiaire
+│   │   └── treasure-generator/  # Génération de trésors
 │   └── agents/
 │       ├── dungeon-master.md    # Maître du Jeu
 │       ├── rules-keeper.md      # Gardien des règles
@@ -364,7 +403,8 @@ dungeons/
 │   ├── names/main.go            # CLI noms
 │   ├── npc/main.go              # CLI PNJ
 │   ├── image/main.go            # CLI images
-│   └── monster/main.go          # CLI bestiaire
+│   ├── monster/main.go          # CLI bestiaire
+│   └── treasure/main.go         # CLI trésors
 ├── internal/
 │   ├── dice/                    # Package dés
 │   ├── data/                    # Chargement JSON
@@ -373,7 +413,8 @@ dungeons/
 │   ├── names/                   # Package noms
 │   ├── npc/                     # Package PNJ
 │   ├── image/                   # Package images (fal.ai)
-│   └── monster/                 # Package bestiaire
+│   ├── monster/                 # Package bestiaire
+│   └── treasure/                # Package trésors
 ├── data/
 │   ├── races.json               # Données races BFRPG
 │   ├── classes.json             # Données classes BFRPG
@@ -381,6 +422,7 @@ dungeons/
 │   ├── names.json               # Dictionnaires de noms
 │   ├── npc-traits.json          # Traits de PNJ
 │   ├── monsters.json            # Bestiaire BFRPG
+│   ├── treasure.json            # Tables de trésors BFRPG
 │   ├── characters/              # Personnages sauvegardés
 │   ├── adventures/              # Aventures sauvegardées
 │   └── images/                  # Images générées
@@ -394,11 +436,10 @@ dungeons/
 
 | # | Amélioration | Description |
 |---|--------------|-------------|
-| 1 | **Générateur de trésors** | Tables de butin selon le niveau |
-| 2 | **Système de combat** | Résolution automatique des combats |
-| 3 | **Carte de donjon** | Génération procédurale de donjons |
-| 4 | **Progression de personnages** | Gestion XP et montée de niveau |
-| 5 | **Filtrage des traits par genre** | Éviter "moustache" pour les femmes dans le générateur de PNJ |
+| 1 | **Système de combat** | Résolution automatique des combats |
+| 2 | **Carte de donjon** | Génération procédurale de donjons |
+| 3 | **Progression de personnages** | Gestion XP et montée de niveau |
+| 4 | **Filtrage des traits par genre** | Éviter "moustache" pour les femmes dans le générateur de PNJ |
 
 ---
 

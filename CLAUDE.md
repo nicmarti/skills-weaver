@@ -1,8 +1,10 @@
-# Dungeons - Moteur de Jeu de Rôle avec Claude Code
+# SkillsWeaver - Moteur de Jeu de Rôle avec Claude Code
 
 ## Description
 
-Ce projet est un moteur de jeu de rôle interactif basé sur les règles de **Basic Fantasy RPG** (BFRPG), orchestré par Claude Code. Il utilise des skills et des sous-agents pour gérer les différentes mécaniques du jeu.
+**SkillsWeaver** est un moteur de jeu de rôle interactif basé sur les règles de **Basic Fantasy RPG** (BFRPG), orchestré par Claude Code. Il utilise des skills et des sous-agents pour gérer les différentes mécaniques du jeu.
+
+Le préfixe `sw-` identifie toutes les commandes CLI du projet.
 
 ## But du Projet
 
@@ -14,7 +16,7 @@ Créer une expérience de jeu de rôle complète où Claude Code agit comme :
 ## Structure du Projet
 
 ```
-dungeons/
+skillsweaver/
 ├── .claude/
 │   ├── skills/              # Skills Claude Code
 │   │   ├── dice-roller/     # Lancer de dés
@@ -23,19 +25,21 @@ dungeons/
 │   │   ├── name-generator/      # Génération de noms
 │   │   ├── npc-generator/       # Génération de PNJ
 │   │   ├── image-generator/     # Génération d'images
-│   │   └── monster-manual/      # Bestiaire
+│   │   ├── monster-manual/      # Bestiaire
+│   │   └── treasure-generator/  # Génération de trésors
 │   └── agents/              # Sous-agents spécialisés
 │       ├── character-creator.md
 │       ├── rules-keeper.md
 │       └── dungeon-master.md
 ├── cmd/
-│   ├── dice/                # CLI pour les dés
-│   ├── character/           # CLI pour les personnages
-│   ├── adventure/           # CLI pour les aventures
-│   ├── names/               # CLI pour les noms
-│   ├── npc/                 # CLI pour les PNJ
-│   ├── image/               # CLI pour les images
-│   └── monster/             # CLI pour le bestiaire
+│   ├── dice/                # CLI sw-dice
+│   ├── character/           # CLI sw-character
+│   ├── adventure/           # CLI sw-adventure
+│   ├── names/               # CLI sw-names
+│   ├── npc/                 # CLI sw-npc
+│   ├── image/               # CLI sw-image
+│   ├── monster/             # CLI sw-monster
+│   └── treasure/            # CLI sw-treasure
 ├── internal/
 │   ├── dice/                # Package lancer de dés
 │   ├── data/                # Chargement données JSON
@@ -44,11 +48,13 @@ dungeons/
 │   ├── names/               # Package génération de noms
 │   ├── npc/                 # Package génération de PNJ
 │   ├── image/               # Package génération d'images
-│   └── monster/             # Package bestiaire
+│   ├── monster/             # Package bestiaire
+│   └── treasure/            # Package trésors
 ├── data/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
 │   ├── monsters.json        # Bestiaire BFRPG
+│   ├── treasure.json        # Tables de trésors BFRPG
 │   ├── characters/          # Personnages sauvegardés
 │   ├── adventures/          # Aventures sauvegardées
 │   └── images/              # Images générées
@@ -58,207 +64,237 @@ dungeons/
 
 ## Outils Disponibles
 
-### CLI Dice
+### CLI sw-dice
 
 Lancer des dés avec notation standard RPG :
 
 ```bash
 # Compiler
-go build -o dice ./cmd/dice
+go build -o sw-dice ./cmd/dice
 
 # Utiliser
-./dice roll d20              # Lance 1d20
-./dice roll 2d6+3            # Lance 2d6, ajoute 3
-./dice roll 4d6kh3           # Lance 4d6, garde les 3 plus hauts
-./dice roll d20 --advantage  # Avantage (2d20, garde le plus haut)
-./dice stats                 # Génère 6 caractéristiques (4d6kh3)
-./dice stats --classic       # Méthode classique (3d6)
+./sw-dice roll d20              # Lance 1d20
+./sw-dice roll 2d6+3            # Lance 2d6, ajoute 3
+./sw-dice roll 4d6kh3           # Lance 4d6, garde les 3 plus hauts
+./sw-dice roll d20 --advantage  # Avantage (2d20, garde le plus haut)
+./sw-dice stats                 # Génère 6 caractéristiques (4d6kh3)
+./sw-dice stats --classic       # Méthode classique (3d6)
 ```
 
 ### Skill dice-roller
 
 La skill `dice-roller` permet à Claude de lancer des dés automatiquement pendant une session. Elle est découverte automatiquement quand on parle de jets de dés.
 
-### CLI Character
+### CLI sw-character
 
 Créer et gérer des personnages BFRPG :
 
 ```bash
 # Compiler
-go build -o character ./cmd/character
+go build -o sw-character ./cmd/character
 
 # Créer un personnage
-./character create "Aldric" --race=human --class=fighter
-./character create "Lyra" --race=elf --class=magic-user --method=classic
+./sw-character create "Aldric" --race=human --class=fighter
+./sw-character create "Lyra" --race=elf --class=magic-user --method=classic
 
 # Gérer
-./character list              # Liste tous les personnages
-./character show "Aldric"     # Affiche la fiche
-./character delete "Aldric"   # Supprime
-./character export "Aldric" --format=json
+./sw-character list              # Liste tous les personnages
+./sw-character show "Aldric"     # Affiche la fiche
+./sw-character delete "Aldric"   # Supprime
+./sw-character export "Aldric" --format=json
 ```
 
 ### Skill character-generator
 
 La skill `character-generator` permet à Claude de créer des personnages en guidant le joueur étape par étape.
 
-### CLI Adventure
+### CLI sw-adventure
 
 Gérer des aventures et campagnes BFRPG :
 
 ```bash
 # Compiler
-go build -o adventure ./cmd/adventure
+go build -o sw-adventure ./cmd/adventure
 
 # Créer une aventure
-./adventure create "La Mine Perdue" "Une aventure dans les montagnes"
+./sw-adventure create "La Mine Perdue" "Une aventure dans les montagnes"
 
 # Gérer le groupe
-./adventure add-character "La Mine Perdue" "Aldric"
-./adventure party "La Mine Perdue"
+./sw-adventure add-character "La Mine Perdue" "Aldric"
+./sw-adventure party "La Mine Perdue"
 
 # Sessions de jeu
-./adventure start-session "La Mine Perdue"
-./adventure log "La Mine Perdue" combat "Combat contre 3 gobelins"
-./adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
-./adventure end-session "La Mine Perdue" "Premier niveau exploré"
+./sw-adventure start-session "La Mine Perdue"
+./sw-adventure log "La Mine Perdue" combat "Combat contre 3 gobelins"
+./sw-adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
+./sw-adventure end-session "La Mine Perdue" "Premier niveau exploré"
 
 # Consulter
-./adventure status "La Mine Perdue"    # Statut complet
-./adventure journal "La Mine Perdue"   # Journal de l'aventure
-./adventure sessions "La Mine Perdue"  # Historique des sessions
-./adventure inventory "La Mine Perdue" # Inventaire partagé
+./sw-adventure status "La Mine Perdue"    # Statut complet
+./sw-adventure journal "La Mine Perdue"   # Journal de l'aventure
+./sw-adventure sessions "La Mine Perdue"  # Historique des sessions
+./sw-adventure inventory "La Mine Perdue" # Inventaire partagé
 ```
 
 ### Skill adventure-manager
 
 La skill `adventure-manager` permet à Claude de gérer les aventures, suivre les sessions et maintenir le journal automatique.
 
-### CLI Names
+### CLI sw-names
 
 Générer des noms de personnages fantasy :
 
 ```bash
 # Compiler
-go build -o names ./cmd/names
+go build -o sw-names ./cmd/names
 
 # Générer des noms par race
-./names generate dwarf                    # Nom de nain
-./names generate elf --gender=f           # Nom d'elfe féminin
-./names generate human --count=5          # 5 noms humains
-./names generate halfling --first-only    # Prénom de halfelin
+./sw-names generate dwarf                    # Nom de nain
+./sw-names generate elf --gender=f           # Nom d'elfe féminin
+./sw-names generate human --count=5          # 5 noms humains
+./sw-names generate halfling --first-only    # Prénom de halfelin
 
 # Générer des noms de PNJ
-./names npc innkeeper                     # Nom de tavernier
-./names npc merchant                      # Nom de marchand
-./names npc villain                       # Nom de méchant
+./sw-names npc innkeeper                     # Nom de tavernier
+./sw-names npc merchant                      # Nom de marchand
+./sw-names npc villain                       # Nom de méchant
 
 # Lister les options
-./names list                              # Toutes les options
+./sw-names list                              # Toutes les options
 ```
 
 ### Skill name-generator
 
 La skill `name-generator` permet à Claude de générer des noms pour les joueurs et les PNJ selon la race et le type.
 
-### CLI NPC
+### CLI sw-npc
 
 Générer des PNJ complets :
 
 ```bash
 # Compiler
-go build -o npc ./cmd/npc
+go build -o sw-npc ./cmd/npc
 
 # Générer un PNJ complet
-./npc generate                              # PNJ aléatoire
-./npc generate --race=dwarf --gender=m      # Nain masculin
-./npc generate --occupation=authority       # Figure d'autorité
-./npc generate --attitude=hostile           # PNJ hostile
+./sw-npc generate                              # PNJ aléatoire
+./sw-npc generate --race=dwarf --gender=m      # Nain masculin
+./sw-npc generate --occupation=authority       # Figure d'autorité
+./sw-npc generate --attitude=hostile           # PNJ hostile
 
 # Génération rapide
-./npc quick --count=5                       # 5 PNJ en une ligne
+./sw-npc quick --count=5                       # 5 PNJ en une ligne
 
 # Formats de sortie
-./npc generate --format=md                  # Markdown (défaut)
-./npc generate --format=json                # JSON
-./npc generate --format=short               # Une ligne
+./sw-npc generate --format=md                  # Markdown (défaut)
+./sw-npc generate --format=json                # JSON
+./sw-npc generate --format=short               # Une ligne
 ```
 
 ### Skill npc-generator
 
 La skill `npc-generator` permet à Claude de créer des PNJ complets avec apparence, personnalité, motivations et secrets.
 
-### CLI Image
+### CLI sw-image
 
 Générer des images heroic fantasy via fal.ai FLUX.1 :
 
 ```bash
 # Compiler
-go build -o image ./cmd/image
+go build -o sw-image ./cmd/image
 
 # Prérequis: variable d'environnement FAL_KEY
 export FAL_KEY="votre_clé_fal_ai"
 
 # Portrait de personnage existant
-./image character "Aldric" --style=epic
+./sw-image character "Aldric" --style=epic
 
 # Portrait de PNJ
-./image npc --race=dwarf --gender=m --occupation=skilled
+./sw-image npc --race=dwarf --gender=m --occupation=skilled
 
 # Scène d'aventure
-./image scene "Combat contre des gobelins" --type=battle
+./sw-image scene "Combat contre des gobelins" --type=battle
 
 # Monstre
-./image monster dragon --style=dark_fantasy
+./sw-image monster dragon --style=dark_fantasy
 
 # Objet magique
-./image item weapon "épée flamboyante"
+./sw-image item weapon "épée flamboyante"
 
 # Lieu
-./image location dungeon "Les Mines Perdues"
+./sw-image location dungeon "Les Mines Perdues"
 
 # Prompt personnalisé
-./image custom "Un groupe d'aventuriers dans une taverne"
+./sw-image custom "Un groupe d'aventuriers dans une taverne"
 
 # Lister les options
-./image list
+./sw-image list
 ```
 
 ### Skill image-generator
 
 La skill `image-generator` permet à Claude de générer des illustrations fantasy pour enrichir l'expérience de jeu : portraits, scènes, monstres, objets et lieux.
 
-### CLI Monster
+### CLI sw-monster
 
 Consulter le bestiaire et générer des rencontres :
 
 ```bash
 # Compiler
-go build -o monster ./cmd/monster
+go build -o sw-monster ./cmd/monster
 
 # Consulter un monstre
-./monster show goblin              # Fiche complète
-./monster show dragon_red_adult    # Dragon rouge adulte
-./monster search undead            # Recherche par type
+./sw-monster show goblin              # Fiche complète
+./sw-monster show dragon_red_adult    # Dragon rouge adulte
+./sw-monster search undead            # Recherche par type
 
 # Lister les monstres
-./monster list                     # Tous les monstres
-./monster list --type=humanoid    # Par type
-./monster types                    # Types disponibles
+./sw-monster list                     # Tous les monstres
+./sw-monster list --type=humanoid    # Par type
+./sw-monster types                    # Types disponibles
 
 # Générer une rencontre
-./monster encounter dungeon_level_1  # Niveau 1
-./monster encounter --level=3        # Par niveau de groupe
-./monster encounter forest           # En forêt
+./sw-monster encounter dungeon_level_1  # Niveau 1
+./sw-monster encounter --level=3        # Par niveau de groupe
+./sw-monster encounter forest           # En forêt
 
 # Créer des ennemis avec PV
-./monster roll orc --count=4       # 4 orcs avec PV aléatoires
-./monster roll goblin --count=6    # 6 gobelins
+./sw-monster roll orc --count=4       # 4 orcs avec PV aléatoires
+./sw-monster roll goblin --count=6    # 6 gobelins
 ```
 
 ### Skill monster-manual
 
 La skill `monster-manual` permet à Claude de consulter les stats des monstres et générer des rencontres équilibrées pendant les sessions de jeu.
+
+### CLI sw-treasure
+
+Générer des trésors selon les tables BFRPG :
+
+```bash
+# Compiler
+go build -o sw-treasure ./cmd/treasure
+
+# Générer un trésor
+./sw-treasure generate R              # Trésor type R (Gobelin)
+./sw-treasure generate A              # Trésor type A (Dragon)
+./sw-treasure generate B --count=3    # 3 trésors type B
+
+# Lister les types de trésors
+./sw-treasure types                   # Tous les types A-U
+
+# Détails d'un type
+./sw-treasure info A                  # Probabilités du type A
+
+# Lister les objets magiques
+./sw-treasure items                   # Catégories disponibles
+./sw-treasure items potions           # Toutes les potions
+./sw-treasure items weapons           # Armes magiques
+./sw-treasure items armor             # Armures magiques
+```
+
+### Skill treasure-generator
+
+La skill `treasure-generator` permet à Claude de générer des trésors appropriés après les combats, en respectant les types de trésors assignés aux monstres.
 
 ## Sous-Agents Spécialisés
 
@@ -271,7 +307,7 @@ Guide interactif pour créer des personnages étape par étape. Explique les rac
 Référence rapide des règles BFRPG. Répond aux questions sur le combat, la magie, les jets de sauvegarde et arbitre les situations.
 
 ### dungeon-master
-Maître du Jeu complet. Narration immersive, gestion des rencontres, incarnation des PNJ, et tracking automatique via les commandes adventure.
+Maître du Jeu complet. Narration immersive, gestion des rencontres, incarnation des PNJ, et tracking automatique via les commandes sw-adventure.
 
 ## Règles BFRPG
 
@@ -296,8 +332,15 @@ Maître du Jeu complet. Narration immersive, gestion des rencontres, incarnation
 ## Commandes de Développement
 
 ```bash
-# Compiler tout
-go build ./...
+# Compiler tous les outils SkillsWeaver
+go build -o sw-dice ./cmd/dice
+go build -o sw-character ./cmd/character
+go build -o sw-adventure ./cmd/adventure
+go build -o sw-names ./cmd/names
+go build -o sw-npc ./cmd/npc
+go build -o sw-image ./cmd/image
+go build -o sw-monster ./cmd/monster
+go build -o sw-treasure ./cmd/treasure
 
 # Lancer les tests
 go test ./...
@@ -325,6 +368,7 @@ Voir `ai/PLAN.md` pour le plan détaillé avec les phases :
 7. **Phase 5** : Générateur de PNJ [TERMINEE]
 8. **Phase 6** : Générateur d'images [TERMINEE]
 9. **Phase 7** : Bestiaire BFRPG [TERMINEE]
+10. **Phase 8** : Tables de trésors [TERMINEE]
 
 ## Ressources
 

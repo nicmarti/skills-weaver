@@ -12,16 +12,16 @@ Skill pour consulter les statistiques des monstres, générer des rencontres al�
 
 ```bash
 # Compiler si nécessaire
-go build -o monster ./cmd/monster
+go build -o sw-monster ./cmd/monster
 
 # Consulter un monstre
-./monster show goblin
+./sw-monster show goblin
 
 # Générer une rencontre
-./monster encounter dungeon_level_1
+./sw-monster encounter dungeon_level_1
 
 # Créer des ennemis avec PV
-./monster roll orc --count=4
+./sw-monster roll orc --count=4
 ```
 
 ## Commandes Disponibles
@@ -29,61 +29,61 @@ go build -o monster ./cmd/monster
 ### Afficher un Monstre
 
 ```bash
-./monster show <id>
+./sw-monster show <id>
 
 # Exemples:
-./monster show goblin           # Fiche complète du gobelin
-./monster show dragon_red_adult # Dragon rouge adulte
-./monster show --format=json    # Format JSON
-./monster show --format=short   # Une ligne
+./sw-monster show goblin           # Fiche complète du gobelin
+./sw-monster show dragon_red_adult # Dragon rouge adulte
+./sw-monster show --format=json    # Format JSON
+./sw-monster show --format=short   # Une ligne
 ```
 
 ### Rechercher des Monstres
 
 ```bash
-./monster search <terme>
+./sw-monster search <terme>
 
 # Exemples:
-./monster search dragon         # Tous les dragons
-./monster search mort           # Morts-vivants (par nom FR)
-./monster search undead         # Morts-vivants (par type)
+./sw-monster search dragon         # Tous les dragons
+./sw-monster search mort           # Morts-vivants (par nom FR)
+./sw-monster search undead         # Morts-vivants (par type)
 ```
 
 ### Lister les Monstres
 
 ```bash
-./monster list                  # Tous les monstres
-./monster list --type=undead    # Par type
-./monster list --type=humanoid  # Humanoïdes seulement
+./sw-monster list                  # Tous les monstres
+./sw-monster list --type=undead    # Par type
+./sw-monster list --type=humanoid  # Humanoïdes seulement
 ```
 
 ### Générer une Rencontre
 
 ```bash
-./monster encounter <table>
-./monster encounter --level=<N>
+./sw-monster encounter <table>
+./sw-monster encounter --level=<N>
 
 # Tables disponibles:
-./monster encounter dungeon_level_1    # Niveau 1 (faible)
-./monster encounter dungeon_level_2    # Niveau 2 (modéré)
-./monster encounter dungeon_level_3    # Niveau 3 (élevé)
-./monster encounter dungeon_level_4    # Niveau 4+ (très élevé)
-./monster encounter forest             # Forêt
-./monster encounter undead_crypt       # Crypte
+./sw-monster encounter dungeon_level_1    # Niveau 1 (faible)
+./sw-monster encounter dungeon_level_2    # Niveau 2 (modéré)
+./sw-monster encounter dungeon_level_3    # Niveau 3 (élevé)
+./sw-monster encounter dungeon_level_4    # Niveau 4+ (très élevé)
+./sw-monster encounter forest             # Forêt
+./sw-monster encounter undead_crypt       # Crypte
 
 # Par niveau de groupe:
-./monster encounter --level=3          # Pour groupe niveau 3
+./sw-monster encounter --level=3          # Pour groupe niveau 3
 ```
 
 ### Créer des Monstres avec PV
 
 ```bash
-./monster roll <id> --count=N
+./sw-monster roll <id> --count=N
 
 # Exemples:
-./monster roll goblin --count=6    # 6 gobelins
-./monster roll skeleton --count=4  # 4 squelettes
-./monster roll troll               # 1 troll
+./sw-monster roll goblin --count=6    # 6 gobelins
+./sw-monster roll skeleton --count=4  # 4 squelettes
+./sw-monster roll troll               # 1 troll
 ```
 
 ## Types de Monstres
@@ -172,13 +172,13 @@ go build -o monster ./cmd/monster
 
 ```bash
 # Générer une rencontre
-./monster encounter forest
+./sw-monster encounter forest
 
 # Logger le combat
-./adventure log "Mon Aventure" combat "Embuscade de 3 loups"
+./sw-adventure log "Mon Aventure" combat "Embuscade de 3 loups"
 
 # Après victoire, ajouter l'XP et le butin
-./adventure add-gold "Mon Aventure" 25 "Trésor des loups"
+./sw-adventure add-gold "Mon Aventure" 25 "Trésor des loups"
 ```
 
 ## Conseils d'Utilisation
@@ -186,24 +186,24 @@ go build -o monster ./cmd/monster
 ### Pour préparer un combat
 ```bash
 # 1. Générer la rencontre
-./monster encounter dungeon_level_2
+./sw-monster encounter dungeon_level_2
 
 # 2. Ou créer des monstres spécifiques
-./monster roll orc --count=3
+./sw-monster roll orc --count=3
 ```
 
 ### Pour consulter rapidement
 ```bash
 # Stats en une ligne
-./monster show goblin --format=short
+./sw-monster show goblin --format=short
 # Gobelin (humanoid) - CA 14, DV 1d8-1 (3 PV), XP 10
 ```
 
 ### Pour un boss
 ```bash
-./monster show troll
-./monster show dragon_red_adult
-./monster show lich
+./sw-monster show troll
+./sw-monster show dragon_red_adult
+./sw-monster show lich
 ```
 
 ## Tables de Rencontres

@@ -46,24 +46,24 @@ Utilise les commandes pour tracker la progression :
 
 ```bash
 # Démarrer/terminer une session
-./adventure start-session "Aventure"
-./adventure end-session "Aventure" "Résumé"
+./sw-adventure start-session "Aventure"
+./sw-adventure end-session "Aventure" "Résumé"
 
 # Logger les événements importants
-./adventure log "Aventure" story "Description de l'événement"
-./adventure log "Aventure" combat "Résultat du combat"
-./adventure log "Aventure" loot "Trésor trouvé"
-./adventure log "Aventure" quest "Nouvelle quête"
-./adventure log "Aventure" npc "Rencontre avec PNJ"
+./sw-adventure log "Aventure" story "Description de l'événement"
+./sw-adventure log "Aventure" combat "Résultat du combat"
+./sw-adventure log "Aventure" loot "Trésor trouvé"
+./sw-adventure log "Aventure" quest "Nouvelle quête"
+./sw-adventure log "Aventure" npc "Rencontre avec PNJ"
 
 # Gérer le butin
-./adventure add-gold "Aventure" <montant> "Source"
-./adventure add-item "Aventure" "Nom" <quantité>
+./sw-adventure add-gold "Aventure" <montant> "Source"
+./sw-adventure add-item "Aventure" "Nom" <quantité>
 
 # Consulter l'état
-./adventure status "Aventure"
-./adventure party "Aventure"
-./adventure inventory "Aventure"
+./sw-adventure status "Aventure"
+./sw-adventure party "Aventure"
+./sw-adventure inventory "Aventure"
 ```
 
 ### 4. Jets de Dés
@@ -72,19 +72,19 @@ Effectue les jets nécessaires :
 
 ```bash
 # Initiative
-./dice roll 1d6
+./sw-dice roll 1d6
 
 # Attaque
-./dice roll d20+<bonus>
+./sw-dice roll d20+<bonus>
 
 # Dégâts
-./dice roll <dés>+<bonus>
+./sw-dice roll <dés>+<bonus>
 
 # Jets de sauvegarde
-./dice roll d20
+./sw-dice roll d20
 
 # Rencontre aléatoire
-./dice roll d6
+./sw-dice roll d6
 ```
 
 ## Tables de Référence
@@ -191,7 +191,7 @@ Que faites-vous ?
 
 Joueur (Aldric): J'avance prudemment en surveillant le sol pour des pièges.
 
-MJ: [./dice roll d20] Aldric, tu examines le sol... Avec 15, tu remarques
+MJ: [./sw-dice roll d20] Aldric, tu examines le sol... Avec 15, tu remarques
 une dalle légèrement différente à trois pas devant toi. Un piège probable.
 
 La porte sur ta gauche est entrouverte. Tu entends un grattement derrière.
@@ -203,10 +203,10 @@ MJ: Noté. Aldric, tu veux contourner la dalle piégée et ouvrir la porte ?
 
 ## Intégration avec le Système
 
-- Utilise `./adventure log` pour les événements importants
-- Mets à jour l'inventaire avec `./adventure add-gold` et `./adventure add-item`
-- Consulte `./adventure party` pour les stats des PJ
-- Termine chaque session avec `./adventure end-session` et un résumé
+- Utilise `./sw-adventure log` pour les événements importants
+- Mets à jour l'inventaire avec `./sw-adventure add-gold` et `./sw-adventure add-item`
+- Consulte `./sw-adventure party` pour les stats des PJ
+- Termine chaque session avec `./sw-adventure end-session` et un résumé
 
 ## Ressources
 

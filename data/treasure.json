@@ -1,0 +1,288 @@
+{
+  "coin_types": [
+    {"id": "cp", "name": "Copper Pieces", "name_fr": "Pièces de cuivre", "value": 1},
+    {"id": "sp", "name": "Silver Pieces", "name_fr": "Pièces d'argent", "value": 10},
+    {"id": "ep", "name": "Electrum Pieces", "name_fr": "Pièces d'électrum", "value": 50},
+    {"id": "gp", "name": "Gold Pieces", "name_fr": "Pièces d'or", "value": 100},
+    {"id": "pp", "name": "Platinum Pieces", "name_fr": "Pièces de platine", "value": 500}
+  ],
+  "gem_values": [
+    {"value": 10, "examples": ["Agate", "Quartz", "Turquoise", "Obsidienne"]},
+    {"value": 50, "examples": ["Cornaline", "Onyx", "Jaspe", "Pierre de lune"]},
+    {"value": 100, "examples": ["Ambre", "Améthyste", "Corail", "Jade", "Grenat"]},
+    {"value": 500, "examples": ["Topaze", "Perle noire", "Opale", "Saphir étoilé"]},
+    {"value": 1000, "examples": ["Émeraude", "Rubis", "Saphir", "Diamant"]},
+    {"value": 5000, "examples": ["Diamant noir", "Rubis étoilé", "Saphir parfait"]}
+  ],
+  "jewelry_values": [
+    {"min": 100, "max": 600, "examples": ["Anneau en argent", "Bracelet simple", "Broche en cuivre"]},
+    {"min": 700, "max": 1200, "examples": ["Collier d'or", "Bracelet serti", "Boucles d'oreilles"]},
+    {"min": 1300, "max": 2000, "examples": ["Tiare", "Pendentif précieux", "Chaîne d'or massif"]},
+    {"min": 2100, "max": 4000, "examples": ["Couronne", "Collier de perles", "Broche royale"]},
+    {"min": 4100, "max": 8000, "examples": ["Diadème serti", "Parure complète", "Sceptre orné"]}
+  ],
+  "magic_item_tables": {
+    "any": {
+      "description": "Objet magique aléatoire",
+      "items": [
+        {"type": "potion", "weight": 25},
+        {"type": "scroll", "weight": 15},
+        {"type": "ring", "weight": 10},
+        {"type": "wand", "weight": 10},
+        {"type": "misc", "weight": 15},
+        {"type": "armor", "weight": 10},
+        {"type": "weapon", "weight": 15}
+      ]
+    }
+  },
+  "potions": [
+    {"id": "healing", "name_fr": "Potion de soins", "effect": "Restaure 1d6+1 PV", "value": 50},
+    {"id": "extra_healing", "name_fr": "Potion de soins supérieurs", "effect": "Restaure 2d6+2 PV", "value": 150},
+    {"id": "speed", "name_fr": "Potion de vitesse", "effect": "Double le mouvement pendant 1d4+4 tours", "value": 200},
+    {"id": "invisibility", "name_fr": "Potion d'invisibilité", "effect": "Invisible pendant 6 tours", "value": 250},
+    {"id": "strength", "name_fr": "Potion de force de géant", "effect": "+2d4 FOR pendant 1 heure", "value": 300},
+    {"id": "flying", "name_fr": "Potion de vol", "effect": "Vol (mouvement 40) pendant 1d4 heures", "value": 350},
+    {"id": "poison", "name_fr": "Poison", "effect": "Jet de sauvegarde ou mort", "value": 100},
+    {"id": "gaseous_form", "name_fr": "Potion de forme gazeuse", "effect": "Forme gazeuse pendant 1d4+4 tours", "value": 200},
+    {"id": "growth", "name_fr": "Potion de croissance", "effect": "Double la taille pendant 2d6 tours", "value": 150},
+    {"id": "diminution", "name_fr": "Potion de diminution", "effect": "Réduit à 15cm pendant 2d6 tours", "value": 150}
+  ],
+  "scrolls": [
+    {"id": "protection_undead", "name_fr": "Parchemin de protection contre les morts-vivants", "value": 100},
+    {"id": "protection_lycanthropes", "name_fr": "Parchemin de protection contre les lycanthropes", "value": 100},
+    {"id": "spell_1", "name_fr": "Parchemin de sort (niveau 1)", "value": 100},
+    {"id": "spell_2", "name_fr": "Parchemin de sort (niveau 2)", "value": 200},
+    {"id": "spell_3", "name_fr": "Parchemin de sort (niveau 3)", "value": 300},
+    {"id": "treasure_map", "name_fr": "Carte au trésor", "value": 0}
+  ],
+  "rings": [
+    {"id": "protection_1", "name_fr": "Anneau de protection +1", "effect": "+1 CA et sauvegardes", "value": 2000},
+    {"id": "protection_2", "name_fr": "Anneau de protection +2", "effect": "+2 CA et sauvegardes", "value": 4000},
+    {"id": "invisibility", "name_fr": "Anneau d'invisibilité", "effect": "Invisibilité à volonté", "value": 5000},
+    {"id": "fire_resistance", "name_fr": "Anneau de résistance au feu", "effect": "Immunité au feu normal, +2 sauvegarde feu magique", "value": 3000},
+    {"id": "spell_storing", "name_fr": "Anneau de stockage de sorts", "effect": "Stocke jusqu'à 3 niveaux de sorts", "value": 4000}
+  ],
+  "weapons": [
+    {"id": "sword_1", "name_fr": "Épée +1", "bonus": 1, "value": 1000},
+    {"id": "sword_2", "name_fr": "Épée +2", "bonus": 2, "value": 3000},
+    {"id": "sword_3", "name_fr": "Épée +3", "bonus": 3, "value": 6000},
+    {"id": "sword_flaming", "name_fr": "Épée ardente +1", "bonus": 1, "special": "+1d6 feu", "value": 4000},
+    {"id": "sword_frost", "name_fr": "Épée de givre +1", "bonus": 1, "special": "+1d6 froid", "value": 4000},
+    {"id": "dagger_1", "name_fr": "Dague +1", "bonus": 1, "value": 500},
+    {"id": "dagger_2", "name_fr": "Dague +2", "bonus": 2, "value": 1500},
+    {"id": "axe_1", "name_fr": "Hache +1", "bonus": 1, "value": 1000},
+    {"id": "mace_1", "name_fr": "Masse +1", "bonus": 1, "value": 1000},
+    {"id": "bow_1", "name_fr": "Arc +1", "bonus": 1, "value": 1000},
+    {"id": "arrows_1", "name_fr": "Flèches +1 (x10)", "bonus": 1, "value": 200}
+  ],
+  "armor": [
+    {"id": "leather_1", "name_fr": "Armure de cuir +1", "bonus": 1, "value": 1000},
+    {"id": "chain_1", "name_fr": "Cotte de mailles +1", "bonus": 1, "value": 2000},
+    {"id": "chain_2", "name_fr": "Cotte de mailles +2", "bonus": 2, "value": 5000},
+    {"id": "plate_1", "name_fr": "Armure de plates +1", "bonus": 1, "value": 3000},
+    {"id": "plate_2", "name_fr": "Armure de plates +2", "bonus": 2, "value": 7000},
+    {"id": "shield_1", "name_fr": "Bouclier +1", "bonus": 1, "value": 500},
+    {"id": "shield_2", "name_fr": "Bouclier +2", "bonus": 2, "value": 1500}
+  ],
+  "wands": [
+    {"id": "magic_missiles", "name_fr": "Baguette de projectiles magiques", "charges": "2d10", "value": 3000},
+    {"id": "paralysis", "name_fr": "Baguette de paralysie", "charges": "2d10", "value": 4000},
+    {"id": "cold", "name_fr": "Baguette de froid", "charges": "2d10", "value": 5000},
+    {"id": "lightning", "name_fr": "Baguette d'éclairs", "charges": "2d10", "value": 5000},
+    {"id": "fear", "name_fr": "Baguette de peur", "charges": "2d10", "value": 3000}
+  ],
+  "misc_items": [
+    {"id": "bag_holding", "name_fr": "Sac sans fond", "effect": "Contient jusqu'à 500 kg", "value": 5000},
+    {"id": "boots_speed", "name_fr": "Bottes de vitesse", "effect": "Double le mouvement", "value": 3000},
+    {"id": "boots_levitation", "name_fr": "Bottes de lévitation", "effect": "Lévitation à volonté", "value": 3000},
+    {"id": "cloak_displacement", "name_fr": "Cape de déplacement", "effect": "-2 aux jets d'attaque contre le porteur", "value": 4000},
+    {"id": "cloak_protection", "name_fr": "Cape de protection +1", "effect": "+1 CA et sauvegardes", "value": 2000},
+    {"id": "gauntlets_strength", "name_fr": "Gantelets de force d'ogre", "effect": "FOR 18", "value": 4000},
+    {"id": "helm_telepathy", "name_fr": "Casque de télépathie", "effect": "Lire les pensées 1/jour", "value": 3000},
+    {"id": "rope_climbing", "name_fr": "Corde d'escalade", "effect": "S'anime et grimpe sur commande", "value": 1000},
+    {"id": "lantern_revealing", "name_fr": "Lanterne révélatrice", "effect": "Révèle l'invisible dans 10m", "value": 2000},
+    {"id": "mirror_life_trapping", "name_fr": "Miroir d'emprisonnement", "effect": "Emprisonne les créatures regardant", "value": 5000}
+  ],
+  "treasure_types": {
+    "A": {
+      "description": "Trésor de repaire majeur (ex: Dragon)",
+      "coins": [
+        {"type": "cp", "chance": 25, "amount": "1d6x1000"},
+        {"type": "sp", "chance": 30, "amount": "1d6x1000"},
+        {"type": "ep", "chance": 20, "amount": "1d4x1000"},
+        {"type": "gp", "chance": 35, "amount": "2d6x1000"},
+        {"type": "pp", "chance": 25, "amount": "1d2x1000"}
+      ],
+      "gems": {"chance": 50, "amount": "6d6"},
+      "jewelry": {"chance": 50, "amount": "6d6"},
+      "magic": {"chance": 30, "items": 3}
+    },
+    "B": {
+      "description": "Trésor de repaire moyen (ex: Ogre)",
+      "coins": [
+        {"type": "cp", "chance": 50, "amount": "1d8x1000"},
+        {"type": "sp", "chance": 25, "amount": "1d6x1000"},
+        {"type": "ep", "chance": 25, "amount": "1d4x1000"},
+        {"type": "gp", "chance": 25, "amount": "1d3x1000"}
+      ],
+      "gems": {"chance": 25, "amount": "1d6"},
+      "jewelry": {"chance": 25, "amount": "1d6"},
+      "magic": {"chance": 10, "items": 1}
+    },
+    "C": {
+      "description": "Trésor de repaire petit (ex: Orc)",
+      "coins": [
+        {"type": "cp", "chance": 20, "amount": "1d12x1000"},
+        {"type": "sp", "chance": 30, "amount": "1d4x1000"},
+        {"type": "ep", "chance": 10, "amount": "1d4x1000"}
+      ],
+      "gems": {"chance": 25, "amount": "1d4"},
+      "jewelry": {"chance": 25, "amount": "1d4"},
+      "magic": {"chance": 10, "items": 2}
+    },
+    "D": {
+      "description": "Trésor de repaire (ex: Hobgobelin)",
+      "coins": [
+        {"type": "cp", "chance": 10, "amount": "1d8x1000"},
+        {"type": "sp", "chance": 15, "amount": "1d12x1000"},
+        {"type": "gp", "chance": 60, "amount": "1d6x1000"}
+      ],
+      "gems": {"chance": 30, "amount": "1d8"},
+      "jewelry": {"chance": 30, "amount": "1d8"},
+      "magic": {"chance": 15, "items": 2}
+    },
+    "E": {
+      "description": "Trésor de repaire (ex: Gnoll)",
+      "coins": [
+        {"type": "cp", "chance": 5, "amount": "1d10x1000"},
+        {"type": "sp", "chance": 30, "amount": "1d12x1000"},
+        {"type": "ep", "chance": 25, "amount": "1d4x1000"},
+        {"type": "gp", "chance": 25, "amount": "1d8x1000"}
+      ],
+      "gems": {"chance": 10, "amount": "1d10"},
+      "jewelry": {"chance": 10, "amount": "1d10"},
+      "magic": {"chance": 25, "items": 3}
+    },
+    "F": {
+      "description": "Trésor de repaire (ex: Vampire)",
+      "coins": [
+        {"type": "sp", "chance": 10, "amount": "2d10x1000"},
+        {"type": "ep", "chance": 20, "amount": "1d8x1000"},
+        {"type": "gp", "chance": 45, "amount": "1d12x1000"},
+        {"type": "pp", "chance": 30, "amount": "1d3x1000"}
+      ],
+      "gems": {"chance": 20, "amount": "2d12"},
+      "jewelry": {"chance": 10, "amount": "1d12"},
+      "magic": {"chance": 30, "items": 3, "no_weapons": true}
+    },
+    "G": {
+      "description": "Trésor de repaire (ex: Nain)",
+      "coins": [
+        {"type": "gp", "chance": 50, "amount": "1d4x10000"},
+        {"type": "pp", "chance": 50, "amount": "1d6x1000"}
+      ],
+      "gems": {"chance": 25, "amount": "3d6"},
+      "jewelry": {"chance": 25, "amount": "1d10"},
+      "magic": {"chance": 35, "items": 4}
+    },
+    "H": {
+      "description": "Trésor de repaire majeur (ex: Dragon ancien)",
+      "coins": [
+        {"type": "cp", "chance": 25, "amount": "3d8x1000"},
+        {"type": "sp", "chance": 50, "amount": "1d100x1000"},
+        {"type": "ep", "chance": 50, "amount": "1d4x10000"},
+        {"type": "gp", "chance": 50, "amount": "1d6x10000"},
+        {"type": "pp", "chance": 25, "amount": "5d4x1000"}
+      ],
+      "gems": {"chance": 50, "amount": "1d100"},
+      "jewelry": {"chance": 50, "amount": "1d4x10"},
+      "magic": {"chance": 15, "items": 4}
+    },
+    "I": {
+      "description": "Trésor individuel (ex: Garde)",
+      "coins": [
+        {"type": "pp", "chance": 30, "amount": "1d8"}
+      ],
+      "gems": {"chance": 50, "amount": "2d6"},
+      "jewelry": {"chance": 50, "amount": "2d6"},
+      "magic": {"chance": 15, "items": 1}
+    },
+    "J": {
+      "description": "Trésor individuel mineur",
+      "coins": [
+        {"type": "cp", "chance": 25, "amount": "1d4"}
+      ]
+    },
+    "K": {
+      "description": "Trésor individuel mineur",
+      "coins": [
+        {"type": "sp", "chance": 30, "amount": "1d6"}
+      ]
+    },
+    "L": {
+      "description": "Trésor individuel",
+      "gems": {"chance": 50, "amount": "1d4"}
+    },
+    "M": {
+      "description": "Trésor individuel",
+      "coins": [
+        {"type": "gp", "chance": 40, "amount": "2d4"}
+      ],
+      "gems": {"chance": 45, "amount": "5d4"},
+      "jewelry": {"chance": 55, "amount": "2d6"}
+    },
+    "N": {
+      "description": "Trésor individuel",
+      "potions": {"chance": 40, "amount": "2d4"}
+    },
+    "O": {
+      "description": "Trésor individuel",
+      "scrolls": {"chance": 50, "amount": "1d4"}
+    },
+    "P": {
+      "description": "Trésor individuel pauvre",
+      "coins": [
+        {"type": "cp", "chance": 100, "amount": "4d6"}
+      ]
+    },
+    "Q": {
+      "description": "Trésor individuel pauvre",
+      "coins": [
+        {"type": "sp", "chance": 100, "amount": "3d6"}
+      ]
+    },
+    "R": {
+      "description": "Trésor individuel (ex: Gobelin)",
+      "coins": [
+        {"type": "cp", "chance": 100, "amount": "2d6"},
+        {"type": "sp", "chance": 45, "amount": "2d4"},
+        {"type": "ep", "chance": 25, "amount": "1d4"}
+      ]
+    },
+    "S": {
+      "description": "Trésor individuel",
+      "coins": [
+        {"type": "sp", "chance": 40, "amount": "2d4"},
+        {"type": "gp", "chance": 50, "amount": "1d4"}
+      ]
+    },
+    "T": {
+      "description": "Trésor individuel",
+      "coins": [
+        {"type": "gp", "chance": 50, "amount": "1d6"},
+        {"type": "pp", "chance": 25, "amount": "1d2"}
+      ]
+    },
+    "U": {
+      "description": "Trésor unique",
+      "coins": [
+        {"type": "cp", "chance": 10, "amount": "1d100"},
+        {"type": "sp", "chance": 10, "amount": "1d100"},
+        {"type": "gp", "chance": 5, "amount": "1d100"}
+      ],
+      "gems": {"chance": 5, "amount": "1d4"},
+      "jewelry": {"chance": 5, "amount": "1d4"},
+      "magic": {"chance": 2, "items": 1}
+    }
+  }
+}

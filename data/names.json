@@ -1,0 +1,322 @@
+{
+  "dwarf": {
+    "male": {
+      "first": [
+        "Herdol", "Besdreag", "Gruzmolin", "Lustreak", "Brarneac", "Barram", "Thardramri",
+        "Yurdaec", "Wetgraer", "Houtmug", "Kikdrouth", "Toresomli", "Grafrir", "Datot",
+        "Heznin", "Grunden", "Moggot", "Wemmuk", "Dergrour", "Nuramnomi", "Gaghuk",
+        "Grurdous", "Snadmad", "Dourdrok", "Dwoddorlim", "Mugrek", "Vosgrir", "Tumarlug",
+        "Huddick", "Dudgrath", "Gratrunli", "Thibarlum", "Dhoggik", "Thadgrut", "Thedmaen",
+        "Randrumlin", "Havack", "Thralmaed", "Rudmoid", "Gidmeath", "Thuddarlun", "Doraldroic",
+        "Duzzorli", "Bramoick", "Nefoli", "Hongrak", "Skozoir", "Kakgrok", "Alfostrolim",
+        "Thedmarlig", "Thonmug", "Werarnuli", "Nurakrig", "Erimrarlum", "Hezorlug", "Glagrin",
+        "Noseck", "Aravren", "Rumdor", "Hostour", "Thiddit", "Berhoum", "Bokhaek", "Jarfarlum",
+        "Doundroug", "Hommumri", "Throkurum", "Barizarlun", "Broudrouck", "Bammol", "Gisdrut",
+        "Brutgruri", "Helgumi", "Whuteac", "Erimmear", "Huback", "Kufroun", "Kramatir",
+        "Duristroli", "Nemraet", "Nossolin", "Navarlun", "Gloridmig", "Thuznumir", "Brurirlum",
+        "Dessorlum", "Strozzunri", "Turner", "Bukdrumin", "Helulim", "Alfostorlun", "Sithoud",
+        "Sadmear", "Fonorlun", "Whurmatir", "Grakgroid", "Khousol", "Hosgrarlug", "Gloriznarlug",
+        "Elmaes", "Thorin", "Balin", "Dwalin", "Gimli", "Gloin", "Oin", "Dori", "Nori", "Ori"
+      ],
+      "last": [
+        "Giantguard", "Shadowchest", "Ironmace", "Sapphireriver", "Grumblebasher", "Oakbringer",
+        "Oremaster", "Grimhand", "Minebringer", "Broadstone", "Silversunder", "Shatterbringer",
+        "Merrychin", "Metalbender", "Grayhorn", "Browndigger", "Twilightbrew", "Blessedgranite",
+        "Amberarm", "Chaosbrewer", "Nightaxe", "Blazingforge", "Windbraids", "Giantpike",
+        "Bloodriver", "Ironsword", "Bottlebane", "Wyvernmail", "Cragforge", "Hornchest",
+        "Magmafall", "Coinbender", "Goldenstone", "Nightshield", "Oakenspine", "Bluntback",
+        "Chaosguard", "Bronzebender", "Lavahorn", "Minedelver", "Koboldtoe", "Metalbreaker",
+        "Hornarm", "Flintmane", "Broadfinger", "Opalshaper", "Keghelm", "Silverbuster",
+        "Dragonthane", "Heavyshaper", "Wraithbelly", "Lightbrand", "Thunderbelt", "Cointoe",
+        "Leatherbringer", "Ironmaster", "Cavemace", "Platebrow", "Whitmaster", "Mithrilthane",
+        "Bluntbuckle", "Kragmaul", "Battlemaul", "Anvilpike", "Drakecoat", "Coalchin",
+        "Greatborn", "Wyvernhand", "Graniteaxe", "Chainstone", "Brickhorn", "Magmahorn",
+        "Coinfury", "Brewfeet", "Leatherpike", "Pebblearm", "Goldencloak", "Koboldbeard",
+        "Darkthane", "Blackflayer", "Ambermaker", "Bottlefeet", "Onyxtoe", "Bronzemail",
+        "Ashstone", "Mithrilguard", "Windgut", "Sapphireshield", "Bluntbeard", "Fieryarmour",
+        "Deepmane", "Brickbender", "Smeltpike", "Granitebasher", "Shatterbraid", "Hornfury",
+        "Frostbranch", "Grimgut", "Grayview", "Ironfoot", "Stonehelm", "Battlehammer"
+      ]
+    },
+    "female": {
+      "first": [
+        "Grobrogith", "Grariren", "Gromdorika", "Thrarnorra", "Varseatrud", "Alfokwaebena",
+        "Ranwutelyn", "Nozilynn", "Gakrouni", "Glammamora", "Nolgruginn", "Sassekara",
+        "Havaeni", "Dorarsuirgit", "Tharhobela", "Dalomeathra", "Umitdraengrid", "Krakkoure",
+        "Khudrilyn", "Graggodrid", "Yazmirra", "Ralgruilyn", "Sakwoutelyn", "Rarmeabelyn",
+        "Hokhirika", "Thralmogith", "Krarnitelin", "Thaggigit", "Dalotraerika", "Glakrolynn",
+        "Dhomnutryd", "Kaleda", "Kitobelyn", "Dekhogret", "Bhakroudeth", "Vokwaebyrn",
+        "Girgingrid", "Krokhekara", "Henmaeginn", "Dorastolin", "Sarhadrid", "Yutoudrid",
+        "Thronmirgith", "Orikgrabelyn", "Khutdrealydd", "Duruigith", "Khourbotrude",
+        "Baristeatain", "Brolgrabelyn", "Skonmeabo", "Daddena", "Yalmobera", "Lulgoudeth",
+        "Umirsoubyrn", "Dernibyrn", "Khustosli", "Giddounelynn", "Yargroure", "Durirdetalyn",
+        "Khergrilin", "Madmeani", "Kusolsia", "Glorisdraebella", "Humribella", "Whuleagit",
+        "Reirgroubela", "Grurgustr", "Kumnoren", "Daghobela", "Gravrumora", "Erikgrubera",
+        "Reifruigith", "Norasdrutrude", "Yosdriwynn", "Dalokurra", "Hakdrogret", "Luzmirgit",
+        "Ruggulyn", "Ravaehilda", "Namrorra", "Raghehilda", "Arakharika", "Brozuirgith",
+        "Rulgrelda", "Thirmeani", "Brouzzihilda", "Gizmalynn", "Hukrolydd", "Thrarroubela",
+        "Thimmugrett", "Fomrabyrn", "Erizmuhulda", "Ludgronelynn", "Randraekara", "Kadmongrid",
+        "Botdraetrud", "Grakihilda", "Thomdegaer", "Jomdoren", "Disa", "Mira", "Helga"
+      ],
+      "last": [
+        "Beryltoe", "Granitemace", "Flintdelver", "Earthbender", "Snowbasher", "Goldfoot",
+        "Beastbringer", "Lavabrewer", "Warsword", "Bluntview", "Blazingcloak", "Wyverncoat",
+        "Lightbrow", "Smeltcloak", "Minechest", "Bluntforged", "Warbuckle", "Honorsword",
+        "Boulderheart", "Metalgut", "Jadebelt", "Berylbasher", "Mithrildelver", "Hardriver",
+        "Twilighthead", "Barrelbrew", "Wyvernchin", "Ironbasher", "Amberhorn", "Orcshield",
+        "Cragback", "Heavybelly", "Strongflayer", "Greybreaker", "Metalmane", "Mithrilbane",
+        "Sapphiresunder", "Battlecoat", "Barbedsunder", "Keghead", "Aleview", "Barbedguard",
+        "Warhood", "Blessedgrip", "Greatforge", "Hardshield", "Leadbeard", "Silvercloak",
+        "Axeguard", "Bluntstone", "Koboldpike", "Metalmantle", "Grimhead", "Greymantle",
+        "Deepflayer", "Onyxbreaker", "Whitfoot", "Blazinghand", "Boneshield", "Oakspine",
+        "Oakbringer", "Gravelmace", "Whitforged", "Blazingchest", "Giantgrip", "Grumblefall",
+        "Mountainmantle", "Lavafoot", "Kegflayer", "Granitebeard", "Treasureguard", "Oaksword",
+        "Hilltoe", "Brewbender", "Axemane", "Wraithmaker", "Onyxbane", "Coalbraid",
+        "Bloodfeet", "Lighthood", "Strongforged", "Cavecoat", "Emberflayer", "Rubymaster",
+        "Oakenspine", "Oresword", "Chaossword", "Treasurejaw", "Mountainbreaker", "Shatterchin",
+        "Wraithmantle", "Windhorn", "Strongbasher", "Bristleriver", "Gravelthane", "Duskfinger",
+        "Graytoe", "Koboldbraid", "Forgetoe", "Brickbraids", "Stonearm", "Ironbraid"
+      ]
+    }
+  },
+  "elf": {
+    "male": {
+      "first": [
+        "Aerendil", "Legolas", "Thranduil", "Celeborn", "Elrond", "Galadhon", "Finrod",
+        "Feanor", "Fingolfin", "Turgon", "Ecthelion", "Glorfindel", "Erestor", "Lindir",
+        "Haldir", "Rumil", "Orophin", "Beleg", "Mablung", "Daeron", "Saeros", "Oropher",
+        "Amroth", "Nimrodel", "Cirdan", "Earendil", "Elured", "Elurin", "Maglor", "Maedhros",
+        "Caranthir", "Curufin", "Amrod", "Amras", "Angrod", "Aegnor", "Orodreth", "Guilin",
+        "Gwindor", "Gelmir", "Aranwe", "Voronwe", "Enerdhil", "Pengolodh", "Salgant",
+        "Thalion", "Aelar", "Caelum", "Eldrin", "Faelorn", "Galathil", "Haemir", "Isilme",
+        "Laerion", "Maeron", "Naerion", "Orelion", "Paelias", "Quelion", "Raelith",
+        "Sylvion", "Taelar", "Ulion", "Vaelorn", "Welion", "Xanion", "Yaelon", "Zephion",
+        "Aelindor", "Caelith", "Daelion", "Eolande", "Faerion", "Gaelon", "Haelion",
+        "Ilsine", "Jaelorn", "Kaelith", "Lorien", "Melian", "Naelon", "Orophir", "Phaeron",
+        "Quorin", "Raelon", "Silion", "Thaeron", "Uthion", "Vaelon", "Windion", "Xylon",
+        "Yrevion", "Zaelon", "Aldaron", "Baelon", "Caelon", "Daelon", "Erevion"
+      ],
+      "last": [
+        "Moonwhisper", "Starweaver", "Silverleaf", "Nightbreeze", "Dawnstrider", "Sunshadow",
+        "Lightfoot", "Swiftarrow", "Greenbough", "Willowshade", "Oakheart", "Riverdance",
+        "Mistwalker", "Dreamweaver", "Starshine", "Moonbow", "Sunfire", "Windsong",
+        "Leafdancer", "Skywatcher", "Forestsong", "Dewdrop", "Thornblade", "Briarwood",
+        "Shadowmere", "Brightwater", "Goldleaf", "Crystalbrook", "Amberwind", "Silverthorn",
+        "Stormwind", "Raindancer", "Cloudwalker", "Sunseeker", "Moonsinger", "Starstrike",
+        "Nightfall", "Dawnbringer", "Lightweaver", "Darkhollow", "Greenmantle", "Blueleaf",
+        "Redthorn", "Whitebark", "Blackwood", "Greystone", "Goldenheart", "Silverstream",
+        "Bronzeleaf", "Ironwood", "Steelwind", "Copperdale", "Pearlmist", "Jadebrook",
+        "Rubyheart", "Sapphiregaze", "Emeraldvale", "Diamondcrest", "Onyxshadow", "Quartzhill",
+        "Amethystdale", "Topazwind", "Garnetbloom", "Opalmist", "Turquoisesong", "Lapisfall",
+        "Coralmere", "Agatebrook", "Jasperfield", "Malachitewood", "Obsidianpeak", "Aurorashine",
+        "Twilightglade", "Midnightbloom", "Noonshadow", "Evenstar", "Morningdew", "Springbloom",
+        "Summerwind", "Autumnleaf", "Winterfrost", "Seasong", "Skyreach", "Earthwhisper",
+        "Firebloom", "Waterfall", "Windchaser", "Thundersong", "Lightningbolt", "Rainshimmer",
+        "Snowdrift", "Haildance", "Fogweaver", "Mistshaper", "Cloudsinger", "Stormcaller"
+      ]
+    },
+    "female": {
+      "first": [
+        "Arwen", "Galadriel", "Luthien", "Idril", "Aredhel", "Celebrian", "Nimrodel",
+        "Nellas", "Finduilas", "Elwing", "Miriel", "Nerdanel", "Earwen", "Anaire",
+        "Elenwe", "Amarie", "Indis", "Irime", "Lalwen", "Elemmire", "Nienna", "Varda",
+        "Yavanna", "Nessa", "Este", "Vaire", "Melian", "Thuringwethil", "Aerin", "Morwen",
+        "Rian", "Gilraen", "Ivorwen", "Silmarien", "Tar-Ancalime", "Tar-Telperien",
+        "Aelindra", "Caelia", "Daelith", "Elowen", "Faelwen", "Galadria", "Haelia",
+        "Ilsine", "Jaelith", "Kaelia", "Laelith", "Maelith", "Naelith", "Orelith",
+        "Paelia", "Quelith", "Raelith", "Sylvara", "Taelith", "Ulith", "Vaelith",
+        "Welith", "Xaelith", "Yaelith", "Zaelith", "Anariel", "Beleth", "Celeth",
+        "Daeleth", "Elieth", "Faeleth", "Gaeleth", "Haeleth", "Ilieth", "Jaeleth",
+        "Kaeleth", "Laeleth", "Maeleth", "Naeleth", "Oreleth", "Paeleth", "Queleth",
+        "Raeleth", "Syleth", "Taeleth", "Uleth", "Vaeleth", "Weleth", "Xaeleth",
+        "Yaeleth", "Zaeleth", "Anarwen", "Belarwen", "Celarwen", "Daerwen", "Elerwen",
+        "Faerwen", "Gaerwen", "Haerwen", "Ilerwen", "Jaerwen", "Kaerwen", "Lerwen"
+      ],
+      "last": [
+        "Moonwhisper", "Starweaver", "Silverleaf", "Nightbreeze", "Dawnstrider", "Sunshadow",
+        "Lightfoot", "Swiftarrow", "Greenbough", "Willowshade", "Oakheart", "Riverdance",
+        "Mistwalker", "Dreamweaver", "Starshine", "Moonbow", "Sunfire", "Windsong",
+        "Leafdancer", "Skywatcher", "Forestsong", "Dewdrop", "Thornblade", "Briarwood",
+        "Shadowmere", "Brightwater", "Goldleaf", "Crystalbrook", "Amberwind", "Silverthorn",
+        "Stormwind", "Raindancer", "Cloudwalker", "Sunseeker", "Moonsinger", "Starstrike",
+        "Nightfall", "Dawnbringer", "Lightweaver", "Darkhollow", "Greenmantle", "Blueleaf",
+        "Redthorn", "Whitebark", "Blackwood", "Greystone", "Goldenheart", "Silverstream",
+        "Bronzeleaf", "Ironwood", "Steelwind", "Copperdale", "Pearlmist", "Jadebrook",
+        "Rubyheart", "Sapphiregaze", "Emeraldvale", "Diamondcrest", "Onyxshadow", "Quartzhill",
+        "Amethystdale", "Topazwind", "Garnetbloom", "Opalmist", "Turquoisesong", "Lapisfall",
+        "Coralmere", "Agatebrook", "Jasperfield", "Malachitewood", "Obsidianpeak", "Aurorashine",
+        "Twilightglade", "Midnightbloom", "Noonshadow", "Evenstar", "Morningdew", "Springbloom",
+        "Summerwind", "Autumnleaf", "Winterfrost", "Seasong", "Skyreach", "Earthwhisper",
+        "Firebloom", "Waterfall", "Windchaser", "Thundersong", "Lightningbolt", "Rainshimmer",
+        "Snowdrift", "Haildance", "Fogweaver", "Mistshaper", "Cloudsinger", "Stormcaller"
+      ]
+    }
+  },
+  "halfling": {
+    "male": {
+      "first": [
+        "Bilbo", "Frodo", "Sam", "Merry", "Pippin", "Hamfast", "Bandobras", "Gerontius",
+        "Balbo", "Bingo", "Bungo", "Drogo", "Dudo", "Fosco", "Largo", "Longo", "Polo",
+        "Ponto", "Porto", "Posco", "Sadoc", "Saradas", "Seredic", "Tolman", "Wilcome",
+        "Adalbert", "Adelard", "Blanco", "Bodo", "Bowman", "Bruno", "Cardo", "Carl",
+        "Cosimo", "Dinodas", "Doderic", "Dodinas", "Everard", "Fastolph", "Ferdinand",
+        "Ferumbras", "Filibert", "Flambard", "Folco", "Fortinbras", "Fredegar", "Griffo",
+        "Halfred", "Hamson", "Heribald", "Hildibrand", "Hildifons", "Hildigard", "Hildigrim",
+        "Holfast", "Hugo", "Isengar", "Isengrim", "Isumbras", "Jolly", "Largo", "Lotho",
+        "Marmadoc", "Marroc", "Meriadoc", "Merimac", "Milo", "Minto", "Moro", "Mosco",
+        "Mungo", "Odo", "Odovacar", "Orgulas", "Otho", "Paladin", "Peregrin", "Polo",
+        "Ponto", "Posco", "Reginard", "Robin", "Rollo", "Roscoe", "Rudigar", "Rufus",
+        "Sancho", "Saradoc", "Seredic", "Sigismond", "Tobold", "Togo", "Tolman", "Wilcome",
+        "Wiseman", "Wilibald", "Alton", "Beau", "Cade", "Corrin", "Dandy", "Eldon"
+      ],
+      "last": [
+        "Baggins", "Gamgee", "Took", "Brandybuck", "Proudfoot", "Bolger", "Bracegirdle",
+        "Burrows", "Chubb", "Cotton", "Grubb", "Hornblower", "Longhole", "Noakes",
+        "Sandheaver", "Tunnelly", "Underhill", "Whitfoot", "Boffin", "Brockhouse",
+        "Goodbody", "Goodchild", "Goold", "Greenhand", "Hayward", "Headstrong", "Maggot",
+        "Mugwort", "Puddifoot", "Rumble", "Sackville", "Sandyman", "Smallburrow", "Twofoot",
+        "Greenhill", "Brownlock", "Fairbairn", "Goodenough", "Hayfield", "Highhill",
+        "Littlefoot", "Longbottom", "Mellowbrook", "Merryweather", "Mossybank", "Oldbarrow",
+        "Overhill", "Riverdale", "Roperfoot", "Shortwick", "Stonecrop", "Stumbleduck",
+        "Sweetwater", "Thorngage", "Thistlebottom", "Underbough", "Wanderfoot", "Weatherby",
+        "Willowmere", "Winesap", "Applebee", "Barleycorn", "Bramblefoot", "Butterburr",
+        "Cherrywell", "Cloverdale", "Dandelion", "Elderberry", "Fernbrook", "Goldenleaf",
+        "Hazelbranch", "Ivywood", "Juniperhill", "Kettlebell", "Larkspur", "Maplewood",
+        "Nettlewood", "Oakbarrel", "Peppercorn", "Quillwort", "Rosehip", "Sunflower",
+        "Tanglewood", "Upland", "Vineyard", "Willowind", "Yarrow", "Ashford", "Bellbrook",
+        "Clearwater", "Dellwood", "Everglade", "Fieldstone", "Goldmeadow", "Hillhollow"
+      ]
+    },
+    "female": {
+      "first": [
+        "Rose", "Rosie", "Elanor", "Primrose", "Primula", "Daisy", "Pansy", "Peony",
+        "Pervinca", "Pearl", "Pimpernel", "Poppy", "Prisca", "Ruby", "Amaranth", "Angelica",
+        "Asphodel", "Belba", "Belladonna", "Bell", "Camellia", "Celandine", "Chica",
+        "Diamond", "Dora", "Donnamira", "Esmeralda", "Estella", "Fatima", "Goldilocks",
+        "Hilda", "Lily", "Linda", "Lobelia", "Malva", "Marigold", "May", "Melilot",
+        "Mentha", "Mimosa", "Mirabella", "Myrtle", "Rosamunda", "Salvia", "Sapphira",
+        "Berylla", "Brunhilda", "Camelia", "Coral", "Dahlia", "Eglatine", "Emerald",
+        "Flora", "Gardenia", "Heather", "Holly", "Iris", "Ivy", "Jasmine", "Lavender",
+        "Magnolia", "Mauve", "Olive", "Opal", "Orchid", "Petunia", "Posey", "Rosemary",
+        "Saffron", "Tansy", "Tulip", "Verbena", "Violet", "Willow", "Zinnia", "Acacia",
+        "Aster", "Azalea", "Begonia", "Bryony", "Clover", "Daffodil", "Fern", "Freesia",
+        "Ginger", "Hazel", "Hyacinth", "Juniper", "Laurel", "Linden", "Lotus", "Meadow",
+        "Myrna", "Narcissa", "Nettle", "Pepper", "Sage", "Sorrel", "Thyme", "Wisteria"
+      ],
+      "last": [
+        "Baggins", "Gamgee", "Took", "Brandybuck", "Proudfoot", "Bolger", "Bracegirdle",
+        "Burrows", "Chubb", "Cotton", "Grubb", "Hornblower", "Longhole", "Noakes",
+        "Sandheaver", "Tunnelly", "Underhill", "Whitfoot", "Boffin", "Brockhouse",
+        "Goodbody", "Goodchild", "Goold", "Greenhand", "Hayward", "Headstrong", "Maggot",
+        "Mugwort", "Puddifoot", "Rumble", "Sackville", "Sandyman", "Smallburrow", "Twofoot",
+        "Greenhill", "Brownlock", "Fairbairn", "Goodenough", "Hayfield", "Highhill",
+        "Littlefoot", "Longbottom", "Mellowbrook", "Merryweather", "Mossybank", "Oldbarrow",
+        "Overhill", "Riverdale", "Roperfoot", "Shortwick", "Stonecrop", "Stumbleduck",
+        "Sweetwater", "Thorngage", "Thistlebottom", "Underbough", "Wanderfoot", "Weatherby",
+        "Willowmere", "Winesap", "Applebee", "Barleycorn", "Bramblefoot", "Butterburr",
+        "Cherrywell", "Cloverdale", "Dandelion", "Elderberry", "Fernbrook", "Goldenleaf",
+        "Hazelbranch", "Ivywood", "Juniperhill", "Kettlebell", "Larkspur", "Maplewood",
+        "Nettlewood", "Oakbarrel", "Peppercorn", "Quillwort", "Rosehip", "Sunflower",
+        "Tanglewood", "Upland", "Vineyard", "Willowind", "Yarrow", "Ashford", "Bellbrook",
+        "Clearwater", "Dellwood", "Everglade", "Fieldstone", "Goldmeadow", "Hillhollow"
+      ]
+    }
+  },
+  "human": {
+    "male": {
+      "first": [
+        "Aragorn", "Boromir", "Faramir", "Denethor", "Theoden", "Eomer", "Erkenbrand",
+        "Hama", "Grimbold", "Elfhelm", "Deorwine", "Dunhere", "Halbarad", "Arathorn",
+        "Elendil", "Isildur", "Anarion", "Earnur", "Aldor", "Baldor", "Brego", "Brytta",
+        "Folcwine", "Fengel", "Frealaf", "Gram", "Helm", "Walda", "Leod", "Eorl",
+        "Aldric", "Bran", "Cedric", "Duncan", "Edmund", "Gareth", "Godwin", "Harold",
+        "Leofric", "Oswald", "Roderic", "Sigurd", "Theron", "Uther", "Wolfric", "Aelfric",
+        "Beornwulf", "Cynric", "Dunstan", "Egbert", "Finn", "Grimm", "Hrothgar", "Ivar",
+        "Jareth", "Korvin", "Lothar", "Magnus", "Norbert", "Olaf", "Ragnar", "Sven",
+        "Tormund", "Ulric", "Valdar", "Wulfgar", "Yorick", "Zephyr", "Alaric", "Baldric",
+        "Conrad", "Dietrich", "Erik", "Frederick", "Gerard", "Heinrich", "Igor", "Johann",
+        "Klaus", "Ludwig", "Manfred", "Norwin", "Otto", "Pieter", "Quentin", "Roland",
+        "Stefan", "Thorsten", "Ulbrecht", "Viktor", "Wilhelm", "Xavier", "Yngvar", "Zordan",
+        "Marcus", "Lucius", "Gaius", "Titus", "Brutus", "Cassius", "Maximus", "Aurelius"
+      ],
+      "last": [
+        "Ironhand", "Blackwood", "Stoneheart", "Wolfbane", "Dragonslayer", "Stormbringer",
+        "Firebrand", "Shadowbane", "Lightbringer", "Darkwater", "Greycastle", "Whitehall",
+        "Redmane", "Goldenshield", "Silverhelm", "Bronzefist", "Steelarm", "Copperfield",
+        "Ironforge", "Hammerfall", "Axeborn", "Swordsong", "Bowstring", "Spearpoint",
+        "Shieldwall", "Helmguard", "Armorclad", "Chainmail", "Platebearer", "Battleborn",
+        "Warhammer", "Bloodaxe", "Deathblade", "Doomhammer", "Skullcrusher", "Bonecrusher",
+        "Heartrender", "Soulreaver", "Mindbreaker", "Willbender", "Spiritwalker", "Dreamcatcher",
+        "Nightstalker", "Dawnrunner", "Duskwatcher", "Moonrider", "Sunblade", "Starfall",
+        "Stormrider", "Thunderclap", "Lightningrod", "Rainmaker", "Windwalker", "Earthshaker",
+        "Firewalker", "Waterbearer", "Airstrider", "Frostbite", "Flameheart", "Icevein",
+        "Snowfall", "Mistwalker", "Fogbane", "Cloudchaser", "Mountainborn", "Valleywalker",
+        "Forestkeeper", "Plainsman", "Desertwind", "Swampwalker", "Riverford", "Lakeside",
+        "Oceanborn", "Seabreeze", "Coastguard", "Harbourmaster", "Portsman", "Dockhand",
+        "Shipwright", "Sailmaker", "Ropewalker", "Netcaster", "Fisherman", "Whalehunter",
+        "Sharktooth", "Krakenbane", "Serpentslayer", "Beastmaster", "Lionheart", "Wolfclaw",
+        "Bearfist", "Eagleeye", "Hawkwing", "Ravenclaw", "Crowfoot", "Swanfeather"
+      ]
+    },
+    "female": {
+      "first": [
+        "Eowyn", "Arwen", "Morwen", "Gilraen", "Finduilas", "Lothiriel", "Ivorwen",
+        "Silmarien", "Beruthiel", "Haleth", "Andreth", "Adanel", "Hareth", "Rian",
+        "Aerin", "Eilinel", "Almiel", "Eledhwen", "Firiel", "Miriel", "Idril", "Aldith",
+        "Brunhild", "Cedany", "Drusilla", "Edlyn", "Freya", "Griselda", "Helga", "Ingrid",
+        "Jolene", "Katla", "Leona", "Matilda", "Nessa", "Olwen", "Petra", "Quilla",
+        "Rowena", "Sigrid", "Thyra", "Ursula", "Valka", "Wilda", "Ylva", "Zara",
+        "Astrid", "Brynhild", "Cora", "Dagny", "Elara", "Fiona", "Greta", "Hilda",
+        "Isolde", "Jora", "Kira", "Lena", "Mira", "Nadia", "Olga", "Petra", "Ragna",
+        "Signe", "Tova", "Una", "Vera", "Wren", "Xena", "Ysolde", "Zelda", "Adelina",
+        "Beatrix", "Cordelia", "Delia", "Elena", "Felicia", "Guinevere", "Helena",
+        "Isabella", "Juliana", "Katarina", "Lucia", "Marguerite", "Natalia", "Octavia",
+        "Priscilla", "Rosalind", "Seraphina", "Tatiana", "Valentina", "Victoria", "Wilhelmina"
+      ],
+      "last": [
+        "Ironhand", "Blackwood", "Stoneheart", "Wolfbane", "Dragonslayer", "Stormbringer",
+        "Firebrand", "Shadowbane", "Lightbringer", "Darkwater", "Greycastle", "Whitehall",
+        "Redmane", "Goldenshield", "Silverhelm", "Bronzefist", "Steelarm", "Copperfield",
+        "Ironforge", "Hammerfall", "Axeborn", "Swordsong", "Bowstring", "Spearpoint",
+        "Shieldwall", "Helmguard", "Armorclad", "Chainmail", "Platebearer", "Battleborn",
+        "Warhammer", "Bloodaxe", "Deathblade", "Doomhammer", "Skullcrusher", "Bonecrusher",
+        "Heartrender", "Soulreaver", "Mindbreaker", "Willbender", "Spiritwalker", "Dreamcatcher",
+        "Nightstalker", "Dawnrunner", "Duskwatcher", "Moonrider", "Sunblade", "Starfall",
+        "Stormrider", "Thunderclap", "Lightningrod", "Rainmaker", "Windwalker", "Earthshaker",
+        "Firewalker", "Waterbearer", "Airstrider", "Frostbite", "Flameheart", "Icevein",
+        "Snowfall", "Mistwalker", "Fogbane", "Cloudchaser", "Mountainborn", "Valleywalker",
+        "Forestkeeper", "Plainsman", "Desertwind", "Swampwalker", "Riverford", "Lakeside",
+        "Oceanborn", "Seabreeze", "Coastguard", "Harbourmaster", "Portsman", "Dockhand",
+        "Shipwright", "Sailmaker", "Ropewalker", "Netcaster", "Fisherman", "Whalehunter",
+        "Sharktooth", "Krakenbane", "Serpentslayer", "Beastmaster", "Lionheart", "Wolfclaw",
+        "Bearfist", "Eagleeye", "Hawkwing", "Ravenclaw", "Crowfoot", "Swanfeather"
+      ]
+    }
+  },
+  "npc": {
+    "innkeeper": [
+      "Barnabas", "Butterbur", "Gaffer", "Holman", "Harding", "Baldric", "Osric", "Cedric",
+      "Martha", "Marigold", "Petunia", "Rosemary", "Mildred", "Bertha", "Hilda", "Gertrude"
+    ],
+    "merchant": [
+      "Aldous", "Bertram", "Cornelius", "Dorwin", "Edmund", "Ferdinand", "Godfrey", "Herbert",
+      "Matilda", "Millicent", "Prudence", "Rosamund", "Sabrina", "Theodora", "Ursula", "Winifred"
+    ],
+    "guard": [
+      "Aldric", "Bruno", "Conrad", "Dietrich", "Erik", "Friedrich", "Gerhard", "Heinrich",
+      "Ingrid", "Johanna", "Katarina", "Liesel", "Margarethe", "Nadja", "Petra", "Sigrid"
+    ],
+    "noble": [
+      "Alaric", "Baldwin", "Casimir", "Darius", "Edmund", "Ferdinand", "Godfrey", "Heinrich",
+      "Adelaide", "Beatrice", "Cordelia", "Drusilla", "Eleanor", "Felicity", "Gwendolyn", "Helena"
+    ],
+    "wizard": [
+      "Aldric", "Balthazar", "Cornelius", "Demetrius", "Erasmus", "Fabian", "Gideon", "Horatio",
+      "Arabella", "Belinda", "Celestine", "Desdemona", "Elvira", "Felicia", "Griselda", "Hypatia"
+    ],
+    "villain": [
+      "Malachar", "Vexor", "Drakul", "Mordred", "Sauros", "Grimjaw", "Bloodfang", "Shadowmere",
+      "Morgana", "Lilith", "Ravenna", "Seraphina", "Bellatrix", "Morticia", "Jezebel", "Narcissa"
+    ]
+  }
+}

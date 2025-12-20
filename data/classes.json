@@ -1,0 +1,307 @@
+{
+  "classes": [
+    {
+      "id": "fighter",
+      "name": "Guerrier",
+      "name_en": "Fighter",
+      "description": "Le guerrier est un maître du combat, capable d'utiliser toutes les armes et armures. C'est la classe la plus robuste au combat.",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "prime_requisite": "strength",
+      "xp_bonus_threshold": 13,
+      "armor_allowed": ["all"],
+      "shields_allowed": true,
+      "weapons_allowed": ["all"],
+      "special_abilities": [
+        {
+          "name": "Attaques multiples",
+          "name_en": "Multiple Attacks",
+          "description": "À partir du niveau 7, le guerrier peut attaquer deux fois par round contre des créatures de 1 DV ou moins.",
+          "level_required": 7
+        }
+      ],
+      "saving_throws": {
+        "level_1": {
+          "death_ray_poison": 12,
+          "magic_wands": 13,
+          "paralysis_petrify": 14,
+          "dragon_breath": 15,
+          "spells": 17
+        }
+      },
+      "attack_bonus": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 3,
+        "5": 4,
+        "6": 4,
+        "7": 5,
+        "8": 6,
+        "9": 6,
+        "10": 6
+      },
+      "xp_table": {
+        "1": 0,
+        "2": 2000,
+        "3": 4000,
+        "4": 8000,
+        "5": 16000,
+        "6": 32000,
+        "7": 64000,
+        "8": 120000,
+        "9": 240000,
+        "10": 360000
+      },
+      "starting_gold": "3d6x10"
+    },
+    {
+      "id": "cleric",
+      "name": "Clerc",
+      "name_en": "Cleric",
+      "description": "Le clerc est un combattant sacré, capable de lancer des sorts divins et de repousser les morts-vivants. Il ne peut utiliser que des armes contondantes.",
+      "hit_die": "d6",
+      "hit_die_sides": 6,
+      "prime_requisite": "wisdom",
+      "xp_bonus_threshold": 13,
+      "armor_allowed": ["all"],
+      "shields_allowed": true,
+      "weapons_allowed": ["club", "mace", "hammer", "staff", "sling"],
+      "special_abilities": [
+        {
+          "name": "Renvoi des morts-vivants",
+          "name_en": "Turn Undead",
+          "description": "Le clerc peut repousser ou détruire les morts-vivants en invoquant sa foi.",
+          "level_required": 1
+        },
+        {
+          "name": "Sorts divins",
+          "name_en": "Divine Spells",
+          "description": "Le clerc peut lancer des sorts divins à partir du niveau 2.",
+          "level_required": 2
+        }
+      ],
+      "spells_per_level": {
+        "1": [],
+        "2": [1],
+        "3": [2],
+        "4": [2, 1],
+        "5": [2, 2],
+        "6": [2, 2, 1],
+        "7": [3, 2, 2],
+        "8": [3, 3, 2, 1],
+        "9": [3, 3, 3, 2],
+        "10": [4, 4, 3, 2, 1]
+      },
+      "saving_throws": {
+        "level_1": {
+          "death_ray_poison": 11,
+          "magic_wands": 12,
+          "paralysis_petrify": 14,
+          "dragon_breath": 16,
+          "spells": 15
+        }
+      },
+      "attack_bonus": {
+        "1": 1,
+        "2": 1,
+        "3": 2,
+        "4": 2,
+        "5": 3,
+        "6": 3,
+        "7": 4,
+        "8": 4,
+        "9": 5,
+        "10": 5
+      },
+      "xp_table": {
+        "1": 0,
+        "2": 1500,
+        "3": 3000,
+        "4": 6000,
+        "5": 12000,
+        "6": 24000,
+        "7": 48000,
+        "8": 90000,
+        "9": 180000,
+        "10": 270000
+      },
+      "turn_undead": {
+        "skeleton": {"1": 13, "2": 11, "3": 9, "4": 7, "5": "T", "6": "T", "7": "D"},
+        "zombie": {"1": 17, "2": 15, "3": 13, "4": 11, "5": 9, "6": "T", "7": "T"},
+        "ghoul": {"1": 19, "2": 18, "3": 17, "4": 15, "5": 13, "6": 11, "7": "T"},
+        "wight": {"1": "-", "2": 20, "3": 19, "4": 17, "5": 15, "6": 13, "7": 11}
+      },
+      "starting_gold": "3d6x10"
+    },
+    {
+      "id": "magic-user",
+      "name": "Magicien",
+      "name_en": "Magic-User",
+      "description": "Le magicien est un maître des arcanes, capable de lancer de puissants sorts. Cependant, il est fragile au combat et limité dans son équipement.",
+      "hit_die": "d4",
+      "hit_die_sides": 4,
+      "prime_requisite": "intelligence",
+      "xp_bonus_threshold": 13,
+      "armor_allowed": [],
+      "shields_allowed": false,
+      "weapons_allowed": ["dagger", "staff", "dart"],
+      "special_abilities": [
+        {
+          "name": "Sorts arcaniques",
+          "name_en": "Arcane Spells",
+          "description": "Le magicien peut lancer des sorts arcaniques dès le niveau 1.",
+          "level_required": 1
+        },
+        {
+          "name": "Grimoire",
+          "name_en": "Spellbook",
+          "description": "Le magicien doit préparer ses sorts chaque jour à partir de son grimoire.",
+          "level_required": 1
+        }
+      ],
+      "spells_per_level": {
+        "1": [1],
+        "2": [2],
+        "3": [2, 1],
+        "4": [2, 2],
+        "5": [2, 2, 1],
+        "6": [3, 2, 2],
+        "7": [3, 3, 2, 1],
+        "8": [3, 3, 3, 2],
+        "9": [4, 3, 3, 2, 1],
+        "10": [4, 4, 3, 3, 2]
+      },
+      "saving_throws": {
+        "level_1": {
+          "death_ray_poison": 13,
+          "magic_wands": 14,
+          "paralysis_petrify": 13,
+          "dragon_breath": 16,
+          "spells": 15
+        }
+      },
+      "attack_bonus": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 2,
+        "5": 2,
+        "6": 3,
+        "7": 3,
+        "8": 3,
+        "9": 4,
+        "10": 4
+      },
+      "xp_table": {
+        "1": 0,
+        "2": 2500,
+        "3": 5000,
+        "4": 10000,
+        "5": 20000,
+        "6": 40000,
+        "7": 80000,
+        "8": 150000,
+        "9": 300000,
+        "10": 450000
+      },
+      "starting_gold": "3d6x10"
+    },
+    {
+      "id": "thief",
+      "name": "Voleur",
+      "name_en": "Thief",
+      "description": "Le voleur est un expert en furtivité et en techniques spéciales. Il peut crocheter des serrures, désamorcer des pièges et attaquer par surprise.",
+      "hit_die": "d4",
+      "hit_die_sides": 4,
+      "prime_requisite": "dexterity",
+      "xp_bonus_threshold": 13,
+      "armor_allowed": ["leather"],
+      "shields_allowed": false,
+      "weapons_allowed": ["all"],
+      "special_abilities": [
+        {
+          "name": "Attaque sournoise",
+          "name_en": "Sneak Attack",
+          "description": "+4 à l'attaque et dégâts doublés lors d'une attaque surprise par derrière.",
+          "level_required": 1
+        },
+        {
+          "name": "Compétences de voleur",
+          "name_en": "Thief Skills",
+          "description": "Crochetage, désamorçage de pièges, escalade, discrétion, pickpocket, écoute.",
+          "level_required": 1
+        },
+        {
+          "name": "Lecture des langues",
+          "name_en": "Read Languages",
+          "description": "À partir du niveau 4, le voleur peut lire 80% des langues normales.",
+          "level_required": 4
+        }
+      ],
+      "thief_skills": {
+        "1": {
+          "open_locks": 25,
+          "remove_traps": 20,
+          "pick_pockets": 30,
+          "move_silently": 25,
+          "climb_walls": 80,
+          "hide": 10,
+          "listen": 30
+        },
+        "2": {
+          "open_locks": 30,
+          "remove_traps": 25,
+          "pick_pockets": 35,
+          "move_silently": 30,
+          "climb_walls": 81,
+          "hide": 15,
+          "listen": 34
+        },
+        "3": {
+          "open_locks": 35,
+          "remove_traps": 30,
+          "pick_pockets": 40,
+          "move_silently": 35,
+          "climb_walls": 82,
+          "hide": 20,
+          "listen": 38
+        }
+      },
+      "saving_throws": {
+        "level_1": {
+          "death_ray_poison": 13,
+          "magic_wands": 14,
+          "paralysis_petrify": 13,
+          "dragon_breath": 16,
+          "spells": 15
+        }
+      },
+      "attack_bonus": {
+        "1": 1,
+        "2": 1,
+        "3": 2,
+        "4": 2,
+        "5": 3,
+        "6": 3,
+        "7": 4,
+        "8": 4,
+        "9": 5,
+        "10": 5
+      },
+      "xp_table": {
+        "1": 0,
+        "2": 1250,
+        "3": 2500,
+        "4": 5000,
+        "5": 10000,
+        "6": 20000,
+        "7": 40000,
+        "8": 75000,
+        "9": 150000,
+        "10": 225000
+      },
+      "starting_gold": "2d6x10"
+    }
+  ]
+}

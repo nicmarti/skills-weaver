@@ -1,0 +1,41 @@
+# Environment files with secrets
+.envrc
+.env
+.env.local
+
+# Binaries (root level only)
+/dice
+/character
+/adventure
+/names
+/npc
+/image
+/monster
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated images (optional - comment out to track)
+# data/images/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# Claude Code
+.claude/todos.json

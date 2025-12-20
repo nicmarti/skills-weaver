@@ -1,0 +1,176 @@
+{
+  "appearance": {
+    "build": [
+      "maigre", "mince", "svelte", "athlétique", "musclé", "trapu", "corpulent",
+      "massif", "imposant", "frêle", "robuste", "élancé", "râblé", "bedonnant"
+    ],
+    "height": [
+      "très petit", "petit", "de taille moyenne", "grand", "très grand", "immense"
+    ],
+    "hair_color": [
+      "noir", "brun foncé", "brun", "châtain", "roux", "auburn", "blond foncé",
+      "blond", "blond clair", "gris", "blanc", "argenté", "chauve"
+    ],
+    "hair_style": [
+      "courts", "mi-longs", "longs", "très longs", "rasés", "en brosse",
+      "bouclés", "ondulés", "raides", "tressés", "en queue de cheval",
+      "négligés", "soigneusement coiffés", "hirsutes"
+    ],
+    "eye_color": [
+      "noirs", "bruns foncés", "bruns", "noisette", "verts", "bleus clairs",
+      "bleus foncés", "gris", "ambrés", "violets", "hétérochromes"
+    ],
+    "skin": [
+      "pâle", "claire", "hâlée", "bronzée", "mate", "olivâtre", "sombre",
+      "ébène", "tachée de rousseur", "ridée", "marquée de cicatrices"
+    ],
+    "facial_feature": [
+      "un nez aquilin", "un nez retroussé", "un nez cassé", "une barbe fournie",
+      "une barbe soigneusement taillée", "une moustache imposante", "un bouc",
+      "des favoris", "une cicatrice au visage", "un tatouage facial",
+      "des pommettes hautes", "un menton carré", "un menton pointu",
+      "des rides d'expression", "un regard perçant", "des sourcils broussailleux",
+      "une verrue", "un grain de beauté", "des lèvres fines", "des lèvres charnues"
+    ],
+    "distinctive_feature": [
+      "une démarche boitillante", "un bras en écharpe", "un œil de verre",
+      "un cache-œil", "une main gantée en permanence", "des bijoux voyants",
+      "des vêtements rapiécés", "des vêtements luxueux", "une cape élimée",
+      "un chapeau distinctif", "une canne ouvragée", "un pendentif remarquable",
+      "des tatouages visibles", "des cicatrices de brûlure", "un accent étranger",
+      "une voix grave", "une voix aiguë", "un rire nerveux", "un tic facial"
+    ]
+  },
+  "personality": {
+    "trait_principal": [
+      "amical", "distant", "méfiant", "curieux", "paresseux", "travailleur",
+      "généreux", "avare", "courageux", "lâche", "honnête", "menteur",
+      "loyal", "traître", "calme", "nerveux", "optimiste", "pessimiste",
+      "sérieux", "jovial", "sarcastique", "naïf", "rusé", "impulsif",
+      "réfléchi", "bavard", "taciturne", "arrogant", "humble", "fier"
+    ],
+    "trait_secondaire": [
+      "superstitieux", "pragmatique", "romantique", "cynique", "idéaliste",
+      "réaliste", "rêveur", "terre-à-terre", "vengeur", "clément",
+      "rancunier", "indulgent", "jaloux", "généreux", "possessif", "détaché",
+      "passionné", "apathique", "discipliné", "chaotique", "traditionnel",
+      "progressiste", "religieux", "athée", "patriote", "nomade"
+    ],
+    "defaut": [
+      "boit trop", "joue aux jeux d'argent", "ment souvent", "vole parfois",
+      "est facilement corruptible", "garde rancune", "est trop confiant",
+      "est paranoïaque", "est jaloux", "est colérique", "est peureux",
+      "est paresseux", "est gourmand", "est vaniteux", "est têtu",
+      "ne sait pas garder un secret", "est trop bavard", "est pessimiste",
+      "est imprudent", "fait trop confiance aux étrangers"
+    ],
+    "qualite": [
+      "toujours prêt à aider", "excellent cuisinier", "bon conteur",
+      "sait garder un secret", "très observateur", "bon juge de caractère",
+      "courageux face au danger", "loyal envers ses amis", "travailleur acharné",
+      "généreux avec les démunis", "patient avec les enfants", "bon négociateur",
+      "calme sous pression", "créatif pour résoudre les problèmes",
+      "honnête même quand c'est difficile", "protecteur des faibles"
+    ]
+  },
+  "motivation": {
+    "goal": [
+      "amasser une fortune", "protéger sa famille", "venger un proche",
+      "retrouver un objet perdu", "rembourser une dette", "fuir son passé",
+      "prouver sa valeur", "trouver l'amour", "acquérir du pouvoir",
+      "découvrir la vérité sur ses origines", "obtenir la reconnaissance",
+      "vivre une vie tranquille", "explorer le monde", "maîtriser un art",
+      "servir une cause noble", "détruire un ennemi", "protéger un secret",
+      "accomplir une prophétie", "honorer un serment", "expier une faute"
+    ],
+    "fear": [
+      "la mort", "l'abandon", "l'échec", "la pauvreté", "la maladie",
+      "la trahison", "l'obscurité", "les hauteurs", "l'eau profonde",
+      "le feu", "les araignées", "les serpents", "les morts-vivants",
+      "la magie", "l'inconnu", "la foule", "la solitude", "perdre le contrôle",
+      "être découvert", "son propre passé"
+    ],
+    "secret": [
+      "a commis un crime impuni", "cache une double identité",
+      "travaille pour une faction secrète", "possède un objet volé",
+      "connaît l'emplacement d'un trésor", "a une maladie incurable",
+      "est recherché ailleurs", "a trahi quelqu'un autrefois",
+      "cache des origines nobles", "cache des origines modestes",
+      "a des dettes importantes", "a un enfant secret",
+      "a été témoin d'un crime", "possède un pouvoir caché",
+      "planifie de quitter la région", "espionne pour quelqu'un"
+    ]
+  },
+  "occupation": {
+    "commoner": [
+      "fermier", "pêcheur", "bûcheron", "mineur", "berger", "meunier",
+      "boulanger", "boucher", "tanneur", "tisserand", "potier", "charpentier",
+      "maçon", "forgeron", "cordonnier", "tailleur", "aubergiste", "cuisinier",
+      "serveur", "palefrenier", "porteur", "mendiant", "fossoyeur", "balayeur"
+    ],
+    "skilled": [
+      "marchand", "apothicaire", "herboriste", "guérisseur", "sage-femme",
+      "scribe", "cartographe", "bibliothécaire", "tuteur", "musicien",
+      "acteur", "jongleur", "acrobate", "artiste", "sculpteur", "orfèvre",
+      "horloger", "armurier", "sellier", "navigateur", "ingénieur"
+    ],
+    "authority": [
+      "garde de ville", "sergent", "capitaine de la garde", "magistrat",
+      "conseiller", "noble mineur", "intendant", "bailli", "prévôt",
+      "héraut", "diplomate", "ambassadeur", "collecteur d'impôts"
+    ],
+    "underworld": [
+      "voleur", "pickpocket", "cambrioleur", "receleur", "contrebandier",
+      "faussaire", "assassin", "espion", "informateur", "bookmaker",
+      "usurier", "proxénète", "chef de gang", "mercenaire"
+    ],
+    "religious": [
+      "prêtre", "acolyte", "moine", "nonne", "pèlerin", "inquisiteur",
+      "exorciste", "oracle", "prophète", "ermite"
+    ],
+    "adventurer": [
+      "chasseur de primes", "explorateur", "chasseur de monstres",
+      "garde du corps", "escorte de caravane", "aventurier retraité",
+      "chercheur de trésors", "archéologue", "naturaliste"
+    ]
+  },
+  "relationship": {
+    "attitude_positive": [
+      "amical et serviable", "curieux et bavard", "respectueux et poli",
+      "enthousiaste et accueillant", "protecteur et bienveillant",
+      "admiratif et impressionné", "reconnaissant", "confiant"
+    ],
+    "attitude_neutral": [
+      "indifférent", "professionnel et distant", "prudent mais correct",
+      "curieux mais réservé", "poli mais pressé", "occupé", "distrait"
+    ],
+    "attitude_negative": [
+      "méfiant et suspicieux", "hostile et agressif", "moqueur et méprisant",
+      "effrayé et nerveux", "jaloux et envieux", "rancunier", "manipulateur"
+    ]
+  },
+  "voice": {
+    "tone": [
+      "grave et profonde", "aiguë et perçante", "douce et mélodieuse",
+      "rauque et éraillée", "nasillarde", "sifflante", "chuchotante",
+      "tonitruante", "monotone", "chantante"
+    ],
+    "manner": [
+      "parle lentement", "parle rapidement", "bégaie légèrement",
+      "hésite souvent", "utilise des mots compliqués", "parle simplement",
+      "ponctue de jurons", "cite des proverbes", "pose beaucoup de questions",
+      "raconte des anecdotes", "fait des digressions", "va droit au but"
+    ]
+  },
+  "quirk": [
+    "se gratte la barbe en réfléchissant", "tapote des doigts nerveusement",
+    "regarde souvent par-dessus son épaule", "mâchonne une brindille",
+    "siffle entre ses dents", "rit de ses propres blagues",
+    "fait les cent pas en parlant", "croise et décroise les bras",
+    "joue avec une pièce de monnaie", "nettoie compulsivement",
+    "touche son pendentif quand nerveux", "cligne excessivement des yeux",
+    "se cure les ongles", "renifle bruyamment", "s'éclaircit souvent la gorge",
+    "marmonne dans sa barbe", "fait craquer ses jointures",
+    "se balance d'un pied sur l'autre", "tripote ses vêtements"
+  ]
+}

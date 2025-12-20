@@ -1,0 +1,286 @@
+{
+  "weapons": [
+    {
+      "id": "dagger",
+      "name": "Dague",
+      "name_en": "Dagger",
+      "damage": "1d4",
+      "weight": 0.5,
+      "cost": 2,
+      "type": "melee",
+      "properties": ["light", "thrown"],
+      "range": "10/20"
+    },
+    {
+      "id": "short_sword",
+      "name": "Épée courte",
+      "name_en": "Short Sword",
+      "damage": "1d6",
+      "weight": 1.5,
+      "cost": 6,
+      "type": "melee",
+      "properties": ["light"]
+    },
+    {
+      "id": "longsword",
+      "name": "Épée longue",
+      "name_en": "Longsword",
+      "damage": "1d8",
+      "weight": 2,
+      "cost": 10,
+      "type": "melee",
+      "properties": []
+    },
+    {
+      "id": "two_handed_sword",
+      "name": "Épée à deux mains",
+      "name_en": "Two-Handed Sword",
+      "damage": "1d10",
+      "weight": 7,
+      "cost": 18,
+      "type": "melee",
+      "properties": ["two-handed"]
+    },
+    {
+      "id": "battle_axe",
+      "name": "Hache de bataille",
+      "name_en": "Battle Axe",
+      "damage": "1d8",
+      "weight": 3.5,
+      "cost": 7,
+      "type": "melee",
+      "properties": []
+    },
+    {
+      "id": "hand_axe",
+      "name": "Hachette",
+      "name_en": "Hand Axe",
+      "damage": "1d6",
+      "weight": 1.5,
+      "cost": 4,
+      "type": "melee",
+      "properties": ["light", "thrown"],
+      "range": "10/20"
+    },
+    {
+      "id": "mace",
+      "name": "Masse d'armes",
+      "name_en": "Mace",
+      "damage": "1d8",
+      "weight": 5,
+      "cost": 6,
+      "type": "melee",
+      "properties": []
+    },
+    {
+      "id": "club",
+      "name": "Gourdin",
+      "name_en": "Club",
+      "damage": "1d4",
+      "weight": 1,
+      "cost": 0,
+      "type": "melee",
+      "properties": []
+    },
+    {
+      "id": "staff",
+      "name": "Bâton",
+      "name_en": "Staff",
+      "damage": "1d6",
+      "weight": 2,
+      "cost": 0,
+      "type": "melee",
+      "properties": ["two-handed"]
+    },
+    {
+      "id": "hammer",
+      "name": "Marteau de guerre",
+      "name_en": "War Hammer",
+      "damage": "1d6",
+      "weight": 2.5,
+      "cost": 4,
+      "type": "melee",
+      "properties": []
+    },
+    {
+      "id": "spear",
+      "name": "Lance",
+      "name_en": "Spear",
+      "damage": "1d6",
+      "weight": 2.5,
+      "cost": 3,
+      "type": "melee",
+      "properties": ["thrown", "versatile"],
+      "range": "20/40"
+    },
+    {
+      "id": "polearm",
+      "name": "Arme d'hast",
+      "name_en": "Polearm",
+      "damage": "1d10",
+      "weight": 7,
+      "cost": 9,
+      "type": "melee",
+      "properties": ["two-handed", "reach"]
+    },
+    {
+      "id": "shortbow",
+      "name": "Arc court",
+      "name_en": "Shortbow",
+      "damage": "1d6",
+      "weight": 1,
+      "cost": 25,
+      "type": "ranged",
+      "properties": ["two-handed"],
+      "range": "50/100"
+    },
+    {
+      "id": "longbow",
+      "name": "Arc long",
+      "name_en": "Longbow",
+      "damage": "1d8",
+      "weight": 1.5,
+      "cost": 60,
+      "type": "ranged",
+      "properties": ["two-handed"],
+      "range": "70/140"
+    },
+    {
+      "id": "crossbow",
+      "name": "Arbalète",
+      "name_en": "Crossbow",
+      "damage": "1d8",
+      "weight": 4,
+      "cost": 30,
+      "type": "ranged",
+      "properties": ["two-handed", "loading"],
+      "range": "60/120"
+    },
+    {
+      "id": "sling",
+      "name": "Fronde",
+      "name_en": "Sling",
+      "damage": "1d4",
+      "weight": 0.1,
+      "cost": 1,
+      "type": "ranged",
+      "properties": [],
+      "range": "30/60"
+    },
+    {
+      "id": "dart",
+      "name": "Dard",
+      "name_en": "Dart",
+      "damage": "1d3",
+      "weight": 0.1,
+      "cost": 0.5,
+      "type": "ranged",
+      "properties": ["thrown"],
+      "range": "15/30"
+    }
+  ],
+  "armor": [
+    {
+      "id": "leather",
+      "name": "Armure de cuir",
+      "name_en": "Leather Armor",
+      "ac_bonus": 2,
+      "weight": 7.5,
+      "cost": 20,
+      "type": "light"
+    },
+    {
+      "id": "chainmail",
+      "name": "Cotte de mailles",
+      "name_en": "Chain Mail",
+      "ac_bonus": 4,
+      "weight": 25,
+      "cost": 60,
+      "type": "medium"
+    },
+    {
+      "id": "plate",
+      "name": "Armure de plates",
+      "name_en": "Plate Mail",
+      "ac_bonus": 6,
+      "weight": 35,
+      "cost": 300,
+      "type": "heavy"
+    },
+    {
+      "id": "shield",
+      "name": "Bouclier",
+      "name_en": "Shield",
+      "ac_bonus": 1,
+      "weight": 5,
+      "cost": 7,
+      "type": "shield"
+    }
+  ],
+  "adventuring_gear": [
+    {"id": "backpack", "name": "Sac à dos", "name_en": "Backpack", "cost": 4, "weight": 0.5},
+    {"id": "bedroll", "name": "Sac de couchage", "name_en": "Bedroll", "cost": 0.2, "weight": 2.5},
+    {"id": "flint_steel", "name": "Briquet", "name_en": "Flint & Steel", "cost": 3, "weight": 0.1},
+    {"id": "grappling_hook", "name": "Grappin", "name_en": "Grappling Hook", "cost": 2, "weight": 2},
+    {"id": "hammer", "name": "Marteau", "name_en": "Hammer", "cost": 2, "weight": 1},
+    {"id": "holy_symbol", "name": "Symbole sacré", "name_en": "Holy Symbol", "cost": 25, "weight": 0.1},
+    {"id": "holy_water", "name": "Eau bénite (fiole)", "name_en": "Holy Water", "cost": 10, "weight": 0.5},
+    {"id": "iron_spikes", "name": "Pitons de fer (12)", "name_en": "Iron Spikes (12)", "cost": 1, "weight": 3},
+    {"id": "lantern", "name": "Lanterne", "name_en": "Lantern", "cost": 8, "weight": 1},
+    {"id": "oil_flask", "name": "Huile (flasque)", "name_en": "Oil Flask", "cost": 1, "weight": 0.5},
+    {"id": "pole_10ft", "name": "Perche (3m)", "name_en": "Pole (10ft)", "cost": 0.1, "weight": 4},
+    {"id": "rations_standard", "name": "Rations (1 semaine)", "name_en": "Rations (1 week)", "cost": 5, "weight": 7},
+    {"id": "rations_iron", "name": "Rations de voyage (1 sem.)", "name_en": "Iron Rations (1 week)", "cost": 15, "weight": 3.5},
+    {"id": "rope_50ft", "name": "Corde (15m)", "name_en": "Rope (50ft)", "cost": 1, "weight": 5},
+    {"id": "sack_large", "name": "Grand sac", "name_en": "Large Sack", "cost": 0.1, "weight": 0.25},
+    {"id": "sack_small", "name": "Petit sac", "name_en": "Small Sack", "cost": 0.05, "weight": 0.1},
+    {"id": "thieves_tools", "name": "Outils de voleur", "name_en": "Thieves' Tools", "cost": 25, "weight": 0.5},
+    {"id": "tinderbox", "name": "Boîte à amadou", "name_en": "Tinderbox", "cost": 3, "weight": 0.5},
+    {"id": "torch", "name": "Torche", "name_en": "Torch", "cost": 0.01, "weight": 0.5},
+    {"id": "waterskin", "name": "Outre", "name_en": "Waterskin", "cost": 1, "weight": 2}
+  ],
+  "starting_equipment": {
+    "fighter": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "rope_50ft", "torch"],
+      "weapon_choices": [
+        ["longsword", "shield"],
+        ["two_handed_sword"],
+        ["battle_axe", "shield"],
+        ["spear", "shield", "hand_axe"]
+      ],
+      "armor_choices": ["leather", "chainmail"]
+    },
+    "cleric": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "holy_symbol", "holy_water"],
+      "weapon_choices": [
+        ["mace", "shield"],
+        ["hammer", "shield"],
+        ["staff"]
+      ],
+      "armor_choices": ["leather", "chainmail"]
+    },
+    "magic-user": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "spellbook", "ink_quill"],
+      "weapon_choices": [
+        ["dagger"],
+        ["staff"],
+        ["dart", "dart", "dart"]
+      ],
+      "armor_choices": []
+    },
+    "thief": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "thieves_tools", "rope_50ft"],
+      "weapon_choices": [
+        ["short_sword", "dagger"],
+        ["shortbow", "dagger"],
+        ["dagger", "dagger", "sling"]
+      ],
+      "armor_choices": ["leather"]
+    }
+  },
+  "ammunition": [
+    {"id": "arrows_20", "name": "Flèches (20)", "name_en": "Arrows (20)", "cost": 2, "weight": 1},
+    {"id": "bolts_20", "name": "Carreaux (20)", "name_en": "Bolts (20)", "cost": 2, "weight": 1},
+    {"id": "stones_20", "name": "Pierres de fronde (20)", "name_en": "Sling Stones (20)", "cost": 0, "weight": 2}
+  ]
+}

@@ -47,9 +47,9 @@ type FalResponse struct {
 	Timings   struct {
 		Inference float64 `json:"inference"`
 	} `json:"timings"`
-	Seed      int64  `json:"seed"`
-	HasNSFW   bool   `json:"has_nsfw_concepts"`
-	RequestID string `json:"request_id,omitempty"`
+	Seed      int64       `json:"seed"`
+	HasNSFW   interface{} `json:"has_nsfw_concepts"` // Can be bool or []bool depending on API version
+	RequestID string      `json:"request_id,omitempty"`
 }
 
 // FalQueueResponse represents the queue submission response.

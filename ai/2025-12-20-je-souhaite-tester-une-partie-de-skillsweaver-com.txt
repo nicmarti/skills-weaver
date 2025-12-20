@@ -1,0 +1,2083 @@
+
+ * ▐▛███▜▌ *   Claude Code v2.0.74
+* ▝▜█████▛▘ *  Opus 4.5 · API Usage Billing
+ *  ▘▘ ▝▝  *   ~/Dev/DevoxxFR/dungeons
+
+> Je souhaite tester une partie de SkillsWeaver. Comment pouvons-nous 
+commencer? Que dois-tu faire en premier ? 
+
+⏺ Pour commencer une partie de SkillsWeaver, je dois d'abord vérifier que tous les outils sont compilés et fonctionnels.
+
+⏺ Bash(ls -la sw-* 2>/dev/null || echo "Binaires non trouvés")
+  ⎿  -rwxr-xr-x@ 1 nmartignole  staff  2484130 Dec 20 18:24 sw-adventure
+     -rwxr-xr-x@ 1 nmartignole  staff  2690274 Dec 20 18:24 sw-character
+     -rwxr-xr-x@ 1 nmartignole  staff  1977874 Dec 20 18:24 sw-dice
+     … +5 lines (ctrl+o to expand)
+
+⏺ Bash(ls data/characters/ 2>/dev/null || echo "Pas de personnages")
+  ⎿  aldric.json
+     lyra.json
+
+⏺ Bash(ls data/adventures/ 2>/dev/null || echo "Pas d'aventures")
+  ⎿  (No content)
+
+⏺ Tous les outils sont compilés. Je vois que tu as déjà 2 personnages. Voyons leurs fiches :
+
+⏺ Bash(./sw-character list)
+  ⎿  ## Personnages                       
+
+     | Nom | Race | Classe | Niveau | PV |
+     … +3 lines (ctrl+o to expand)
+
+⏺ Excellent ! Tu as déjà un groupe prêt :
+  - Aldric : Guerrier Humain niveau 1 (8 PV)
+  - Lyra : Magicienne Elfe niveau 1 (5 PV)
+
+  C'est un duo classique : un combattant en première ligne et une lanceuse de sorts à l'arrière.
+
+  Options pour commencer
+
+  1. Créer une aventure avec Aldric et Lyra et commencer une session de jeu
+  2. Créer de nouveaux personnages (ou en ajouter au groupe)
+  3. Tester les outils individuellement (dés, monstres, trésors, génération de PNJ...)
+
+  Que préfères-tu ?
+
+> commençons une petite aventure pour voir. 
+
+⏺ Parfait ! Créons une aventure et lançons une session.
+
+⏺ Bash(./sw-adventure create "La Crypte des Ombres" "Une ancienne crypte a été
+      découverte près du village. Des bruits inquiétants s'en échappent la
+      nuit...")
+  ⎿  ## Aventure créée : La Crypte des Ombres       
+
+     - **ID** : b651e491-b82d-469c-9f6d-9a6ca5939f2f
+     … +8 lines (ctrl+o to expand)
+
+⏺ Bash(./sw-adventure add-character "La Crypte des Ombres" "Aldric")
+  ⎿  Aldric a rejoint l'aventure "La Crypte des Ombres".
+
+⏺ Bash(./sw-adventure add-character "La Crypte des Ombres" "Lyra")
+  ⎿  Lyra a rejoint l'aventure "La Crypte des Ombres".
+
+⏺ Bash(./sw-adventure start-session "La Crypte des Ombres")
+  ⎿  ## Session 1 démarrée              
+
+     **Aventure** : La Crypte des Ombres
+     … +3 lines (ctrl+o to expand)
+
+⏺ ---
+  La Crypte des Ombres - Session 1
+
+  Le groupe : Aldric (Guerrier) et Lyra (Magicienne)
+
+  ---
+  Le soleil se couche sur le village de Pierrebrune. Vous êtes attablés à l'auberge du Sanglier Doré quand le vieux Bertram, le fossoyeur, s'effondre à votre table, le visage livide.
+
+  "Par les dieux... La crypte des anciens seigneurs... Elle s'est ouverte ! J'ai vu des lumières vertes, entendu des grattements... Quelque chose remue là-dessous !"
+
+  Le tavernier vous glisse que le conseil du village offre 50 pièces d'or à qui résoudra ce mystère.
+
+  ---
+  La crypte se trouve à une heure de marche au nord, sur la colline des Corbeaux.
+
+  Que souhaitez-vous faire ?
+  1. Interroger Bertram pour plus de détails
+  2. Partir immédiatement vers la crypte
+  3. Acheter de l'équipement au village avant de partir
+  4. Autre chose ?
+
+> 3 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Le groupe décide
+      de s'équiper au village avant d'explorer la crypte")
+  ⎿ Entrée ajoutée au journal : [exploration] Le groupe décide de s'équiper
+     au village avant d'explorer la crypte
+
+
+⏺ Bash(./sw-names npc merchant)
+  ⎿  Bertram
+
+⏺ Bash(./sw-names npc merchant)
+  ⎿  Dorwin
+
+⏺ ---
+  Chez Dorwin - Fournitures Générales
+
+  Vous traversez la place du village jusqu'à l'échoppe de Dorwin, un homme bedonnant à la moustache grise. Il lève un sourcil en vous voyant.
+
+  "Ah, des aventuriers ! Vous allez vers cette maudite crypte, pas vrai ? J'ai ce qu'il vous faut..."
+
+  Équipement disponible
+
+  | Article             | Prix  |
+  |---------------------|-------|
+  | Torche (lot de 6)   | 1 po  |
+  | Huile (fiole)       | 1 po  |
+  | Corde (15 m)        | 1 po  |
+  | Eau bénite (fiole)  | 25 po |
+  | Pieux en bois (6)   | 1 po  |
+  | Symbole sacré       | 25 po |
+  | Rations (1 semaine) | 5 po  |
+  | Sac à dos           | 4 po  |
+  | Briquet à silex     | 3 po  |
+
+  Dorwin ajoute à voix basse : "L'eau bénite, c'est pas donné, mais contre les morts-vivants... ça vaut son pesant d'or."
+
+  ---
+  Or disponible :
+  - Aldric : 120 po
+  - Lyra : 70 po
+
+  Que souhaitez-vous acheter ?
+
+> 1 sac a dos, 1 briquet a silex, 2 rations, 1 eau benite, 1 corde, 2 lots 
+de torches 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" note "Achat équipement chez
+      Dorwin : sac à dos (4po), briquet (3po), 2 rations (10po), eau bénite
+      (25po), corde (1po),…)
+  ⎿ Entrée ajoutée au journal : [note] Achat équipement chez Dorwin : sac à
+     dos (4po), briquet (3po), 2 rations (10po), eau bénite (25po), corde (
+    1po), 12 torches (2po) = 45 po
+
+
+
+⏺ Bash(./sw-adventure add-gold "La Crypte des Ombres" -45 "Équipement chez
+      Dorwin")
+  ⎿  Or ajouté : -45 po (Équipement chez Dorwin)
+     Total : -45 po
+
+⏺ ---
+  Dorwin emballe vos achats avec un sourire commerçant.
+
+  Récapitulatif - 45 po dépensées :
+  - 1 sac à dos
+  - 1 briquet à silex
+  - 2 semaines de rations
+  - 1 fiole d'eau bénite
+  - 1 corde (15 m)
+  - 12 torches
+
+  "Bonne chance là-bas. Et si vous trouvez des trucs de valeur... je rachète !"
+
+  ---
+  En route vers la Crypte
+
+  La nuit tombe tandis qu'Aldric et Lyra gravissent la colline des Corbeaux. Le vent siffle entre les vieux chênes. Au sommet, un mausolée de pierre noire se dresse, envahi par le lierre.
+
+  La lourde porte de fer est entrouverte. Une faible lueur verdâtre pulse depuis l'intérieur, et une odeur de terre humide et de pourriture s'en échappe.
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [17] = 17
+
+⏺ Lyra tend l'oreille... Elle perçoit un grattement rythmique venant des profondeurs, comme des griffes sur la pierre.
+
+  ---
+  Que faites-vous ?
+  1. Allumer une torche et entrer prudemment
+  2. Écouter plus attentivement à la porte
+  3. Examiner l'extérieur du mausolée
+  4. Autre chose ?
+
+> examinons l'exterieur du mausolée, pour voir s'il y a des traces. Génere 
+une image du lieu. 
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [15] = 15
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Le groupe examine
+      l'extérieur du mausolée à la recherche d'indices")
+  ⎿ Entrée ajoutée au journal : [exploration] Le groupe examine l'extérieur
+     du mausolée à la recherche d'indices
+
+
+⏺ Bash(./sw-image location dungeon "Un vieux mausolée de pierre noire au sommet
+      d'une colline la nuit, porte de fer entrouverte avec lueur verdâtre,
+      entouré de vieux c…)
+  ⎿  Error: Exit code 1
+     Erreur: parsing response: json: cannot unmarshal array into Go struct field 
+     FalResponse.has_nsfw_concepts of type bool
+
+     Génération du lieu: dungeon...
+     Prompt: Underground dungeon complex, stone corridors, torch sconces, 
+     mysterious, called Un vieux mausolée de pierre noire au sommet d'une colline
+      la nuit, porte de fer entrouverte avec lueur verdâtre, entouré de vieux 
+     chênes et de corbeaux, ambiance gothique et inquiétante, oil painting style,
+      rich colors, detailed brushstrokes, fantasy art, medieval fantasy setting, 
+     dungeons and dragons style, high quality, bird's eye view, map-like 
+     perspective
+
+
+
+⏺ ---
+  Examen du mausolée
+
+  Jet d'investigation : 15 - Aldric fait le tour du bâtiment avec méthode.
+
+  Vous découvrez plusieurs indices :
+
+  Traces au sol :
+  - Des empreintes de bottes récentes mènent vers l'entrée... mais ne ressortent pas
+  - Des marques de griffes dans la terre meuble, comme si quelque chose avait rampé hors du mausolée
+
+  Sur les murs :
+  - Une inscription à moitié effacée : "Ci-gît le Seigneur Valdric et ses fidèles servants"
+  - Des symboles protecteurs gravés dans la pierre... plusieurs ont été grattés intentionnellement
+
+  À l'arrière :
+  - Une petite fenêtre grillagée, trop étroite pour passer
+  - À travers, Lyra aperçoit un escalier descendant et la source de la lueur verte en contrebas
+
+  ---
+  La génération d'image a rencontré une erreur technique, mais l'aventure continue !
+
+  ---
+  Conclusions : Quelqu'un est entré récemment et n'est pas ressorti. Les protections magiques ont été sabotées. Quelque chose est sorti de la crypte par la porte.
+
+  Que faites-vous ?
+  1. Entrer par la porte principale, torches allumées
+  2. Tenter de briser la grille de la fenêtre arrière
+  3. Retourner au village chercher du renfort
+  4. Autre chose ?
+
+> entrons prudemment et écoutons ensuite 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Entrée dans le
+      mausolée, torches allumées")
+  ⎿ Entrée ajoutée au journal : [exploration] Entrée dans le mausolée, torc
+    hes allumées
+
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [4] = 4
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [11] = 11
+
+⏺ ---
+  L'entrée du mausolée
+
+  Aldric allume une torche. La flamme vacille dans l'air vicié.
+
+  Discrétion : 4 - La porte de fer grince horriblement en s'ouvrant. L'écho se répercute dans les profondeurs. Si quelque chose vit en bas... il sait que vous êtes là.
+
+  ---
+  La salle d'entrée :
+
+  Une pièce carrée de 6 mètres de côté. Quatre sarcophages de pierre sont alignés contre les murs, leurs couvercles intacts. Au centre, un escalier de pierre descend dans l'obscurité, d'où émane la lueur verdâtre.
+
+  Sur le sol : des traces de sang séché menant vers l'escalier.
+
+  ---
+  Perception : 11
+
+  Vous tendez l'oreille...
+
+  - Le grattement s'est arrêté. Silence.
+  - Puis, venant d'en bas : un gémissement humain, faible, comme quelqu'un de blessé
+  - Et autre chose... un cliquetis régulier, comme des os qui s'entrechoquent
+
+  ---
+  Les sarcophages semblent fermés pour l'instant. L'escalier descend d'environ 3 mètres vers ce qui semble être une grande salle.
+
+  Que faites-vous ?
+  1. Descendre l'escalier vers les gémissements
+  2. Vérifier les sarcophages avant de descendre
+  3. Appeler pour voir si quelqu'un répond
+  4. Autre chose ?
+
+> prenons l'escalier prudemment, en sortant nos armes pour etre pret au cas 
+ou 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Descente de
+      l'escalier, armes dégainées")
+  ⎿ Entrée ajoutée au journal : [exploration] Descente de l'escalier, armes
+     dégainées
+
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [2] = 2
+
+⏺ Bash(./sw-monster roll skeleton --count=3)
+  ⎿  ## Squelette x3               
+
+     CA 13 | XP 10 chacun
+     … +16 lines (ctrl+o to expand)
+
+⏺ Bash(./sw-dice roll d6)
+  ⎿  d6: [1] = 1
+
+⏺ ---
+  La crypte inférieure
+
+  Aldric descend en premier, épée au clair. Lyra suit avec la torche et son bâton.
+
+  Perception : 2 - Concentrés sur la lueur verdâtre, vous ne voyez pas les ombres bouger sur les côtés...
+
+  ---
+  La salle est vaste. Un autel de pierre noire trône au fond, couvert de runes qui pulsent d'une lueur verte maladive. Devant l'autel, un homme en robe de mage gît dans une mare de sang, immobile mais gémissant faiblement.
+
+  Et entre vous et lui...
+
+  EMBUSCADE !
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "EMBUSCADE ! 3
+      squelettes attaquent dans la crypte inférieure")
+  ⎿ Entrée ajoutée au journal : [combat] EMBUSCADE ! 3 squelettes attaquent
+     dans la crypte inférieure
+
+
+⏺ ---
+  COMBAT !
+
+  3 Squelettes émergent des alcôves latérales, leurs orbites vides brillant de la même lueur verte. Des guerriers morts depuis longtemps, encore vêtus de lambeaux de cotte de mailles rouillée.
+
+  | Ennemi      | CA  | PV  | Arme          |
+  |-------------|-----|-----|---------------|
+  | Squelette 1 | 13  | 3/3 | Épée rouillée |
+  | Squelette 2 | 13  | 2/2 | Épée rouillée |
+  | Squelette 3 | 13  | 4/4 | Épée rouillée |
+
+  Note : Les armes tranchantes font demi-dégâts aux squelettes !
+
+  ---
+  Round de surprise - Les squelettes attaquent !
+
+⏺ Bash(./sw-dice roll 3d20)
+  ⎿  3d20: [19, 12, 14] = 45
+
+⏺ Bash(./sw-dice roll 2d6)
+  ⎿  2d6: [4, 5] = 9
+
+⏺ Squelette 1 (→ Aldric) : 19 vs CA 15 - TOUCHE ! 4 dégâts !
+  Squelette 2 (→ Lyra) : 12 vs CA 10 - TOUCHE ! 5 dégâts !
+  Squelette 3 (→ Aldric) : 14 vs CA 15 - rate !
+
+  ---
+  État du groupe :
+  | Personnage | PV  | État      |
+  |------------|-----|-----------|
+  | Aldric     | 4/8 | Blessé    |
+  | Lyra       | 0/5 | À TERRE ! |
+
+  Une lame rouillée entaille le bras d'Aldric. Pire : un squelette frappe Lyra à la tempe ! Elle s'effondre, inconsciente !
+
+  ---
+  Round 1 - C'est votre tour !
+
+  Aldric se tient seul face à trois squelettes. Lyra gît à ses pieds. Le mage blessé gémit près de l'autel.
+
+  Actions possibles pour Aldric :
+  - Attaquer un squelette (arme contondante = plein dégâts, tranchante = demi-dégâts)
+  - Utiliser l'eau bénite (1d8 dégâts aux morts-vivants)
+  - Protéger Lyra et battre en retraite
+  - Autre chose ?
+
+  Que fait Aldric ?
+
+> utilisons l'eau benite 
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [12] = 12
+
+⏺ Bash(./sw-dice roll d8)
+  ⎿  d8: [7] = 7
+
+⏺ ---
+  Jet d'attaque : 12 + 1 (guerrier) = 13 - TOUCHE !
+
+  Aldric saisit la fiole d'eau bénite et la lance au milieu des squelettes !
+
+  Dégâts : 7 !
+
+  La fiole explose en une gerbe d'eau sacrée. Les morts-vivants hurlent d'un cri d'outre-tombe !
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "Aldric lance l'eau
+      bénite : 7 dégâts ! Détruit 2 squelettes, 1 gravement touché")
+  ⎿ Entrée ajoutée au journal : [combat] Aldric lance l'eau bénite : 7 dégâ
+    ts \! Détruit 2 squelettes, 1 gravement touché
+
+
+⏺ ---
+  RÉSULTAT DÉVASTATEUR !
+
+  | Squelette   | Dégâts           | État            |
+  |-------------|------------------|-----------------|
+  | Squelette 1 | 7 (direct)       | DÉTRUIT !       |
+  | Squelette 2 | 2 (éclaboussure) | DÉTRUIT !       |
+  | Squelette 3 | 2 (éclaboussure) | 2/4 PV - blessé |
+
+  Deux squelettes s'effondrent en tas d'ossements fumants ! Le troisième titube, ses os noircis par l'eau sacrée.
+
+  ---
+  Riposte du squelette survivant
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [2] = 2
+
+⏺ Squelette 3 attaque Aldric : 2 - RATÉ !
+
+  Le squelette frappe maladroitement, déséquilibré par les dégâts de l'eau bénite.
+
+  ---
+  Round 2 - Tour d'Aldric
+
+  | Combattant  | PV  | État         |
+  |-------------|-----|--------------|
+  | Aldric      | 4/8 | Blessé       |
+  | Lyra        | 0/5 | Inconsciente |
+  | Squelette 3 | 2/4 | Blessé       |
+
+  Un seul squelette reste debout, vacillant. Lyra est toujours à terre.
+
+  Que fait Aldric ?
+  1. Frapper le squelette (épée = demi-dégâts)
+  2. Utiliser le pommeau/coup de pied (contondant = plein dégâts, 1d4)
+  3. Autre chose ?
+
+> 2 
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [6] = 6
+
+⏺ Jet d'attaque : 6 + 1 = 7 vs CA 13 - RATÉ !
+
+  Aldric tente un coup de pommeau mais le squelette esquive d'un mouvement saccadé !
+
+  ---
+  Riposte du squelette
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [17] = 17
+
+⏺ Bash(./sw-dice roll d6)
+  ⎿  d6: [1] = 1
+
+⏺ Squelette : 17 vs CA 15 - TOUCHE ! 1 dégât
+
+  La lame rouillée érafle le flanc d'Aldric.
+
+  ---
+  Round 3 - Situation critique
+
+  | Combattant  | PV  | État                |
+  |-------------|-----|---------------------|
+  | Aldric      | 3/8 | Sérieusement blessé |
+  | Lyra        | 0/5 | Inconsciente        |
+  | Squelette 3 | 2/4 | Blessé              |
+
+  Le combat s'éternise. Lyra saigne toujours au sol. Il faut en finir !
+
+  Que fait Aldric ?
+
+> Aldric se soigne et ensuite reprend le commande 
+
+⏺ Bash(./sw-dice roll d6+1)
+  ⎿  d6+1: [5] + 1 = 6
+
+⏺ ---
+  Aldric recule d'un pas et arrache le bouchon d'une potion de soin de sa ceinture avec les dents. Le liquide rouge descend dans sa gorge.
+
+  Potion de soin : +6 PV !
+
+  | Aldric | PV  |
+  |--------|-----|
+  | Avant  | 3/8 |
+  | Après  | 8/8 |
+
+  ---
+  Le squelette profite de l'ouverture !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [12] = 12
+
+⏺ Squelette : 12 vs CA 15 - RATÉ !
+
+  Le mort-vivant frappe mais Aldric pare avec son avant-bras tout en avalant la dernière gorgée.
+
+  ---
+  Round 4 - Aldric contre-attaque !
+
+  Revigoré, le guerrier serre son épée et frappe avec le pommeau !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [12] = 12
+
+⏺ Bash(./sw-dice roll d4)
+  ⎿  d4: [2] = 2
+
+⏺ Jet d'attaque : 12 + 1 = 13 vs CA 13 - TOUCHE !
+
+  Dégâts : 2 (contondant)
+
+  ---
+  VICTOIRE !
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "Victoire ! Aldric
+      détruit le dernier squelette d'un coup de pommeau. 3 squelettes vaincus,
+      30 XP")
+  ⎿ Entrée ajoutée au journal : [combat] Victoire \! Aldric détruit le dern
+    ier squelette d'un coup de pommeau. 3 squelettes vaincus, 30 XP
+
+
+⏺ Le pommeau de l'épée fracasse le crâne du squelette. Les os s'effondrent en un tas fumant, la lueur verte s'éteignant dans ses orbites.
+
+  Silence.
+
+  ---
+  Bilan du combat
+
+  | Résultat        | Détail                   |
+  |-----------------|--------------------------|
+  | Ennemis vaincus | 3 squelettes             |
+  | XP gagnés       | 30 XP (15 chacun)        |
+  | Aldric          | 8/8 PV (potion utilisée) |
+  | Lyra            | 0/5 PV - inconsciente    |
+
+  ---
+  Situation actuelle
+
+  Aldric se tient debout parmi les ossements, haletant. À ses pieds :
+  - Lyra gît inconsciente, une vilaine bosse à la tempe
+  - Le mage blessé près de l'autel gémit toujours faiblement
+  - L'autel pulse d'une lueur verdâtre inquiétante
+
+  Priorités ?
+  1. Stabiliser Lyra immédiatement
+  2. Aller voir le mage blessé
+  3. Examiner l'autel et les runes
+  4. Fouiller les squelettes/la salle
+
+> 1 
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [13] = 13
+
+⏺ ---
+  Aldric s'agenouille près de Lyra et examine sa blessure. Il déchire une bande de tissu de sa cape et compresse la plaie à la tempe.
+
+  Jet de premiers soins : 13 - Succès !
+
+  Le saignement s'arrête. Lyra respire faiblement mais régulièrement.
+
+  ---
+  Une voix faible s'élève depuis l'autel...
+
+  "L'elfe... elle vivra ?"
+
+  Le mage blessé s'est retourné péniblement. C'est un homme d'une cinquantaine d'années, la barbe grise, sa robe bleue déchirée et ensanglantée.
+
+  "J'ai... une potion... dans ma sacoche. Donnez-la lui... vite, avant qu'ils reviennent..."
+
+  Il désigne une sacoche en cuir près de l'autel.
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" note "Lyra stabilisée. Un mage
+      blessé (survivant) offre une potion de soin")
+  ⎿ Entrée ajoutée au journal : [note] Lyra stabilisée. Un mage blessé (sur
+    vivant) offre une potion de soin
+
+
+⏺ Bash(./sw-dice roll d6+1)
+  ⎿  d6+1: [1] + 1 = 2
+
+⏺ Aldric récupère la sacoche et en sort une petite fiole ambrée. Il fait couler le liquide entre les lèvres de Lyra.
+
+  Potion de soin : +2 PV
+
+  Les paupières de Lyra frémissent... et s'ouvrent.
+
+  ---
+  État du groupe
+
+  | Personnage | PV  | État                  |
+  |------------|-----|-----------------------|
+  | Aldric     | 8/8 | En forme              |
+  | Lyra       | 2/5 | Consciente, affaiblie |
+
+  ---
+  Lyra se redresse péniblement, une main sur sa tempe.
+
+  "Qu'est-ce que... les squelettes ?"
+
+  "Détruits", répond Aldric. "Mais on a de la compagnie."
+
+  Le vieux mage se traîne vers vous, grimaçant de douleur. Une profonde entaille marque son flanc.
+
+  "Merci... Je m'appelle Marvos. J'étais venu étudier ces runes anciennes quand... quand ils m'ont attaqué. Mais le pire n'est pas les squelettes..."
+
+  Il pointe l'autel d'un doigt tremblant.
+
+  "Quelqu'un a brisé le sceau. Le Seigneur Valdric... il se réveille. Je l'ai entendu bouger dans la crypte inférieure. Si on ne le stoppe pas avant l'aube... il marchera sur le village avec tous ses morts."
+
+  ---
+  Que faites-vous ?
+  1. Interroger Marvos sur Valdric et comment le vaincre
+  2. Examiner l'autel et les runes
+  3. Descendre immédiatement dans la crypte inférieure
+  4. Escorter Marvos dehors et revenir plus préparés
+
+> prenons l'option 4, tu peux generer une image ? 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Repli tactique :
+      le groupe escorte Marvos hors de la crypte pour se préparer")
+  ⎿ Entrée ajoutée au journal : [exploration] Repli tactique : le groupe es
+    corte Marvos hors de la crypte pour se préparer
+
+
+⏺ Bash(./sw-image scene "Un guerrier en armure soutenant une elfe blessée et un
+      vieux mage, sortant d'une crypte sombre vers la lumière de la lune,
+      colline avec vieux…)
+  ⎿ Génération de la scène...                                              
+    Prompt: Un guerrier en armure soutenant une elfe blessée et un vieux ma
+    ge, sortant d'une crypte sombre vers la lumière de la lune, colline ave
+    … +6 lines (ctrl+o to expand)
+
+
+
+⏺ Read(data/images/image_1766252923944418000.png)
+  ⎿  Read image (757.6KB)
+
+⏺ ---
+  Repli tactique
+
+  Aldric passe le bras de Lyra sur son épaule. De l'autre côté, Marvos s'appuie sur son bâton, grimaçant à chaque pas.
+
+  Le groupe remonte l'escalier, traverse la salle aux sarcophages - toujours fermés, heureusement - et émerge dans la nuit froide.
+
+  La lune brille haut dans le ciel. Il reste peut-être quatre heures avant l'aube.
+
+  ---
+  Sur le chemin du retour, Marvos parle d'une voix pressante :
+
+  "Valdric était un seigneur cruel. À sa mort, les prêtres l'ont scellé avec des rituels puissants. Mais quelqu'un a gratté les sceaux... quelqu'un qui savait ce qu'il faisait."
+
+  "Pour le détruire, il faut la lumière sacrée. Un clerc serait idéal, ou... de l'eau bénite, des symboles sacrés. Et surtout, il faut briser la gemme sur son front - c'est elle qui le maintient animé."
+
+  ---
+  Retour au village de Pierrebrune
+
+  Vous arrivez à l'auberge. Marvos est confié aux soins du tavernier.
+
+  Il reste 4 heures avant l'aube.
+
+  Options disponibles :
+
+  | Option                 | Détail                                  |
+  |------------------------|-----------------------------------------|
+  | Repos court            | Lyra récupère 1d4 PV                    |
+  | Acheter équipement     | Réveiller Dorwin (eau bénite, pieux...) |
+  | Chercher un clerc      | Y a-t-il un prêtre au village ?         |
+  | Repartir immédiatement | Affronter Valdric maintenant            |
+
+  Que souhaitez-vous faire avant de retourner à la crypte ?
+
+> chercher un clerc pour nous accompagner. Il sera efficace contre les morts
+ vivants. Mais avant, prenons un repos court 
+
+⏺ Bash(./sw-dice roll d4)
+  ⎿  d4: [4] = 4
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" note "Repos court à l'auberge.
+      Recherche d'un clerc au village")
+  ⎿ Entrée ajoutée au journal : [note] Repos court à l'auberge. Recherche d
+    'un clerc au village
+
+
+⏺ ---
+  Repos court - 1 heure
+
+  Lyra s'allonge près du feu. Le tavernier apporte des bandages propres et une tisane chaude.
+
+  Lyra récupère 4 PV !
+
+  | Personnage | PV  |
+  |------------|-----|
+  | Aldric     | 8/8 |
+  | Lyra       | 5/5 |
+
+  ---
+  À la recherche d'un clerc
+
+⏺ Bash(./sw-npc generate --occupation=authority --attitude=friendly
+      --format=short)
+  ⎿  Naelon Winterfrost - elfe homme, conseiller (traître, confiant)
+
+⏺ Bash(./sw-names generate human --gender=f)
+  ⎿  Adanel Warhammer
+
+⏺ Le tavernier vous indique la chapelle au bout de la rue.
+
+  "Sœur Adanel. Elle prie souvent la nuit. Si quelqu'un peut vous aider contre les morts-vivants, c'est elle."
+
+  ---
+  La Chapelle de l'Aube
+
+  Une petite chapelle de pierre, éclairée par des bougies. Une femme d'une trentaine d'années en robe blanche et cotte de mailles s'agenouille devant l'autel. Un marteau de guerre repose à ses côtés.
+
+  Elle se retourne à votre entrée. Son regard est dur mais bienveillant.
+
+  "Le fossoyeur m'a prévenue. La crypte des Valdric... Je priais pour que quelqu'un se lève contre cette menace."
+
+  Elle se relève et saisit son marteau.
+
+  "Je suis Sœur Adanel Warhammer, servante de la Lumière. Si vous affrontez le seigneur mort-vivant, je vous accompagne."
+
+  ---
+  Sœur Adanel - Clerc niveau 1
+
+  | Stat   | Valeur                  |
+  |--------|-------------------------|
+  | Classe | Clerc                   |
+  | PV     | 6/6                     |
+  | CA     | 15 (cotte + bouclier)   |
+  | Arme   | Marteau de guerre (1d6) |
+
+  Capacités :
+  - Renvoi des morts-vivants (peut faire fuir ou détruire les squelettes/zombies)
+  - Sort : Soins légers (1d6+1 PV, 1 utilisation/jour)
+
+  Équipement apporté :
+  - 2 fioles d'eau bénite
+  - Symbole sacré
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" note "Sœur Adanel Warhammer
+      (Clerc N1, 6 PV) rejoint le groupe. Apporte 2 eaux bénites et Renvoi des
+      morts-vivants")
+  ⎿ Entrée ajoutée au journal : [note] Sœur Adanel Warhammer (Clerc N1, 6 P
+    V) rejoint le groupe. Apporte 2 eaux bénites et Renvoi des morts-vivant
+    s
+
+
+
+⏺ ---
+  Le groupe est prêt
+
+  | Membre      | Classe     | PV  | Rôle                        |
+  |-------------|------------|-----|-----------------------------|
+  | Aldric      | Guerrier   | 8/8 | Tank, dégâts                |
+  | Lyra        | Magicienne | 5/5 | Sorts offensifs             |
+  | Sœur Adanel | Clerc      | 6/6 | Renvoi morts-vivants, soins |
+
+  Inventaire collectif :
+  - 2 fioles d'eau bénite (Adanel)
+  - 11 torches
+  - Corde (15m)
+  - Symbole sacré
+
+  Temps restant : 3 heures avant l'aube
+
+  ---
+  Adanel regarde par la fenêtre. La colline des Corbeaux se découpe dans la nuit.
+
+  "Allons-y. Chaque minute compte."
+
+  ---
+  Prêts à retourner à la crypte ?
+  1. Oui, partons immédiatement
+  2. Acheter plus d'équipement d'abord
+  3. Demander plus d'informations à Marvos
+
+> 3 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" note "Interrogatoire de Marvos
+      sur le Seigneur Valdric")
+  ⎿ Entrée ajoutée au journal : [note] Interrogatoire de Marvos sur le Seig
+    neur Valdric
+
+
+⏺ ---
+  Interrogatoire de Marvos
+
+  Vous retrouvez le vieux mage dans une chambre de l'auberge, ses blessures bandées. Il se redresse en vous voyant.
+
+  "Vous repartez ? Bien... Laissez-moi vous dire ce que je sais."
+
+  ---
+  Ce que Marvos révèle :
+
+  Sur Valdric :
+  "Le Seigneur Valdric était un tyran. Il a régné sur cette région il y a 200 ans. On dit qu'il a fait un pacte avec des forces obscures pour l'immortalité. À sa mort, cinq prêtres ont uni leurs forces pour le sceller."
+
+  Sur ses pouvoirs :
+  "C'est une goule supérieure - plus intelligent qu'un zombie ordinaire. Il peut commander les autres morts-vivants. Sa griffure peut vous paralyser. Et ses yeux... ne le regardez pas dans les yeux."
+
+  Sur la gemme :
+  "Une émeraude noire est enchâssée dans son front. C'est son phylactère. Tant qu'elle est intacte, il se régénère. Brisez-la, et il tombera pour de bon."
+
+  Sur qui a brisé le sceau :
+  Marvos hésite, le visage sombre.
+  "Quand je suis arrivé... j'ai vu quelqu'un fuir. Une silhouette encapuchonnée. Elle portait une robe noire avec un symbole - un crâne couronné. La marque du Culte de l'Éternelle Nuit. Quelqu'un a libéré Valdric volontairement."
+
+  ---
+  Fiche : Seigneur Valdric (Goule Supérieure)
+
+  | Stat      | Valeur                                        |
+  |-----------|-----------------------------------------------|
+  | CA        | 15                                            |
+  | PV        | ~20 (estimation)                              |
+  | Attaques  | 2 griffes (1d4 + paralysie)                   |
+  | Spécial   | Regard paralysant, commande les morts-vivants |
+  | Faiblesse | Gemme frontale, eau bénite, lumière sacrée    |
+
+  ---
+  Sœur Adanel serre son symbole sacré.
+
+  "Une goule. Mon Renvoi peut le ralentir, mais pas le détruire. Il faudra le combattre... et viser cette gemme."
+
+  Lyra réfléchit.
+
+  "J'ai Projectile Magique. Un sort qui ne rate jamais. Si quelqu'un peut créer une ouverture, je peux viser la gemme."
+
+  ---
+  Plan de bataille suggéré :
+  1. Adanel utilise Renvoi pour neutraliser les sbires
+  2. Aldric engage Valdric au corps à corps (éviter son regard)
+  3. Lyra vise la gemme avec Projectile Magique
+
+  Prêts à partir ?
+  1. Oui, en route pour la crypte !
+  2. Autre question pour Marvos ?
+
+> quel est l'inventaire de notre equipement actuel? 
+
+⏺ Bash(./sw-adventure status "La Crypte des Ombres")
+  ⎿ # La Crypte des Ombres                                                 
+
+    *Une ancienne crypte a été découverte près du village. Des bruits inqui
+    … +28 lines (ctrl+o to expand)
+
+
+⏺ ---
+  Inventaire du groupe
+
+  Équipement acheté chez Dorwin (45 po)
+
+  | Objet              | Quantité | État                             |
+  |--------------------|----------|----------------------------------|
+  | Sac à dos          | 1        | ✓                                |
+  | Briquet à silex    | 1        | ✓                                |
+  | Rations (semaines) | 2        | ✓                                |
+  | Corde (15m)        | 1        | ✓                                |
+  | Torches            | 12       | ~11 restantes (1 utilisée)       |
+  | ~~Eau bénite~~     | ~~1~~    | ✗ Utilisée contre les squelettes |
+
+  Apporté par Sœur Adanel
+
+  | Objet         | Quantité |
+  |---------------|----------|
+  | Eau bénite    | 2        |
+  | Symbole sacré | 1        |
+
+  Consommables utilisés
+
+  | Objet                   | Utilisé par | Effet                           |
+  |-------------------------|-------------|---------------------------------|
+  | Potion de soin (Aldric) | Aldric      | +6 PV                           |
+  | Potion de soin (Marvos) | Lyra        | +2 PV                           |
+  | Eau bénite              | Aldric      | 7 dégâts, 2 squelettes détruits |
+
+  ---
+  Récapitulatif final
+
+  Ressources disponibles
+
+  | Ressource     | Quantité   |
+  |---------------|------------|
+  | Eau bénite    | 2 fioles   |
+  | Torches       | ~11        |
+  | Corde         | 15m        |
+  | Rations       | 2 semaines |
+  | Symbole sacré | 1          |
+  | Briquet       | 1          |
+
+  Capacités spéciales (1/jour)
+
+  | Personnage | Capacité                 | Utilisée ? |
+  |------------|--------------------------|------------|
+  | Lyra       | Projectile Magique       | Non        |
+  | Adanel     | Renvoi des morts-vivants | Non        |
+  | Adanel     | Soins légers (1d6+1)     | Non        |
+
+  ---
+  Le groupe est bien équipé pour affronter Valdric !
+
+  Prêts à retourner à la crypte ?
+
+> retournons a la crypte, nous allons fouiller la salle où les squelettes 
+ont été tué. 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Retour à la crypte
+       avec Sœur Adanel. Fouille de la salle des squelettes")
+  ⎿  Entrée ajoutée au journal : [exploration] Retour à la crypte avec Sœur
+     Adanel. Fouille de la salle des squelettes
+
+⏺ ---
+  Retour à la Crypte des Ombres
+
+  Le groupe gravit à nouveau la colline des Corbeaux. La lune commence à descendre vers l'horizon. Sœur Adanel murmure une prière, son symbole sacré brillant faiblement.
+
+  La porte du mausolée est toujours entrouverte. La lueur verte pulse toujours depuis les profondeurs, mais plus intensément qu'avant.
+
+  "Il se réveille", murmure Adanel. "Dépêchons-nous."
+
+  ---
+  La salle d'entrée
+
+  Les quatre sarcophages sont toujours fermés. Vous descendez l'escalier prudemment, armes prêtes.
+
+  La crypte inférieure
+
+  Les ossements des trois squelettes gisent éparpillés. L'autel au fond pulse toujours de lumière verte. Vous remarquez maintenant un passage derrière l'autel, menant plus profondément...
+
+  ---
+  Fouille de la salle
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [20] = 20
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [7] = 7
+
+⏺ Aldric : 20 - CRITIQUE !
+  Lyra : 7
+
+  Aldric fouille méthodiquement les ossements et les alcôves tandis que Lyra surveille le passage.
+
+⏺ Bash(./sw-treasure generate S)
+  ⎿  ## Trésor (Type S)           
+
+     *Trésor individuel*
+     … +6 lines (ctrl+o to expand)
+
+⏺ Bash(./sw-dice roll d100)
+  ⎿  d100: [60] = 60
+
+⏺ ---
+  Découvertes
+
+  Sur les squelettes :
+  - 7 pièces d'argent
+  - Épées rouillées (inutilisables)
+  - Lambeaux de cotte de mailles (ancien blason : un corbeau noir)
+
+  Jet critique - Cachette secrète !
+
+  Aldric remarque une pierre descellée dans le mur. Derrière :
+
+  | Objet          | Description                    |
+  |----------------|--------------------------------|
+  | Potion de soin | Fiole rouge, 1d6+1 PV          |
+  | Parchemin      | Note récente (voir ci-dessous) |
+  | 15 pièces d'or | Dans une bourse en cuir        |
+
+  ---
+  Le parchemin (écriture récente)
+
+  "Le sceau est brisé. Le Maître se réveillera avant l'aube.
+  Que Valdric marche à nouveau et que Pierrebrune paie pour ses crimes d'antan.
+  Gloire à l'Éternelle Nuit.
+  - F."
+
+
+⏺ Bash(./sw-adventure add-gold "La Crypte des Ombres" 15 "Cachette secrète dans
+      la crypte")
+  ⎿  Or ajouté : 15 po (Cachette secrète dans la crypte)
+     Total : -30 po
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" discovery "Cachette trouvée :
+      potion de soin, 15 po, parchemin du Culte de l'Éternelle Nuit signé 'F.'")
+  ⎿ Entrée ajoutée au journal : [discovery] Cachette trouvée : potion de so
+    in, 15 po, parchemin du Culte de l'Éternelle Nuit signé 'F.'
+
+
+⏺ ---
+  Sœur Adanel lit le parchemin, le visage grave.
+
+  "'F'... Quelqu'un du village ? Ce n'est pas un hasard si la crypte s'est ouverte maintenant. Quelqu'un a une vendetta contre Pierrebrune."
+
+  Lyra désigne le passage derrière l'autel.
+
+  "On réglera ça plus tard. D'abord, Valdric."
+
+  ---
+  Inventaire mis à jour
+
+  | Ressource       | Quantité      |
+  |-----------------|---------------|
+  | Eau bénite      | 2 fioles      |
+  | Potions de soin | 1 (nouvelle)  |
+  | Or du groupe    | 15 po (+7 pa) |
+
+  ---
+  Le passage
+
+  Un couloir étroit descend encore plus profondément. La lumière verte est plus intense ici. L'air est glacial. Des grattements résonnent depuis les profondeurs.
+
+  Adanel brandit son symbole sacré. Une faible lueur dorée en émane.
+
+  "Il est proche. Je le sens."
+
+  ---
+  Que faites-vous ?
+  1. Avancer dans le passage vers Valdric
+  2. Examiner l'autel et les runes d'abord
+  3. Autre chose ?
+
+> examinons l'autel et les runes avant 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" exploration "Examen de l'autel
+      et des runes magiques")
+  ⎿ Entrée ajoutée au journal : [exploration] Examen de l'autel et des rune
+    s magiques
+
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [20] = 20
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [12] = 12
+
+⏺ ---
+  Examen de l'autel
+
+  Lyra s'approche prudemment de l'autel de pierre noire, ses yeux d'elfe scrutant les runes gravées.
+
+  Lyra (Arcane) : 20 - CRITIQUE !
+  Adanel (Religion) : 12
+
+  ---
+  Ce que Lyra découvre
+
+  Les yeux de Lyra s'illuminent. Elle trace les runes du bout des doigts sans les toucher.
+
+  "C'est un cercle de confinement à cinq points. Regardez..."
+
+  Elle désigne cinq symboles autour de l'autel :
+
+  | Symbole     | État     | Signification           |
+  |-------------|----------|-------------------------|
+  | ☀️ Soleil   | Gratté   | Lumière purificatrice   |
+  | ⚓ Ancre    | Gratté   | Lien au monde des morts |
+  | 🛡️ Bouclier | Gratté   | Protection des vivants  |
+  | 🔥 Flamme   | Gratté   | Destruction des impurs  |
+  | ⭐ Étoile   | Intact ! | Espoir...               |
+
+  "Quatre symboles sur cinq ont été détruits. Mais regardez - l'étoile est intacte ! Le sceau n'est pas complètement brisé. C'est pour ça que Valdric n'est pas encore sorti... il est affaibli !"
+
+  ---
+  Ce qu'Adanel ajoute
+
+  La clerc examine les symboles religieux.
+
+  "Ces runes sont de l'ancienne liturgie de l'Aube. Si on pouvait restaurer ne serait-ce qu'un symbole... Attendez."
+
+  Elle sort son symbole sacré et le place sur le symbole du Soleil gratté.
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [18] = 18
+
+⏺ Jet de restauration : 18 - Succès !
+
+  Une lumière dorée jaillit du symbole sacré. Le symbole du Soleil gratté brille faiblement, partiellement restauré.
+
+  Un hurlement de rage résonne depuis les profondeurs de la crypte !
+
+  ---
+  Effet sur Valdric
+
+  "Il l'a senti", murmure Adanel en reprenant son symbole. "Le sceau est partiellement rétabli. Ça ne le retiendra pas, mais..."
+
+  | Effet                 | Bonus                   |
+  |-----------------------|-------------------------|
+  | Valdric affaibli      | -2 à ses jets d'attaque |
+  | Renvoi amélioré       | +2 au Renvoi d'Adanel   |
+  | Régénération ralentie | Ne récupère plus de PV  |
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" discovery "Sceau partiellement
+      restauré ! Valdric affaibli (-2 attaque, pas de régénération)")
+  ⎿  Entrée ajoutée au journal : [discovery] Sceau partiellement restauré !
+     Valdric affaibli (-2 attaque, pas de régénération)
+
+⏺ ---
+  Autre découverte (jet critique de Lyra)
+
+  Lyra remarque aussi quelque chose sur l'autel lui-même :
+
+  "Il y a une cavité ici... pour une gemme. La même taille que celle décrite par Marvos - l'émeraude sur le front de Valdric. Cet autel est son point d'ancrage ! Si on détruit la gemme ET qu'on la place ici..."
+
+  Adanel comprend.
+
+  "On pourrait le bannir définitivement. Pas juste le tuer - le détruire à jamais."
+
+  ---
+  Situation actuelle
+
+  Le hurlement s'est tu. Un silence de mort règne. Puis, depuis le passage, une voix caverneuse s'élève :
+
+  "Vous osez... profaner MON repos..."
+
+  "Venez donc, mortels. Venez rejoindre mes serviteurs pour l'ÉTERNITÉ."
+
+  Des bruits de pas lourds approchent.
+
+  ---
+  Il arrive. Que faites-vous ?
+  1. Préparer une embuscade ici (avantage défensif près de l'autel)
+  2. Charger dans le passage (initiative offensive)
+  3. Autre tactique ?
+
+> 1 en se souvenant de la discussion à l'auberge , 
+Aldric doit attaquer en premier 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "Embuscade préparée près
+       de l'autel. Tactique : Aldric engage, Adanel repousse les sbires, Lyra
+      vise la gemme")
+  ⎿ Entrée ajoutée au journal : [combat] Embuscade préparée près de l'autel
+    . Tactique : Aldric engage, Adanel repousse les sbires, Lyra vise la ge
+    mme
+
+
+
+⏺ ---
+  Préparation de l'embuscade
+
+  Le groupe se positionne rapidement :
+
+  | Position          | Personnage | Rôle                |
+  |-------------------|------------|---------------------|
+  | Devant l'escalier | Aldric     | Intercepter Valdric |
+  | Flanc gauche      | Adanel     | Renvoi + soutien    |
+  | Derrière l'autel  | Lyra       | Viser la gemme      |
+
+  Aldric éteint la torche. Seule la lueur verte de l'autel éclaire la salle.
+
+  "Rappelez-vous", murmure Adanel, "ne le regardez pas dans les yeux."
+
+  ---
+  L'arrivée de Valdric
+
+⏺ Bash(./sw-monster roll zombie --count=2)
+  ⎿  ## Zombie x2                  
+
+     CA 12 | XP 20 chacun
+     … +15 lines (ctrl+o to expand)
+
+⏺ Des pas lourds résonnent dans le passage. Puis une silhouette émerge.
+
+  ---
+  Le Seigneur Valdric
+
+  Une créature cauchemardesque. Autrefois un noble, maintenant une goule décharnée. Sa peau grise est tendue sur des os saillants. Ses yeux brillent d'une lueur verte malveillante. Et sur son front...
+
+  L'émeraude noire pulse comme un cœur maléfique.
+
+  Derrière lui, deux zombies en armure rouillée - ses anciens gardes.
+
+  ---
+  Ennemis
+
+  | Ennemi           | CA  | PV  | Spécial                               |
+  |------------------|-----|-----|---------------------------------------|
+  | Seigneur Valdric | 15  | 18  | Paralysie, regard, -2 attaque (sceau) |
+  | Zombie 1         | 12  | 13  | Agit en dernier                       |
+  | Zombie 2         | 12  | 8   | Agit en dernier                       |
+
+  ---
+  COMBAT - Round 1
+
+  Surprise ! Le groupe agit en premier !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [1] = 1
+
+⏺ Adanel - Renvoi des morts-vivants : 1 - ÉCHEC !
+
+  Adanel brandit son symbole sacré... mais Valdric ricane et fait un geste de la main. Une vague de ténèbres repousse la lumière dorée !
+
+  "Pitoyable, prêtresse. Tes dieux n'ont pas de pouvoir ici !"
+
+  ---
+  Aldric charge !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [9] = 9
+
+⏺ Aldric : 9 + 1 = 10 vs CA 15 - RATÉ !
+
+  Aldric bondit, épée haute, les yeux détournés du regard de Valdric. La goule esquive avec une vitesse surnaturelle, griffes levées.
+
+  Mais Aldric a créé l'ouverture !
+
+  ---
+  Lyra - Projectile Magique sur la gemme !
+
+⏺ Bash(./sw-dice roll d6+1)
+  ⎿  d6+1: [1] + 1 = 2
+
+⏺ Projectile Magique - Touche automatiquement !
+
+  Un trait de lumière bleue fuse depuis les mains de Lyra et frappe la gemme sur le front de Valdric !
+
+  2 dégâts à la gemme !
+
+  Valdric hurle de douleur ! L'émeraude se fissure légèrement, sa lueur vacillant.
+
+  "MISÉRABLE ELFE !"
+
+  | Gemme     | État                                      |
+  |-----------|-------------------------------------------|
+  | Intégrité | Fissurée (2 coups de plus pour la briser) |
+
+  ---
+  Riposte de Valdric
+
+  Fou de rage, Valdric se jette sur Lyra !
+
+⏺ Bash(./sw-dice roll d20-2)
+  ⎿  d20-2: [9] - 2 = 7
+
+⏺ Valdric : 7 vs CA 10 - RATÉ !
+
+  Aldric s'interpose ! "Par ici, monstre !"
+
+  Les griffes de Valdric sifflent dans le vide.
+
+  ---
+  Les zombies avancent (agissent en dernier)
+
+  Les deux zombies titubent vers le groupe mais n'atteignent pas encore le combat.
+
+  ---
+  Fin du Round 1
+
+  | Combattant | PV    | État                         |
+  |------------|-------|------------------------------|
+  | Aldric     | 8/8   | En combat avec Valdric       |
+  | Lyra       | 5/5   | A utilisé Projectile Magique |
+  | Adanel     | 6/6   | Renvoi échoué                |
+  | Valdric    | 18/18 | Gemme fissurée !             |
+  | Zombie 1   | 13/13 | Approche                     |
+  | Zombie 2   | 8/8   | Approche                     |
+
+  ---
+  Round 2 - Vos actions ?
+
+  Lyra n'a plus de Projectile Magique. Les zombies arrivent.
+
+  Options :
+  1. Aldric frappe la gemme (coup ciblé, -4 au jet)
+  2. Adanel tente à nouveau le Renvoi sur les zombies
+  3. Lyra utilise l'eau bénite
+  4. Autre tactique ?
+
+> Lyra utilise l'eau benite puis Aldric frappe la gemme. Adanel reste sur la
+ stratégie prévue pour l'instant. 
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [15] = 15
+
+⏺ Bash(./sw-dice roll d20+2)
+  ⎿  d20+2: [14] + 2 = 16
+
+⏺ ---
+  Round 2
+
+  Adanel - Renvoi des morts-vivants (sur les zombies)
+
+  Jet de Renvoi : 16 (14 + 2 bonus du sceau)
+
+  Adanel se concentre sur les zombies cette fois. Son symbole sacré flamboie de lumière dorée !
+
+  "Par la Lumière de l'Aube, RETOURNEZ AU NÉANT !"
+
+⏺ Bash(./sw-dice roll 2d6)
+  ⎿  2d6: [4, 6] = 10
+
+⏺ 10 DV repoussés !
+
+  Les deux zombies hurlent et reculent, consumés par la lumière sacrée ! Leurs corps pourrissants s'effondrent en cendres !
+
+  | Zombie           | Résultat  |
+  |------------------|-----------|
+  | Zombie 1 (13 PV) | DÉTRUIT ! |
+  | Zombie 2 (8 PV)  | DÉTRUIT ! |
+
+  "Impossible !" rugit Valdric, momentanément distrait.
+
+  ---
+  Lyra - Eau bénite sur Valdric !
+
+  Jet d'attaque : 15 vs CA 15 - TOUCHE !
+
+⏺ Bash(./sw-dice roll d8)
+  ⎿  d8: [3] = 3
+
+⏺ Lyra lance la fiole. Elle explose sur le torse de Valdric !
+
+  3 dégâts !
+
+  La chair grise de la goule fume et brûle ! Valdric titube en arrière, créant une ouverture pour Aldric !
+
+  Valdric : 15/18 PV
+
+  ---
+  Aldric - Coup ciblé sur la gemme !
+
+  Aldric vise l'émeraude sur le front de Valdric. C'est risqué mais décisif.
+
+  Malus : -4 (cible précise)
+
+⏺ Bash(./sw-dice roll d20-3)
+  ⎿  d20-3: [5] - 3 = 2
+
+⏺ Jet d'attaque : 2 vs CA 15 - RATÉ !
+
+  Aldric frappe mais Valdric esquive au dernier moment ! La lame siffle devant l'émeraude sans la toucher !
+
+  "Tu crois pouvoir me vaincre, mortel ? Je suis ÉTERNEL !"
+
+  ---
+  Riposte de Valdric - Double griffes sur Aldric !
+
+⏺ Bash(./sw-dice roll 2d20-2)
+  ⎿  2d20-2: [12, 8] - 2 = 18
+
+⏺ Griffe 1 : 10 vs CA 15 - RATÉ !
+  Griffe 2 : 6 vs CA 15 - RATÉ !
+
+  Valdric lacère l'air mais Aldric pare les deux coups avec son bouclier ! Le sceau l'affaiblit visiblement - ses mouvements sont saccadés, hésitants.
+
+  ---
+  Fin du Round 2
+
+  | Combattant   | PV    | État                  |
+  |--------------|-------|-----------------------|
+  | Aldric       | 8/8   | Face à Valdric        |
+  | Lyra         | 5/5   | 1 eau bénite restante |
+  | Adanel       | 6/6   | Renvoi utilisé        |
+  | Valdric      | 15/18 | Gemme fissurée, brûlé |
+  | ~~Zombie 1~~ | -     | DÉTRUIT               |
+  | ~~Zombie 2~~ | -     | DÉTRUIT               |
+
+  ---
+  Round 3 - Plus de sbires !
+
+  Les zombies sont détruits. Valdric est seul et blessé. La gemme est fissurée.
+
+  Situation :
+  - Aldric est au corps à corps
+  - Lyra a encore 1 eau bénite
+  - Adanel peut attaquer ou soigner
+
+  Vos actions ?
+
+> Genere une image pour representer la scene. Puis ensuite LYra lance de 
+l'eau benite, Adanel attaque et Aldric attaque aussi. 
+
+⏺ Bash(./sw-image scene "Combat épique dans une crypte sombre, un guerrier en
+      armure et une clerc avec un marteau affrontent une goule monstrueuse avec
+      une gemme verte…)
+  ⎿ Génération de la scène...                                              
+    Prompt: Epic battle scene, warriors clashing, dramatic action, Combat é
+    pique dans une crypte sombre, un guerrier en armure et une clerc avec u
+    … +8 lines (ctrl+o to expand)
+
+
+
+⏺ Read(data/images/image_1766253852044304000.png)
+  ⎿  Read image (835.7KB)
+
+⏺ ---
+  Round 3 - Assaut coordonné !
+
+  L'image de la bataille fait rage dans la crypte - la lumière verte de Valdric contre la détermination des héros !
+
+  ---
+  Lyra - Dernière eau bénite !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [19] = 19
+
+⏺ Jet d'attaque : 19 vs CA 15 - TOUCHE !
+
+⏺ Bash(./sw-dice roll d8)
+  ⎿  d8: [6] = 6
+
+⏺ 6 dégâts !
+
+  La fiole explose en plein visage de Valdric ! La chair morte fond sous l'eau sacrée ! La goule hurle de douleur !
+
+  Valdric : 9/18 PV - Gravement blessé !
+
+  ---
+  Adanel - Marteau de guerre !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [19] = 19
+
+⏺ Jet d'attaque : 19 vs CA 15 - TOUCHE !
+
+⏺ Bash(./sw-dice roll d6)
+  ⎿  d6: [1] = 1
+
+⏺ 1 dégât
+
+  Adanel frappe le bras de Valdric avec son marteau. Un os craque !
+
+  "Pour la Lumière !"
+
+  Valdric : 8/18 PV
+
+  ---
+  Aldric - Frappe décisive !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [1] = 1
+
+⏺ Jet d'attaque : 1 - ÉCHEC CRITIQUE !
+
+  Aldric frappe mais son pied glisse sur une flaque d'eau bénite ! Son épée s'échappe de sa main et tombe au sol !
+
+  "Non !"
+
+  Aldric est DÉSARMÉ !
+
+  ---
+  Riposte de Valdric - Sur Aldric désarmé !
+
+⏺ Bash(./sw-dice roll 2d20-2)
+  ⎿  2d20-2: [9, 10] - 2 = 17
+
+⏺ Griffe 1 : 7 vs CA 15 - RATÉ !
+  Griffe 2 : 8 vs CA 15 - RATÉ !
+
+  Valdric se jette sur Aldric désarmé mais Adanel s'interpose avec son bouclier ! Les griffes raclent le métal !
+
+  "Pas si vite, démon !"
+
+  ---
+  Fin du Round 3
+
+  | Combattant | PV   | État               |
+  |------------|------|--------------------|
+  | Aldric     | 8/8  | DÉSARMÉ            |
+  | Lyra       | 5/5  | Plus d'eau bénite  |
+  | Adanel     | 6/6  | En mêlée           |
+  | Valdric    | 8/18 | Gravement blessé ! |
+
+  ---
+  La gemme sur le front de Valdric pulse faiblement. Il est affaibli, blessé, mais toujours dangereux.
+
+  Round 4 - Que faites-vous ?
+
+  Options :
+  1. Aldric ramasse son épée (perd son attaque)
+  2. Aldric frappe à mains nues / coup de poing (1d2)
+  3. Adanel tente de frapper la gemme (-4)
+  4. Lyra attaque avec son bâton
+  5. Autre tactique ?
+
+> Aldric ramasse son epee. Adanel attaque la gemme et Lyra utilise un de ses
+ pouvoirs d'attaque 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "Round 4 : Assaut final
+      sur Valdric. Adanel vise la gemme !")
+  ⎿ Entrée ajoutée au journal : [combat] Round 4 : Assaut final sur Valdric
+    . Adanel vise la gemme !
+
+
+⏺ ---
+  Round 4
+
+  Aldric - Récupère son épée
+
+  Aldric plonge et ramasse son arme. Il se relève, prêt pour le prochain round.
+
+  "Je l'ai !"
+
+  ---
+  Adanel - Frappe ciblée sur la GEMME !
+
+  La clerc vise l'émeraude fissurée sur le front de Valdric !
+
+  Malus : -4 (cible précise)
+
+⏺ Bash(./sw-dice roll d20-4)
+  ⎿  d20-4: [13] - 4 = 9
+
+⏺ Jet d'attaque : 9 vs CA 15 - RATÉ !
+
+  Le marteau siffle près de la tête de Valdric mais la goule recule juste à temps ! La gemme reste intacte !
+
+  ---
+  Lyra - Attaque au bâton !
+
+  Lyra n'a plus de sorts mais frappe avec son bâton de mage !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [7] = 7
+
+⏺ Jet d'attaque : 7 vs CA 15 - RATÉ !
+
+  Lyra frappe mais Valdric bloque le coup de son bras blessé.
+
+  ---
+  Riposte de Valdric
+
+  La goule, sentant sa fin proche, devient plus féroce ! Elle attaque Adanel qui a failli toucher la gemme !
+
+⏺ Bash(./sw-dice roll d20-2)
+  ⎿  d20-2: [1] - 2 = -1
+
+⏺ Bash(./sw-dice roll d20-2)
+  ⎿  d20-2: [7] - 2 = 5
+
+⏺ Griffe 1 : -1 - ÉCHEC CRITIQUE !
+  Griffe 2 : 5 vs CA 15 - RATÉ !
+
+  Valdric frappe sauvagement mais le sceau brisé l'affaiblit ! Sa première griffe se brise contre le bouclier d'Adanel !
+
+  "NON ! Ma puissance... le sceau... MAUDITS MORTELS !"
+
+  ---
+  Fin du Round 4
+
+  | Combattant | PV   | État                      |
+  |------------|------|---------------------------|
+  | Aldric     | 8/8  | Armé, prêt                |
+  | Lyra       | 5/5  | En mêlée                  |
+  | Adanel     | 6/6  | Face à Valdric            |
+  | Valdric    | 8/18 | Blessé, 1 griffe brisée ! |
+
+  ---
+  Valdric recule, une seule griffe fonctionnelle. La gemme sur son front clignote faiblement. Il est à bout.
+
+  "Vous ne pouvez pas... je suis... ÉTERNEL..."
+
+  Round 5 - FINISSEZ-LE !
+
+  C'est le moment ! Tous ensemble !
+
+  Vos actions ?
+
+> Tous sur la gemme en priorité 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "Round 5 : ASSAUT FINAL
+      ! Tous visent la gemme !")
+  ⎿ Entrée ajoutée au journal : [combat] Round 5 : ASSAUT FINAL ! Tous vise
+    nt la gemme !
+
+
+⏺ Bash(./sw-dice roll d20-3)
+  ⎿  d20-3: [11] - 3 = 8
+
+⏺ Bash(./sw-dice roll d20-4)
+  ⎿  d20-4: [5] - 4 = 1
+
+⏺ Bash(./sw-dice roll d20-4)
+  ⎿  d20-4: [1] - 4 = -3
+
+⏺ ---
+  Round 5 - Assaut coordonné !
+
+  Les trois héros bondissent sur Valdric, visant tous la gemme !
+
+  Aldric
+
+  Jet : 8 vs CA 15 - RATÉ !
+
+  L'épée siffle mais Valdric penche la tête au dernier moment !
+
+  Adanel
+
+  Jet : 1 vs CA 15 - RATÉ !
+
+  Le marteau frappe l'épaule de Valdric au lieu de la gemme !
+
+  Lyra
+
+  Jet : -3 - ÉCHEC CRITIQUE !
+
+  Lyra glisse et tombe ! Son bâton lui échappe des mains !
+
+  ---
+  Valdric rugit de triomphe !
+
+  "FOUS ! Vous pensiez pouvoir me vaincre ?!"
+
+  Riposte désespérée de Valdric
+
+⏺ Bash(./sw-dice roll d20-2)
+  ⎿  d20-2: [9] - 2 = 7
+
+⏺ Valdric (sur Lyra à terre) : 7 vs CA 10 - RATÉ !
+
+  Aldric s'interpose, bloquant la griffe avec son bouclier !
+
+  "Lyra, debout !"
+
+  ---
+  Fin du Round 5
+
+  | Combattant | PV   | État                 |
+  |------------|------|----------------------|
+  | Aldric     | 8/8  | Protège Lyra         |
+  | Lyra       | 5/5  | À terre, désarmée    |
+  | Adanel     | 6/6  | En mêlée             |
+  | Valdric    | 8/18 | Affaibli mais debout |
+
+  ---
+  Le combat s'éternise. Valdric refuse de mourir. Mais il est visiblement épuisé, sa gemme clignotant de plus en plus faiblement.
+
+  Adanel serre son symbole sacré.
+
+  "Il faut en finir. MAINTENANT !"
+
+  Round 6 - Dernière chance !
+
+⏺ Bash(./sw-dice roll d20-3)
+  ⎿  d20-3: [6] - 3 = 3
+
+⏺ Bash(./sw-dice roll d20-4)
+  ⎿  d20-4: [6] - 4 = 2
+
+⏺ Aldric : 3 vs CA 15 - RATÉ !
+  Adanel : 2 vs CA 15 - RATÉ !
+
+  Les coups s'enchaînent mais Valdric esquive avec l'énergie du désespoir !
+
+  ---
+  Lyra se relève...
+
+  Au sol, près de l'autel, Lyra voit quelque chose. La cavité sur l'autel - prête à recevoir la gemme. Et elle se souvient des paroles de Marvos...
+
+  "Si on détruit la gemme ET qu'on la place sur l'autel..."
+
+  Une idée. Risquée. Mais c'est leur seule chance.
+
+  "ALDRIC ! Tiens-le ! Adanel, illumine la salle !"
+
+  Lyra se relève et court vers l'autel.
+
+  Riposte de Valdric - il sent le danger !
+
+⏺ Bash(./sw-dice roll d20-2)
+  ⎿  d20-2: [17] - 2 = 15
+
+⏺ Bash(./sw-dice roll d4)
+  ⎿  d4: [4] = 4
+
+⏺ Valdric frappe Lyra : 15 vs CA 10 - TOUCHE !
+
+  4 dégâts !
+
+  La griffe lacère le dos de Lyra ! Elle crie de douleur mais continue vers l'autel !
+
+  Lyra : 1/5 PV !
+
+  Jet de sauvegarde contre la paralysie !
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [3] = 3
+
+⏺ Jet de sauvegarde : 3 - ÉCHEC !
+
+  Le poison paralysant de la goule se répand ! Lyra se fige, à quelques pas de l'autel !
+
+  "Non... je... ne peux plus... bouger..."
+
+  ---
+  SITUATION CRITIQUE !
+
+  | Combattant | PV   | État         |
+  |------------|------|--------------|
+  | Aldric     | 8/8  | En combat    |
+  | Lyra       | 1/5  | PARALYSÉE !  |
+  | Adanel     | 6/6  | Doit choisir |
+  | Valdric    | 8/18 | Triomphant   |
+
+  Valdric ricane, sa griffe levée au-dessus de Lyra paralysée.
+
+  "L'elfe meurt en premier..."
+
+  ---
+  ROUND 7 - DÉCISION CRUCIALE !
+
+  Adanel peut :
+  1. Soigner Lyra (1d6+1 PV, annule la paralysie) - mais Valdric frappe
+  2. Attaquer Valdric - mais Lyra risque de mourir
+
+  Aldric peut :
+  1. S'interposer pour protéger Lyra (attaque d'opportunité de Valdric)
+  2. Attaquer Valdric pour l'empêcher de frapper
+
+  Que faites-vous ? C'est le moment décisif !
+
+> Adanel va soigner Lyra, et Aldrid va attaquer Valdric avec une rage et une
+ colere pour sauver Lyra 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "MOMENT HÉROÏQUE !
+      Adanel soigne Lyra, Aldric entre en rage pour protéger ses amis !")
+  ⎿ Entrée ajoutée au journal : [combat] MOMENT HÉROÏQUE ! Adanel soigne Ly
+    ra, Aldric entre en rage pour protéger ses amis !
+
+
+⏺ ---
+  Round 7 - MOMENT HÉROÏQUE
+
+  Aldric - RAGE DU PROTECTEUR !
+
+  Aldric voit Lyra paralysée, la griffe de Valdric levée au-dessus d'elle. Quelque chose se brise en lui. Une fureur primale.
+
+  "TU. NE. LA. TOUCHERAS. PAS !"
+
+  Bonus de rage : +2 à l'attaque !
+
+⏺ Bash(./sw-dice roll d20+3)
+  ⎿  d20+3: [13] + 3 = 16
+
+⏺ Jet d'attaque : 16 vs CA 15 - TOUCHE !
+
+⏺ Bash(./sw-dice roll d8+2)
+  ⎿  d8+2: [3] + 2 = 5
+
+⏺ 5 DÉGÂTS !
+
+  L'épée d'Aldric s'enfonce dans le torse de Valdric ! La goule hurle !
+
+  "IMPOSSIBLE !"
+
+  Valdric : 3/18 PV !
+
+  Valdric titube en arrière, loin de Lyra ! Le coup l'a repoussé !
+
+  ---
+  Adanel - Soins Légers sur Lyra !
+
+  La clerc se précipite vers l'elfe paralysée, son symbole sacré brillant de lumière dorée.
+
+  "Par la Lumière de l'Aube, GUÉRIS !"
+
+⏺ Bash(./sw-dice roll d6+1)
+  ⎿  d6+1: [5] + 1 = 6
+
+⏺ +6 PV ! Paralysie annulée !
+
+  Une vague de chaleur dorée enveloppe Lyra. Ses muscles se relâchent. Elle peut bouger à nouveau !
+
+  Lyra : 5/5 PV - DE RETOUR !
+
+  Lyra se relève, les yeux brûlant de détermination. Elle est juste à côté de l'autel.
+
+  ---
+  Valdric - Désespéré !
+
+  La goule, gravement blessée, recule vers le passage. Sa gemme clignote faiblement.
+
+  "Non... non... je ne peux pas... mourir... encore..."
+
+⏺ Bash(./sw-dice roll d20-2)
+  ⎿  d20-2: [11] - 2 = 9
+
+⏺ Valdric attaque Aldric : 9 vs CA 15 - RATÉ !
+
+  Valdric frappe faiblement mais Aldric dévie le coup avec mépris.
+
+  ---
+  Fin du Round 7
+
+  | Combattant | PV   | État                       |
+  |------------|------|----------------------------|
+  | Aldric     | 8/8  | EN RAGE !                  |
+  | Lyra       | 5/5  | GUÉRIE ! Près de l'autel ! |
+  | Adanel     | 6/6  | Sort utilisé               |
+  | Valdric    | 3/18 | MOURANT !                  |
+
+  ---
+  ROUND 8 - L'HEURE DE LA VICTOIRE !
+
+  Valdric est à l'agonie. Lyra est debout près de l'autel. La gemme pulse faiblement.
+
+  C'est maintenant ou jamais !
+
+  Vos actions finales ?
+  1. Aldric frappe la gemme (coup de grâce ?)
+  2. Lyra utilise l'autel d'une façon ou d'une autre
+  3. Tous ensemble pour le finish !
+
+> tous ensemble 
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "ROUND FINAL ! Assaut
+      combiné des trois héros sur Valdric !")
+  ⎿ Entrée ajoutée au journal : [combat] ROUND FINAL ! Assaut combiné des t
+    rois héros sur Valdric !
+
+
+⏺ Bash(./sw-dice roll d20+3)
+  ⎿  d20+3: [8] + 3 = 11
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [7] = 7
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [4] = 4
+
+⏺ ---
+  ROUND 8 - ASSAUT FINAL !
+
+  Les trois héros bondissent comme un seul !
+
+  Aldric : 11 vs CA 15 - Valdric esquive !
+  Adanel : 7 vs CA 15 - Le marteau frappe le vide !
+  Lyra : 4 vs CA 15 - Le bâton est paré !
+
+  Valdric recule sous l'assaut... et son dos heurte L'AUTEL !
+
+  ---
+  MOMENT DE VÉRITÉ
+
+  Lyra voit l'opportunité. La cavité sur l'autel. Valdric piégé contre.
+
+  "ALDRIC ! MAINTIENS-LE !"
+
+⏺ Bash(./sw-dice roll d20+3)
+  ⎿  d20+3: [18] + 3 = 21
+
+⏺ Aldric agrippe Valdric : 21 - SUCCÈS !
+
+  Le guerrier saisit la goule à la gorge et la plaque contre l'autel ! Valdric se débat mais la rage d'Aldric est plus forte !
+
+  "JE TE TIENS, MONSTRE !"
+
+  ---
+  Adanel frappe !
+
+⏺ Bash(./sw-dice roll d20+4)
+  ⎿  d20+4: [11] + 4 = 15
+
+⏺ Adanel : 15 vs CA 15 - TOUCHE !
+
+⏺ Bash(./sw-dice roll d6)
+  ⎿  d6: [5] = 5
+
+⏺ 5 DÉGÂTS !
+
+  Le marteau de guerre s'abat sur le crâne de Valdric ! Un craquement horrible !
+
+  Valdric : -2/18 PV - À TERRE !
+
+  La goule s'effondre... mais la gemme pulse encore faiblement !
+
+  "Il... il va se régénérer !" crie Adanel. "La gemme !"
+
+  ---
+  LYRA - COUP DE GRÂCE !
+
+  L'elfe lève son bâton au-dessus de la gemme fissurée sur le front de Valdric.
+
+  "Pour Pierrebrune. Pour tous ceux que tu as tués."
+
+⏺ Bash(./sw-dice roll d20)
+  ⎿  d20: [13] = 13
+
+⏺ Coup de grâce sur cible immobile - SUCCÈS AUTOMATIQUE !
+
+  Le bâton s'abat !
+
+  ---
+  💥 LA GEMME ÉCLATE ! 💥
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" combat "VICTOIRE ! Lyra brise
+      la gemme de Valdric ! Le seigneur mort-vivant est DÉTRUIT !")
+  ⎿  Entrée ajoutée au journal : [combat] VICTOIRE ! Lyra brise la gemme de
+     Valdric ! Le seigneur mort-vivant est DÉTRUIT !
+
+⏺ L'émeraude noire explose en mille éclats ! Une lumière verte aveuglante jaillit du corps de Valdric !
+
+  Le seigneur mort-vivant hurle - un cri qui semble venir des profondeurs de l'enfer !
+
+  "NOOOOOOON ! JE SUIS... ÉTER—"
+
+  Son corps se désintègre, s'effritant en poussière noire qui tourbillonne... et est aspirée dans la cavité de l'autel !
+
+  Le sceau se referme.
+
+  Silence.
+
+  ---
+  ⚔️ VICTOIRE ! ⚔️
+
+⏺ Bash(./sw-image scene "Trois héros victorieux dans une crypte, un guerrier
+      épuisé, une clerc avec un marteau levé, une elfe magicienne devant un
+      autel, lumière dorée…)
+  ⎿ Génération de la scène...                                              
+    Prompt: Trois héros victorieux dans une crypte, un guerrier épuisé, une
+     clerc avec un marteau levé, une elfe magicienne devant un autel, lumiè
+    … +6 lines (ctrl+o to expand)
+
+
+
+⏺ Read(data/images/image_1766254376863208000.png)
+  ⎿  Read image (800.5KB)
+
+⏺ Bash(./sw-treasure generate E)
+  ⎿  ## Trésor (Type E)             
+
+     *Trésor de repaire (ex: Gnoll)*
+     … +6 lines (ctrl+o to expand)
+
+⏺ ---
+  Les trois héros se tiennent debout, épuisés mais victorieux. La lumière verte a disparu, remplacée par la douce lueur de l'aube qui filtre depuis l'entrée du mausolée.
+
+  "C'est fini", murmure Adanel. "Il est vraiment parti cette fois."
+
+  Aldric s'appuie sur son épée, haletant. Lyra pose une main sur son épaule.
+
+  "On l'a fait. Ensemble."
+
+  ---
+  RÉCOMPENSES
+
+⏺ Bash(./sw-adventure add-gold "La Crypte des Ombres" 2000 "Trésor de Valdric")
+  ⎿  Or ajouté : 2000 po (Trésor de Valdric)
+     Total : 1970 po
+
+⏺ Bash(./sw-adventure log "La Crypte des Ombres" discovery "Trésor de Valdric :
+      4000 pièces d'électrum (2000 po)")
+  ⎿ Entrée ajoutée au journal : [discovery] Trésor de Valdric : 4000 pièces
+     d'électrum (2000 po)
+
+
+⏺ Points d'Expérience
+
+  | Ennemi                 | XP     |
+  |------------------------|--------|
+  | 3 Squelettes           | 30     |
+  | 2 Zombies              | 40     |
+  | Seigneur Valdric       | 200    |
+  | Bonus (sceau restauré) | 50     |
+  | TOTAL                  | 320 XP |
+
+  XP par personnage : 160 XP (Aldric & Lyra)
+
+  Trésor
+
+  | Butin             | Valeur                 |
+  |-------------------|------------------------|
+  | Coffre de Valdric | 4000 pièces d'électrum |
+  | Cachette secrète  | 15 po, 7 pa            |
+  | TOTAL             | ~2015 po               |
+
+  Récompense du village
+
+  Le conseil de Pierrebrune avait promis 50 po pour résoudre le mystère.
+
+  ---
+  ÉPILOGUE
+
+⏺ Bash(./sw-adventure end-session "La Crypte des Ombres" "VICTOIRE ! Valdric
+      détruit, Pierrebrune sauvée. Le mystérieux 'F.' du Culte de l'Éternelle
+      Nuit reste à ident…)
+  ⎿  ## Session 1 terminée        
+
+     **Durée** : 40m
+     … +2 lines (ctrl+o to expand)
+
+⏺ ---
+  L'aube se lève sur Pierrebrune. Les héros émergent de la crypte, épuisés mais victorieux.
+
+  Marvos les attend à l'entrée du village, appuyé sur une canne.
+
+  "Vous l'avez fait. Je le sens - le mal a quitté ces terres."
+
+  Le village entier se rassemble. Des applaudissements. Des larmes de joie. Le maire remet une bourse de 50 pièces d'or.
+
+  Sœur Adanel serre la main d'Aldric et de Lyra.
+
+  "Ce fut un honneur de combattre à vos côtés. Si vous avez besoin de moi à nouveau... vous savez où me trouver."
+
+  ---
+  Mystère non résolu...
+
+  Le parchemin trouvé dans la crypte brûle dans les mains de Lyra.
+
+  "Le mystérieux 'F.' du Culte de l'Éternelle Nuit..."
+
+  Qui a libéré Valdric ? Et pourquoi voulait-il détruire Pierrebrune ?
+
+  Une autre aventure attend...
+
+  ---
+  🎮 FIN DE SESSION 🎮
+
+  | Statistique         | Valeur               |
+  |---------------------|----------------------|
+  | Durée               | ~40 minutes          |
+  | Ennemis vaincus     | 6                    |
+  | XP gagnés           | 320 (160/personnage) |
+  | Or gagné            | ~2065 po             |
+  | Potions utilisées   | 2                    |
+  | Eau bénite utilisée | 3                    |
+  | Moments héroïques   | ∞                    |
+
+  ---
+  Bravo ! C'était une excellente session de test de SkillsWeaver ! Le système a bien fonctionné avec :
+  - Les jets de dés (sw-dice)
+  - La gestion d'aventure (sw-adventure)
+  - La génération de noms/PNJ (sw-names, sw-npc)
+  - Le bestiaire (sw-monster)
+  - Les trésors (sw-treasure)
+  - La génération d'images (sw-image)
+
+  Veux-tu continuer l'aventure une autre fois pour découvrir l'identité de "F." ?
+
+> ARretons nous ici et nous ferrons une autre session pour enqueter sur le 
+mysterieux F. 
+
+⏺ Parfait ! L'aventure est sauvegardée et prête pour la suite.
+
+⏺ Bash(./sw-adventure status "La Crypte des Ombres")
+  ⎿ # La Crypte des Ombres                                                 
+
+    *Une ancienne crypte a été découverte près du village. Des bruits inqui
+    … +25 lines (ctrl+o to expand)
+
+
+⏺ ---
+  Récapitulatif - Session 1 terminée
+
+  État sauvegardé
+
+  | Élément         | Valeur               |
+  |-----------------|----------------------|
+  | Aventure        | La Crypte des Ombres |
+  | Sessions jouées | 1                    |
+  | Or du groupe    | 1970 po              |
+  | Aldric          | 8/8 PV, 160 XP       |
+  | Lyra            | 5/5 PV, 160 XP       |
+
+  Pistes pour la prochaine session
+
+  - Le mystérieux "F." - Qui est ce membre du Culte de l'Éternelle Nuit ?
+  - Le Culte de l'Éternelle Nuit - Pourquoi veulent-ils détruire Pierrebrune ?
+  - Marvos le mage - Peut-il aider à identifier le coupable ?
+  - Sœur Adanel - Une alliée fidèle pour les prochaines aventures
+
+  ---
+  Merci pour cette session ! SkillsWeaver a bien fonctionné pour gérer une aventure complète avec combats, exploration, PNJ et narration.
+
+  À la prochaine session pour traquer le mystérieux F. ! 🎲
+
+> /cost 
+  ⎿  Total cost:            $5.81
+     Total duration (API):  19m 40s
+     Total duration (wall): 46m 0s
+     Total code changes:    0 lines added, 0 lines removed
+     Usage by model:
+             claude-haiku:  83.7k input, 4.8k output, 0 cache read, 5.0k cache write ($0.1139)
+          claude-opus-4-5:  1.2k input, 41.7k output, 7.9m cache read, 113.3k cache write ($5.70)
+
+
+

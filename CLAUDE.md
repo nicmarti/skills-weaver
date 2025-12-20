@@ -25,6 +25,7 @@ skillsweaver/
 │   │   ├── name-generator/      # Génération de noms
 │   │   ├── npc-generator/       # Génération de PNJ
 │   │   ├── image-generator/     # Génération d'images
+│   │   ├── journal-illustrator/ # Illustration de journaux
 │   │   ├── monster-manual/      # Bestiaire
 │   │   └── treasure-generator/  # Génération de trésors
 │   └── agents/              # Sous-agents spécialisés
@@ -234,6 +235,35 @@ export FAL_KEY="votre_clé_fal_ai"
 
 La skill `image-generator` permet à Claude de générer des illustrations fantasy pour enrichir l'expérience de jeu : portraits, scènes, monstres, objets et lieux.
 
+### Commande journal (sw-image)
+
+Illustrer automatiquement le journal d'une aventure :
+
+```bash
+# Prévisualiser les prompts (sans générer d'images)
+./sw-image journal "la-crypte-des-ombres" --dry-run
+
+# Générer toutes les illustrations (parallèle)
+./sw-image journal "la-crypte-des-ombres"
+
+# Limiter le nombre d'images
+./sw-image journal "la-crypte-des-ombres" --max=5
+
+# Filtrer par type
+./sw-image journal "la-crypte-des-ombres" --types=combat,discovery
+
+# Ajuster le parallélisme (1-8)
+./sw-image journal "la-crypte-des-ombres" --parallel=8
+```
+
+Types illustrables : `combat`, `exploration`, `discovery`, `loot`, `session`
+
+Les images sont sauvegardées dans `data/adventures/<nom>/images/`
+
+### Skill journal-illustrator
+
+La skill `journal-illustrator` permet à Claude d'illustrer automatiquement les journaux d'aventures avec des prompts optimisés par type d'événement et une génération parallèle.
+
 ### CLI sw-monster
 
 Consulter le bestiaire et générer des rencontres :
@@ -369,6 +399,7 @@ Voir `ai/PLAN.md` pour le plan détaillé avec les phases :
 8. **Phase 6** : Générateur d'images [TERMINEE]
 9. **Phase 7** : Bestiaire BFRPG [TERMINEE]
 10. **Phase 8** : Tables de trésors [TERMINEE]
+11. **Phase 9** : Journal Illustrator [TERMINEE]
 
 ## Ressources
 

@@ -1,0 +1,489 @@
+{
+  "entries": [
+    {
+      "id": 1,
+      "timestamp": "2025-12-20T18:32:45.856544+01:00",
+      "session_id": 1,
+      "type": "session",
+      "content": "Session 1 démarrée"
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-12-20T18:33:30.895925+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Le groupe décide de s'équiper au village avant d'explorer la crypte"
+    },
+    {
+      "id": 3,
+      "timestamp": "2025-12-20T18:35:35.516733+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Achat équipement chez Dorwin : sac à dos (4po), briquet (3po), 2 rations (10po), eau bénite (25po), corde (1po), 12 torches (2po) = 45 po"
+    },
+    {
+      "id": 4,
+      "timestamp": "2025-12-20T18:35:35.686836+01:00",
+      "session_id": 1,
+      "type": "expense",
+      "content": "Le groupe dépense 45 po (Équipement chez Dorwin)"
+    },
+    {
+      "id": 5,
+      "timestamp": "2025-12-20T18:36:31.65308+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Le groupe examine l'extérieur du mausolée à la recherche d'indices"
+    },
+    {
+      "id": 6,
+      "timestamp": "2025-12-20T18:40:40.31696+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Entrée dans le mausolée, torches allumées"
+    },
+    {
+      "id": 7,
+      "timestamp": "2025-12-20T18:41:50.077142+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Descente de l'escalier, armes dégainées"
+    },
+    {
+      "id": 8,
+      "timestamp": "2025-12-20T18:42:23.745438+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "EMBUSCADE ! 3 squelettes attaquent dans la crypte inférieure"
+    },
+    {
+      "id": 9,
+      "timestamp": "2025-12-20T18:43:48.777731+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Aldric lance l'eau bénite : 7 dégâts \\! Détruit 2 squelettes, 1 gravement touché"
+    },
+    {
+      "id": 10,
+      "timestamp": "2025-12-20T18:46:41.686938+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Victoire \\! Aldric détruit le dernier squelette d'un coup de pommeau. 3 squelettes vaincus, 30 XP"
+    },
+    {
+      "id": 11,
+      "timestamp": "2025-12-20T18:47:28.352407+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Lyra stabilisée. Un mage blessé (survivant) offre une potion de soin"
+    },
+    {
+      "id": 12,
+      "timestamp": "2025-12-20T18:48:42.168376+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Repli tactique : le groupe escorte Marvos hors de la crypte pour se préparer"
+    },
+    {
+      "id": 13,
+      "timestamp": "2025-12-20T18:49:47.517748+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Repos court à l'auberge. Recherche d'un clerc au village"
+    },
+    {
+      "id": 14,
+      "timestamp": "2025-12-20T18:50:10.14152+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Sœur Adanel Warhammer (Clerc N1, 6 PV) rejoint le groupe. Apporte 2 eaux bénites et Renvoi des morts-vivants"
+    },
+    {
+      "id": 15,
+      "timestamp": "2025-12-20T18:51:13.547713+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Interrogatoire de Marvos sur le Seigneur Valdric"
+    },
+    {
+      "id": 16,
+      "timestamp": "2025-12-20T18:53:59.211474+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Retour à la crypte avec Sœur Adanel. Fouille de la salle des squelettes"
+    },
+    {
+      "id": 17,
+      "timestamp": "2025-12-20T18:54:33.872424+01:00",
+      "session_id": 1,
+      "type": "loot",
+      "content": "Le groupe gagne 15 po (Cachette secrète dans la crypte)"
+    },
+    {
+      "id": 18,
+      "timestamp": "2025-12-20T18:54:34.048243+01:00",
+      "session_id": 1,
+      "type": "discovery",
+      "content": "Cachette trouvée : potion de soin, 15 po, parchemin du Culte de l'Éternelle Nuit signé 'F.'"
+    },
+    {
+      "id": 19,
+      "timestamp": "2025-12-20T18:57:28.623318+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Examen de l'autel et des runes magiques"
+    },
+    {
+      "id": 20,
+      "timestamp": "2025-12-20T18:57:55.743952+01:00",
+      "session_id": 1,
+      "type": "discovery",
+      "content": "Sceau partiellement restauré ! Valdric affaibli (-2 attaque, pas de régénération)"
+    },
+    {
+      "id": 21,
+      "timestamp": "2025-12-20T19:00:36.283718+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Embuscade préparée près de l'autel. Tactique : Aldric engage, Adanel repousse les sbires, Lyra vise la gemme"
+    },
+    {
+      "id": 22,
+      "timestamp": "2025-12-20T19:06:30.453814+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Round 4 : Assaut final sur Valdric. Adanel vise la gemme !"
+    },
+    {
+      "id": 23,
+      "timestamp": "2025-12-20T19:07:34.118968+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Round 5 : ASSAUT FINAL ! Tous visent la gemme !"
+    },
+    {
+      "id": 24,
+      "timestamp": "2025-12-20T19:10:25.870771+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "MOMENT HÉROÏQUE ! Adanel soigne Lyra, Aldric entre en rage pour protéger ses amis !"
+    },
+    {
+      "id": 25,
+      "timestamp": "2025-12-20T19:12:07.15357+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "ROUND FINAL ! Assaut combiné des trois héros sur Valdric !"
+    },
+    {
+      "id": 26,
+      "timestamp": "2025-12-20T19:12:44.711408+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "VICTOIRE ! Lyra brise la gemme de Valdric ! Le seigneur mort-vivant est DÉTRUIT !"
+    },
+    {
+      "id": 27,
+      "timestamp": "2025-12-20T19:13:12.175529+01:00",
+      "session_id": 1,
+      "type": "loot",
+      "content": "Le groupe gagne 2000 po (Trésor de Valdric)"
+    },
+    {
+      "id": 28,
+      "timestamp": "2025-12-20T19:13:12.351359+01:00",
+      "session_id": 1,
+      "type": "discovery",
+      "content": "Trésor de Valdric : 4000 pièces d'électrum (2000 po)"
+    },
+    {
+      "id": 29,
+      "timestamp": "2025-12-20T19:13:22.239124+01:00",
+      "type": "session",
+      "content": "Session 1 terminée - VICTOIRE \\! Valdric détruit, Pierrebrune sauvée. Le mystérieux 'F.' du Culte de l'Éternelle Nuit reste à identifier..."
+    },
+    {
+      "id": 30,
+      "timestamp": "2025-12-20T22:57:08.969027+01:00",
+      "session_id": 2,
+      "type": "session",
+      "content": "Session 2 démarrée"
+    },
+    {
+      "id": 31,
+      "timestamp": "2025-12-20T22:58:21.620054+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Le groupe prend le temps de s'équiper à Pierrebrune avant de poursuivre l'enquête"
+    },
+    {
+      "id": 32,
+      "timestamp": "2025-12-20T22:59:41.011416+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 10 po (Achat lanterne à l'auberge)"
+    },
+    {
+      "id": 33,
+      "timestamp": "2025-12-20T23:02:46.764823+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 337 po (Équipement chez Gareth Forgefer : harnois (300), bouclier (7), arc court (25), 20 flèches (5))"
+    },
+    {
+      "id": 34,
+      "timestamp": "2025-12-20T23:02:51.84303+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Aldric s'équipe d'un harnois (CA 17) et d'un bouclier (+1). Lyra reçoit un arc court et 20 flèches"
+    },
+    {
+      "id": 35,
+      "timestamp": "2025-12-20T23:04:20.523424+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Le groupe cherche un nouveau compagnon sur la place du marché de Pierrebrune"
+    },
+    {
+      "id": 36,
+      "timestamp": "2025-12-20T23:06:41.957523+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Thorin Chaosbrewer, clerc nain, rejoint le groupe sur la place du marché"
+    },
+    {
+      "id": 37,
+      "timestamp": "2025-12-20T23:07:48.411158+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 5 po (Marteau de guerre pour Thorin)"
+    },
+    {
+      "id": 38,
+      "timestamp": "2025-12-20T23:07:48.589442+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Thorin équipé d'un marteau de guerre nain. Le groupe se dirige vers la chapelle"
+    },
+    {
+      "id": 39,
+      "timestamp": "2025-12-20T23:09:23.79891+01:00",
+      "session_id": 2,
+      "type": "discovery",
+      "content": "Le Père Bramwell révèle l'identité de 'F.' : Frère Mordecai Fane, nécromancien excommunié, opère depuis le monastère de Sombregarde"
+    },
+    {
+      "id": 40,
+      "timestamp": "2025-12-20T23:12:59.501507+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 325 po (Potions chez Dame Isolde : 3 soins (150), 1 majeure (150), 1 antidote (25))"
+    },
+    {
+      "id": 41,
+      "timestamp": "2025-12-20T23:12:59.690767+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 3× Potion de Soin (1d6+1 PV) à l'inventaire"
+    },
+    {
+      "id": 42,
+      "timestamp": "2025-12-20T23:12:59.883821+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Potion de Soin Majeure (2d6+2 PV) à l'inventaire"
+    },
+    {
+      "id": 43,
+      "timestamp": "2025-12-20T23:13:00.082816+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Antidote à l'inventaire"
+    },
+    {
+      "id": 44,
+      "timestamp": "2025-12-20T23:13:07.345189+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Potion de Soin (1d6+1 PV) à l'inventaire"
+    },
+    {
+      "id": 45,
+      "timestamp": "2025-12-20T23:13:07.540944+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 2× Eau Bénite Consacrée (2d6 vs morts-vivants) à l'inventaire"
+    },
+    {
+      "id": 46,
+      "timestamp": "2025-12-20T23:13:07.747654+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Parchemin du Rituel de Dissipation à l'inventaire"
+    },
+    {
+      "id": 47,
+      "timestamp": "2025-12-20T23:13:07.954172+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Achat de potions chez Dame Isolde : 3 soins, 1 majeure, 1 antidote"
+    },
+    {
+      "id": 48,
+      "timestamp": "2025-12-20T23:14:14.373187+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Départ de Pierrebrune vers l'est, direction le monastère de Sombregarde (3 jours de marche)"
+    },
+    {
+      "id": 49,
+      "timestamp": "2025-12-20T23:14:40.147829+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Embuscade au Pont du Gibet ! 3 squelettes éclaireurs du culte attaquent"
+    },
+    {
+      "id": 50,
+      "timestamp": "2025-12-20T23:17:00.26594+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Victoire au Pont du Gibet ! 3 squelettes éclaireurs détruits. Aucun blessé. XP: 30"
+    },
+    {
+      "id": 51,
+      "timestamp": "2025-12-20T23:18:04.386406+01:00",
+      "session_id": 2,
+      "type": "npc",
+      "content": "Rencontre avec Vieux Cormac, l'ermite du Pont du Gibet - connaissance du monastère de Sombregarde"
+    },
+    {
+      "id": 52,
+      "timestamp": "2025-12-20T23:20:29.625254+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Clé de la Bibliothèque de Sombregarde à l'inventaire"
+    },
+    {
+      "id": 53,
+      "timestamp": "2025-12-20T23:20:29.80733+01:00",
+      "session_id": 2,
+      "type": "discovery",
+      "content": "Vieux Cormac confie la clé de la Bibliothèque et révèle l'existence du passage secret. Fane en attente à l'Autel Noir avec un Cristal de Pouvoir"
+    },
+    {
+      "id": 54,
+      "timestamp": "2025-12-20T23:20:44.620228+01:00",
+      "session_id": 2,
+      "type": "npc",
+      "content": "Sir Gareth Ironclad, chevalier errant, rejoint la quête pour détruire Fane"
+    },
+    {
+      "id": 55,
+      "timestamp": "2025-12-20T23:22:16.432359+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Départ pour Sombregarde. Formation : Aldric en tête, groupe en file indienne, Thorin à l'arrière"
+    },
+    {
+      "id": 56,
+      "timestamp": "2025-12-20T23:26:47.707111+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Le groupe choisit l'observation nocturne. Lyra (elfe) et Thorin (nain) utilisent leur vision nocturne pour reconnaître Sombregarde"
+    },
+    {
+      "id": 57,
+      "timestamp": "2025-12-20T23:26:47.890129+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 0 po (Campement d'observation près de Sombregarde)"
+    },
+    {
+      "id": 58,
+      "timestamp": "2025-12-20T23:28:46.6583+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Attente de l'orage. Thorin reconnaît les patrouilles et identifie une fenêtre de passage. Plan : entrer par la Bibliothèque avec la clé lors de la tempête"
+    },
+    {
+      "id": 59,
+      "timestamp": "2025-12-20T23:30:58.516127+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Combat contre le Spectre Ancien de la Bibliothèque ! Sir Gareth blessé. Les clercs tentent le Renvoi des Morts-Vivants"
+    },
+    {
+      "id": 60,
+      "timestamp": "2025-12-20T23:31:31.745247+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "VICTOIRE ! Le Spectre Ancien de la Bibliothèque est détruit ! Eau bénite et Renvoi des Morts-Vivants ont été décisifs"
+    },
+    {
+      "id": 61,
+      "timestamp": "2025-12-20T23:33:23.150717+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Descente prudente vers le Niveau 2 par le passage secret. Le groupe écoute attentivement les sons des catacombes"
+    },
+    {
+      "id": 62,
+      "timestamp": "2025-12-20T23:35:30.387781+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Le groupe délibère : contournement ouest ou attaque rapide directe vers l'Autel Noir"
+    },
+    {
+      "id": 63,
+      "timestamp": "2025-12-20T23:37:45.040808+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "DÉCISION : Attaque rapide directe \\! Le groupe fonce vers le sud, vers l'Autel Noir de Fane \\!"
+    },
+    {
+      "id": 64,
+      "timestamp": "2025-12-20T23:41:12.285933+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Stratégie divisée ! Aldric et Gareth contre les Goules. Lyra et Adanel chargent Fane. Thorin paralysé se libère !"
+    },
+    {
+      "id": 65,
+      "timestamp": "2025-12-20T23:43:59.373814+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Round 3 - Adanel lance le Rituel de Dissipation ! Aldric et Gareth chargent Fane. Thorin utilise le Renvoi des Morts-Vivants !"
+    },
+    {
+      "id": 66,
+      "timestamp": "2025-12-20T23:44:48.313278+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "VICTOIRE ÉPIQUE \\! Le Cristal de l'Éternelle Nuit DÉTRUIT \\! Frère Mordecai Fane vaincu \\! Sombregarde libérée \\!"
+    },
+    {
+      "id": 67,
+      "timestamp": "2025-12-20T23:45:05.912792+01:00",
+      "type": "session",
+      "content": "Session 2 terminée - SESSION 2 VICTOIRE \\! Le Culte de l'Éternelle Nuit détruit. Frère Mordecai Fane vaincu. Le Cristal de Pouvoir détruit. Sombregarde libérée. Pierrebrune sauvée."
+    }
+  ],
+  "next_id": 68,
+  "categories": [
+    "combat",
+    "loot",
+    "story",
+    "note",
+    "quest",
+    "npc",
+    "location",
+    "rest",
+    "death",
+    "levelup",
+    "session",
+    "party",
+    "xp",
+    "expense",
+    "use"
+  ]
+}

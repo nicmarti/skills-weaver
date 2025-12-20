@@ -6,7 +6,7 @@ allowed-tools: Bash
 
 # Image Generator - Générateur d'images Heroic Fantasy
 
-Skill pour générer des illustrations fantasy de haute qualité via l'API fal.ai avec le modèle FLUX.1 [schnell].
+Skill pour générer des illustrations fantasy de haute qualité via l'API fal.ai avec le modèle FLUX.1 [pro].
 
 ## Prérequis
 
@@ -28,7 +28,7 @@ go build -o sw-image ./cmd/image
 ./sw-image npc --race=elf --gender=f --occupation=skilled
 
 # Scène d'aventure
-./sw-image scene "Des aventuriers explorent une crypte"
+./sw-image scene "Trois aventuriers explorent une crypte en pleine nuit par temps couvert"
 
 # Monstre
 ./sw-image monster dragon --style=epic

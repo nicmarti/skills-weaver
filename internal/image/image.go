@@ -11,10 +11,53 @@ import (
 	"time"
 )
 
-const (
-	falQueueURL = "https://queue.fal.run/fal-ai/flux/schnell"
-	falSyncURL  = "https://fal.run/fal-ai/flux/schnell"
+// Model represents a fal.ai image generation model.
+type Model struct {
+	ID       string // Full model ID (e.g., "fal-ai/flux/schnell")
+	Short    string // Short name for filenames (e.g., "schnell")
+	SyncURL  string // Synchronous API URL
+	QueueURL string // Queue API URL
+	MaxSteps int    // Maximum inference steps
+	DefSteps int    // Default inference steps
+}
+
+// Available models
+var (
+	// ModelSchnell is the fast FLUX.1 schnell model (~$0.003/image)
+	ModelSchnell = Model{
+		ID:       "fal-ai/flux/schnell",
+		Short:    "schnell",
+		SyncURL:  "https://fal.run/fal-ai/flux/schnell",
+		QueueURL: "https://queue.fal.run/fal-ai/flux/schnell",
+		MaxSteps: 4,
+		DefSteps: 4,
+	}
+	// ModelNanoBanana is Google's Nano Banana model with better quality (~$0.039/image)
+	ModelNanoBanana = Model{
+		ID:       "fal-ai/nano-banana",
+		Short:    "banana",
+		SyncURL:  "https://fal.run/fal-ai/nano-banana",
+		QueueURL: "https://queue.fal.run/fal-ai/nano-banana",
+		MaxSteps: 1,
+		DefSteps: 1,
+	}
 )
+
+// AvailableModels returns all available models.
+func AvailableModels() map[string]Model {
+	return map[string]Model{
+		"schnell": ModelSchnell,
+		"banana":  ModelNanoBanana,
+	}
+}
+
+// GetModel returns a model by name, defaulting to schnell.
+func GetModel(name string) Model {
+	if m, ok := AvailableModels()[name]; ok {
+		return m
+	}
+	return ModelSchnell
+}
 
 // Generator handles image generation via fal.ai API.
 type Generator struct {
@@ -43,8 +86,8 @@ type FalImage struct {
 
 // FalResponse represents the response from fal.ai API.
 type FalResponse struct {
-	Images    []FalImage `json:"images"`
-	Timings   struct {
+	Images  []FalImage `json:"images"`
+	Timings struct {
 		Inference float64 `json:"inference"`
 	} `json:"timings"`
 	Seed      int64       `json:"seed"`
@@ -100,11 +143,20 @@ func (g *Generator) Generate(prompt string, opts ...Option) (*GeneratedImage, er
 		outputFormat:  "png",
 		imageSize:     "landscape_16_9",
 		safetyChecker: true,
-		steps:         4,
+		model:         ModelSchnell, // Default model
 	}
 
 	for _, opt := range opts {
 		opt(cfg)
+	}
+
+	// Use model's default steps if not explicitly set
+	if cfg.steps == 0 {
+		cfg.steps = cfg.model.DefSteps
+	}
+	// Clamp steps to model's maximum
+	if cfg.steps > cfg.model.MaxSteps {
+		cfg.steps = cfg.model.MaxSteps
 	}
 
 	req := FalRequest{
@@ -121,7 +173,8 @@ func (g *Generator) Generate(prompt string, opts ...Option) (*GeneratedImage, er
 		return nil, fmt.Errorf("marshaling request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest("POST", falSyncURL, bytes.NewBuffer(jsonData))
+	// Use model-specific URL
+	httpReq, err := http.NewRequest("POST", cfg.model.SyncURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -155,8 +208,14 @@ func (g *Generator) Generate(prompt string, opts ...Option) (*GeneratedImage, er
 
 	img := falResp.Images[0]
 
+	// Build filename prefix with model name if prefix is provided
+	filenamePrefix := cfg.filenamePrefix
+	if filenamePrefix != "" {
+		filenamePrefix = filenamePrefix + "_" + cfg.model.Short
+	}
+
 	// Download the image
-	localPath, err := g.downloadImage(img.URL, cfg.outputFormat)
+	localPath, err := g.downloadImage(img.URL, cfg.outputFormat, filenamePrefix)
 	if err != nil {
 		return nil, fmt.Errorf("downloading image: %w", err)
 	}
@@ -177,11 +236,16 @@ func (g *Generator) GenerateAsync(prompt string, opts ...Option) (string, error)
 		outputFormat:  "png",
 		imageSize:     "landscape_16_9",
 		safetyChecker: true,
-		steps:         4,
+		model:         ModelSchnell, // Default model
 	}
 
 	for _, opt := range opts {
 		opt(cfg)
+	}
+
+	// Use model's default steps if not explicitly set
+	if cfg.steps == 0 {
+		cfg.steps = cfg.model.DefSteps
 	}
 
 	req := FalRequest{
@@ -198,7 +262,8 @@ func (g *Generator) GenerateAsync(prompt string, opts ...Option) (string, error)
 		return "", fmt.Errorf("marshaling request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest("POST", falQueueURL, bytes.NewBuffer(jsonData))
+	// Use model-specific queue URL
+	httpReq, err := http.NewRequest("POST", cfg.model.QueueURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("creating request: %w", err)
 	}
@@ -300,8 +365,8 @@ func (g *Generator) GetResult(requestID string, outputFormat string) (*Generated
 
 	img := falResp.Images[0]
 
-	// Download the image
-	localPath, err := g.downloadImage(img.URL, outputFormat)
+	// Download the image (no prefix for async results)
+	localPath, err := g.downloadImage(img.URL, outputFormat, "")
 	if err != nil {
 		return nil, fmt.Errorf("downloading image: %w", err)
 	}
@@ -315,7 +380,9 @@ func (g *Generator) GetResult(requestID string, outputFormat string) (*Generated
 }
 
 // downloadImage downloads an image from URL and saves it locally.
-func (g *Generator) downloadImage(url string, format string) (string, error) {
+// If filenamePrefix is provided, the file will be named "prefix.format",
+// otherwise it uses a timestamp-based name.
+func (g *Generator) downloadImage(url string, format string, filenamePrefix string) (string, error) {
 	resp, err := g.httpClient.Get(url)
 	if err != nil {
 		return "", fmt.Errorf("fetching image: %w", err)
@@ -326,8 +393,13 @@ func (g *Generator) downloadImage(url string, format string) (string, error) {
 		return "", fmt.Errorf("image fetch failed with status %d", resp.StatusCode)
 	}
 
-	// Generate filename with timestamp
-	filename := fmt.Sprintf("image_%d.%s", time.Now().UnixNano(), format)
+	// Generate filename: use prefix if provided, otherwise use timestamp
+	var filename string
+	if filenamePrefix != "" {
+		filename = fmt.Sprintf("%s.%s", filenamePrefix, format)
+	} else {
+		filename = fmt.Sprintf("image_%d.%s", time.Now().UnixNano(), format)
+	}
 	localPath := filepath.Join(g.outputDir, filename)
 
 	file, err := os.Create(localPath)
@@ -347,11 +419,13 @@ func (g *Generator) downloadImage(url string, format string) (string, error) {
 // Options
 
 type config struct {
-	numImages     int
-	outputFormat  string
-	imageSize     string
-	safetyChecker bool
-	steps         int
+	numImages      int
+	outputFormat   string
+	imageSize      string
+	safetyChecker  bool
+	steps          int
+	filenamePrefix string
+	model          Model
 }
 
 // Option is a functional option for image generation.
@@ -396,6 +470,22 @@ func WithSteps(steps int) Option {
 			steps = 4
 		}
 		c.steps = steps
+	}
+}
+
+// WithFilenamePrefix sets a custom prefix for the generated image filename.
+// The final filename will be: prefix.format (e.g., "journal_008_combat.png")
+func WithFilenamePrefix(prefix string) Option {
+	return func(c *config) {
+		c.filenamePrefix = prefix
+	}
+}
+
+// WithModel sets the fal.ai model to use.
+// Available: "schnell" (fast), "dev" (quality), "pro", "pro11"
+func WithModel(modelName string) Option {
+	return func(c *config) {
+		c.model = GetModel(modelName)
 	}
 }
 

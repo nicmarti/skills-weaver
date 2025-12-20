@@ -12,20 +12,14 @@ import (
 type PromptStyle string
 
 const (
-	StyleRealistic   PromptStyle = "realistic"
-	StylePainted     PromptStyle = "painted"
 	StyleIllustrated PromptStyle = "illustrated"
 	StyleDarkFantasy PromptStyle = "dark_fantasy"
-	StyleEpic        PromptStyle = "epic"
 )
 
 // StyleSuffixes maps styles to prompt suffixes.
 var StyleSuffixes = map[PromptStyle]string{
-	StyleRealistic:   "photorealistic, highly detailed, dramatic lighting, 8k resolution",
-	StylePainted:     "oil painting style, rich colors, detailed brushstrokes, fantasy art",
 	StyleIllustrated: "digital illustration, vibrant colors, detailed linework, fantasy RPG art style",
 	StyleDarkFantasy: "dark fantasy art, moody lighting, dramatic shadows, gritty atmosphere",
-	StyleEpic:        "epic fantasy art, cinematic composition, dramatic lighting, heroic pose",
 }
 
 // BasePromptSuffix is added to all prompts for consistent quality.
@@ -166,26 +160,26 @@ func BuildMonsterPrompt(monsterType string, style PromptStyle) string {
 
 	// Monster descriptions
 	monsterDesc := map[string]string{
-		"goblin":    "Goblin creature, small green-skinned humanoid, pointy ears, wicked grin, crude weapons",
-		"orc":       "Orc warrior, muscular green-skinned humanoid, tusks, battle armor, fierce expression",
-		"skeleton":  "Animated skeleton, undead warrior, ancient armor, glowing eye sockets, rusty sword",
-		"zombie":    "Shambling zombie, decaying flesh, tattered clothes, mindless hunger",
-		"dragon":    "Massive dragon, scales glinting, powerful wings, breathing fire, ancient and wise",
-		"troll":     "Cave troll, massive and ugly, regenerating flesh, club weapon, dim-witted",
-		"ogre":      "Ogre brute, huge humanoid, crude clothing, massive club, hungry expression",
-		"wolf":      "Dire wolf, massive wolf, glowing eyes, bared fangs, pack hunter",
-		"spider":    "Giant spider, massive arachnid, multiple eyes, venomous fangs, web silk",
-		"rat":       "Giant rat, oversized rodent, disease-ridden, red eyes, sharp teeth",
-		"bat":       "Giant bat, massive wingspan, echolocation screech, cave dwelling",
-		"slime":     "Gelatinous ooze, translucent blob, dissolving debris inside, acidic",
-		"ghost":     "Spectral ghost, translucent apparition, flowing ethereal form, haunting presence",
-		"vampire":   "Vampire lord, pale aristocrat, red eyes, fangs, elegant dark clothing",
-		"werewolf":  "Werewolf, half-man half-wolf, muscular, fur-covered, savage claws",
-		"minotaur":  "Minotaur, bull-headed humanoid, massive horns, labyrinth dweller, battle axe",
-		"basilisk":  "Basilisk, serpentine creature, deadly gaze, scales, venomous",
-		"chimera":   "Chimera, lion body, goat head, serpent tail, fire breathing",
-		"hydra":     "Hydra, multiple serpent heads, regenerating, water dwelling, massive",
-		"lich":      "Lich king, skeletal mage, dark robes, phylactery, necromantic power",
+		"goblin":   "Goblin creature, small green-skinned humanoid, pointy ears, wicked grin, crude weapons",
+		"orc":      "Orc warrior, muscular green-skinned humanoid, tusks, battle armor, fierce expression",
+		"skeleton": "Animated skeleton, undead warrior, ancient armor, glowing eye sockets, rusty sword",
+		"zombie":   "Shambling zombie, decaying flesh, tattered clothes, mindless hunger",
+		"dragon":   "Massive dragon, scales glinting, powerful wings, breathing fire, ancient and wise",
+		"troll":    "Cave troll, massive and ugly, regenerating flesh, club weapon, dim-witted",
+		"ogre":     "Ogre brute, huge humanoid, crude clothing, massive club, hungry expression",
+		"wolf":     "Dire wolf, massive wolf, glowing eyes, bared fangs, pack hunter",
+		"spider":   "Giant spider, massive arachnid, multiple eyes, venomous fangs, web silk",
+		"rat":      "Giant rat, oversized rodent, disease-ridden, red eyes, sharp teeth",
+		"bat":      "Giant bat, massive wingspan, echolocation screech, cave dwelling",
+		"slime":    "Gelatinous ooze, translucent blob, dissolving debris inside, acidic",
+		"ghost":    "Spectral ghost, translucent apparition, flowing ethereal form, haunting presence",
+		"vampire":  "Vampire lord, pale aristocrat, red eyes, fangs, elegant dark clothing",
+		"werewolf": "Werewolf, half-man half-wolf, muscular, fur-covered, savage claws",
+		"minotaur": "Minotaur, bull-headed humanoid, massive horns, labyrinth dweller, battle axe",
+		"basilisk": "Basilisk, serpentine creature, deadly gaze, scales, venomous",
+		"chimera":  "Chimera, lion body, goat head, serpent tail, fire breathing",
+		"hydra":    "Hydra, multiple serpent heads, regenerating, water dwelling, massive",
+		"lich":     "Lich king, skeletal mage, dark robes, phylactery, necromantic power",
 	}
 
 	// Get monster description or use generic
@@ -212,15 +206,15 @@ func BuildItemPrompt(itemType string, description string, style PromptStyle) str
 
 	// Item type prefixes
 	itemPrefix := map[string]string{
-		"weapon":  "Magical weapon, glowing runes, ancient craftsmanship",
-		"armor":   "Enchanted armor, gleaming metal, protective runes",
-		"potion":  "Magical potion bottle, glowing liquid, alchemical symbols",
-		"scroll":  "Ancient scroll, magical writing, glowing text, arcane symbols",
-		"ring":    "Magical ring, precious metal, embedded gem, mystical glow",
-		"amulet":  "Enchanted amulet, pendant on chain, magical symbols, glowing",
-		"staff":   "Wizard staff, carved wood or crystal, magical focus, glowing tip",
-		"wand":    "Magic wand, elegant design, arcane core, casting sparks",
-		"book":    "Spellbook, leather bound, magical lock, glowing pages",
+		"weapon":   "Magical weapon, glowing runes, ancient craftsmanship",
+		"armor":    "Enchanted armor, gleaming metal, protective runes",
+		"potion":   "Magical potion bottle, glowing liquid, alchemical symbols",
+		"scroll":   "Ancient scroll, magical writing, glowing text, arcane symbols",
+		"ring":     "Magical ring, precious metal, embedded gem, mystical glow",
+		"amulet":   "Enchanted amulet, pendant on chain, magical symbols, glowing",
+		"staff":    "Wizard staff, carved wood or crystal, magical focus, glowing tip",
+		"wand":     "Magic wand, elegant design, arcane core, casting sparks",
+		"book":     "Spellbook, leather bound, magical lock, glowing pages",
 		"artifact": "Ancient artifact, mysterious origin, powerful aura, legendary",
 	}
 
@@ -250,17 +244,17 @@ func BuildLocationPrompt(locationType string, name string, style PromptStyle) st
 
 	// Location descriptions
 	locationDesc := map[string]string{
-		"city":      "Medieval fantasy city, high walls, towers, bustling streets, market square",
-		"town":      "Fantasy town, wooden buildings, town square, church steeple",
-		"village":   "Small medieval village, thatched cottages, farmland, peaceful",
-		"castle":    "Grand fantasy castle, stone walls, towers with flags, moat and drawbridge",
-		"dungeon":   "Underground dungeon complex, stone corridors, torch sconces, mysterious",
-		"forest":    "Enchanted forest, ancient trees, magical creatures, hidden paths",
-		"mountain":  "Mountain fortress, carved into rock, winding paths, dramatic peaks",
-		"swamp":     "Murky swamp, twisted trees, fog, dangerous waters, hidden dangers",
-		"desert":    "Desert oasis, sand dunes, ancient ruins, mysterious temples",
-		"coast":     "Coastal town, harbor with ships, lighthouse, fishing boats",
-		"island":    "Mysterious island, tropical vegetation, hidden coves, ancient secrets",
+		"city":       "Medieval fantasy city, high walls, towers, bustling streets, market square",
+		"town":       "Fantasy town, wooden buildings, town square, church steeple",
+		"village":    "Small medieval village, thatched cottages, farmland, peaceful",
+		"castle":     "Grand fantasy castle, stone walls, towers with flags, moat and drawbridge",
+		"dungeon":    "Underground dungeon complex, stone corridors, torch sconces, mysterious",
+		"forest":     "Enchanted forest, ancient trees, magical creatures, hidden paths",
+		"mountain":   "Mountain fortress, carved into rock, winding paths, dramatic peaks",
+		"swamp":      "Murky swamp, twisted trees, fog, dangerous waters, hidden dangers",
+		"desert":     "Desert oasis, sand dunes, ancient ruins, mysterious temples",
+		"coast":      "Coastal town, harbor with ships, lighthouse, fishing boats",
+		"island":     "Mysterious island, tropical vegetation, hidden coves, ancient secrets",
 		"underworld": "Underground cavern city, bioluminescent, stalactites, dark elf architecture",
 	}
 
@@ -289,11 +283,8 @@ func BuildLocationPrompt(locationType string, name string, style PromptStyle) st
 // GetAvailableStyles returns the list of available art styles.
 func GetAvailableStyles() []PromptStyle {
 	return []PromptStyle{
-		StyleRealistic,
-		StylePainted,
 		StyleIllustrated,
 		StyleDarkFantasy,
-		StyleEpic,
 	}
 }
 
@@ -330,4 +321,195 @@ func GetAvailableLocationTypes() []string {
 		"forest", "mountain", "swamp", "desert", "coast",
 		"island", "underworld",
 	}
+}
+
+// JournalEntryPrompt represents a prompt generated from a journal entry.
+type JournalEntryPrompt struct {
+	EntryID   int
+	EntryType string
+	Content   string
+	Prompt    string
+	Style     PromptStyle
+	ImageSize string
+}
+
+// IllustratableTypes returns journal entry types that can be illustrated.
+func IllustratableTypes() []string {
+	return []string{
+		"combat",
+		"exploration",
+		"note",
+		"expense",
+		"discovery",
+		"loot",
+		"session", // Only session end summaries
+	}
+}
+
+// IsIllustratable checks if a journal entry type can be illustrated.
+func IsIllustratable(entryType string) bool {
+	for _, t := range IllustratableTypes() {
+		if t == entryType {
+			return true
+		}
+	}
+	return false
+}
+
+// BuildJournalEntryPrompt creates a prompt for a journal entry.
+func BuildJournalEntryPrompt(entryType, content string) *JournalEntryPrompt {
+	var prompt string
+	var style PromptStyle
+	var imageSize string
+
+	switch entryType {
+	case "combat":
+		// Combat scenes are epic and action-packed
+		style = StyleIllustrated
+		imageSize = "landscape_16_9"
+		prompt = buildCombatPrompt(content)
+
+	case "exploration":
+		// Exploration scenes are atmospheric
+		style = StyleIllustrated
+		imageSize = "landscape_16_9"
+		prompt = buildExplorationPrompt(content)
+
+	case "discovery":
+		// Discoveries focus on items or revelations
+		style = StyleIllustrated
+		imageSize = "landscape_4_3"
+		prompt = buildDiscoveryPrompt(content)
+
+	case "loot":
+		// Treasure scenes
+		style = StyleIllustrated
+		imageSize = "square_hd"
+		prompt = buildLootPrompt(content)
+
+	case "note":
+		// Notes are narrative moments, conversations, or observations
+		style = StyleIllustrated
+		imageSize = "landscape_16_9"
+		prompt = buildNotePrompt(content)
+
+	case "expense":
+		// Expenses show shopping, trading, or town scenes
+		style = StyleIllustrated
+		imageSize = "landscape_4_3"
+		prompt = buildExpensePrompt(content)
+
+	case "session":
+		// Session summaries get epic treatment if they contain victory/defeat
+		style = StyleIllustrated
+		imageSize = "landscape_16_9"
+		prompt = buildSessionPrompt(content)
+
+	default:
+		return nil
+	}
+
+	return &JournalEntryPrompt{
+		EntryType: entryType,
+		Content:   content,
+		Prompt:    prompt,
+		Style:     style,
+		ImageSize: imageSize,
+	}
+}
+
+// buildCombatPrompt creates a prompt for combat entries.
+func buildCombatPrompt(content string) string {
+	// Extract key elements from combat description
+	parts := []string{
+		"Epic fantasy battle scene",
+		content,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+		"dynamic action, dramatic lighting",
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildExplorationPrompt creates a prompt for exploration entries.
+func buildExplorationPrompt(content string) string {
+	parts := []string{
+		"Fantasy adventurers exploring",
+		content,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+		"atmospheric, mysterious",
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildDiscoveryPrompt creates a prompt for discovery entries.
+func buildDiscoveryPrompt(content string) string {
+	parts := []string{
+		"Moment of discovery in a dungeon",
+		content,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+		"revealing light, magical glow",
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildLootPrompt creates a prompt for loot entries.
+func buildLootPrompt(content string) string {
+	parts := []string{
+		"Fantasy treasure",
+		content,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+		"glittering gold, magical items",
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildNotePrompt creates a prompt for note entries.
+func buildNotePrompt(content string) string {
+	parts := []string{
+		"Fantasy scene, narrative moment",
+		content,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+		"storytelling, dramatic atmosphere",
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildExpensePrompt creates a prompt for expense entries.
+func buildExpensePrompt(content string) string {
+	parts := []string{
+		"Medieval fantasy marketplace, trading scene",
+		content,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+		"merchants, coins, equipment, tavern or shop interior",
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildSessionPrompt creates a prompt for session summary entries.
+func buildSessionPrompt(content string) string {
+	// Check for victory/defeat keywords
+	lowerContent := strings.ToLower(content)
+	var mood string
+	if strings.Contains(lowerContent, "victoire") || strings.Contains(lowerContent, "victory") {
+		mood = "triumphant heroes, celebration, victory"
+	} else if strings.Contains(lowerContent, "défaite") || strings.Contains(lowerContent, "defeat") || strings.Contains(lowerContent, "mort") {
+		mood = "somber scene, aftermath of battle, fallen heroes"
+	} else {
+		mood = "adventurers resting, campfire, end of journey"
+	}
+
+	parts := []string{
+		"Epic fantasy scene",
+		content,
+		mood,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+	}
+	return strings.Join(parts, ", ")
 }

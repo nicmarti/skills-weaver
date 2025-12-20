@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/character"
 	"dungeons/internal/image"
 	"dungeons/internal/npc"
@@ -41,6 +44,8 @@ func main() {
 		err = cmdLocation(args)
 	case "custom":
 		err = cmdCustom(args)
+	case "journal":
+		err = cmdJournal(args)
 	case "list":
 		err = cmdList(args)
 	case "help":
@@ -61,7 +66,7 @@ func printUsage() {
 	fmt.Println(`Image Generator - Générateur d'images Heroic Fantasy
 
 UTILISATION:
-  image <commande> [arguments]
+  sw-image <commande> [arguments]
 
 COMMANDES:
   character <nom>              Générer le portrait d'un personnage sauvegardé
@@ -71,7 +76,8 @@ COMMANDES:
   item <type> [description]    Générer une illustration d'objet magique
   location <type> [nom]        Générer une vue de lieu
   custom <prompt>              Générer avec un prompt personnalisé
-  list [styles|scenes|monsters|items|locations]  Lister les options
+  journal <aventure>           Illustrer le journal d'une aventure (parallèle)
+  list [styles|scenes|...]     Lister les options
   help                         Afficher cette aide
 
 OPTIONS COMMUNES:
@@ -79,26 +85,26 @@ OPTIONS COMMUNES:
   --size=<size>                Taille d'image (square_hd, portrait_4_3, landscape_16_9, etc.)
   --format=<format>            Format de sortie (png, jpeg, webp)
 
-OPTIONS NPC:
-  --race=<race>                Race du PNJ (human, dwarf, elf, halfling)
-  --gender=<m|f>               Sexe du PNJ
-  --occupation=<type>          Occupation du PNJ
+OPTIONS JOURNAL:
+  --types=<types>              Types à illustrer (combat,exploration,discovery,loot,session)
+  --max=<n>                    Nombre maximum d'images à générer
+  --parallel=<n>               Nombre de générations en parallèle (défaut: 4)
+  --model=<model>              Modèle fal.ai (schnell, banana) défaut: schnell
+  --dry-run                    Afficher les prompts sans générer
 
-OPTIONS SCENE:
-  --type=<type>                Type de scène (tavern, dungeon, forest, castle, etc.)
+MODÈLES FAL.AI:
+  schnell                      FLUX.1 Schnell - Rapide (~3s), ~$0.003/image
+  banana                       Nano Banana - Meilleure qualité (~5s), ~$0.039/image
 
 EXEMPLES:
-  image character "Aldric"                     # Portrait du personnage Aldric
-  image npc --race=dwarf --occupation=skilled  # Portrait d'un artisan nain
-  image scene "bataille contre un dragon" --type=battle
-  image monster dragon --style=epic
-  image item weapon "épée flamboyante"
-  image location dungeon "Les Mines de Moria"
-  image custom "Un elfe archer dans une forêt enchantée"
+  sw-image character "Aldric"
+  sw-image journal "la-crypte-des-ombres"
+  sw-image journal "la-crypte-des-ombres" --model=banana --max=5
+  sw-image journal "la-crypte-des-ombres" --dry-run
 
 NOTES:
   - Nécessite la variable d'environnement FAL_KEY
-  - Les images sont sauvegardées dans data/images/`)
+  - Les images sont sauvegardées dans data/images/ ou data/adventures/<nom>/images/`)
 }
 
 func cmdCharacter(args []string) error {
@@ -231,7 +237,7 @@ func cmdScene(args []string) error {
 	// Build prompt
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
-		style = image.StyleEpic
+		style = image.StyleIllustrated
 	}
 	sceneType := opts["type"]
 	prompt := image.BuildScenePrompt(description, sceneType, style)
@@ -320,7 +326,7 @@ func cmdItem(args []string) error {
 	// Build prompt
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
-		style = image.StylePainted
+		style = image.StyleIllustrated
 	}
 	prompt := image.BuildItemPrompt(itemType, description, style)
 
@@ -371,7 +377,7 @@ func cmdLocation(args []string) error {
 	// Build prompt
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
-		style = image.StylePainted
+		style = image.StyleIllustrated
 	}
 	prompt := image.BuildLocationPrompt(locationType, name, style)
 
@@ -553,5 +559,213 @@ func outputJSON(v interface{}) error {
 		return err
 	}
 	fmt.Println(string(data))
+	return nil
+}
+
+// cmdJournal generates images for journal entries in parallel.
+func cmdJournal(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("nom de l'aventure requis")
+	}
+
+	// Parse adventure name and options
+	var advName string
+	var optArgs []string
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--") {
+			optArgs = append(optArgs, arg)
+		} else if advName == "" {
+			advName = arg
+		}
+	}
+
+	opts := parseOptions(optArgs)
+
+	// Build adventure path
+	advPath := filepath.Join(dataDir, "adventures", strings.ToLower(strings.ReplaceAll(advName, " ", "-")))
+
+	// Load adventure
+	adv, err := adventure.Load(advPath)
+	if err != nil {
+		return fmt.Errorf("chargement de l'aventure '%s': %w", advName, err)
+	}
+
+	// Load journal
+	journal, err := adv.LoadJournal()
+	if err != nil {
+		return fmt.Errorf("chargement du journal: %w", err)
+	}
+
+	// Determine which types to illustrate
+	typesToIllustrate := image.IllustratableTypes()
+	if opts["types"] != "" {
+		typesToIllustrate = strings.Split(opts["types"], ",")
+	}
+
+	// Filter entries
+	var entriesToIllustrate []adventure.JournalEntry
+	for _, entry := range journal.Entries {
+		// Skip "Session démarrée" entries (only keep session end summaries)
+		if entry.Type == "session" && strings.Contains(entry.Content, "démarrée") {
+			continue
+		}
+
+		// Check if type is in the list
+		for _, t := range typesToIllustrate {
+			if entry.Type == t {
+				entriesToIllustrate = append(entriesToIllustrate, entry)
+				break
+			}
+		}
+	}
+
+	// Apply max limit
+	maxImages := len(entriesToIllustrate)
+	if opts["max"] != "" {
+		var m int
+		fmt.Sscanf(opts["max"], "%d", &m)
+		if m > 0 && m < maxImages {
+			maxImages = m
+			entriesToIllustrate = entriesToIllustrate[:maxImages]
+		}
+	}
+
+	if len(entriesToIllustrate) == 0 {
+		fmt.Println("Aucune entrée à illustrer trouvée dans le journal.")
+		return nil
+	}
+
+	fmt.Printf("## Illustration du journal : %s\n\n", adv.Name)
+	fmt.Printf("Entrées à illustrer : %d\n", len(entriesToIllustrate))
+
+	// Build prompts for all entries
+	type promptJob struct {
+		entry  adventure.JournalEntry
+		prompt *image.JournalEntryPrompt
+	}
+
+	var jobs []promptJob
+	for _, entry := range entriesToIllustrate {
+		prompt := image.BuildJournalEntryPrompt(entry.Type, entry.Content)
+		if prompt != nil {
+			prompt.EntryID = entry.ID
+			jobs = append(jobs, promptJob{entry: entry, prompt: prompt})
+		}
+	}
+
+	// Get model (default: schnell)
+	modelName := opts["model"]
+	if modelName == "" {
+		modelName = "schnell"
+	}
+	model := image.GetModel(modelName)
+
+	// Dry run mode - just print prompts
+	if opts["dry-run"] == "true" {
+		fmt.Printf("\n### Mode dry-run : %d prompts générés (modèle: %s)\n\n", len(jobs), model.Short)
+		for i, job := range jobs {
+			filename := fmt.Sprintf("journal_%03d_%s_%s.png", job.entry.ID, job.entry.Type, model.Short)
+			fmt.Printf("**[%d] %s (ID: %d)**\n", i+1, job.entry.Type, job.entry.ID)
+			fmt.Printf("  Fichier : %s\n", filename)
+			fmt.Printf("  Contenu : %s\n", job.entry.Content)
+			fmt.Printf("  Style : %s\n", job.prompt.Style)
+			fmt.Printf("  Taille : %s\n", job.prompt.ImageSize)
+			fmt.Printf("  Prompt : %s\n\n", job.prompt.Prompt)
+		}
+		return nil
+	}
+
+	// Create output directory for adventure images
+	advImagesDir := filepath.Join(advPath, "images")
+	if err := os.MkdirAll(advImagesDir, 0755); err != nil {
+		return fmt.Errorf("création du répertoire images: %w", err)
+	}
+
+	// Create generator with adventure-specific output directory
+	gen, err := image.NewGenerator(advImagesDir)
+	if err != nil {
+		return err
+	}
+
+	// Determine parallelism level
+	parallelism := 4
+	if opts["parallel"] != "" {
+		fmt.Sscanf(opts["parallel"], "%d", &parallelism)
+	}
+	if parallelism < 1 {
+		parallelism = 1
+	}
+	if parallelism > 8 {
+		parallelism = 8
+	}
+
+	fmt.Printf("Génération de %d images (modèle: %s, parallélisme: %d)...\n\n", len(jobs), model.Short, parallelism)
+
+	// Channel for job distribution
+	jobsChan := make(chan promptJob, len(jobs))
+	for _, job := range jobs {
+		jobsChan <- job
+	}
+	close(jobsChan)
+
+	// Results
+	type result struct {
+		entryID int
+		path    string
+		err     error
+	}
+	resultsChan := make(chan result, len(jobs))
+
+	// Worker goroutines
+	var wg sync.WaitGroup
+	for i := 0; i < parallelism; i++ {
+		wg.Add(1)
+		go func(workerID int, m image.Model) {
+			defer wg.Done()
+			for job := range jobsChan {
+				// Build filename prefix: journal_XXX_type (e.g., journal_008_combat)
+				// Model name is appended automatically by the generator
+				filenamePrefix := fmt.Sprintf("journal_%03d_%s", job.prompt.EntryID, job.entry.Type)
+
+				imgOpts := []image.Option{
+					image.WithImageSize(job.prompt.ImageSize),
+					image.WithFilenamePrefix(filenamePrefix),
+					image.WithModel(m.Short),
+				}
+
+				img, err := gen.Generate(job.prompt.Prompt, imgOpts...)
+				if err != nil {
+					resultsChan <- result{entryID: job.prompt.EntryID, err: err}
+					continue
+				}
+
+				resultsChan <- result{entryID: job.prompt.EntryID, path: img.LocalPath}
+			}
+		}(i, model)
+	}
+
+	// Wait for all workers to finish
+	go func() {
+		wg.Wait()
+		close(resultsChan)
+	}()
+
+	// Collect results
+	var successCount, errorCount int
+	for res := range resultsChan {
+		if res.err != nil {
+			fmt.Printf("  [ERREUR] Entrée %d : %v\n", res.entryID, res.err)
+			errorCount++
+		} else {
+			fmt.Printf("  [OK] Entrée %d : %s\n", res.entryID, filepath.Base(res.path))
+			successCount++
+		}
+	}
+
+	fmt.Printf("\n## Résumé\n")
+	fmt.Printf("  Images générées : %d\n", successCount)
+	fmt.Printf("  Erreurs : %d\n", errorCount)
+	fmt.Printf("  Répertoire : %s\n", advImagesDir)
+
 	return nil
 }

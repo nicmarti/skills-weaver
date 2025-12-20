@@ -1,0 +1,30 @@
+{
+  "id": "376db5bf-6c09-4b57-a832-32e69e63e759",
+  "name": "Gareth",
+  "race": "human",
+  "class": "fighter",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "strength": 9,
+    "intelligence": 15,
+    "wisdom": 9,
+    "dexterity": 15,
+    "constitution": 6,
+    "charisma": 14
+  },
+  "modifiers": {
+    "strength": 0,
+    "intelligence": 1,
+    "wisdom": 0,
+    "dexterity": 1,
+    "constitution": -1,
+    "charisma": 1
+  },
+  "hit_points": 7,
+  "max_hit_points": 7,
+  "armor_class": 12,
+  "gold": 100,
+  "equipment": [],
+  "created_at": "2025-12-20T23:20:40.74613+01:00"
+}

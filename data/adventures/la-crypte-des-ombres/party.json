@@ -1,0 +1,15 @@
+{
+  "characters": [
+    "Aldric",
+    "Lyra",
+    "Thorin",
+    "Gareth"
+  ],
+  "marching_order": [
+    "Aldric",
+    "Lyra",
+    "Thorin",
+    "Gareth"
+  ],
+  "formation": "travel"
+}

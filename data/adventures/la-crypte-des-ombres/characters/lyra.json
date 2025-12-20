@@ -1,0 +1,30 @@
+{
+  "id": "b8dc25d8-cab6-40e3-a507-c8b114bcd94e",
+  "name": "Lyra",
+  "race": "elf",
+  "class": "magic-user",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "strength": 10,
+    "intelligence": 9,
+    "wisdom": 10,
+    "dexterity": 8,
+    "constitution": 13,
+    "charisma": 14
+  },
+  "modifiers": {
+    "strength": 0,
+    "intelligence": 0,
+    "wisdom": 0,
+    "dexterity": -1,
+    "constitution": 1,
+    "charisma": 1
+  },
+  "hit_points": 5,
+  "max_hit_points": 5,
+  "armor_class": 10,
+  "gold": 110,
+  "equipment": [],
+  "created_at": "2025-12-20T16:30:13.757806+01:00"
+}

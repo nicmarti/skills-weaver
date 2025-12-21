@@ -56,10 +56,10 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Monster Manual - Bestiaire BFRPG
+	fmt.Println(`SkillsWeaver - Monster Manual - Bestiaire BFRPG
 
 UTILISATION:
-  monster <commande> [arguments]
+  sw-monster <commande> [arguments]
 
 COMMANDES:
   show <id>                    Afficher la fiche complète d'un monstre
@@ -90,12 +90,12 @@ TABLES DE RENCONTRES:
   undead_crypt       Crypte/Cimetière
 
 EXEMPLES:
-  monster show goblin                      # Fiche du gobelin
-  monster search dragon                    # Tous les dragons
-  monster list --type=undead               # Tous les morts-vivants
-  monster encounter dungeon_level_1        # Rencontre niveau 1
-  monster encounter --level=3              # Rencontre pour groupe niveau 3
-  monster roll orc --count=4               # 4 orcs avec PV aléatoires`)
+  sw-monster show goblin                      # Fiche du gobelin
+  sw-monster search dragon                    # Tous les dragons
+  sw-monster list --type=undead               # Tous les morts-vivants
+  sw-monster encounter dungeon_level_1        # Rencontre niveau 1
+  sw-monster encounter --level=3              # Rencontre pour groupe niveau 3
+  sw-monster roll orc --count=4               # 4 orcs avec PV aléatoires`)
 }
 
 func cmdShow(b *monster.Bestiary, args []string) error {

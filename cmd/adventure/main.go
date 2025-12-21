@@ -77,10 +77,10 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Adventure Manager - Gestionnaire d'Aventures BFRPG
+	fmt.Println(`SkillsWeaver - Adventure Manager - Gestionnaire d'Aventures BFRPG
 
 UTILISATION:
-  adventure <commande> [arguments]
+  sw-adventure <commande> [arguments]
 
 COMMANDES AVENTURE:
   create <nom> [description]    Créer une nouvelle aventure
@@ -113,12 +113,12 @@ TYPES DE JOURNAL:
   combat, loot, story, note, quest, npc, location, rest
 
 EXEMPLES:
-  adventure create "La Mine Perdue" "Une aventure dans les montagnes"
-  adventure add-character "La Mine Perdue" "Aldric"
-  adventure start-session "La Mine Perdue"
-  adventure log "La Mine Perdue" combat "Le groupe affronte 3 gobelins"
-  adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
-  adventure end-session "La Mine Perdue" "Le groupe explore le premier niveau"`)
+  sw-adventure create "La Mine Perdue" "Une aventure dans les montagnes"
+  sw-adventure add-character "La Mine Perdue" "Aldric"
+  sw-adventure start-session "La Mine Perdue"
+  sw-adventure log "La Mine Perdue" combat "Le groupe affronte 3 gobelins"
+  sw-adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
+  sw-adventure end-session "La Mine Perdue" "Le groupe explore le premier niveau"`)
 }
 
 func cmdCreate(args []string) error {
@@ -147,8 +147,8 @@ func cmdCreate(args []string) error {
 	}
 
 	fmt.Println("\nCommandes suivantes :")
-	fmt.Printf("  adventure add-character \"%s\" <personnage>\n", name)
-	fmt.Printf("  adventure start-session \"%s\"\n", name)
+	fmt.Printf("  sw-adventure add-character \"%s\" <personnage>\n", name)
+	fmt.Printf("  sw-adventure start-session \"%s\"\n", name)
 
 	return nil
 }

@@ -47,10 +47,10 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`NPC Generator - Générateur de PNJ pour BFRPG
+	fmt.Println(`SkillsWeaver - NPC Generator - Générateur de PNJ pour BFRPG
 
 UTILISATION:
-  npc <commande> [arguments]
+  sw-npc <commande> [arguments]
 
 COMMANDES:
   generate [options]           Générer un PNJ complet avec description
@@ -74,12 +74,12 @@ TYPES D'OCCUPATION:
   adventurer  - Aventuriers (chasseur de primes, explorateur...)
 
 EXEMPLES:
-  npc generate                              # PNJ aléatoire complet
-  npc generate --race=dwarf --gender=m      # Nain masculin
-  npc generate --occupation=authority       # Figure d'autorité
-  npc generate --attitude=hostile           # PNJ hostile
-  npc quick --race=elf                      # Description courte d'elfe
-  npc generate --format=json                # Sortie JSON`)
+  sw-npc generate                              # PNJ aléatoire complet
+  sw-npc generate --race=dwarf --gender=m      # Nain masculin
+  sw-npc generate --occupation=authority       # Figure d'autorité
+  sw-npc generate --attitude=hostile           # PNJ hostile
+  sw-npc quick --race=elf                      # Description courte d'elfe
+  sw-npc generate --format=json                # Sortie JSON`)
 }
 
 func cmdGenerate(gen *npc.Generator, args []string) error {

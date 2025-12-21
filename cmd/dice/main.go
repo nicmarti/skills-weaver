@@ -2,11 +2,11 @@
 //
 // Usage:
 //
-//	dice roll 2d6+3           Roll 2d6 and add 3
-//	dice roll 4d6kh3          Roll 4d6, keep highest 3 (stat generation)
-//	dice roll d20 --advantage Roll d20 with advantage
-//	dice stats                Generate a full set of 6 stats (4d6kh3 method)
-//	dice stats --classic      Generate stats using 3d6 method
+//	sw-dice roll 2d6+3           Roll 2d6 and add 3
+//	sw-dice roll 4d6kh3          Roll 4d6, keep highest 3 (stat generation)
+//	sw-dice roll d20 --advantage Roll d20 with advantage
+//	sw-dice stats                Generate a full set of 6 stats (4d6kh3 method)
+//	sw-dice stats --classic      Generate stats using 3d6 method
 package main
 
 import (
@@ -146,10 +146,10 @@ func containsFlag(args []string, flags ...string) bool {
 }
 
 func printUsage() {
-	fmt.Println(`Dice Roller - Outil de lancer de dés pour JdR
+	fmt.Println(`SkillsWeaver - Dice Roller - Outil de lancer de dés pour JdR
 
 USAGE:
-    dice <command> [arguments]
+    sw-dice <command> [arguments]
 
 COMMANDES:
     roll <expression> [options]   Lance des dés selon la notation standard
@@ -171,11 +171,11 @@ OPTIONS POUR STATS:
     --classic, -c         Utilise la méthode 3d6 au lieu de 4d6kh3
 
 EXEMPLES:
-    dice roll d20
-    dice roll 2d6+3
-    dice roll 4d6kh3
-    dice roll d20 --advantage
-    dice stats
-    dice stats --classic
-    dice 3d8+2                  # Raccourci pour "dice roll 3d8+2"`)
+    sw-dice roll d20
+    sw-dice roll 2d6+3
+    sw-dice roll 4d6kh3
+    sw-dice roll d20 --advantage
+    sw-dice stats
+    sw-dice stats --classic
+    sw-dice 3d8+2                  # Raccourci pour "dice roll 3d8+2"`)
 }

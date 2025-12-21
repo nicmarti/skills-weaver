@@ -2,12 +2,12 @@
 //
 // Usage:
 //
-//	character create "Name" --race=human --class=fighter
-//	character create "Name" --race=elf --class=magic-user --method=classic
-//	character list
-//	character show "Name"
-//	character delete "Name"
-//	character export "Name" --format=json
+//	sw-character create "Name" --race=human --class=fighter
+//	sw-character create "Name" --race=elf --class=magic-user --method=classic
+//	sw-character list
+//	sw-character show "Name"
+//	sw-character delete "Name"
+//	sw-character export "Name" --format=json
 package main
 
 import (
@@ -306,10 +306,10 @@ func formatRolls(rolls []int, keptIndices []int) string {
 }
 
 func printUsage() {
-	fmt.Println(`Character Generator - Générateur de personnages BFRPG
+	fmt.Println(`SkillsWeaver - Character Generator - Générateur de personnages BFRPG
 
 USAGE:
-    character <command> [arguments]
+    sw-character <command> [arguments]
 
 COMMANDES:
     create "Nom" [options]    Crée un nouveau personnage
@@ -340,9 +340,9 @@ CLASSES DISPONIBLES:
     thief       - Voleur (d4 PV, compétences spéciales)
 
 EXEMPLES:
-    character create "Aldric" --race=human --class=fighter
-    character create "Lyra" --race=elf --class=magic-user --method=classic
-    character list
-    character show "Aldric"
-    character export "Aldric" --format=json`)
+    sw-character create "Aldric" --race=human --class=fighter
+    sw-character create "Lyra" --race=elf --class=magic-user --method=classic
+    sw-character list
+    sw-character show "Aldric"
+    sw-character export "Aldric" --format=json`)
 }

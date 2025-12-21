@@ -51,7 +51,7 @@ func printUsage() {
 	fmt.Println(`Name Generator - Générateur de Noms Fantasy BFRPG
 
 UTILISATION:
-  names <commande> [arguments]
+  sw-names <commande> [arguments]
 
 COMMANDES:
   generate <race> [options]    Générer un nom pour une race
@@ -72,17 +72,17 @@ TYPES DE PNJ:
   noble, wizard (mage), villain (méchant)
 
 EXEMPLES:
-  names generate dwarf                    # Nom de nain aléatoire
-  names generate elf --gender=f           # Nom d'elfe féminin
-  names generate human --count=5          # 5 noms humains
-  names generate halfling --first-only    # Prénom de halfelin
-  names npc innkeeper                     # Nom de tavernier
-  names npc villain                       # Nom de méchant`)
+  sw-names generate dwarf                    # Nom de nain aléatoire
+  sw-names generate elf --gender=f           # Nom d'elfe féminin
+  sw-names generate human --count=5          # 5 noms humains
+  sw-names generate halfling --first-only    # Prénom de halfelin
+  sw-names npc innkeeper                     # Nom de tavernier
+  sw-names npc villain                       # Nom de méchant`)
 }
 
 func cmdGenerate(gen *names.Generator, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("usage: names generate <race> [--gender=m|f] [--count=N] [--first-only]")
+		return fmt.Errorf("usage: sw-names generate <race> [--gender=m|f] [--count=N] [--first-only]")
 	}
 
 	race := args[0]
@@ -145,7 +145,7 @@ func cmdGenerate(gen *names.Generator, args []string) error {
 
 func cmdNPC(gen *names.Generator, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("usage: names npc <type>")
+		return fmt.Errorf("usage: sw-names npc <type>")
 	}
 
 	npcType := args[0]

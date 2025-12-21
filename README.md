@@ -2,9 +2,15 @@
 
 ![SkillsWeaver Logo](logo.png)
 
-**SkillsWeaver** is an interactive tabletop RPG engine powered by [Claude Code](https://claude.ai/claude-code), based on [Basic Fantasy RPG](https://www.basicfantasy.org/) rules. It combines AI orchestration with Go CLI tools to create a complete role-playing experience.
+**SkillsWeaver** is an interactive tabletop RPG engine powered by [Claude Code](https://claude.ai/claude-code) created by Nicolas Martignole.
+The engine is based on [Basic Fantasy RPG](https://www.basicfantasy.org/) rules. It combines AI orchestration with Go CLI tools to create a complete role-playing experience.
 
-## What is this?
+
+## See it live on YouTube
+
+You can watch a sample game session on [my YouTube channel](https://youtu.be/K5CCB7MmegM) - English subtitles available
+
+## What is this repository?
 
 SkillsWeaver demonstrates how to build a complex, multi-tool AI application using Claude Code's skills and agents system. It includes:
 
@@ -21,15 +27,12 @@ SkillsWeaver demonstrates how to build a complex, multi-tool AI application usin
 
 ### 1. Claude Code
 
-Install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude:
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
+Install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude. We recommend to use the native version.
+A key is not required to play as the game can use the Haiku model. 
 
 ### 2. Go
 
-Go 1.21+ is required to build the CLI tools:
+Go 1.25 is required to build the CLI tools:
 
 ```bash
 # macOS
@@ -38,7 +41,7 @@ brew install go
 # Or download from https://go.dev/dl/
 ```
 
-### 3. fal.ai API Key (for image generation)
+### 3. fal.ai API Key (for image generation) - OPTIONAL
 
 Get your API key from [fal.ai](https://fal.ai) and set it:
 
@@ -191,10 +194,30 @@ skillsweaver/
 
 ## License
 
-This project uses [Basic Fantasy RPG](https://www.basicfantasy.org/) rules, which are released under the Open Game License.
+**SkillsWeaver** is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](http://creativecommons.org/licenses/by-sa/4.0/) license.
 
-## Credits
+This means you are free to:
+- **Share** — copy and redistribute the material
+- **Adapt** — remix, transform, and build upon the material
 
-- **Basic Fantasy RPG** - Chris Gonnerman and contributors
-- **Claude Code** - Anthropic
+As long as you:
+- **Give attribution** to Nicolas MARTIGNOLE (the original author)
+- **Share alike** — distribute your contributions under the same license
+
+SkillsWeaver builds upon:
+- **Basic Fantasy RPG** - © Chris Gonnerman and contributors (Open Game License)
+- **Claude Code** - © Anthropic
 - **fal.ai** - Image generation API
+
+See the [LICENSE](LICENSE) file for full legal details.
+
+## Author
+
+This engine and the original idea is from **Nicolas MARTIGNOLE**, Principal Engineer at Back Market and Devoxx France's creator/organizer.
+
+You can reach Nicolas by email: [nicolas.martignole@devoxx.fr](mailto:nicolas.martignole@devoxx.fr)
+
+
+
+
+

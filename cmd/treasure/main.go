@@ -49,10 +49,10 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Treasure Generator - Générateur de Trésors BFRPG
+	fmt.Println(`SkillsWeaver - Treasure Generator - Générateur de Trésors BFRPG
 
 UTILISATION:
-  treasure <commande> [arguments]
+  sw-treasure <commande> [arguments]
 
 COMMANDES:
   generate <type>              Générer un trésor selon un type (A-U)
@@ -72,13 +72,13 @@ TYPES DE TRESORS:
   P-U    Trésors individuels mineurs
 
 EXEMPLES:
-  treasure generate R              # Trésor type R (gobelin)
-  treasure generate A              # Trésor type A (dragon)
-  treasure generate B --count=3    # 3 trésors type B
-  treasure types                   # Liste tous les types
-  treasure info A                  # Détails du type A
-  treasure items potions           # Liste toutes les potions
-  treasure items weapons           # Liste les armes magiques
+  sw-treasure generate R              # Trésor type R (gobelin)
+  sw-treasure generate A              # Trésor type A (dragon)
+  sw-treasure generate B --count=3    # 3 trésors type B
+  sw-treasure types                   # Liste tous les types
+  sw-treasure info A                  # Détails du type A
+  sw-treasure items potions           # Liste toutes les potions
+  sw-treasure items weapons           # Liste les armes magiques
 
 CATEGORIES D'OBJETS:
   potions, scrolls, rings, weapons, armor, wands, misc`)

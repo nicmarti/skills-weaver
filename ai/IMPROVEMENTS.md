@@ -689,7 +689,7 @@ Règle BFRPG : Plus le clerc est de haut niveau, plus il repousse facilement les
 
 ### HIGH-08: Tables de Rencontres Limitées
 
-**Statut**: [ ] À faire
+**Statut**: [x] Complété
 
 **Problème**:
 `monsters.json` n'a que 5-6 tables de rencontres :
@@ -707,7 +707,25 @@ Ajouter 6+ nouvelles tables de rencontres avec créatures appropriées.
 **Fichiers à modifier**:
 - `data/monsters.json`
 
-**Prompt**:
+**Résolution** (21 déc 2025):
+- ✅ Ajouté 22 nouveaux monstres au bestiaire (stats BFRPG officielles) :
+  - Animaux : crocodile, crocodile_large, lion, hyena, giant_frog, giant_snake_constrictor, giant_snake_venomous, hawk, vulture, camel, sea_serpent
+  - Monstres : giant_scorpion, giant_crab, mummy, lizardman
+  - Humains : bandit, pirate, cultist, thug, city_guard, merchant
+- ✅ Ajouté 9 nouvelles tables de rencontres :
+  - `cave` : Caverne (kobolds, gobelins, chauve-souris, ours, troll)
+  - `mountain` : Montagne (loups, harpies, ogres, dragon)
+  - `ruins` : Ruines (morts-vivants, méduse, cockatrice)
+  - `road` : Route (bandits, loups, gobelins, gnolls)
+  - `urban` : Ville (brigands, gardes, cultistes, marchands)
+  - `desert` : Désert (scorpions, momies, hyènes, lions)
+  - `coastal` : Côte (crabes, pirates, crocodiles, serpent de mer)
+  - `swamp` : Marais (hommes-lézards, grenouilles, crocodiles, trolls)
+- ✅ Total : 15 tables de rencontres (6 existantes + 9 nouvelles)
+- ✅ Total : 55 monstres (33 existants + 22 nouveaux)
+- ✅ Sources : [The Free Bestiary BFRPG](https://clayadavis.gitlab.io/osr-bestiary/bestiary/bfrpg/)
+
+**Prompt** (référence):
 ```
 Ajoute des tables de rencontres dans data/monsters.json :
 

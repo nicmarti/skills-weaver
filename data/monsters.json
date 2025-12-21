@@ -682,6 +682,443 @@
       "xp": 2300,
       "special": ["undead", "paralysis touch", "fear aura", "spellcasting (as 11th level magic-user)", "immune to normal weapons", "phylactery"],
       "description_fr": "Magicien mort-vivant d'une puissance terrifiante. Son phylactère le rend quasi-immortel."
+    },
+    {
+      "id": "crocodile",
+      "name": "Crocodile",
+      "name_fr": "Crocodile",
+      "type": "animal",
+      "size": "large",
+      "hit_dice": "2d8",
+      "hit_points_avg": 9,
+      "armor_class": 15,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 2, "damage": "1d8", "damage_avg": 4}
+      ],
+      "movement": 30,
+      "movement_swim": 30,
+      "save_as": "Fighter 2",
+      "morale": 7,
+      "treasure_type": "none",
+      "xp": 75,
+      "special": ["surprise on 1-4 in water", "ambush predator"],
+      "description_fr": "Reptile aquatique aux mâchoires puissantes. Chasse en embuscade depuis les eaux troubles."
+    },
+    {
+      "id": "crocodile_large",
+      "name": "Large Crocodile",
+      "name_fr": "Grand Crocodile",
+      "type": "animal",
+      "size": "huge",
+      "hit_dice": "6d8",
+      "hit_points_avg": 27,
+      "armor_class": 17,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 6, "damage": "2d8", "damage_avg": 9}
+      ],
+      "movement": 30,
+      "movement_swim": 30,
+      "save_as": "Fighter 6",
+      "morale": 8,
+      "treasure_type": "none",
+      "xp": 500,
+      "special": ["surprise on 1-4 in water", "death roll"],
+      "description_fr": "Crocodile de grande taille, capable d'attaquer des proies de taille humaine."
+    },
+    {
+      "id": "giant_scorpion",
+      "name": "Giant Scorpion",
+      "name_fr": "Scorpion Géant",
+      "type": "vermin",
+      "size": "large",
+      "hit_dice": "4d8",
+      "hit_points_avg": 18,
+      "armor_class": 15,
+      "attacks": [
+        {"name": "claw", "name_fr": "pince", "bonus": 4, "damage": "1d10", "damage_avg": 5},
+        {"name": "claw", "name_fr": "pince", "bonus": 4, "damage": "1d10", "damage_avg": 5},
+        {"name": "stinger", "name_fr": "dard", "bonus": 4, "damage": "1d6", "damage_avg": 3, "special": "poison"}
+      ],
+      "movement": 50,
+      "save_as": "Fighter 2",
+      "morale": 11,
+      "treasure_type": "none",
+      "xp": 280,
+      "special": ["poison (save or die)", "+2 to stinger if claw hits"],
+      "description_fr": "Scorpion de la taille d'un cheval. Son dard empoisonné est mortel."
+    },
+    {
+      "id": "giant_crab",
+      "name": "Giant Crab",
+      "name_fr": "Crabe Géant",
+      "type": "animal",
+      "size": "large",
+      "hit_dice": "3d8",
+      "hit_points_avg": 13,
+      "armor_class": 18,
+      "attacks": [
+        {"name": "pincer", "name_fr": "pince", "bonus": 3, "damage": "2d6", "damage_avg": 7},
+        {"name": "pincer", "name_fr": "pince", "bonus": 3, "damage": "2d6", "damage_avg": 7}
+      ],
+      "movement": 20,
+      "movement_swim": 20,
+      "save_as": "Fighter 3",
+      "morale": 7,
+      "treasure_type": "none",
+      "xp": 145,
+      "special": ["armored eyes (immune to backstab)"],
+      "description_fr": "Crustacé géant aux pinces dévastatrices. Habite les grottes côtières."
+    },
+    {
+      "id": "mummy",
+      "name": "Mummy",
+      "name_fr": "Momie",
+      "type": "undead",
+      "size": "medium",
+      "hit_dice": "5d8",
+      "hit_points_avg": 22,
+      "armor_class": 17,
+      "attacks": [
+        {"name": "touch", "name_fr": "toucher", "bonus": 5, "damage": "1d12", "damage_avg": 6, "special": "mummy rot"}
+      ],
+      "movement": 20,
+      "save_as": "Fighter 5",
+      "morale": 12,
+      "treasure_type": "D",
+      "xp": 450,
+      "special": ["undead", "mummy rot (prevents healing)", "immune to normal weapons", "half damage from magic weapons", "double damage from fire"],
+      "description_fr": "Cadavre préservé et enveloppé de bandelettes. Sa malédiction empêche toute guérison."
+    },
+    {
+      "id": "lizardman",
+      "name": "Lizard Man",
+      "name_fr": "Homme-Lézard",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "2d8",
+      "hit_points_avg": 9,
+      "armor_class": 15,
+      "attacks": [
+        {"name": "weapon", "name_fr": "arme", "bonus": 2, "damage": "1d6+1", "damage_avg": 4}
+      ],
+      "movement": 20,
+      "movement_swim": 40,
+      "save_as": "Fighter 2",
+      "morale": 11,
+      "treasure_type": "D",
+      "xp": 75,
+      "special": ["+1 damage (strength)", "hold breath 1 turn", "surprise on 1-4 in water"],
+      "description_fr": "Humanoïde reptilien des marais. Guerrier redoutable et excellent nageur."
+    },
+    {
+      "id": "lion",
+      "name": "Lion",
+      "name_fr": "Lion",
+      "type": "animal",
+      "size": "large",
+      "hit_dice": "5d8",
+      "hit_points_avg": 22,
+      "armor_class": 14,
+      "attacks": [
+        {"name": "claw", "name_fr": "griffe", "bonus": 5, "damage": "1d6", "damage_avg": 3},
+        {"name": "claw", "name_fr": "griffe", "bonus": 5, "damage": "1d6", "damage_avg": 3},
+        {"name": "bite", "name_fr": "morsure", "bonus": 5, "damage": "1d10", "damage_avg": 5}
+      ],
+      "movement": 50,
+      "save_as": "Fighter 5",
+      "morale": 9,
+      "treasure_type": "none",
+      "xp": 360,
+      "special": [],
+      "description_fr": "Grand félin des savanes. Chasse en groupe et attaque les proies isolées."
+    },
+    {
+      "id": "hyena",
+      "name": "Hyena",
+      "name_fr": "Hyène",
+      "type": "animal",
+      "size": "medium",
+      "hit_dice": "2d8+1",
+      "hit_points_avg": 10,
+      "armor_class": 13,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 2, "damage": "1d6", "damage_avg": 3}
+      ],
+      "movement": 60,
+      "save_as": "Fighter 2",
+      "morale": 8,
+      "treasure_type": "none",
+      "xp": 75,
+      "special": ["pack tactics"],
+      "description_fr": "Carnivore des savanes. Chasse en clan et accompagne parfois les gnolls."
+    },
+    {
+      "id": "giant_snake_constrictor",
+      "name": "Giant Snake (Constrictor)",
+      "name_fr": "Serpent Géant (Constricteur)",
+      "type": "animal",
+      "size": "large",
+      "hit_dice": "3d8",
+      "hit_points_avg": 13,
+      "armor_class": 14,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 3, "damage": "1d4", "damage_avg": 2},
+        {"name": "constrict", "name_fr": "constriction", "bonus": 3, "damage": "2d4", "damage_avg": 5}
+      ],
+      "movement": 30,
+      "save_as": "Fighter 2",
+      "morale": 8,
+      "treasure_type": "none",
+      "xp": 50,
+      "special": ["constrict (automatic damage after hit)"],
+      "description_fr": "Python géant qui étouffe ses proies. Peut avaler des créatures de petite taille."
+    },
+    {
+      "id": "giant_snake_venomous",
+      "name": "Giant Snake (Venomous)",
+      "name_fr": "Serpent Géant (Venimeux)",
+      "type": "animal",
+      "size": "medium",
+      "hit_dice": "2d8",
+      "hit_points_avg": 9,
+      "armor_class": 14,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 2, "damage": "1d4", "damage_avg": 2, "special": "poison"}
+      ],
+      "movement": 30,
+      "save_as": "Fighter 1",
+      "morale": 7,
+      "treasure_type": "none",
+      "xp": 75,
+      "special": ["poison (save or die in 1d6 turns)"],
+      "description_fr": "Serpent venimeux de grande taille. Sa morsure est souvent mortelle."
+    },
+    {
+      "id": "giant_frog",
+      "name": "Giant Frog",
+      "name_fr": "Grenouille Géante",
+      "type": "animal",
+      "size": "medium",
+      "hit_dice": "2d8",
+      "hit_points_avg": 9,
+      "armor_class": 13,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 2, "damage": "1d6", "damage_avg": 3},
+        {"name": "tongue", "name_fr": "langue", "bonus": 2, "damage": "grab", "damage_avg": 0, "special": "grab"}
+      ],
+      "movement": 30,
+      "movement_swim": 30,
+      "save_as": "Fighter 1",
+      "morale": 6,
+      "treasure_type": "none",
+      "xp": 20,
+      "special": ["tongue grab (pull small creatures)", "leap 60ft"],
+      "description_fr": "Batracien de la taille d'un chien. Attrape ses proies avec sa langue collante."
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "name_fr": "Bandit",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "1d8",
+      "hit_points_avg": 4,
+      "armor_class": 13,
+      "attacks": [
+        {"name": "weapon", "name_fr": "arme", "bonus": 1, "damage": "1d6", "damage_avg": 3}
+      ],
+      "movement": 30,
+      "save_as": "Fighter 1",
+      "morale": 8,
+      "treasure_type": "P",
+      "xp": 10,
+      "special": ["ambush (+1 attack from surprise)"],
+      "description_fr": "Hors-la-loi qui attaque les voyageurs. Souvent en groupe avec un chef plus puissant."
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate",
+      "name_fr": "Pirate",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "1d8",
+      "hit_points_avg": 4,
+      "armor_class": 13,
+      "attacks": [
+        {"name": "cutlass", "name_fr": "coutelas", "bonus": 1, "damage": "1d6", "damage_avg": 3}
+      ],
+      "movement": 30,
+      "save_as": "Fighter 1",
+      "morale": 7,
+      "treasure_type": "P",
+      "xp": 10,
+      "special": ["swimming", "boarding tactics"],
+      "description_fr": "Écumeur des mers. Combat sur les navires et les côtes."
+    },
+    {
+      "id": "cultist",
+      "name": "Cultist",
+      "name_fr": "Cultiste",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "1d8",
+      "hit_points_avg": 4,
+      "armor_class": 12,
+      "attacks": [
+        {"name": "dagger", "name_fr": "dague", "bonus": 0, "damage": "1d4", "damage_avg": 2}
+      ],
+      "movement": 30,
+      "save_as": "Normal Human",
+      "morale": 9,
+      "treasure_type": "P",
+      "xp": 10,
+      "special": ["fanatic (high morale)", "dark rituals"],
+      "description_fr": "Adepte d'un culte maléfique. Prêt à mourir pour sa cause obscure."
+    },
+    {
+      "id": "thug",
+      "name": "Thug",
+      "name_fr": "Brigand",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "1d8+1",
+      "hit_points_avg": 5,
+      "armor_class": 12,
+      "attacks": [
+        {"name": "club", "name_fr": "gourdin", "bonus": 1, "damage": "1d6", "damage_avg": 3}
+      ],
+      "movement": 30,
+      "save_as": "Fighter 1",
+      "morale": 7,
+      "treasure_type": "P",
+      "xp": 15,
+      "special": [],
+      "description_fr": "Homme de main violent. Travaille pour des criminels ou des nobles corrompus."
+    },
+    {
+      "id": "city_guard",
+      "name": "City Guard",
+      "name_fr": "Garde Urbain",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "1d8",
+      "hit_points_avg": 4,
+      "armor_class": 15,
+      "attacks": [
+        {"name": "spear", "name_fr": "lance", "bonus": 1, "damage": "1d6", "damage_avg": 3}
+      ],
+      "movement": 30,
+      "save_as": "Fighter 1",
+      "morale": 8,
+      "treasure_type": "P",
+      "xp": 10,
+      "special": ["call reinforcements"],
+      "description_fr": "Soldat chargé de maintenir l'ordre en ville. Patrouille en groupe."
+    },
+    {
+      "id": "merchant",
+      "name": "Merchant",
+      "name_fr": "Marchand",
+      "type": "humanoid",
+      "size": "medium",
+      "hit_dice": "1d4",
+      "hit_points_avg": 2,
+      "armor_class": 11,
+      "attacks": [
+        {"name": "dagger", "name_fr": "dague", "bonus": 0, "damage": "1d4", "damage_avg": 2}
+      ],
+      "movement": 30,
+      "save_as": "Normal Human",
+      "morale": 6,
+      "treasure_type": "Q",
+      "xp": 5,
+      "special": ["negotiation"],
+      "description_fr": "Commerçant voyageant avec ses marchandises. Préfère négocier que combattre."
+    },
+    {
+      "id": "hawk",
+      "name": "Hawk",
+      "name_fr": "Faucon",
+      "type": "animal",
+      "size": "tiny",
+      "hit_dice": "1d4",
+      "hit_points_avg": 2,
+      "armor_class": 14,
+      "attacks": [
+        {"name": "talons", "name_fr": "serres", "bonus": 1, "damage": "1d2", "damage_avg": 1}
+      ],
+      "movement": 10,
+      "movement_fly": 150,
+      "save_as": "Normal Human",
+      "morale": 7,
+      "treasure_type": "none",
+      "xp": 5,
+      "special": ["dive attack (+2 damage)", "keen sight"],
+      "description_fr": "Rapace utilisé pour la chasse. Peut être dressé."
+    },
+    {
+      "id": "vulture",
+      "name": "Vulture",
+      "name_fr": "Vautour",
+      "type": "animal",
+      "size": "medium",
+      "hit_dice": "1d8",
+      "hit_points_avg": 4,
+      "armor_class": 12,
+      "attacks": [
+        {"name": "beak", "name_fr": "bec", "bonus": 1, "damage": "1d4", "damage_avg": 2}
+      ],
+      "movement": 10,
+      "movement_fly": 80,
+      "save_as": "Fighter 1",
+      "morale": 6,
+      "treasure_type": "none",
+      "xp": 10,
+      "special": ["scavenger", "disease carrier"],
+      "description_fr": "Charognard des déserts et plaines. Se nourrit de carcasses."
+    },
+    {
+      "id": "camel",
+      "name": "Camel",
+      "name_fr": "Chameau",
+      "type": "animal",
+      "size": "large",
+      "hit_dice": "2d8",
+      "hit_points_avg": 9,
+      "armor_class": 13,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 2, "damage": "1d4", "damage_avg": 2},
+        {"name": "kick", "name_fr": "coup de pied", "bonus": 2, "damage": "1d4", "damage_avg": 2}
+      ],
+      "movement": 50,
+      "save_as": "Fighter 1",
+      "morale": 7,
+      "treasure_type": "none",
+      "xp": 20,
+      "special": ["desert adapted", "can go weeks without water"],
+      "description_fr": "Monture du désert. Résistant et adapté aux conditions arides."
+    },
+    {
+      "id": "sea_serpent",
+      "name": "Sea Serpent",
+      "name_fr": "Serpent de Mer",
+      "type": "monstrosity",
+      "size": "huge",
+      "hit_dice": "6d8",
+      "hit_points_avg": 27,
+      "armor_class": 15,
+      "attacks": [
+        {"name": "bite", "name_fr": "morsure", "bonus": 6, "damage": "2d6", "damage_avg": 7},
+        {"name": "constrict", "name_fr": "constriction", "bonus": 6, "damage": "1d10", "damage_avg": 5}
+      ],
+      "movement": 10,
+      "movement_swim": 50,
+      "save_as": "Fighter 6",
+      "morale": 8,
+      "treasure_type": "none",
+      "xp": 500,
+      "special": ["capsize boats", "constrict"],
+      "description_fr": "Serpent marin géant capable de renverser les embarcations."
     }
   ],
   "encounter_tables": {
@@ -759,6 +1196,107 @@
         {"id": "wight", "number": "1d2", "weight": 10},
         {"id": "wraith", "number": "1", "weight": 10},
         {"id": "vampire", "number": "1", "weight": 5}
+      ]
+    },
+    "cave": {
+      "description": "Caverne ou grotte souterraine",
+      "monsters": [
+        {"id": "giant_bat", "number": "2d6", "weight": 20},
+        {"id": "kobold", "number": "2d6", "weight": 20},
+        {"id": "goblin", "number": "1d6", "weight": 15},
+        {"id": "giant_spider", "number": "1d4", "weight": 15},
+        {"id": "orc", "number": "1d6", "weight": 10},
+        {"id": "bear", "number": "1", "weight": 10},
+        {"id": "troll", "number": "1", "weight": 5},
+        {"id": "giant_snake_constrictor", "number": "1d2", "weight": 5}
+      ]
+    },
+    "mountain": {
+      "description": "Montagnes et cols rocheux",
+      "monsters": [
+        {"id": "wolf", "number": "2d4", "weight": 20},
+        {"id": "dire_wolf", "number": "1d4", "weight": 15},
+        {"id": "harpy", "number": "1d4", "weight": 15},
+        {"id": "giant_bat", "number": "1d6", "weight": 10},
+        {"id": "ogre", "number": "1d2", "weight": 15},
+        {"id": "troll", "number": "1", "weight": 10},
+        {"id": "bear", "number": "1", "weight": 10},
+        {"id": "dragon_red_young", "number": "1", "weight": 5}
+      ]
+    },
+    "ruins": {
+      "description": "Ruines anciennes et temples abandonnés",
+      "monsters": [
+        {"id": "skeleton", "number": "1d6", "weight": 20},
+        {"id": "zombie", "number": "1d4", "weight": 15},
+        {"id": "ghoul", "number": "1d3", "weight": 15},
+        {"id": "giant_spider", "number": "1d4", "weight": 10},
+        {"id": "green_slime", "number": "1", "weight": 10},
+        {"id": "cockatrice", "number": "1", "weight": 10},
+        {"id": "gelatinous_cube", "number": "1", "weight": 10},
+        {"id": "wight", "number": "1", "weight": 5},
+        {"id": "medusa", "number": "1", "weight": 5}
+      ]
+    },
+    "road": {
+      "description": "Routes et chemins de campagne",
+      "monsters": [
+        {"id": "bandit", "number": "2d6", "weight": 30},
+        {"id": "wolf", "number": "1d6", "weight": 20},
+        {"id": "goblin", "number": "2d4", "weight": 15},
+        {"id": "orc", "number": "1d6", "weight": 10},
+        {"id": "gnoll", "number": "1d4", "weight": 10},
+        {"id": "bugbear", "number": "1d2", "weight": 10},
+        {"id": "ogre", "number": "1", "weight": 5}
+      ]
+    },
+    "urban": {
+      "description": "Ville, cité ou village",
+      "monsters": [
+        {"id": "thug", "number": "1d6", "weight": 25},
+        {"id": "city_guard", "number": "1d4", "weight": 20},
+        {"id": "bandit", "number": "1d4", "weight": 15},
+        {"id": "cultist", "number": "1d6", "weight": 15},
+        {"id": "merchant", "number": "1d2", "weight": 10},
+        {"id": "giant_rat", "number": "2d4", "weight": 10},
+        {"id": "ghoul", "number": "1", "weight": 5}
+      ]
+    },
+    "desert": {
+      "description": "Désert et terres arides",
+      "monsters": [
+        {"id": "giant_scorpion", "number": "1d4", "weight": 25},
+        {"id": "hyena", "number": "2d4", "weight": 20},
+        {"id": "lion", "number": "1d4", "weight": 15},
+        {"id": "giant_snake_venomous", "number": "1d2", "weight": 15},
+        {"id": "mummy", "number": "1d2", "weight": 10},
+        {"id": "vulture", "number": "2d4", "weight": 10},
+        {"id": "skeleton", "number": "1d6", "weight": 5}
+      ]
+    },
+    "coastal": {
+      "description": "Côtes, plages et falaises",
+      "monsters": [
+        {"id": "giant_crab", "number": "1d4", "weight": 25},
+        {"id": "pirate", "number": "2d6", "weight": 25},
+        {"id": "crocodile", "number": "1d3", "weight": 15},
+        {"id": "giant_rat", "number": "1d6", "weight": 10},
+        {"id": "harpy", "number": "1d3", "weight": 10},
+        {"id": "sea_serpent", "number": "1", "weight": 10},
+        {"id": "crocodile_large", "number": "1", "weight": 5}
+      ]
+    },
+    "swamp": {
+      "description": "Marais et marécages",
+      "monsters": [
+        {"id": "lizardman", "number": "2d4", "weight": 25},
+        {"id": "giant_frog", "number": "2d4", "weight": 20},
+        {"id": "crocodile", "number": "1d3", "weight": 15},
+        {"id": "giant_snake_constrictor", "number": "1d2", "weight": 10},
+        {"id": "giant_centipede", "number": "1d6", "weight": 10},
+        {"id": "green_slime", "number": "1", "weight": 10},
+        {"id": "troll", "number": "1", "weight": 5},
+        {"id": "crocodile_large", "number": "1", "weight": 5}
       ]
     }
   }

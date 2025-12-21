@@ -1,4 +1,17 @@
 {
+  "_armor_class_system": {
+    "convention": "ascending",
+    "description": "SkillsWeaver uses ascending AC (higher = better protected)",
+    "base_ac_unarmored": 11,
+    "formula": "AC = 11 + DEX modifier + armor ac_bonus + shield ac_bonus",
+    "examples": {
+      "unarmored_dex_10": 11,
+      "leather_dex_10": 13,
+      "chainmail_dex_10": 15,
+      "plate_dex_10": 17,
+      "plate_shield_dex_14": 19
+    }
+  },
   "weapons": [
     {
       "id": "dagger",
@@ -237,7 +250,9 @@
     {"id": "thieves_tools", "name": "Outils de voleur", "name_en": "Thieves' Tools", "cost": 25, "weight": 0.5},
     {"id": "tinderbox", "name": "Boîte à amadou", "name_en": "Tinderbox", "cost": 3, "weight": 0.5},
     {"id": "torch", "name": "Torche", "name_en": "Torch", "cost": 0.01, "weight": 0.5},
-    {"id": "waterskin", "name": "Outre", "name_en": "Waterskin", "cost": 1, "weight": 2}
+    {"id": "waterskin", "name": "Outre", "name_en": "Waterskin", "cost": 1, "weight": 2},
+    {"id": "spellbook", "name": "Grimoire", "name_en": "Spellbook", "cost": 50, "weight": 3},
+    {"id": "ink_quill", "name": "Plume et encre", "name_en": "Ink & Quill", "cost": 5, "weight": 0.1}
   ],
   "starting_equipment": {
     "fighter": {

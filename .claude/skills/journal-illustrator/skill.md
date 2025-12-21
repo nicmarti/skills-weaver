@@ -27,6 +27,9 @@ go build -o sw-image ./cmd/image
 # Générer toutes les illustrations
 ./sw-image journal "la-crypte-des-ombres"
 
+# Reprendre depuis un ID spécifique (utile pour éviter les régénérations)
+./sw-image journal "la-crypte-des-ombres" --start-id=60
+
 # Limiter le nombre d'images
 ./sw-image journal "la-crypte-des-ombres" --max=5
 
@@ -48,6 +51,7 @@ go build -o sw-image ./cmd/image
 
 ```bash
 --types=<types>     # Types à illustrer (combat,exploration,discovery,loot,session)
+--start-id=<n>      # ID de départ pour reprendre depuis une entrée spécifique (optionnel)
 --max=<n>           # Nombre maximum d'images à générer
 --parallel=<n>      # Niveau de parallélisme (1-8, défaut: 4)
 --dry-run           # Afficher les prompts sans générer d'images
@@ -80,6 +84,18 @@ Affiche tous les prompts qui seraient utilisés, avec le style et la taille de c
 ```bash
 ./sw-image journal "la-crypte-des-ombres" --parallel=8
 ```
+
+### Reprendre depuis un ID spécifique
+
+```bash
+# Première génération jusqu'à l'ID 59
+./sw-image journal "la-crypte-des-ombres" --max=15
+
+# Reprendre depuis l'ID 60 pour éviter les régénérations
+./sw-image journal "la-crypte-des-ombres" --start-id=60
+```
+
+Utile après une nouvelle session pour illustrer uniquement les nouvelles entrées du journal.
 
 ## Sortie
 

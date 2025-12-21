@@ -87,6 +87,7 @@ OPTIONS COMMUNES:
 
 OPTIONS JOURNAL:
   --types=<types>              Types à illustrer (combat,exploration,discovery,loot,session)
+  --start-id=<n>               ID de départ pour reprendre depuis une entrée (optionnel)
   --max=<n>                    Nombre maximum d'images à générer
   --parallel=<n>               Nombre de générations en parallèle (défaut: 4)
   --model=<model>              Modèle fal.ai (schnell, banana) défaut: schnell
@@ -99,8 +100,9 @@ MODÈLES FAL.AI:
 EXEMPLES:
   sw-image character "Aldric"
   sw-image journal "la-crypte-des-ombres"
+  sw-image journal "la-crypte-des-ombres" --start-id=60
   sw-image journal "la-crypte-des-ombres" --model=banana --max=5
-  sw-image journal "la-crypte-des-ombres" --dry-run
+  sw-image journal "la-crypte-des-ombres" --start-id=60 --dry-run
 
 NOTES:
   - Nécessite la variable d'environnement FAL_KEY
@@ -602,9 +604,20 @@ func cmdJournal(args []string) error {
 		typesToIllustrate = strings.Split(opts["types"], ",")
 	}
 
+	// Parse start-id if provided
+	startID := 0
+	if opts["start-id"] != "" {
+		fmt.Sscanf(opts["start-id"], "%d", &startID)
+	}
+
 	// Filter entries
 	var entriesToIllustrate []adventure.JournalEntry
 	for _, entry := range journal.Entries {
+		// Skip entries before start-id
+		if startID > 0 && entry.ID < startID {
+			continue
+		}
+
 		// Skip "Session démarrée" entries (only keep session end summaries)
 		if entry.Type == "session" && strings.Contains(entry.Content, "démarrée") {
 			continue

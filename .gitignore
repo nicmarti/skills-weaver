@@ -43,4 +43,5 @@ go.work.sum
 .claude/settings.local.json
 
 # Documentation and assets
-ai/youtube/assets/
+ai/youtube
+data/images/

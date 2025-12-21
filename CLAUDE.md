@@ -398,6 +398,30 @@ go build -o sw-treasure ./cmd/treasure
 
 La skill `treasure-generator` permet à Claude de générer des trésors appropriés après les combats, en respectant les types de trésors assignés aux monstres.
 
+### CLI sw-validate
+
+Valider les données de jeu :
+
+```bash
+# Compiler
+go build -o sw-validate ./cmd/validate
+
+# Valider toutes les données
+./sw-validate                 # Affichage texte
+./sw-validate --json          # Sortie JSON (CI/CD)
+./sw-validate --data /path    # Répertoire personnalisé
+
+# Aide
+./sw-validate help
+```
+
+**Validations effectuées** :
+- `races.json` : allowed_classes référencent des classes valides
+- `equipment.json` : starting_equipment référence des items valides
+- `monsters.json` : treasure_type valide (A-U ou 'none')
+- `names.json` : toutes les races ont des entrées de noms
+- `spells.json` : spell_lists référencent des sorts valides
+
 ## Sous-Agents Spécialisés
 
 Les agents sont disponibles dans `.claude/agents/` :
@@ -443,6 +467,7 @@ go build -o sw-npc ./cmd/npc
 go build -o sw-image ./cmd/image
 go build -o sw-monster ./cmd/monster
 go build -o sw-treasure ./cmd/treasure
+go build -o sw-validate ./cmd/validate
 
 # Lancer les tests
 go test ./...

@@ -12,6 +12,7 @@
 /sw-image
 /sw-monster
 /sw-treasure
+/sw-validate
 
 # IDE
 .idea/

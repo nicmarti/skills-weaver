@@ -298,7 +298,7 @@ Ces problèmes rendent le gameplay incomplet mais ne le cassent pas totalement.
 
 ### HIGH-01: Système de Sorts Manquant
 
-**Statut**: [ ] À faire
+**Statut**: [x] Complété (22 déc 2025)
 
 **Problème**:
 Le jeu n'a pas de système de sorts implémenté :
@@ -309,53 +309,33 @@ Le jeu n'a pas de système de sorts implémenté :
 
 **Impact**: Les classes de lanceurs de sorts sont inutilisables en combat.
 
-**Solutions**:
-1. Créer `data/spells.json` avec les sorts BFRPG niveaux 1-3
-2. Ajouter une structure Spell au package character ou nouveau package spell
-3. Tracker les sorts connus/préparés dans Character
+**Résolution** (22 déc 2025):
+- ✅ Créé `data/spells.json` avec 41 sorts BFRPG niveaux 1-2 :
+  - 8 sorts cléricaux niveau 1 (Soins légers, Détection du mal, Détection de la magie, Lumière, Protection contre le mal, Purification nourriture/eau, Délivrance de la peur, Résistance au froid)
+  - 9 sorts cléricaux niveau 2 (Bénédiction, Charme-animal, Détection des pièges, Immobilisation de personne, Résistance au feu, Silence 15' de rayon, Communication avec les animaux, Marteau spirituel)
+  - 13 sorts arcaniques niveau 1 (Charme-personne, Détection de la magie, Disque flottant, Verrouillage, Lumière, Projectile magique, Bouche magique, Protection contre le mal, Lecture des langues, Lecture de la magie, Bouclier, Sommeil, Ventriloquie)
+  - 12 sorts arcaniques niveau 2 (Lumière éternelle, Détection du mal, Détection de l'invisible, Invisibilité, Déblocage, Lévitation, Localisation d'objet, Lecture des pensées, Image miroir, Force fantasmagorique, Toile d'araignée, Verrou magique)
+- ✅ Structure JSON complète avec : id, name_en, name_fr, level, type, reversible, range, duration, description bilingue, save, damage si applicable
+- ✅ Ajouté à Character struct dans `internal/character/character.go` :
+  - `KnownSpells []string` - IDs des sorts connus
+  - `PreparedSpells []string` - sorts préparés pour la journée
+  - `SpellSlots map[int]int` - slots disponibles par niveau
+  - `SpellSlotsUsed map[int]int` - slots utilisés par niveau
+- ✅ Ajouté méthodes dans character.go :
+  - `InitializeSpellSlots(gd *data.GameData) bool` - initialise les slots selon classe/niveau
+  - `CanCastSpells(gd *data.GameData) bool` - vérifie si la classe peut lancer des sorts
+  - `GetSpellType(gd *data.GameData) string` - retourne "arcane" ou "divine"
+- ✅ Mis à jour `ToMarkdown()` pour afficher la section Magie avec slots et sorts
+- ✅ Mis à jour `.claude/agents/rules-keeper.md` avec documentation complète :
+  - Tables des emplacements de sorts par niveau
+  - Règles de préparation et de lancement
+  - Listes complètes des 41 sorts avec portée, durée et effet
+- ✅ Code compile sans erreurs
 
-**Fichiers à créer/modifier**:
-- `data/spells.json` (nouveau)
-- `internal/spell/spell.go` (nouveau package optionnel)
-- `internal/character/character.go`
-
-**Prompt**:
-```
-Crée un système de sorts pour SkillsWeaver :
-
-1. Crée data/spells.json avec les sorts BFRPG niveaux 1-2 :
-
-   Structure par sort :
-   {
-     "id": "magic_missile",
-     "name_fr": "Projectile Magique",
-     "name_en": "Magic Missile",
-     "level": 1,
-     "type": "arcane",  // ou "divine"
-     "range": "150 feet",
-     "duration": "instantaneous",
-     "description_fr": "...",
-     "description_en": "...",
-     "damage": "1d6+1"  // si applicable
-   }
-
-   Sorts arcaniques niveau 1 (au moins 8) :
-   - Projectile Magique, Sommeil, Charme-personne, Détection de la magie
-   - Lumière, Protection contre le mal, Bouclier, Lecture des langues
-
-   Sorts divins niveau 1 (au moins 6) :
-   - Soins légers, Détection du mal, Lumière, Protection contre le mal
-   - Purification de l'eau et nourriture, Sanctuaire
-
-2. Ajoute à Character struct :
-   - KnownSpells []string (IDs des sorts connus)
-   - PreparedSpells []string (sorts préparés pour la journée)
-   - SpellSlots map[int]int (slots par niveau)
-
-3. Documente le système dans rules-keeper.md :
-   - Magicien : doit préparer depuis grimoire
-   - Clerc : accès à tous les sorts divins, prépare chaque jour
-```
+**Fichiers modifiés**:
+- `data/spells.json` (nouveau - 41 sorts)
+- `internal/character/character.go` (structure + méthodes)
+- `.claude/agents/rules-keeper.md` (documentation sorts)
 
 ---
 
@@ -1068,7 +1048,7 @@ Ajoute l'export Markdown du journal dans SkillsWeaver :
 
 ### MED-07: Giant Bat Taille Incorrecte
 
-**Statut**: [ ] À faire
+**Statut**: [x] Résolu - Valeurs correctes selon BFRPG
 
 **Problème**:
 Dans `monsters.json`, la chauve-souris géante est "medium" :
@@ -1080,12 +1060,16 @@ Dans `monsters.json`, la chauve-souris géante est "medium" :
 }
 ```
 
-Une chauve-souris, même géante, devrait être "small" avec 1d8.
+~~Une chauve-souris, même géante, devrait être "small" avec 1d8.~~
 
-**Impact**: Incohérence dans le bestiaire.
+**Résolution**:
+Après vérification contre le fichier Excel BFRPG officiel (Mike Roop r3) et le bestiaire web, les valeurs actuelles sont **correctes** :
+- HD: 2d8 (conforme BFRPG)
+- Size: medium (envergure 4.5m selon description BFRPG)
+- Save: Fighter 2
+- XP: 75
 
-**Solution**:
-Corriger la taille et ajuster les stats si nécessaire.
+Aucune modification nécessaire.
 
 **Fichiers à modifier**:
 - `data/monsters.json`
@@ -1381,7 +1365,7 @@ Crée un système de pièges pour SkillsWeaver :
 
 ### LOW-06: Validation des Données au Démarrage
 
-**Statut**: [ ] À faire
+**Statut**: [x] Complété (22 déc 2025)
 
 **Problème**:
 Les fichiers JSON ne sont pas validés :
@@ -1397,6 +1381,32 @@ Créer une fonction de validation globale.
 **Fichiers à modifier**:
 - `internal/data/loader.go`
 - `cmd/*/main.go`
+
+**Résolution**:
+Implémenté un système de validation complet :
+
+1. **internal/data/loader.go** :
+   - `ValidationError` struct avec File, Field, Message, Severity
+   - `ValidateGameData()` fonction principale
+   - `validateRaceClassRefs()` valide les classes autorisées (supporte multi-classe)
+   - `validateStartingEquipment()` valide les références d'équipement
+   - `isValidClassRef()` gère la notation multi-classe (ex: "fighter/magic-user")
+   - `itemExists()` vérifie l'existence des items
+
+2. **cmd/validate/main.go** - Nouveau CLI sw-validate :
+   - Validation de races.json (allowed_classes)
+   - Validation de equipment.json (starting_equipment)
+   - Validation de monsters.json (treasure_type A-U ou 'none')
+   - Validation de names.json (couverture des races)
+   - Validation de spells.json (spell_lists)
+   - Output texte ou JSON (--json)
+   - Code de sortie 0 (succès) ou 1 (erreurs)
+
+3. **Corrections de données** :
+   - monsters.json: kobold treasure_type "P, Q" → "P"
+   - monsters.json: gelatinous_cube treasure_type "V" → "none"
+
+Note: L'option --validate pour les autres CLI n'a pas été implémentée car sw-validate couvre le besoin de validation.
 
 **Prompt**:
 ```

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // AbilityModifiers represents racial ability score modifiers.
@@ -336,4 +337,129 @@ func (gd *GameData) GetLevelLimit(raceID, classID string) int {
 	default:
 		return -1
 	}
+}
+
+// ValidationError represents a data validation issue.
+type ValidationError struct {
+	File     string `json:"file"`
+	Field    string `json:"field"`
+	Message  string `json:"message"`
+	Severity string `json:"severity"` // "error" or "warning"
+}
+
+// ValidateGameData performs comprehensive validation of all game data.
+// It checks cross-references between files and reports inconsistencies.
+func ValidateGameData(gd *GameData) []ValidationError {
+	var errors []ValidationError
+
+	// Validate race -> class references
+	errors = append(errors, validateRaceClassRefs(gd)...)
+
+	// Validate starting equipment references
+	errors = append(errors, validateStartingEquipment(gd)...)
+
+	return errors
+}
+
+// validateRaceClassRefs checks that all allowed_classes in races reference valid classes.
+func validateRaceClassRefs(gd *GameData) []ValidationError {
+	var errors []ValidationError
+
+	for raceID, race := range gd.Races {
+		for _, classID := range race.AllowedClasses {
+			if !gd.isValidClassRef(classID) {
+				errors = append(errors, ValidationError{
+					File:     "races.json",
+					Field:    fmt.Sprintf("races[%s].allowed_classes", raceID),
+					Message:  fmt.Sprintf("references non-existent class '%s'", classID),
+					Severity: "error",
+				})
+			}
+		}
+	}
+
+	return errors
+}
+
+// isValidClassRef checks if a class ID is valid.
+// Supports multi-class notation like "fighter/magic-user".
+func (gd *GameData) isValidClassRef(classID string) bool {
+	// Direct match
+	if _, ok := gd.Classes[classID]; ok {
+		return true
+	}
+
+	// Check for multi-class (e.g., "fighter/magic-user")
+	if strings.Contains(classID, "/") {
+		parts := strings.Split(classID, "/")
+		for _, part := range parts {
+			if _, ok := gd.Classes[part]; !ok {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
+}
+
+// validateStartingEquipment checks that all starting equipment references valid items.
+func validateStartingEquipment(gd *GameData) []ValidationError {
+	var errors []ValidationError
+
+	for classID, se := range gd.StartingEquipment {
+		// Check required items
+		for _, itemID := range se.Required {
+			if !gd.itemExists(itemID) {
+				errors = append(errors, ValidationError{
+					File:     "equipment.json",
+					Field:    fmt.Sprintf("starting_equipment[%s].required", classID),
+					Message:  fmt.Sprintf("references non-existent item '%s'", itemID),
+					Severity: "error",
+				})
+			}
+		}
+
+		// Check weapon choices
+		for i, choices := range se.WeaponChoices {
+			for _, itemID := range choices {
+				if !gd.itemExists(itemID) {
+					errors = append(errors, ValidationError{
+						File:     "equipment.json",
+						Field:    fmt.Sprintf("starting_equipment[%s].weapon_choices[%d]", classID, i),
+						Message:  fmt.Sprintf("references non-existent weapon '%s'", itemID),
+						Severity: "error",
+					})
+				}
+			}
+		}
+
+		// Check armor choices
+		for _, itemID := range se.ArmorChoices {
+			if !gd.itemExists(itemID) {
+				errors = append(errors, ValidationError{
+					File:     "equipment.json",
+					Field:    fmt.Sprintf("starting_equipment[%s].armor_choices", classID),
+					Message:  fmt.Sprintf("references non-existent armor '%s'", itemID),
+					Severity: "error",
+				})
+			}
+		}
+	}
+
+	return errors
+}
+
+// itemExists checks if an item ID exists in weapons, armor, or gear.
+func (gd *GameData) itemExists(id string) bool {
+	if _, ok := gd.Weapons[id]; ok {
+		return true
+	}
+	if _, ok := gd.Armor[id]; ok {
+		return true
+	}
+	if _, ok := gd.Gear[id]; ok {
+		return true
+	}
+	return false
 }

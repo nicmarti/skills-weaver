@@ -401,6 +401,22 @@ Voir `ai/PLAN.md` pour le plan détaillé avec les phases :
 10. **Phase 8** : Tables de trésors [TERMINEE]
 11. **Phase 9** : Journal Illustrator [TERMINEE]
 
+## Conventions Git
+
+### Commits
+- **Langue** : Anglais uniquement
+- **Format** : `<type>: <description>`
+- **Types** : `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+- **Ne pas mentionner** : Claude Code, Claude, AI, ou LLM dans les messages de commit
+
+### Exemples
+```bash
+git commit -m "feat: add combat system with initiative tracking"
+git commit -m "fix: validate race/class combinations in character creation"
+git commit -m "test: add unit tests for dice roller"
+git commit -m "docs: update rules-keeper with BFRPG combat rules"
+```
+
 ## Ressources
 
 - [Basic Fantasy RPG](https://www.basicfantasy.org/) - Règles complètes (gratuit)

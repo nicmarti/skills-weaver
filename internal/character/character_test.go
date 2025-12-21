@@ -166,12 +166,12 @@ func TestCalculateModifiers(t *testing.T) {
 	}
 }
 
-func TestRollHitPoints(t *testing.T) {
+func TestRollHitPointsMaxHP(t *testing.T) {
 	gd := loadTestGameData(t)
 
 	tests := []struct {
-		class   string
-		maxHP   int // Max possible HP at level 1
+		class  string
+		maxHP  int // Max possible HP at level 1
 	}{
 		{"fighter", 8},    // d8
 		{"cleric", 6},     // d6
@@ -184,17 +184,55 @@ func TestRollHitPoints(t *testing.T) {
 			c := New("Test", "human", tt.class)
 			c.Modifiers.Constitution = 0 // No CON modifier
 
-			err := c.RollHitPoints(gd)
+			err := c.RollHitPoints(gd, true) // maxHP = true
 			if err != nil {
 				t.Fatalf("RollHitPoints() error = %v", err)
 			}
 
-			// At level 1, HP should be max die + CON mod
+			// With maxHP=true, HP should be max die + CON mod
 			if c.HitPoints != tt.maxHP {
 				t.Errorf("HP = %d, want %d", c.HitPoints, tt.maxHP)
 			}
 			if c.MaxHitPoints != tt.maxHP {
 				t.Errorf("MaxHP = %d, want %d", c.MaxHitPoints, tt.maxHP)
+			}
+		})
+	}
+}
+
+func TestRollHitPointsRandomRoll(t *testing.T) {
+	gd := loadTestGameData(t)
+
+	tests := []struct {
+		class string
+		minHP int // Minimum HP (1 on die + 0 CON)
+		maxHP int // Maximum HP (max die + 0 CON)
+	}{
+		{"fighter", 1, 8},    // d8: 1-8
+		{"cleric", 1, 6},     // d6: 1-6
+		{"magic-user", 1, 4}, // d4: 1-4
+		{"thief", 1, 4},      // d4: 1-4
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.class, func(t *testing.T) {
+			// Run multiple times to test randomness
+			for i := 0; i < 20; i++ {
+				c := New("Test", "human", tt.class)
+				c.Modifiers.Constitution = 0 // No CON modifier
+
+				err := c.RollHitPoints(gd, false) // maxHP = false (random)
+				if err != nil {
+					t.Fatalf("RollHitPoints() error = %v", err)
+				}
+
+				// With maxHP=false, HP should be within die range
+				if c.HitPoints < tt.minHP || c.HitPoints > tt.maxHP {
+					t.Errorf("HP = %d, want %d-%d", c.HitPoints, tt.minHP, tt.maxHP)
+				}
+				if c.MaxHitPoints != c.HitPoints {
+					t.Errorf("MaxHP = %d should equal HP = %d", c.MaxHitPoints, c.HitPoints)
+				}
 			}
 		})
 	}
@@ -206,7 +244,7 @@ func TestRollHitPointsWithCON(t *testing.T) {
 	c := New("Test", "human", "fighter")
 	c.Modifiers.Constitution = 2 // +2 CON modifier
 
-	err := c.RollHitPoints(gd)
+	err := c.RollHitPoints(gd, true) // maxHP = true
 	if err != nil {
 		t.Fatalf("RollHitPoints() error = %v", err)
 	}
@@ -214,6 +252,45 @@ func TestRollHitPointsWithCON(t *testing.T) {
 	// Fighter d8 + 2 CON = 10 HP
 	if c.HitPoints != 10 {
 		t.Errorf("HP = %d, want 10", c.HitPoints)
+	}
+}
+
+func TestRollHitPointsMinimumOneHP(t *testing.T) {
+	gd := loadTestGameData(t)
+
+	// Magic-user with very low CON
+	c := New("Test", "human", "magic-user")
+	c.Modifiers.Constitution = -3 // -3 CON modifier
+
+	err := c.RollHitPoints(gd, true) // maxHP = true
+	if err != nil {
+		t.Fatalf("RollHitPoints() error = %v", err)
+	}
+
+	// d4 (4) + (-3) = 1 minimum
+	if c.HitPoints != 1 {
+		t.Errorf("HP = %d, want 1 (minimum)", c.HitPoints)
+	}
+}
+
+func TestRollHitPointsRandomWithLowCON(t *testing.T) {
+	gd := loadTestGameData(t)
+
+	// Magic-user with low CON, random roll
+	// d4 (1-4) + (-3) could result in -2 to +1, should clamp to 1
+	for i := 0; i < 20; i++ {
+		c := New("Test", "human", "magic-user")
+		c.Modifiers.Constitution = -3
+
+		err := c.RollHitPoints(gd, false)
+		if err != nil {
+			t.Fatalf("RollHitPoints() error = %v", err)
+		}
+
+		// Should never be below 1
+		if c.HitPoints < 1 {
+			t.Errorf("HP = %d, minimum should be 1", c.HitPoints)
+		}
 	}
 }
 
@@ -268,7 +345,7 @@ func TestSaveAndLoad(t *testing.T) {
 	c.GenerateAbilities(MethodStandard)
 	c.ApplyRacialModifiers(gd)
 	c.CalculateModifiers()
-	c.RollHitPoints(gd)
+	c.RollHitPoints(gd, true) // maxHP = true
 	c.RollStartingGold(gd)
 
 	err = c.Save(tmpDir)
@@ -399,6 +476,102 @@ func TestRollStartingGold(t *testing.T) {
 	// 3d6 * 10 = 30 to 180
 	if c.Gold < 30 || c.Gold > 180 {
 		t.Errorf("Gold = %d, want 30-180", c.Gold)
+	}
+}
+
+func TestCalculateArmorClass(t *testing.T) {
+	gd := loadTestGameData(t)
+
+	tests := []struct {
+		name      string
+		dexMod    int
+		equipment []string
+		wantAC    int
+	}{
+		{
+			name:      "Unarmored DEX 10 (mod 0)",
+			dexMod:    0,
+			equipment: []string{},
+			wantAC:    11, // Base AC
+		},
+		{
+			name:      "Unarmored DEX 18 (mod +3)",
+			dexMod:    3,
+			equipment: []string{},
+			wantAC:    14, // 11 + 3
+		},
+		{
+			name:      "Unarmored DEX 3 (mod -3)",
+			dexMod:    -3,
+			equipment: []string{},
+			wantAC:    8, // 11 - 3
+		},
+		{
+			name:      "Leather armor DEX 10",
+			dexMod:    0,
+			equipment: []string{"leather"},
+			wantAC:    13, // 11 + 0 + 2
+		},
+		{
+			name:      "Chainmail DEX 10",
+			dexMod:    0,
+			equipment: []string{"chainmail"},
+			wantAC:    15, // 11 + 0 + 4
+		},
+		{
+			name:      "Plate mail DEX 10",
+			dexMod:    0,
+			equipment: []string{"plate"},
+			wantAC:    17, // 11 + 0 + 6
+		},
+		{
+			name:      "Plate mail + shield DEX 10",
+			dexMod:    0,
+			equipment: []string{"plate", "shield"},
+			wantAC:    18, // 11 + 0 + 6 + 1
+		},
+		{
+			name:      "Leather + shield DEX 14 (mod +1)",
+			dexMod:    1,
+			equipment: []string{"leather", "shield"},
+			wantAC:    15, // 11 + 1 + 2 + 1
+		},
+		{
+			name:      "Plate + shield DEX 16 (mod +2)",
+			dexMod:    2,
+			equipment: []string{"plate", "shield"},
+			wantAC:    20, // 11 + 2 + 6 + 1
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := New("Test", "human", "fighter")
+			c.Modifiers.Dexterity = tt.dexMod
+			c.Equipment = tt.equipment
+
+			c.CalculateArmorClass(gd)
+
+			if c.ArmorClass != tt.wantAC {
+				t.Errorf("CalculateArmorClass() = %d, want %d", c.ArmorClass, tt.wantAC)
+			}
+		})
+	}
+}
+
+func TestCalculateArmorClassWithNonArmorItems(t *testing.T) {
+	gd := loadTestGameData(t)
+
+	// Non-armor items should not affect AC
+	c := New("Test", "human", "fighter")
+	c.Modifiers.Dexterity = 0
+	c.Equipment = []string{"longsword", "backpack", "rope_50ft", "leather"}
+
+	c.CalculateArmorClass(gd)
+
+	// Should only count leather armor (11 + 0 + 2 = 13)
+	if c.ArmorClass != 13 {
+		t.Errorf("CalculateArmorClass() with mixed items = %d, want 13", c.ArmorClass)
 	}
 }
 

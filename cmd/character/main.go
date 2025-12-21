@@ -64,6 +64,7 @@ func handleCreate(args []string) {
 	race := getFlag(args, "--race", "human")
 	class := getFlag(args, "--class", "fighter")
 	method := getFlag(args, "--method", "standard")
+	maxHP := hasFlag(args, "--max-hp") // Use max HP at level 1 (variant rule)
 
 	// Load game data
 	gd, err := data.Load(defaultDataDir)
@@ -128,14 +129,23 @@ func handleCreate(args []string) {
 	c.CalculateModifiers()
 
 	// Roll hit points
-	if err := c.RollHitPoints(gd); err != nil {
+	if err := c.RollHitPoints(gd, maxHP); err != nil {
 		fmt.Fprintf(os.Stderr, "Error rolling hit points: %v\n", err)
 		os.Exit(1)
 	}
 
 	classData, _ := gd.GetClass(class)
-	fmt.Printf("### Points de vie (niveau 1, %s max)\n\n", classData.HitDie)
-	fmt.Printf("PV = %d (dé max) + %d (CON) = **%d**\n\n", classData.HitDieSides, c.Modifiers.Constitution, c.HitPoints)
+	if maxHP {
+		fmt.Printf("### Points de vie (niveau 1, %s max)\n\n", classData.HitDie)
+		fmt.Printf("PV = %d (dé max) + %d (CON) = **%d**\n\n", classData.HitDieSides, c.Modifiers.Constitution, c.HitPoints)
+	} else {
+		dieRoll := c.HitPoints - c.Modifiers.Constitution
+		if dieRoll < 1 {
+			dieRoll = 1 // Clamp for display when HP is minimum 1
+		}
+		fmt.Printf("### Points de vie (niveau 1, %s lancé)\n\n", classData.HitDie)
+		fmt.Printf("PV = %d (%s) + %d (CON) = **%d**\n\n", dieRoll, classData.HitDie, c.Modifiers.Constitution, c.HitPoints)
+	}
 
 	// Roll starting gold
 	if err := c.RollStartingGold(gd); err != nil {
@@ -286,6 +296,15 @@ func getFlag(args []string, flag, defaultValue string) string {
 	return defaultValue
 }
 
+func hasFlag(args []string, flag string) bool {
+	for _, arg := range args {
+		if arg == flag {
+			return true
+		}
+	}
+	return false
+}
+
 func formatRolls(rolls []int, keptIndices []int) string {
 	parts := make([]string, len(rolls))
 	for i, roll := range rolls {
@@ -323,6 +342,7 @@ OPTIONS POUR CREATE:
     --race=<race>       Race du personnage (human, elf, dwarf, halfling)
     --class=<class>     Classe du personnage (fighter, cleric, magic-user, thief)
     --method=<method>   Méthode de génération (standard=4d6kh3, classic=3d6)
+    --max-hp            PV max au niveau 1 (variante pour survie)
 
 OPTIONS POUR EXPORT:
     --format=<format>   Format d'export (json, md)
@@ -342,7 +362,13 @@ CLASSES DISPONIBLES:
 EXEMPLES:
     sw-character create "Aldric" --race=human --class=fighter
     sw-character create "Lyra" --race=elf --class=magic-user --method=classic
+    sw-character create "Gorim" --race=dwarf --class=fighter --max-hp
     sw-character list
     sw-character show "Aldric"
-    sw-character export "Aldric" --format=json`)
+    sw-character export "Aldric" --format=json
+
+NOTES SUR LES PV:
+    Par défaut, les PV au niveau 1 sont lancés aléatoirement (règle BFRPG standard).
+    Avec --max-hp, le personnage reçoit le maximum du dé de vie (variante populaire
+    pour améliorer la survie des personnages de bas niveau).`)
 }

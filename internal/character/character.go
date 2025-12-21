@@ -154,17 +154,45 @@ func abilityModifier(score int) int {
 	}
 }
 
-// RollHitPoints rolls hit points for level 1 (max at level 1 in BFRPG).
-func (c *Character) RollHitPoints(gd *data.GameData) error {
+// RollHitPoints calculates hit points for level 1.
+//
+// Parameters:
+//   - maxHP: if true, gives maximum hit die value (popular variant for survivability)
+//     if false, rolls the hit die randomly (standard BFRPG rules)
+//
+// The hit die depends on class:
+//   - Fighter: d8 (1-8)
+//   - Cleric: d6 (1-6)
+//   - Magic-User: d4 (1-4)
+//   - Thief: d4 (1-4)
+//
+// Constitution modifier is always added. Minimum HP is 1.
+func (c *Character) RollHitPoints(gd *data.GameData, maxHP bool) error {
 	class, ok := gd.GetClass(c.Class)
 	if !ok {
 		return fmt.Errorf("unknown class: %s", c.Class)
 	}
 
-	// At level 1, take maximum hit die + CON modifier
-	hp := class.HitDieSides + c.Modifiers.Constitution
+	var hp int
+	if maxHP {
+		// Variant rule: maximum hit die at level 1
+		hp = class.HitDieSides
+	} else {
+		// Standard BFRPG: roll the hit die
+		roller := dice.New()
+		result, err := roller.Roll(class.HitDie)
+		if err != nil {
+			return fmt.Errorf("rolling hit die: %w", err)
+		}
+		hp = result.Total
+	}
+
+	// Add Constitution modifier
+	hp += c.Modifiers.Constitution
+
+	// Minimum 1 HP
 	if hp < 1 {
-		hp = 1 // Minimum 1 HP
+		hp = 1
 	}
 
 	c.HitPoints = hp

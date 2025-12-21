@@ -40,7 +40,12 @@ type Character struct {
 	ArmorClass   int           `json:"armor_class"`
 	Gold         int           `json:"gold"`
 	Equipment    []string      `json:"equipment"`
-	CreatedAt    time.Time     `json:"created_at"`
+	// Spell system fields
+	KnownSpells    []string       `json:"known_spells,omitempty"`    // Spell IDs known by the character
+	PreparedSpells []string       `json:"prepared_spells,omitempty"` // Spell IDs prepared for the day
+	SpellSlots     map[int]int    `json:"spell_slots,omitempty"`     // Available spell slots by level
+	SpellSlotsUsed map[int]int    `json:"spell_slots_used,omitempty"` // Used spell slots by level
+	CreatedAt      time.Time      `json:"created_at"`
 }
 
 // GenerationMethod specifies how ability scores are generated.
@@ -243,6 +248,63 @@ func (c *Character) CalculateArmorClass(gd *data.GameData) {
 	}
 }
 
+// InitializeSpellSlots sets up spell slots based on class and level.
+// Returns true if the character is a spellcaster, false otherwise.
+func (c *Character) InitializeSpellSlots(gd *data.GameData) bool {
+	class, ok := gd.GetClass(c.Class)
+	if !ok {
+		return false
+	}
+
+	// Check if class has spells
+	if class.SpellsPerLevel == nil || len(class.SpellsPerLevel) == 0 {
+		return false
+	}
+
+	// Get spell slots for current level
+	levelKey := fmt.Sprintf("%d", c.Level)
+	slots, ok := class.SpellsPerLevel[levelKey]
+	if !ok || len(slots) == 0 {
+		// No spells at this level (e.g., Cleric level 1)
+		c.SpellSlots = nil
+		c.SpellSlotsUsed = nil
+		return true // Still a spellcaster, just no slots yet
+	}
+
+	// Initialize spell slots by spell level
+	c.SpellSlots = make(map[int]int)
+	c.SpellSlotsUsed = make(map[int]int)
+
+	for spellLevel, count := range slots {
+		c.SpellSlots[spellLevel+1] = count // spellLevel is 0-indexed, spell levels are 1-indexed
+		c.SpellSlotsUsed[spellLevel+1] = 0
+	}
+
+	return true
+}
+
+// CanCastSpells returns true if the character's class can cast spells.
+func (c *Character) CanCastSpells(gd *data.GameData) bool {
+	class, ok := gd.GetClass(c.Class)
+	if !ok {
+		return false
+	}
+	return class.SpellsPerLevel != nil && len(class.SpellsPerLevel) > 0
+}
+
+// GetSpellType returns the spell type for the character's class.
+// Returns "arcane" for Magic-User, "divine" for Cleric, or "" for non-casters.
+func (c *Character) GetSpellType(gd *data.GameData) string {
+	switch c.Class {
+	case "magic-user":
+		return "arcane"
+	case "cleric":
+		return "divine"
+	default:
+		return ""
+	}
+}
+
 // Validate checks if the character's race/class combination is valid.
 func (c *Character) Validate(gd *data.GameData) error {
 	if c.Name == "" {
@@ -409,6 +471,51 @@ func (c *Character) ToMarkdown(gd *data.GameData) string {
 
 	// XP
 	sb.WriteString(fmt.Sprintf("\n## Expérience : %d XP\n", c.XP))
+
+	// Spells section (if applicable)
+	if c.CanCastSpells(gd) {
+		sb.WriteString("\n## Magie\n\n")
+		spellType := c.GetSpellType(gd)
+		if spellType == "arcane" {
+			sb.WriteString("**Type** : Arcanique (Magicien)\n\n")
+		} else if spellType == "divine" {
+			sb.WriteString("**Type** : Divine (Clerc)\n\n")
+		}
+
+		// Spell slots
+		if c.SpellSlots != nil && len(c.SpellSlots) > 0 {
+			sb.WriteString("### Emplacements de sorts\n\n")
+			sb.WriteString("| Niveau | Disponible | Utilisé |\n")
+			sb.WriteString("|--------|------------|----------|\n")
+			for lvl := 1; lvl <= 6; lvl++ {
+				if slots, ok := c.SpellSlots[lvl]; ok && slots > 0 {
+					used := 0
+					if c.SpellSlotsUsed != nil {
+						used = c.SpellSlotsUsed[lvl]
+					}
+					sb.WriteString(fmt.Sprintf("| %d | %d | %d |\n", lvl, slots, used))
+				}
+			}
+		} else {
+			sb.WriteString("*Pas encore d'emplacements de sorts à ce niveau.*\n")
+		}
+
+		// Known spells
+		if len(c.KnownSpells) > 0 {
+			sb.WriteString("\n### Sorts connus\n\n")
+			for _, spellID := range c.KnownSpells {
+				sb.WriteString(fmt.Sprintf("- %s\n", spellID))
+			}
+		}
+
+		// Prepared spells
+		if len(c.PreparedSpells) > 0 {
+			sb.WriteString("\n### Sorts préparés\n\n")
+			for _, spellID := range c.PreparedSpells {
+				sb.WriteString(fmt.Sprintf("- %s\n", spellID))
+			}
+		}
+	}
 
 	return sb.String()
 }

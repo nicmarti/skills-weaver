@@ -103,17 +103,93 @@ Jet réussi : d20 >= valeur cible
 
 ### Magie
 
-**Sorts de Clerc (Niveau 1)** : 0 sort (sorts à partir du niveau 2)
-**Sorts de Magicien (Niveau 1)** : 1 sort de niveau 1
+Le système de sorts BFRPG distingue deux types de magie :
+- **Arcanique** (Magicien) : Sorts appris via étude du grimoire
+- **Divine** (Clerc) : Sorts reçus par la prière
 
-**Sorts de Magicien Niveau 1** :
-- Charme-personne
-- Détection de la magie
-- Lumière
-- Projectile magique (1d6+1 dégâts, touche auto)
-- Bouclier (+2 CA)
-- Sommeil (2d8 DV de créatures)
-- Lecture de la magie
+**Emplacements de sorts** :
+
+| Niveau | Magicien (1er/2e) | Clerc (1er/2e) |
+|--------|-------------------|----------------|
+| 1 | 1/- | -/- |
+| 2 | 2/- | 1/- |
+| 3 | 2/1 | 2/- |
+| 4 | 2/2 | 2/1 |
+| 5 | 2/2/1 | 2/2 |
+
+**Préparation des sorts** :
+- Le Magicien prépare ses sorts après une nuit de repos (1 tour par 3 niveaux de sorts)
+- Le Clerc prie pendant au moins 3 tours pour préparer ses sorts
+- Les sorts non utilisés persistent jour après jour
+
+**Lancer un sort** :
+- Nécessite une main libre et la parole
+- Durée : comme une attaque
+- Si attaqué ou jet de sauvegarde requis pendant l'incantation : sort perdu
+- Sorts réversibles (*) : préparés normalement, utilisables dans les deux formes
+
+#### Sorts de Clerc Niveau 1 (8 sorts)
+
+| Sort | Portée | Durée | Effet |
+|------|--------|-------|-------|
+| Soins légers* | Contact | Instantané | Soigne 1d6+1 PV |
+| Détection du mal* | 60' | 1 round/niveau | Détecte le mal |
+| Détection de la magie | 60' | 2 tours | Détecte la magie |
+| Lumière* | 120' | 6 tours+1/niveau | Éclaire 30' rayon |
+| Protection contre le mal* | Contact | 1 tour/niveau | +2 CA et JS contre le mal |
+| Purification nourriture/eau | 10' | Instantané | Purifie vivres |
+| Délivrance de la peur* | Contact | Instantané | Annule la peur |
+| Résistance au froid | Contact | 1 round/niveau | +3 JS, -50% dégâts froid |
+
+#### Sorts de Clerc Niveau 2 (9 sorts)
+
+| Sort | Portée | Durée | Effet |
+|------|--------|-------|-------|
+| Bénédiction* | 50' rayon | 1 min/niveau | +1 attaque, moral, JS peur |
+| Charme-animal | 60' | niveau+1d4 rounds | Charme animaux |
+| Détection des pièges | 30' | 3 tours | Révèle les pièges |
+| Immobilisation de personne | 180' | 2d8 tours | Paralyse humanoïdes |
+| Résistance au feu | Contact | 1 round/niveau | +3 JS, -50% dégâts feu |
+| Silence 15' de rayon | 360' | 2 rounds/niveau | Zone de silence |
+| Communication avec les animaux | Spécial | 1 tour/4 niveaux | Parle aux animaux |
+| Marteau spirituel | 30' | 1 round/niveau | 1d6+1/3 niveaux dégâts |
+
+#### Sorts de Magicien Niveau 1 (13 sorts)
+
+| Sort | Portée | Durée | Effet |
+|------|--------|-------|-------|
+| Charme-personne | 30' | Spécial | Charme humanoïde 4 DV max |
+| Détection de la magie | 60' | 2 tours | Détecte la magie |
+| Disque flottant | 0 | 5 tours+1/niveau | Porte 500 livres |
+| Verrouillage | 100'+10'/niveau | 1 round/niveau | Verrouille porte |
+| Lumière* | 120' | 6 tours+1/niveau | Éclaire 30' rayon |
+| Projectile magique | 100'+10'/niveau | Instantané | 1d6+1 auto-touche |
+| Bouche magique | 30' | Spécial | Message déclenché |
+| Protection contre le mal* | Contact | 1 tour/niveau | +2 CA et JS contre le mal |
+| Lecture des langues | 0 | Spécial | Lit les langues |
+| Lecture de la magie | 0 | Permanent | Lit textes magiques |
+| Bouclier | Soi | 5 rounds+1/niveau | Annule projectile magique, +3/+6 CA |
+| Sommeil | 90' | 5 rounds/niveau | Endort créatures 3 DV max |
+| Ventriloquie | 60' | 1 tour/niveau | Projette sa voix |
+
+#### Sorts de Magicien Niveau 2 (12 sorts)
+
+| Sort | Portée | Durée | Effet |
+|------|--------|-------|-------|
+| Lumière éternelle* | 360' | 1 an/niveau | Éclaire comme le jour |
+| Détection du mal* | 60' | 1 round/niveau | Détecte le mal |
+| Détection de l'invisible | 60' | 1 tour/niveau | Voit l'invisible |
+| Invisibilité | Contact | Spécial | Rend invisible (fin si attaque) |
+| Déblocage | 30' | Spécial | Ouvre portes verrouillées |
+| Lévitation | Contact | 1 tour/niveau | Monte/descend 20'/round |
+| Localisation d'objet | 360' | 1 round/niveau | Trouve un objet connu |
+| Lecture des pensées | 60' | 1 tour/niveau | Lit pensées superficielles |
+| Image miroir | Soi | 1 tour/niveau | 1d4+niveau/3 doubles |
+| Force fantasmagorique | 180' | Concentration | Crée illusion visuelle |
+| Toile d'araignée | 10'/niveau | 2 tours/niveau | Emprisonne créatures |
+| Verrou magique | 20' | Permanent | Verrouille magiquement |
+
+**Référence des sorts** : `data/spells.json`
 
 ### Compétences de Voleur (Niveau 1)
 

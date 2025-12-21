@@ -247,3 +247,15 @@ Vérifiez que votre clé API est valide sur [fal.ai/dashboard/keys](https://fal.
 ./sw-image list locations    # Types de lieux
 ./sw-image list sizes        # Tailles d'image
 ```
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Illustrations de scènes et personnages |
+
+**Type** : Skill autonome, peut être invoqué directement via `/image-generator`
+
+**Dépendances** : Peut être utilisé avec `character-generator` et `npc-generator` pour illustrer les personnages créés

@@ -214,3 +214,15 @@ data/adventures/la-mine-perdue/
 - Les événements sont automatiquement horodatés
 - L'or peut être négatif pour les dépenses (utilisez un nombre négatif)
 - Le journal génère automatiquement un résumé par session
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Gestion sessions, journal, inventaire |
+
+**Type** : Skill autonome, peut être invoqué directement via `/adventure-manager`
+
+**Dépendances** : Utilise `dice-roller` et `character-generator` en complément

@@ -181,3 +181,15 @@ Après une session de jeu, utilisez cette skill pour créer un résumé visuel :
 # Illustrer le journal
 ./sw-image journal "mon-aventure" --types=combat,discovery
 ```
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Illustration automatique des journaux d'aventure |
+
+**Type** : Skill autonome, peut être invoqué directement via `/journal-illustrator`
+
+**Dépendances** : Utilise `adventure-manager` (lecture du journal) et `image-generator` (génération d'images)

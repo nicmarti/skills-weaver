@@ -219,3 +219,14 @@ Ogres, Wights, Hibours, Harpies, Cocatrices, Minotaures
 
 ### dungeon_level_4 (Niveau 7+)
 Trolls, Vampires, Méduses, Dragons, Basilics, Liches
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Stats monstres, génération de rencontres |
+| `rules-keeper` | Consultation des statistiques de monstres |
+
+**Type** : Skill autonome, peut être invoqué directement via `/monster-manual`

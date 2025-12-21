@@ -156,3 +156,15 @@ Les personnages sont sauvegardés en JSON dans `data/characters/` :
 - La skill `dice-roller` peut être utilisée pour des jets supplémentaires
 - Vérifiez les combinaisons race/classe avant de créer
 - Les personnages sont automatiquement sauvegardés
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `character-creator` | Création guidée de personnages |
+
+**Type** : Skill autonome, peut être invoqué directement via `/character-generator`
+
+**Dépendances** : Utilise `dice-roller` pour la génération des caractéristiques

@@ -197,3 +197,15 @@ Le générateur ajuste automatiquement l'apparence selon la race :
 | Elfe | Grand, mince/svelte/élancé |
 | Halfelin | Très petit |
 | Humain | Variable |
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Création de PNJ à la volée |
+
+**Type** : Skill autonome, peut être invoqué directement via `/npc-generator`
+
+**Dépendances** : Utilise `name-generator` pour les noms des PNJ

@@ -102,3 +102,15 @@ Les dés barrés (`~2~`) sont ceux qui n'ont pas été gardés.
 - Pour les dégâts: utilisez le dé approprié à l'arme
 - Pour les sauvegardes: `./sw-dice roll d20` et comparez au seuil
 - Pour créer un personnage: `./sw-dice stats`
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Jets de combat, initiative, sauvegardes |
+| `character-creator` | Génération des caractéristiques |
+| `rules-keeper` | Vérification et exécution des jets |
+
+**Type** : Skill autonome, peut être invoqué directement via `/dice-roller`

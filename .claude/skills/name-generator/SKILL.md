@@ -157,3 +157,14 @@ Les noms sont stockés dans `data/names.json` avec :
 - Pour un **PNJ récurrent** : `./sw-names generate <race>` (nom complet)
 - Pour un **PNJ mineur** : `./sw-names npc <type>` ou `--first-only`
 - Pour une **liste de choix** : `--count=5`
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Noms pour PNJ et lieux |
+| `character-creator` | Suggestions de noms pour joueurs |
+
+**Type** : Skill autonome, peut être invoqué directement via `/name-generator`

@@ -765,7 +765,7 @@ Ces problèmes affectent la cohérence et le polish mais n'empêchent pas le jeu
 
 ### MED-01: Documentation Agents vs Skills Floue
 
-**Statut**: [ ] À faire
+**Statut**: [x] Résolu
 
 **Problème**:
 La distinction entre agents et skills n'est pas claire :
@@ -778,41 +778,20 @@ La distinction entre agents et skills n'est pas claire :
 **Solution**:
 Clarifier et documenter la hiérarchie et les responsabilités.
 
-**Fichiers à modifier**:
-- `.claude/agents/*.md`
-- `.claude/skills/*/SKILL.md`
-- `CLAUDE.md`
+**Résolution**:
+1. Section "Architecture : Skills vs Agents" ajoutée à CLAUDE.md avec :
+   - Définitions claires (Skills = CLI, Agents = Personas)
+   - Diagramme ASCII de la hiérarchie
+   - Exemples de workflows (création de personnage, session de jeu)
+2. Chaque agent liste maintenant ses skills dans une table "Skills Utilisés"
+3. Chaque skill indique quels agents l'utilisent dans "Utilisé par"
 
-**Prompt**:
-```
-Clarifie la distinction entre agents et skills dans SkillsWeaver :
-
-1. Dans CLAUDE.md, ajoute une section "Architecture" expliquant :
-
-   ## Hiérarchie Skills / Agents
-
-   **Skills** = Outils automatisables avec CLI
-   - Invoqués via /skill-name ou automatiquement
-   - Exécutent des commandes sw-*
-   - Retournent des données structurées
-   - Exemples : dice-roller, character-generator, treasure-generator
-
-   **Agents** = Personnalités/Rôles spécialisés
-   - Guident l'utilisateur avec contexte narratif
-   - Utilisent les skills comme outils
-   - Maintiennent un style et ton cohérent
-   - Exemples : dungeon-master, rules-keeper, character-creator
-
-   **Workflow typique** :
-   1. Utilisateur demande de créer un personnage
-   2. Agent character-creator guide la conversation
-   3. Agent utilise skill dice-roller pour les stats
-   4. Agent utilise skill character-generator pour sauvegarder
-
-2. Dans chaque agent, liste explicitement les skills utilisés
-
-3. Dans chaque skill, indique s'il est autonome ou utilisé par des agents
-```
+**Fichiers modifiés**:
+- `CLAUDE.md` (section Architecture)
+- `.claude/agents/dungeon-master.md` (7 skills)
+- `.claude/agents/character-creator.md` (3 skills)
+- `.claude/agents/rules-keeper.md` (2 skills)
+- `.claude/skills/*/SKILL.md` (9 skills)
 
 ---
 
@@ -1113,7 +1092,7 @@ Corriger la taille et ajuster les stats si nécessaire.
 
 **Prompt**:
 ```
-Corrige la chauve-souris géante dans data/monsters.json :
+Corrige la chauve-souris géante dans data/monsters.json en prenant comme reference la page https://clayadavis.gitlab.io/osr-bestiary/bestiary/bfrpg/core/bat-and-bat-giant/
 
 Modifie giant_bat :
 - "size": "small" (au lieu de "medium")

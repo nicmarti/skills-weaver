@@ -208,3 +208,15 @@ Projectiles magiques, Paralysie, Froid, Éclairs, Peur
 
 ### Objets Divers (10)
 Sac sans fond, Bottes de vitesse/lévitation, Cape de déplacement/protection, Gantelets de force, Casque de télépathie, etc.
+
+## Utilisé par
+
+Ce skill est utilisé par les agents suivants :
+
+| Agent | Usage |
+|-------|-------|
+| `dungeon-master` | Génération de trésors après combats |
+
+**Type** : Skill autonome, peut être invoqué directement via `/treasure-generator`
+
+**Dépendances** : Complète `monster-manual` (type de trésor par monstre)

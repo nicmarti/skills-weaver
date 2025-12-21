@@ -63,6 +63,78 @@ skillsweaver/
 └── CLAUDE.md                # Ce fichier
 ```
 
+## Architecture : Skills vs Agents
+
+### Définitions
+
+**Skills** = Outils automatisables avec CLI
+- Invoqués via `/skill-name` ou automatiquement par Claude
+- Exécutent des commandes `sw-*`
+- Retournent des données structurées
+- Autonomes : peuvent fonctionner seuls ou être utilisés par des agents
+
+**Agents** = Personnalités/Rôles spécialisés
+- Guident l'utilisateur avec contexte narratif
+- Utilisent les skills comme outils
+- Maintiennent un style et ton cohérent
+- Orchestrent plusieurs skills pour accomplir des tâches complexes
+
+### Hiérarchie
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      UTILISATEUR                        │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────────┐
+│                       AGENTS                            │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐   │
+│  │ dungeon-    │ │ character-  │ │ rules-keeper    │   │
+│  │ master      │ │ creator     │ │ (arbitre)       │   │
+│  └──────┬──────┘ └──────┬──────┘ └────────┬────────┘   │
+└─────────┼───────────────┼─────────────────┼────────────┘
+          │               │                 │
+┌─────────▼───────────────▼─────────────────▼────────────┐
+│                       SKILLS                            │
+│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
+│  │dice-roller │ │character-  │ │adventure-manager   │  │
+│  │            │ │generator   │ │                    │  │
+│  └────────────┘ └────────────┘ └────────────────────┘  │
+│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
+│  │name-       │ │npc-        │ │image-generator     │  │
+│  │generator   │ │generator   │ │                    │  │
+│  └────────────┘ └────────────┘ └────────────────────┘  │
+│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
+│  │monster-    │ │treasure-   │ │journal-illustrator │  │
+│  │manual      │ │generator   │ │                    │  │
+│  └────────────┘ └────────────┘ └────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────────┐
+│                    CLI (sw-*)                           │
+│  sw-dice, sw-character, sw-adventure, sw-names,        │
+│  sw-npc, sw-image, sw-monster, sw-treasure             │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Workflow typique : Création de personnage
+
+1. Utilisateur : "Je veux créer un personnage"
+2. **Agent** `character-creator` guide la conversation (race, classe, nom)
+3. **Skill** `dice-roller` lance les stats (4d6kh3)
+4. **Skill** `name-generator` propose des noms
+5. **Skill** `character-generator` sauvegarde le personnage
+
+### Workflow typique : Session de jeu
+
+1. Utilisateur : "Lançons une session"
+2. **Agent** `dungeon-master` narre l'aventure
+3. **Skill** `adventure-manager` gère l'état (session, journal)
+4. **Skill** `dice-roller` résout les actions
+5. **Skill** `monster-manual` fournit les stats des ennemis
+6. **Skill** `treasure-generator` génère le butin
+7. **Skill** `image-generator` illustre les moments clés
+
 ## Outils Disponibles
 
 ### CLI sw-dice

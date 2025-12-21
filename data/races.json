@@ -1,4 +1,13 @@
 {
+  "_level_limits_convention": {
+    "description": "Convention for level_limits values in race definitions",
+    "values": {
+      "0": "Unlimited - no level cap for this class",
+      "positive_number": "Maximum level the race can reach in this class (e.g., 6 means max level 6)",
+      "string_fraction": "Multi-class limit format (e.g., '6/9' for Fighter 6 / Magic-User 9)"
+    },
+    "note": "If a class is not listed in level_limits, the race cannot play that class (check allowed_classes)"
+  },
   "races": [
     {
       "id": "human",

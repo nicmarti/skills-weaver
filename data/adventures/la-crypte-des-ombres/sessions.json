@@ -15,6 +15,13 @@
       "duration": "47m",
       "summary": "SESSION 2 VICTOIRE \\! Le Culte de l'Éternelle Nuit détruit. Frère Mordecai Fane vaincu. Le Cristal de Pouvoir détruit. Sombregarde libérée. Pierrebrune sauvée.",
       "status": "completed"
+    },
+    {
+      "id": 3,
+      "started_at": "2025-12-21T08:25:03.53532+01:00",
+      "ended_at": "0001-01-01T00:00:00Z",
+      "status": "active"
     }
-  ]
+  ],
+  "current_session": 3
 }

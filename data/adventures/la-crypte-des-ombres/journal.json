@@ -466,9 +466,79 @@
       "timestamp": "2025-12-20T23:45:05.912792+01:00",
       "type": "session",
       "content": "Session 2 terminée - SESSION 2 VICTOIRE \\! Le Culte de l'Éternelle Nuit détruit. Frère Mordecai Fane vaincu. Le Cristal de Pouvoir détruit. Sombregarde libérée. Pierrebrune sauvée."
+    },
+    {
+      "id": 68,
+      "timestamp": "2025-12-21T08:25:03.535846+01:00",
+      "session_id": 3,
+      "type": "session",
+      "content": "Session 3 démarrée"
+    },
+    {
+      "id": 69,
+      "timestamp": "2025-12-21T08:37:12.726179+01:00",
+      "session_id": 3,
+      "type": "rencontre",
+      "content": "Session 3 - Révélation d'Adanel à Corvus et son groupe à la Taverne de la Chèvre Bleue"
+    },
+    {
+      "id": 70,
+      "timestamp": "2025-12-21T08:54:32.856059+01:00",
+      "session_id": 3,
+      "type": "decision",
+      "content": "Session 3 - Choix du Couvent des Sœurs de l'Aube et partenariat avec le Conseil du Crépuscule"
+    },
+    {
+      "id": 71,
+      "timestamp": "2025-12-21T08:59:30.788207+01:00",
+      "session_id": 3,
+      "type": "combat",
+      "content": "Embuscade des bandits du Culte sur la route vers le Couvent - VICTOIRE rapide grâce à Adanel qui révèle ses pouvoirs de guérison"
+    },
+    {
+      "id": 72,
+      "timestamp": "2025-12-21T09:02:01.227634+01:00",
+      "session_id": 3,
+      "type": "voyage",
+      "content": "Session 3 - Départ vers le Couvent des Sœurs de l'Aube avec le groupe et les soldats du Conseil du Crépuscule"
+    },
+    {
+      "id": 73,
+      "timestamp": "2025-12-21T09:09:02.32819+01:00",
+      "session_id": 3,
+      "type": "decouverte",
+      "content": "Session 3 - Arrivée à la Cabane du Gardien, Aldous blessé par les Goules Pourpres, sauvé par Adanel"
+    },
+    {
+      "id": 74,
+      "timestamp": "2025-12-21T09:12:35.011624+01:00",
+      "session_id": 3,
+      "type": "voyage",
+      "content": "Départ de la Cabane du Gardien vers le Couvent - Dernière étape avant la sécurité - 21/12 7h00 du matin"
+    },
+    {
+      "id": 75,
+      "timestamp": "2025-12-21T09:14:55.458081+01:00",
+      "session_id": 3,
+      "type": "combat",
+      "content": "Bataille des Trois Arches - Combat contre 3 Goules Pourpres du Culte"
+    },
+    {
+      "id": 76,
+      "timestamp": "2025-12-21T09:18:53.409558+01:00",
+      "session_id": 3,
+      "type": "combat",
+      "content": "Victoire épique au Pont des Trois Arches - 3 Goules Pourpres détruites par Adanel et le groupe - Route libre vers le Couvent"
+    },
+    {
+      "id": 77,
+      "timestamp": "2025-12-21T09:23:22.614253+01:00",
+      "session_id": 3,
+      "type": "session",
+      "content": "Session 3 Complète - L'Éveillée du Crépuscule révélée - Du 20/12 23:45 au 21/12 14:00 - VICTOIRE: Atteinte du Couvent des Sœurs de l'Aube en sécurité avec Adanel"
     }
   ],
-  "next_id": 68,
+  "next_id": 78,
   "categories": [
     "combat",
     "loot",

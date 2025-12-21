@@ -306,7 +306,14 @@ func (gd *GameData) CanPlayClass(raceID, classID string) bool {
 }
 
 // GetLevelLimit returns the level limit for a race/class combination.
-// Returns 0 if unlimited, -1 if not allowed.
+//
+// Return values:
+//   - 0: Unlimited (no level cap for this class)
+//   - Positive number (e.g., 6): Maximum level the race can reach
+//   - -1: Class not allowed for this race (not in level_limits or race not found)
+//
+// Note: Multi-class limits like "6/9" are returned as 0 (treated as special case).
+// Use allowed_classes to check if a class is valid for a race before checking limits.
 func (gd *GameData) GetLevelLimit(raceID, classID string) int {
 	race, ok := gd.GetRace(raceID)
 	if !ok {

@@ -147,19 +147,42 @@ func TestGetLevelLimit(t *testing.T) {
 	}
 
 	tests := []struct {
+		name  string
 		race  string
 		class string
 		limit int
 	}{
-		{"human", "fighter", 0},   // Unlimited
-		{"elf", "fighter", 6},     // Limited to 6
-		{"elf", "magic-user", 9},  // Limited to 9
-		{"dwarf", "fighter", 7},   // Limited to 7
-		{"halfling", "fighter", 4}, // Limited to 4
+		// Unlimited cases (0 = no level cap)
+		{"human fighter unlimited", "human", "fighter", 0},
+		{"human cleric unlimited", "human", "cleric", 0},
+		{"human magic-user unlimited", "human", "magic-user", 0},
+		{"human thief unlimited", "human", "thief", 0},
+		{"elf thief unlimited", "elf", "thief", 0},
+		{"dwarf thief unlimited", "dwarf", "thief", 0},
+		{"halfling thief unlimited", "halfling", "thief", 0},
+
+		// Limited cases (positive number = max level)
+		{"elf fighter limited 6", "elf", "fighter", 6},
+		{"elf magic-user limited 9", "elf", "magic-user", 9},
+		{"dwarf fighter limited 7", "dwarf", "fighter", 7},
+		{"dwarf cleric limited 6", "dwarf", "cleric", 6},
+		{"halfling fighter limited 4", "halfling", "fighter", 4},
+
+		// Multi-class (string format, returns 0)
+		{"elf fighter/magic-user multiclass", "elf", "fighter/magic-user", 0},
+
+		// Not allowed cases (-1 = class not in level_limits)
+		{"elf cleric not allowed", "elf", "cleric", -1},
+		{"dwarf magic-user not allowed", "dwarf", "magic-user", -1},
+		{"halfling cleric not allowed", "halfling", "cleric", -1},
+		{"halfling magic-user not allowed", "halfling", "magic-user", -1},
+
+		// Invalid race (-1)
+		{"invalid race", "orc", "fighter", -1},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.race+"/"+tt.class, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			got := gd.GetLevelLimit(tt.race, tt.class)
 			if got != tt.limit {
 				t.Errorf("GetLevelLimit(%q, %q) = %d, want %d", tt.race, tt.class, got, tt.limit)
@@ -266,5 +289,58 @@ func TestListClasses(t *testing.T) {
 	classes := gd.ListClasses()
 	if len(classes) != 4 {
 		t.Errorf("ListClasses() returned %d classes, want 4", len(classes))
+	}
+}
+
+func TestMagicUserEquipment(t *testing.T) {
+	dataDir := getTestDataDir(t)
+	gd, err := Load(dataDir)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	// Check spellbook exists
+	if _, ok := gd.Gear["spellbook"]; !ok {
+		t.Error("Gear 'spellbook' not found - required for magic-user")
+	}
+
+	// Check ink_quill exists
+	if _, ok := gd.Gear["ink_quill"]; !ok {
+		t.Error("Gear 'ink_quill' not found - required for magic-user")
+	}
+
+	// Verify spellbook properties
+	spellbook := gd.Gear["spellbook"]
+	if spellbook != nil {
+		if spellbook.Cost != 50 {
+			t.Errorf("Spellbook cost = %v, want 50", spellbook.Cost)
+		}
+		if spellbook.Weight != 3 {
+			t.Errorf("Spellbook weight = %v, want 3", spellbook.Weight)
+		}
+	}
+}
+
+func TestStartingEquipmentReferencesExist(t *testing.T) {
+	dataDir := getTestDataDir(t)
+	gd, err := Load(dataDir)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	// Check all starting equipment references exist
+	for classID, startEquip := range gd.StartingEquipment {
+		t.Run(classID, func(t *testing.T) {
+			for _, itemID := range startEquip.Required {
+				// Check if item exists in gear, weapons, or armor
+				_, inGear := gd.Gear[itemID]
+				_, inWeapons := gd.Weapons[itemID]
+				_, inArmor := gd.Armor[itemID]
+
+				if !inGear && !inWeapons && !inArmor {
+					t.Errorf("Starting equipment item %q for class %q not found in any equipment list", itemID, classID)
+				}
+			}
+		})
 	}
 }

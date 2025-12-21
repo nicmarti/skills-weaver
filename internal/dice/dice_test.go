@@ -252,3 +252,125 @@ func TestDiceRange(t *testing.T) {
 		})
 	}
 }
+
+func TestInitiative(t *testing.T) {
+	roller := New()
+
+	tests := []struct {
+		dexMod int
+		minVal int
+		maxVal int
+	}{
+		{0, 1, 6},   // 1d6 + 0
+		{2, 3, 8},   // 1d6 + 2
+		{-1, 0, 5},  // 1d6 - 1
+		{3, 4, 9},   // 1d6 + 3
+	}
+
+	for _, tt := range tests {
+		t.Run("dexMod="+string(rune('0'+tt.dexMod)), func(t *testing.T) {
+			for i := 0; i < 50; i++ {
+				result := roller.Initiative(tt.dexMod)
+
+				if result.Modifier != tt.dexMod {
+					t.Errorf("Initiative(%d).Modifier = %d, want %d", tt.dexMod, result.Modifier, tt.dexMod)
+				}
+
+				if len(result.Rolls) != 1 {
+					t.Errorf("Initiative should roll exactly 1 die, got %d", len(result.Rolls))
+				}
+
+				// Check die is in 1-6 range
+				if result.Rolls[0] < 1 || result.Rolls[0] > 6 {
+					t.Errorf("Initiative die = %d, want 1-6", result.Rolls[0])
+				}
+
+				if result.Total < tt.minVal || result.Total > tt.maxVal {
+					t.Errorf("Initiative(%d).Total = %d, want %d-%d", tt.dexMod, result.Total, tt.minVal, tt.maxVal)
+				}
+			}
+		})
+	}
+}
+
+func TestAttackRoll(t *testing.T) {
+	roller := New()
+
+	tests := []struct {
+		bonus  int
+		minVal int
+		maxVal int
+	}{
+		{0, 1, 20},    // d20 + 0
+		{5, 6, 25},    // d20 + 5
+		{-2, -1, 18},  // d20 - 2
+		{10, 11, 30},  // d20 + 10
+	}
+
+	for _, tt := range tests {
+		for i := 0; i < 50; i++ {
+			result := roller.AttackRoll(tt.bonus)
+
+			if result.Modifier != tt.bonus {
+				t.Errorf("AttackRoll(%d).Modifier = %d, want %d", tt.bonus, result.Modifier, tt.bonus)
+			}
+
+			if len(result.Rolls) != 1 {
+				t.Errorf("AttackRoll should roll exactly 1 die, got %d", len(result.Rolls))
+			}
+
+			// Check die is in 1-20 range
+			natural := result.NaturalRoll()
+			if natural < 1 || natural > 20 {
+				t.Errorf("AttackRoll die = %d, want 1-20", natural)
+			}
+
+			if result.Total < tt.minVal || result.Total > tt.maxVal {
+				t.Errorf("AttackRoll(%d).Total = %d, want %d-%d", tt.bonus, result.Total, tt.minVal, tt.maxVal)
+			}
+		}
+	}
+}
+
+func TestCriticalHitAndMiss(t *testing.T) {
+	// Test with a fixed seed that gives a natural 20
+	// We'll test the methods directly instead
+	roller := New()
+
+	// Run many times to ensure we get at least one crit hit and one crit miss
+	gotCritHit := false
+	gotCritMiss := false
+
+	for i := 0; i < 1000 && (!gotCritHit || !gotCritMiss); i++ {
+		result := roller.AttackRoll(0)
+		if result.IsCriticalHit() {
+			gotCritHit = true
+			if result.NaturalRoll() != 20 {
+				t.Error("IsCriticalHit() true but NaturalRoll() != 20")
+			}
+		}
+		if result.IsCriticalMiss() {
+			gotCritMiss = true
+			if result.NaturalRoll() != 1 {
+				t.Error("IsCriticalMiss() true but NaturalRoll() != 1")
+			}
+		}
+	}
+
+	if !gotCritHit {
+		t.Log("Warning: No natural 20 rolled in 1000 attempts (statistically unlikely)")
+	}
+	if !gotCritMiss {
+		t.Log("Warning: No natural 1 rolled in 1000 attempts (statistically unlikely)")
+	}
+}
+
+func TestNaturalRollEmpty(t *testing.T) {
+	result := &Result{
+		Rolls: []int{},
+	}
+
+	if result.NaturalRoll() != 0 {
+		t.Errorf("NaturalRoll() on empty rolls = %d, want 0", result.NaturalRoll())
+	}
+}

@@ -13,9 +13,17 @@ Tu es le Gardien des Règles pour Basic Fantasy RPG. Tu réponds rapidement et p
 
 ### Combat
 
-**Initiative** : 1d6 par groupe, plus haut commence
+**Initiative** (BFRPG) :
+- Chaque combattant lance 1d6 + modificateur DEX
+- Les plus hauts scores agissent en premier
+- Égalités : actions simultanées
+- Le MJ peut lancer un seul dé pour un groupe de monstres identiques
+- Option : Délayer son action pour agir plus tard dans le round
+- Armes à allonge : peut attaquer simultanément avec un adversaire qui charge
 
 **Attaque** : d20 + bonus >= Classe d'Armure cible
+- Natural 20 : toujours touché (critique)
+- Natural 1 : toujours raté (échec critique)
 
 **Bonus d'attaque par classe (niveau 1)** :
 - Guerrier : +1
@@ -38,17 +46,26 @@ Tu es le Gardien des Règles pour Basic Fantasy RPG. Tu réponds rapidement et p
 
 **Attaque sournoise (Voleur)** : +4 à l'attaque, dégâts doublés si attaque par surprise ou par derrière.
 
-### Classe d'Armure
+### Classe d'Armure (Convention AC Montante)
 
-| Armure | CA |
-|--------|-----|
-| Sans armure | 11 |
-| Armure de cuir | 13 |
-| Cotte de mailles | 15 |
-| Armure de plaques | 17 |
-| Bouclier | +1 |
+**SkillsWeaver utilise la convention AC montante** : plus l'AC est élevée, mieux le personnage est protégé.
 
-CA finale = Armure + modificateur DEX
+**Formule** : `AC = 11 (base) + modificateur DEX + bonus armure + bonus bouclier`
+
+| Armure | Bonus | CA finale (DEX 10) |
+|--------|-------|-------------------|
+| Sans armure | +0 | 11 |
+| Armure de cuir | +2 | 13 |
+| Cotte de mailles | +4 | 15 |
+| Armure de plaques | +6 | 17 |
+| Bouclier | +1 | +1 à la CA |
+
+**Exemples** :
+- Guerrier en plates + bouclier, DEX 12 (+0) : AC = 11 + 0 + 6 + 1 = **18**
+- Voleur en cuir, DEX 16 (+2) : AC = 11 + 2 + 2 = **15**
+- Magicien sans armure, DEX 14 (+1) : AC = 11 + 1 = **12**
+
+**Pour toucher** : `d20 + bonus attaque >= AC cible`
 
 ### Jets de Sauvegarde (Niveau 1)
 
@@ -105,6 +122,28 @@ Jet réussi : d20 >= valeur cible
 | 1 | 0 | 0 | 0 | 0 |
 | 2 | 2000 | 1500 | 2500 | 1250 |
 | 3 | 4000 | 3000 | 5000 | 2500 |
+
+### Points de Vie au Niveau 1
+
+**Dé de vie par classe** :
+| Classe | Dé de Vie |
+|--------|-----------|
+| Guerrier | d8 |
+| Clerc | d6 |
+| Magicien | d4 |
+| Voleur | d4 |
+
+**Calcul** : `PV = Dé de Vie + modificateur CON (minimum 1)`
+
+**Deux méthodes disponibles** :
+1. **Standard BFRPG** : Lance le dé de vie, ajoute CON. Résultat variable.
+2. **Variante Max HP** (--max-hp) : Prend le maximum du dé + CON. Meilleure survie.
+
+**Exemples** :
+- Guerrier CON 14 (+1), standard : 1d8+1 = 2-9 PV
+- Guerrier CON 14 (+1), max HP : 8+1 = **9 PV**
+- Magicien CON 8 (-1), standard : 1d4-1 = 1-3 PV (min 1)
+- Magicien CON 8 (-1), max HP : 4-1 = **3 PV**
 
 ### Encombrement
 

@@ -119,6 +119,47 @@ func (r *Roller) RollStatsClassic() []Result {
 	return results
 }
 
+// Initiative rolls 1d6 and adds the dexterity modifier for combat initiative.
+// BFRPG rule: Each combatant rolls 1d6 + DEX modifier. Higher acts first.
+// Equal results act simultaneously.
+func (r *Roller) Initiative(dexMod int) *Result {
+	result, _ := r.Roll("1d6")
+	result.Modifier = dexMod
+	result.Total = result.Rolls[0] + dexMod
+	result.Expression = fmt.Sprintf("Initiative (1d6%+d)", dexMod)
+	return result
+}
+
+// AttackRoll rolls d20 + attack bonus for a combat attack.
+// Returns the result with the natural roll preserved for critical hit detection.
+// BFRPG rule: d20 + attack bonus >= target AC to hit.
+// Natural 20 is always a hit, natural 1 is always a miss.
+func (r *Roller) AttackRoll(attackBonus int) *Result {
+	result, _ := r.Roll("1d20")
+	result.Modifier = attackBonus
+	result.Total = result.Rolls[0] + attackBonus
+	result.Expression = fmt.Sprintf("Attack (d20%+d)", attackBonus)
+	return result
+}
+
+// NaturalRoll returns the unmodified die result (for critical detection).
+func (res *Result) NaturalRoll() int {
+	if len(res.Rolls) > 0 {
+		return res.Rolls[0]
+	}
+	return 0
+}
+
+// IsCriticalHit returns true if the natural roll is 20.
+func (res *Result) IsCriticalHit() bool {
+	return res.NaturalRoll() == 20
+}
+
+// IsCriticalMiss returns true if the natural roll is 1.
+func (res *Result) IsCriticalMiss() bool {
+	return res.NaturalRoll() == 1
+}
+
 // String returns a human-readable representation of the result.
 func (res *Result) String() string {
 	var sb strings.Builder

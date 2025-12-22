@@ -28,6 +28,7 @@
   "equipment": [],
   "appearance": {
     "age": 94,
+    "gender": "female",
     "build": "slender",
     "height": "average",
     "hair_color": "silver-white",

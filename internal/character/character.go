@@ -52,6 +52,7 @@ type Character struct {
 // CharacterAppearance stores visual description for image generation.
 type CharacterAppearance struct {
 	Age                int    `json:"age,omitempty"`
+	Gender             string `json:"gender,omitempty"`             // "male", "female", "non-binary"
 	Build              string `json:"build,omitempty"`              // "slender", "stocky", "muscular", "average"
 	Height             string `json:"height,omitempty"`             // "tall", "average", "short"
 	HairColor          string `json:"hair_color,omitempty"`

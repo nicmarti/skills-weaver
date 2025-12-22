@@ -28,6 +28,7 @@
   "equipment": [],
   "appearance": {
     "age": 143,
+    "gender": "male",
     "build": "robust",
     "height": "short",
     "hair_color": "white with streaks of gray",

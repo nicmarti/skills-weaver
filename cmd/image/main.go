@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -90,19 +91,19 @@ OPTIONS JOURNAL:
   --start-id=<n>               ID de départ pour reprendre depuis une entrée (optionnel)
   --max=<n>                    Nombre maximum d'images à générer
   --parallel=<n>               Nombre de générations en parallèle (défaut: 4)
-  --model=<model>              Modèle fal.ai (schnell, banana) défaut: banana
+  --model=<model>              Modèle fal.ai (seedream, zimage) défaut: zimage
   --dry-run                    Afficher les prompts sans générer
 
-MODÈLES FAL.AI:
-  schnell                      FLUX.1 Schnell - Rapide (~3s), ~$0.003/image
-  banana                       Nano Banana - Meilleure qualité (~5s), ~$0.039/image
+MODÈLES JOURNAL:
+  zimage                       Z-Image Turbo - Rapide (~2s), ~$0.005/megapixel
+  seedream                     Seedream v4 - Haute qualité (~8s), ~$0.01/megapixel
 
 EXEMPLES:
   sw-image character "Aldric"
   sw-image journal "la-crypte-des-ombres"
   sw-image journal "la-crypte-des-ombres" --start-id=60
-  sw-image journal "la-crypte-des-ombres" --model=banana --max=5
-  sw-image journal "la-crypte-des-ombres" --start-id=60 --dry-run
+  sw-image journal "la-crypte-des-ombres" --model=seedream --max=5
+  sw-image journal "la-crypte-des-ombres" --model=zimage --start-id=60 --dry-run
 
 NOTES:
   - Nécessite la variable d'environnement FAL_KEY
@@ -626,6 +627,60 @@ func outputJSON(v interface{}) error {
 	return nil
 }
 
+// filterCharactersByMention returns only characters whose names are mentioned in the journal entry.
+// It checks both the description (English) and description_fr (French) fields.
+// If "the party" is mentioned but no specific characters, returns all characters in random order.
+func filterCharactersByMention(entry adventure.JournalEntry, characters []*character.Character) []*character.Character {
+	if len(characters) == 0 {
+		return nil
+	}
+
+	// Get the text to search (prefer English description, fallback to French, then content)
+	searchText := strings.ToLower(entry.Description)
+	if searchText == "" {
+		searchText = strings.ToLower(entry.DescriptionFr)
+	}
+	if searchText == "" {
+		searchText = strings.ToLower(entry.Content)
+	}
+
+	// Split text into words once for all checks
+	words := strings.FieldsFunc(searchText, func(r rune) bool {
+		return !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9'))
+	})
+
+	var mentioned []*character.Character
+	for _, char := range characters {
+		// Check if character name appears as a whole word (case-insensitive)
+		// This prevents "Aldric" from matching "Valdric"
+		charName := strings.ToLower(char.Name)
+		for _, word := range words {
+			if strings.ToLower(word) == charName {
+				mentioned = append(mentioned, char)
+				break
+			}
+		}
+	}
+
+	// If no specific characters found but "party"/"groupe" is mentioned, include all in random order
+	// Check if words "party" or "groupe" appear (handles "the party", "the victorious party", etc.)
+	if len(mentioned) == 0 {
+		for _, word := range words {
+			if word == "party" || word == "groupe" {
+				mentioned = make([]*character.Character, len(characters))
+				copy(mentioned, characters)
+				// Shuffle to randomize order so Aldric isn't always first
+				rand.Shuffle(len(mentioned), func(i, j int) {
+					mentioned[i], mentioned[j] = mentioned[j], mentioned[i]
+				})
+				break
+			}
+		}
+	}
+
+	return mentioned
+}
+
 // cmdJournal generates images for journal entries in parallel.
 func cmdJournal(args []string) error {
 	if len(args) < 1 {
@@ -743,19 +798,30 @@ func cmdJournal(args []string) error {
 
 	var jobs []promptJob
 	for _, entry := range entriesToIllustrate {
-		prompt := image.BuildJournalEntryPromptWithCharacters(entry, characters)
+		// Filter characters to only those mentioned in the entry description
+		mentionedChars := filterCharactersByMention(entry, characters)
+		prompt := image.BuildJournalEntryPromptWithCharacters(entry, mentionedChars)
 		if prompt != nil {
 			jobs = append(jobs, promptJob{entry: entry, prompt: prompt})
 		}
 	}
 
-	// Get model (default: schnell)
+	// Get model - journal command uses specific models only
+	journalModels := image.JournalModels()
 	modelName := opts["model"]
 	if modelName == "" {
-		modelName = "banana" // Default: nano-banana for better quality
+		modelName = "zimage" // Default: z-image turbo for fast generation
 	}
 
-	model := image.GetModel(modelName)
+	// Validate model is available for journal
+	model, ok := journalModels[modelName]
+	if !ok {
+		availableModels := []string{}
+		for name := range journalModels {
+			availableModels = append(availableModels, name)
+		}
+		return fmt.Errorf("modèle '%s' non disponible pour le journal. Modèles disponibles: %v", modelName, availableModels)
+	}
 
 	// Dry run mode - just print prompts
 	if opts["dry-run"] == "true" {
@@ -845,6 +911,12 @@ func cmdJournal(args []string) error {
 				image.WithFilenamePrefix(filenamePrefix),
 				image.WithModel(m.Short),
 			}
+
+			// Set deterministic seed for seedream model
+			if m.Short == "seedream" {
+				imgOpts = append(imgOpts, image.WithSeed(1024))
+			}
+
 			img, err = gen.Generate(job.prompt.Prompt, imgOpts...)
 
 				if err != nil {

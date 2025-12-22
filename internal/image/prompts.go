@@ -52,7 +52,12 @@ func BuildCharacterPrompt(char *character.Character, style PromptStyle) string {
 		"thief":      "rogue, hooded cloak, daggers, stealthy appearance",
 	}
 
-	// Build prompt (character doesn't have gender, so we omit it)
+	// Build prompt - use gender if available even in minimal appearance
+	gender := ""
+	if char.Appearance != nil && char.Appearance.Gender != "" {
+		gender = char.Appearance.Gender + " "
+	}
+
 	raceD := raceDesc[char.Race]
 	if raceD == "" {
 		raceD = char.Race
@@ -62,8 +67,8 @@ func BuildCharacterPrompt(char *character.Character, style PromptStyle) string {
 		classD = char.Class
 	}
 
-	parts = append(parts, fmt.Sprintf("Portrait of a %s %s",
-		raceD, classD))
+	parts = append(parts, fmt.Sprintf("Portrait of a %s%s %s",
+		gender, raceD, classD))
 
 	parts = append(parts, fmt.Sprintf("named %s", char.Name))
 
@@ -85,11 +90,17 @@ func buildDetailedCharacterPrompt(char *character.Character, style PromptStyle) 
 	// Start with character name and basic info
 	parts = append(parts, fmt.Sprintf("Portrait of %s", char.Name))
 
+	// Gender prefix
+	genderPrefix := ""
+	if app.Gender != "" {
+		genderPrefix = app.Gender + " "
+	}
+
 	// Age and race
 	if app.Age > 0 {
-		parts = append(parts, fmt.Sprintf("%d-year-old %s", app.Age, char.Race))
+		parts = append(parts, fmt.Sprintf("%d-year-old %s%s", app.Age, genderPrefix, char.Race))
 	} else {
-		parts = append(parts, char.Race)
+		parts = append(parts, genderPrefix+char.Race)
 	}
 
 	// Class
@@ -429,7 +440,6 @@ func IllustratableTypes() []string {
 		"combat",
 		"exploration",
 		"note",
-		"expense",
 		"discovery",
 		"loot",
 		"session", // Only session end summaries
@@ -484,11 +494,17 @@ func buildDetailedCharacterReference(char *character.Character) string {
 	a := char.Appearance
 	var parts []string
 
-	// Age and class
+	// Gender prefix
+	genderPrefix := ""
+	if a.Gender != "" {
+		genderPrefix = a.Gender + " "
+	}
+
+	// Name and age/class
 	if a.Age > 0 {
-		parts = append(parts, fmt.Sprintf("%d-year-old %s %s", a.Age, char.Race, char.Class))
+		parts = append(parts, fmt.Sprintf("%s, a %d-year-old %s%s %s", char.Name, a.Age, genderPrefix, char.Race, char.Class))
 	} else {
-		parts = append(parts, fmt.Sprintf("%s %s", char.Race, char.Class))
+		parts = append(parts, fmt.Sprintf("%s, a %s%s %s", char.Name, genderPrefix, char.Race, char.Class))
 	}
 
 	// Physical traits
@@ -597,13 +613,13 @@ func BuildJournalEntryPromptWithoutCharacters(entry adventure.JournalEntry) *Jou
 	case "discovery":
 		// Discoveries focus on items or revelations
 		style = StyleIllustrated
-		imageSize = "landscape_4_3"
+		imageSize = "landscape_16_9"
 		prompt = buildDiscoveryPrompt(entry)
 
 	case "loot":
 		// Treasure scenes
 		style = StyleIllustrated
-		imageSize = "square_hd"
+		imageSize = "landscape_16_9"
 		prompt = buildLootPrompt(entry)
 
 	case "note":
@@ -611,12 +627,6 @@ func BuildJournalEntryPromptWithoutCharacters(entry adventure.JournalEntry) *Jou
 		style = StyleIllustrated
 		imageSize = "landscape_16_9"
 		prompt = buildNotePrompt(entry)
-
-	case "expense":
-		// Expenses show shopping, trading, or town scenes
-		style = StyleIllustrated
-		imageSize = "landscape_4_3"
-		prompt = buildExpensePrompt(entry)
 
 	case "session":
 		// Session summaries get epic treatment if they contain victory/defeat
@@ -671,11 +681,11 @@ func buildCombatPrompt(entry adventure.JournalEntry) string {
 func buildExplorationPrompt(entry adventure.JournalEntry) string {
 	baseText := getEntryDescription(entry)
 	parts := []string{
-		"Fantasy adventurers exploring",
+		"",
 		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
-		"atmospheric, mysterious",
+		"",
 	}
 	return strings.Join(parts, ", ")
 }
@@ -684,11 +694,11 @@ func buildExplorationPrompt(entry adventure.JournalEntry) string {
 func buildDiscoveryPrompt(entry adventure.JournalEntry) string {
 	baseText := getEntryDescription(entry)
 	parts := []string{
-		"Moment of discovery",
+		"",
 		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
-		"revealing light, magical glow",
+		"",
 	}
 	return strings.Join(parts, ", ")
 }
@@ -697,11 +707,11 @@ func buildDiscoveryPrompt(entry adventure.JournalEntry) string {
 func buildLootPrompt(entry adventure.JournalEntry) string {
 	baseText := getEntryDescription(entry)
 	parts := []string{
-		"Fantasy treasure",
+		"",
 		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
-		"glittering gold, magical items",
+		"",
 	}
 	return strings.Join(parts, ", ")
 }
@@ -710,24 +720,11 @@ func buildLootPrompt(entry adventure.JournalEntry) string {
 func buildNotePrompt(entry adventure.JournalEntry) string {
 	baseText := getEntryDescription(entry)
 	parts := []string{
-		"Fantasy scene, narrative moment",
+		"",
 		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
-		"storytelling, dramatic atmosphere",
-	}
-	return strings.Join(parts, ", ")
-}
-
-// buildExpensePrompt creates a prompt for expense entries.
-func buildExpensePrompt(entry adventure.JournalEntry) string {
-	baseText := getEntryDescription(entry)
-	parts := []string{
-		"Fantasy scene, narrative moment",
-		baseText,
-		StyleSuffixes[StyleIllustrated],
-		BasePromptSuffix,
-		"storytelling, merchants, coins, equipment, tavern or shop interior",
+		"",
 	}
 	return strings.Join(parts, ", ")
 }

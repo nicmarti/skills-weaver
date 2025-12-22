@@ -163,7 +163,6 @@ func getTypeFocus(entryType string) string {
 		"discovery":   "Moment of revelation, surprising find with magical or revealing effects",
 		"loot":        "Treasure itself, glittering gold and magical items with visual appeal",
 		"note":        "Character interaction or observation, narrative moment with emotion",
-		"expense":     "Transaction or town scene, bustling marketplace or shop interior",
 		"session":     "Overall party mood and achievement, triumphant or somber atmosphere",
 		"rest":        "Party recovering, campfire or inn scene with peaceful atmosphere",
 		"npc":         "Character introduction, distinctive appearance and setting",

@@ -510,6 +510,8 @@ func handleAppearance(args []string) {
 		switch field {
 		case "age":
 			fmt.Sscanf(value, "%d", &c.Appearance.Age)
+		case "gender":
+			c.Appearance.Gender = value // Keep as-is: "male", "female", "non-binary"
 		case "build":
 			c.Appearance.Build = translatedValue
 		case "height":
@@ -692,6 +694,7 @@ OPTIONS POUR EXPORT:
 
 OPTIONS POUR APPEARANCE:
     --age=<n>               Âge du personnage
+    --gender=<value>        Genre (male, female, non-binary)
     --build=<value>         Corpulence (slender, stocky, muscular, average)
     --height=<value>        Taille (tall, average, short)
     --hair-color=<value>    Couleur des cheveux

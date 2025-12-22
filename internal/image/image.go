@@ -41,13 +41,42 @@ var (
 		MaxSteps: 1,
 		DefSteps: 1,
 	}
+	// ModelSeedream is ByteDance's Seedream v4 for high-quality images (~$0.01/megapixel)
+	// Note: Seedream v4 does not use num_inference_steps parameter
+	ModelSeedream = Model{
+		ID:       "fal-ai/bytedance/seedream/v4/text-to-image",
+		Short:    "seedream",
+		SyncURL:  "https://fal.run/fal-ai/bytedance/seedream/v4/text-to-image",
+		QueueURL: "https://queue.fal.run/fal-ai/bytedance/seedream/v4/text-to-image",
+		MaxSteps: 0, // Not used by Seedream v4
+		DefSteps: 0, // Not used by Seedream v4
+	}
+	// ModelZImageTurbo is Z-Image Turbo for fast generation (~$0.005/megapixel)
+	ModelZImageTurbo = Model{
+		ID:       "fal-ai/z-image/turbo",
+		Short:    "zimage",
+		SyncURL:  "https://fal.run/fal-ai/z-image/turbo",
+		QueueURL: "https://queue.fal.run/fal-ai/z-image/turbo",
+		MaxSteps: 8, // Fast model, max 8 steps
+		DefSteps: 8, // Default to maximum quality
+	}
 )
 
 // AvailableModels returns all available models.
 func AvailableModels() map[string]Model {
 	return map[string]Model{
-		"schnell": ModelSchnell,
-		"banana":  ModelNanoBanana,
+		"schnell":  ModelSchnell,
+		"banana":   ModelNanoBanana,
+		"seedream": ModelSeedream,
+		"zimage":   ModelZImageTurbo,
+	}
+}
+
+// JournalModels returns models available for journal illustration.
+func JournalModels() map[string]Model {
+	return map[string]Model{
+		"seedream": ModelSeedream,    // High quality, slower
+		"zimage":   ModelZImageTurbo, // Fast generation
 	}
 }
 
@@ -74,6 +103,7 @@ type FalRequest struct {
 	OutputFormat        string `json:"output_format,omitempty"`
 	ImageSize           string `json:"image_size,omitempty"`
 	NumInferenceSteps   int    `json:"num_inference_steps,omitempty"`
+	Seed                *int   `json:"seed,omitempty"` // Pointer to distinguish between 0 and unset
 }
 
 // FalImage represents an image in the response.
@@ -166,6 +196,7 @@ func (g *Generator) Generate(prompt string, opts ...Option) (*GeneratedImage, er
 		OutputFormat:        cfg.outputFormat,
 		ImageSize:           cfg.imageSize,
 		NumInferenceSteps:   cfg.steps,
+		Seed:                cfg.seed,
 	}
 
 	jsonData, err := json.Marshal(req)
@@ -255,6 +286,7 @@ func (g *Generator) GenerateAsync(prompt string, opts ...Option) (string, error)
 		OutputFormat:        cfg.outputFormat,
 		ImageSize:           cfg.imageSize,
 		NumInferenceSteps:   cfg.steps,
+		Seed:                cfg.seed,
 	}
 
 	jsonData, err := json.Marshal(req)
@@ -426,6 +458,7 @@ type config struct {
 	steps          int
 	filenamePrefix string
 	model          Model
+	seed           *int // Pointer to distinguish between 0 and unset
 }
 
 // Option is a functional option for image generation.
@@ -486,6 +519,14 @@ func WithFilenamePrefix(prefix string) Option {
 func WithModel(modelName string) Option {
 	return func(c *config) {
 		c.model = GetModel(modelName)
+	}
+}
+
+// WithSeed sets a deterministic seed for reproducible image generation.
+// Using the same seed with the same prompt will produce the same image.
+func WithSeed(seed int) Option {
+	return func(c *config) {
+		c.seed = &seed
 	}
 }
 

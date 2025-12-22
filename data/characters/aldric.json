@@ -28,6 +28,7 @@
   "equipment": [],
   "appearance": {
     "age": 34,
+    "gender": "male",
     "build": "muscular",
     "height": "tall",
     "hair_color": "black",

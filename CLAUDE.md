@@ -455,22 +455,29 @@ Maître du Jeu complet. Narration immersive, gestion des rencontres, incarnation
 | Magicien | d4 | Dague, bâton | Aucune |
 | Voleur | d4 | Toutes | Cuir |
 
+
+## Règles d'Utilisation des CLI
+
+### Accès Direct (Claude Code)
+Les CLI `sw-*` peuvent être utilisés directement pour :
+- Jets de dés ponctuels
+- Consultation de données (show, list, status)
+- Commandes de debug
+
+### Via Agents/Skills
+Utilisez les sous-agents specialisés pour :
+- Sessions de jeu complètes (dungeon-master)
+- Création guidée de personnages (character-creator)
+- Arbitrage de règles (rules-keeper)
+
 ## Commandes de Développement
 
 ```bash
 # Compiler tous les outils SkillsWeaver
-go build -o sw-dice ./cmd/dice
-go build -o sw-character ./cmd/character
-go build -o sw-adventure ./cmd/adventure
-go build -o sw-names ./cmd/names
-go build -o sw-npc ./cmd/npc
-go build -o sw-image ./cmd/image
-go build -o sw-monster ./cmd/monster
-go build -o sw-treasure ./cmd/treasure
-go build -o sw-validate ./cmd/validate
+make
 
 # Lancer les tests
-go test ./...
+make test
 
 # Tester le système de dés
 go test ./internal/dice/... -v
@@ -481,22 +488,6 @@ go test ./internal/data/... -v
 # Tester le générateur de personnages
 go test ./internal/character/... -v
 ```
-
-## Plan d'Implémentation
-
-Voir `ai/PLAN.md` pour le plan détaillé avec les phases :
-
-1. **Phase 1** : Système de dés [TERMINEE]
-2. **Phase 2** : Données BFRPG [TERMINEE]
-3. **Phase 3** : Générateur de personnages [TERMINEE]
-4. **Phase 3bis** : Gestionnaire d'aventures [TERMINEE]
-5. **Phase 4** : Sous-agents spécialisés [TERMINEE]
-6. **Phase 4bis** : Générateur de noms [TERMINEE]
-7. **Phase 5** : Générateur de PNJ [TERMINEE]
-8. **Phase 6** : Générateur d'images [TERMINEE]
-9. **Phase 7** : Bestiaire BFRPG [TERMINEE]
-10. **Phase 8** : Tables de trésors [TERMINEE]
-11. **Phase 9** : Journal Illustrator [TERMINEE]
 
 ## Conventions Git
 

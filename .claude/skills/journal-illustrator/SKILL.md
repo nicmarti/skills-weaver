@@ -10,10 +10,34 @@ Skill pour générer des illustrations basées sur le journal d'une aventure BFR
 
 ## Prérequis
 
-**Variable d'environnement requise** :
+**Variables d'environnement** :
 ```bash
+# Requis pour la génération d'images
 export FAL_KEY="votre_clé_api_fal"
+
+# Optionnel pour l'enrichissement AI des descriptions
+export ANTHROPIC_API_KEY="votre_clé_anthropic"
 ```
+
+## Utilisation des Descriptions Enrichies (Recommandé)
+
+Pour de meilleurs résultats, **enrichissez d'abord votre journal** avec des descriptions détaillées avant de générer les images :
+
+```bash
+# 1. Enrichir le journal avec des descriptions IA (30-50 mots)
+./sw-adventure enrich "la-crypte-des-ombres"
+
+# 2. Générer les images (utilise automatiquement les descriptions enrichies)
+./sw-image journal "la-crypte-des-ombres"
+```
+
+**Avantages de l'enrichissement** :
+- ✅ Descriptions détaillées (30-50 mots vs 5-10 mots)
+- ✅ Contexte riche : personnages, lieux, atmosphère
+- ✅ Images plus fidèles aux événements du jeu
+- ✅ Automatique : utilise l'historique récent et la composition du groupe
+
+**Sans enrichissement**, le système utilise le champ `content` (court, générique).
 
 ## Utilisation Rapide
 
@@ -109,6 +133,36 @@ data/adventures/la-crypte-des-ombres/images/
 └── ...
 ```
 
+## Comparaison : Avec vs Sans Enrichissement
+
+### Exemple : Entrée de type "combat"
+
+**Sans enrichissement (champ `content`)** :
+```
+Content: "Combat contre 3 gobelins"
+
+Prompt généré:
+"Epic fantasy battle scene: Combat contre 3 gobelins. Dynamic action, dramatic
+lighting, cinematic fantasy art, heroic pose"
+```
+
+**Avec enrichissement (champ `description`)** :
+```
+Description EN: "Aldric and Lyra battle three goblins in a torch-lit stone
+corridor, steel clashing against crude blades as shadows dance on moss-covered
+walls"
+
+Prompt généré:
+"Epic fantasy battle scene: Aldric and Lyra battle three goblins in a torch-lit
+stone corridor, steel clashing against crude blades as shadows dance on moss-
+covered walls. Dynamic action, dramatic lighting, cinematic fantasy art,
+heroic pose"
+```
+
+**Résultat** : L'image enrichie montrera les personnages nommés (Aldric, Lyra),
+l'environnement spécifique (couloir de pierre, torches, mousse), et l'atmosphère
+exacte du combat !
+
 ## Adaptation des Prompts
 
 Le générateur adapte automatiquement les prompts selon le type d'événement :
@@ -155,17 +209,37 @@ Grâce à la génération parallèle :
 
 ## Workflow Recommandé
 
-1. **Dry-run d'abord** : Vérifier les prompts générés
+### Option A : Avec enrichissement AI (recommandé)
+
+1. **Enrichir le journal** : Générer des descriptions détaillées
+   ```bash
+   ./sw-adventure enrich "mon-aventure" --dry-run  # Prévisualiser
+   ./sw-adventure enrich "mon-aventure"             # Enrichir
+   ```
+
+2. **Dry-run d'abord** : Vérifier les prompts enrichis
    ```bash
    ./sw-image journal "mon-aventure" --dry-run
    ```
 
-2. **Test limité** : Générer quelques images pour valider
+3. **Test limité** : Générer quelques images pour valider
    ```bash
    ./sw-image journal "mon-aventure" --max=3
    ```
 
-3. **Génération complète** : Si satisfait, générer tout
+4. **Génération complète** : Si satisfait, générer tout
+   ```bash
+   ./sw-image journal "mon-aventure"
+   ```
+
+### Option B : Sans enrichissement (rapide, mais moins précis)
+
+1. **Dry-run d'abord** : Vérifier les prompts
+   ```bash
+   ./sw-image journal "mon-aventure" --dry-run
+   ```
+
+2. **Génération complète** : Utilise le champ `content` (court)
    ```bash
    ./sw-image journal "mon-aventure"
    ```

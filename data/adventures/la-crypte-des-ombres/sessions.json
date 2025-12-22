@@ -19,11 +19,18 @@
     {
       "id": 3,
       "started_at": "2025-12-21T08:25:03.53532+01:00",
-      "ended_at": "2025-12-21T09:23:22.614253+01:00",
-      "duration": "58m",
-      "summary": "L'Éveillée du Crépuscule révélée - Adanel protégée au Couvent des Sœurs de l'Aube - Victoires contre les Goules Pourpres et le Culte",
+      "ended_at": "2025-12-22T14:34:14.639504+01:00",
+      "duration": "30h09m",
+      "summary": "Arrivée sécurisée au Couvent des Sœurs de l'Aube - Adanel protégée",
+      "status": "completed"
+    },
+    {
+      "id": 4,
+      "started_at": "2025-12-22T14:34:16.796487+01:00",
+      "ended_at": "2025-12-22T14:58:15.501282+01:00",
+      "duration": "23m",
+      "summary": "Session 4 Complete - Montagne du Crépuscule: Accord de paix établi avec l'Âme Crépusculaire - Nouvelle mission: ordre de pèlerinage pacifique - Sept ans pour trouver une véritable libération",
       "status": "completed"
     }
-  ],
-  "current_session": 3
+  ]
 }

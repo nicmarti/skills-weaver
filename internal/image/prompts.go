@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/character"
 	"dungeons/internal/npc"
 )
@@ -357,73 +358,85 @@ func IsIllustratable(entryType string) bool {
 }
 
 // BuildJournalEntryPrompt creates a prompt for a journal entry.
-func BuildJournalEntryPrompt(entryType, content string) *JournalEntryPrompt {
+func BuildJournalEntryPrompt(entry adventure.JournalEntry) *JournalEntryPrompt {
 	var prompt string
 	var style PromptStyle
 	var imageSize string
 
-	switch entryType {
+	switch entry.Type {
 	case "combat":
 		// Combat scenes are epic and action-packed
 		style = StyleIllustrated
 		imageSize = "landscape_16_9"
-		prompt = buildCombatPrompt(content)
+		prompt = buildCombatPrompt(entry)
 
 	case "exploration":
 		// Exploration scenes are atmospheric
 		style = StyleIllustrated
 		imageSize = "landscape_16_9"
-		prompt = buildExplorationPrompt(content)
+		prompt = buildExplorationPrompt(entry)
 
 	case "discovery":
 		// Discoveries focus on items or revelations
 		style = StyleIllustrated
 		imageSize = "landscape_4_3"
-		prompt = buildDiscoveryPrompt(content)
+		prompt = buildDiscoveryPrompt(entry)
 
 	case "loot":
 		// Treasure scenes
 		style = StyleIllustrated
 		imageSize = "square_hd"
-		prompt = buildLootPrompt(content)
+		prompt = buildLootPrompt(entry)
 
 	case "note":
 		// Notes are narrative moments, conversations, or observations
 		style = StyleIllustrated
 		imageSize = "landscape_16_9"
-		prompt = buildNotePrompt(content)
+		prompt = buildNotePrompt(entry)
 
 	case "expense":
 		// Expenses show shopping, trading, or town scenes
 		style = StyleIllustrated
 		imageSize = "landscape_4_3"
-		prompt = buildExpensePrompt(content)
+		prompt = buildExpensePrompt(entry)
 
 	case "session":
 		// Session summaries get epic treatment if they contain victory/defeat
 		style = StyleIllustrated
 		imageSize = "landscape_16_9"
-		prompt = buildSessionPrompt(content)
+		prompt = buildSessionPrompt(entry)
 
 	default:
 		return nil
 	}
 
 	return &JournalEntryPrompt{
-		EntryType: entryType,
-		Content:   content,
+		EntryID:   entry.ID,
+		EntryType: entry.Type,
+		Content:   entry.Content,
 		Prompt:    prompt,
 		Style:     style,
 		ImageSize: imageSize,
 	}
 }
 
+// getEntryDescription returns the best description available (fallback: Description > DescriptionFr > Content).
+func getEntryDescription(entry adventure.JournalEntry) string {
+	if entry.Description != "" {
+		return entry.Description
+	}
+	if entry.DescriptionFr != "" {
+		return entry.DescriptionFr
+	}
+	return entry.Content
+}
+
 // buildCombatPrompt creates a prompt for combat entries.
-func buildCombatPrompt(content string) string {
-	// Extract key elements from combat description
+func buildCombatPrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	parts := []string{
 		"Epic fantasy battle scene",
-		content,
+		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 		"dynamic action, dramatic lighting",
@@ -432,10 +445,11 @@ func buildCombatPrompt(content string) string {
 }
 
 // buildExplorationPrompt creates a prompt for exploration entries.
-func buildExplorationPrompt(content string) string {
+func buildExplorationPrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	parts := []string{
 		"Fantasy adventurers exploring",
-		content,
+		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 		"atmospheric, mysterious",
@@ -444,10 +458,11 @@ func buildExplorationPrompt(content string) string {
 }
 
 // buildDiscoveryPrompt creates a prompt for discovery entries.
-func buildDiscoveryPrompt(content string) string {
+func buildDiscoveryPrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	parts := []string{
-		"Moment of discovery in a dungeon",
-		content,
+		"Moment of discovery",
+		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 		"revealing light, magical glow",
@@ -456,10 +471,11 @@ func buildDiscoveryPrompt(content string) string {
 }
 
 // buildLootPrompt creates a prompt for loot entries.
-func buildLootPrompt(content string) string {
+func buildLootPrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	parts := []string{
 		"Fantasy treasure",
-		content,
+		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 		"glittering gold, magical items",
@@ -468,10 +484,11 @@ func buildLootPrompt(content string) string {
 }
 
 // buildNotePrompt creates a prompt for note entries.
-func buildNotePrompt(content string) string {
+func buildNotePrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	parts := []string{
 		"Fantasy scene, narrative moment",
-		content,
+		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 		"storytelling, dramatic atmosphere",
@@ -480,10 +497,11 @@ func buildNotePrompt(content string) string {
 }
 
 // buildExpensePrompt creates a prompt for expense entries.
-func buildExpensePrompt(content string) string {
+func buildExpensePrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	parts := []string{
 		"Medieval fantasy marketplace, trading scene",
-		content,
+		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 		"merchants, coins, equipment, tavern or shop interior",
@@ -492,9 +510,10 @@ func buildExpensePrompt(content string) string {
 }
 
 // buildSessionPrompt creates a prompt for session summary entries.
-func buildSessionPrompt(content string) string {
+func buildSessionPrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
 	// Check for victory/defeat keywords
-	lowerContent := strings.ToLower(content)
+	lowerContent := strings.ToLower(baseText)
 	var mood string
 	if strings.Contains(lowerContent, "victoire") || strings.Contains(lowerContent, "victory") {
 		mood = "triumphant heroes, celebration, victory"
@@ -506,7 +525,7 @@ func buildSessionPrompt(content string) string {
 
 	parts := []string{
 		"Epic fantasy scene",
-		content,
+		baseText,
 		mood,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,

@@ -86,6 +86,7 @@ VALIDATIONS:
   - monsters.json   : treasure_type is valid (A-U or 'none')
   - names.json      : all races have name entries
   - spells.json     : spell_lists reference valid spell IDs
+  - journal.json    : bilingual descriptions consistency and length
 
 EXAMPLES:
   sw-validate              # Validate data in ./data directory
@@ -128,6 +129,9 @@ func main() {
 
 	// Validate spells
 	allErrors = append(allErrors, validateSpells(*dataDir)...)
+
+	// Validate journal descriptions
+	allErrors = append(allErrors, validateJournalDescriptions(*dataDir)...)
 
 	// Output results
 	if *jsonOutput {
@@ -343,6 +347,108 @@ func validateSpells(dataDir string) []data.ValidationError {
 					Message:  fmt.Sprintf("references non-existent spell '%s'", spellID),
 					Severity: "error",
 				})
+			}
+		}
+	}
+
+	return errors
+}
+
+func validateJournalDescriptions(dataDir string) []data.ValidationError {
+	var errors []data.ValidationError
+
+	advDir := filepath.Join(dataDir, "adventures")
+	entries, err := os.ReadDir(advDir)
+	if err != nil {
+		// No adventures directory - skip validation
+		return errors
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		advName := entry.Name()
+		journalPath := filepath.Join(advDir, advName, "journal.json")
+
+		journalData, err := os.ReadFile(journalPath)
+		if err != nil {
+			// No journal file - skip this adventure
+			continue
+		}
+
+		var journal struct {
+			Entries []struct {
+				ID            int    `json:"id"`
+				Description   string `json:"description"`
+				DescriptionFr string `json:"description_fr"`
+			} `json:"entries"`
+		}
+
+		if err := json.Unmarshal(journalData, &journal); err != nil {
+			errors = append(errors, data.ValidationError{
+				File:     fmt.Sprintf("adventures/%s/journal.json", advName),
+				Field:    "",
+				Message:  fmt.Sprintf("JSON parse error: %v", err),
+				Severity: "error",
+			})
+			continue
+		}
+
+		// Validate each entry
+		for _, e := range journal.Entries {
+			hasEN := e.Description != ""
+			hasFR := e.DescriptionFr != ""
+
+			// Check for mismatched descriptions
+			if hasEN != hasFR {
+				errors = append(errors, data.ValidationError{
+					File:     fmt.Sprintf("adventures/%s/journal.json", advName),
+					Field:    fmt.Sprintf("entries[%d]", e.ID),
+					Message:  "missing translation (one description present, other missing)",
+					Severity: "warning",
+				})
+			}
+
+			// Check English description length
+			if hasEN {
+				words := len(strings.Fields(e.Description))
+				if words < 15 {
+					errors = append(errors, data.ValidationError{
+						File:     fmt.Sprintf("adventures/%s/journal.json", advName),
+						Field:    fmt.Sprintf("entries[%d].description", e.ID),
+						Message:  fmt.Sprintf("too short (%d words, recommended 30-50)", words),
+						Severity: "warning",
+					})
+				} else if words > 80 {
+					errors = append(errors, data.ValidationError{
+						File:     fmt.Sprintf("adventures/%s/journal.json", advName),
+						Field:    fmt.Sprintf("entries[%d].description", e.ID),
+						Message:  fmt.Sprintf("too long (%d words, recommended 30-50)", words),
+						Severity: "warning",
+					})
+				}
+			}
+
+			// Check French description length
+			if hasFR {
+				words := len(strings.Fields(e.DescriptionFr))
+				if words < 15 {
+					errors = append(errors, data.ValidationError{
+						File:     fmt.Sprintf("adventures/%s/journal.json", advName),
+						Field:    fmt.Sprintf("entries[%d].description_fr", e.ID),
+						Message:  fmt.Sprintf("too short (%d words, recommended 30-50)", words),
+						Severity: "warning",
+					})
+				} else if words > 80 {
+					errors = append(errors, data.ValidationError{
+						File:     fmt.Sprintf("adventures/%s/journal.json", advName),
+						Field:    fmt.Sprintf("entries[%d].description_fr", e.ID),
+						Message:  fmt.Sprintf("too long (%d words, recommended 30-50)", words),
+						Severity: "warning",
+					})
+				}
 			}
 		}
 	}

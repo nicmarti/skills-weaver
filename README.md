@@ -49,6 +49,16 @@ Get your API key from [fal.ai](https://fal.ai) and set it:
 export FAL_KEY="your_fal_ai_api_key"
 ```
 
+### 4. Anthropic API Key (for journal enrichment) - OPTIONAL
+
+The `sw-adventure enrich` command uses Claude API to automatically generate bilingual descriptions for journal entries. Get your API key from [Anthropic Console](https://console.anthropic.com/) and set it:
+
+```bash
+export ANTHROPIC_API_KEY="your_anthropic_api_key"
+```
+
+**Note:** Journal enrichment uses Claude Haiku 4.5 for cost-effective, high-quality descriptions (~$0.0003 per entry).
+
 ## Quick Start
 
 ### 1. Build all CLI tools
@@ -137,9 +147,51 @@ Go binaries that perform the actual work:
 - `sw-monster` - Monster stats and encounters
 - `sw-treasure` - Treasure generation
 
+## Example: Enriching Journal Entries with AI
+
+The journal enrichment feature automatically generates detailed, bilingual descriptions for your adventure log using Claude AI. These descriptions are optimized for image generation and provide rich context.
+
+```bash
+# Preview entries that need enrichment (dry-run mode)
+./sw-adventure enrich "my-adventure" --dry-run
+
+# Enrich all entries without descriptions
+./sw-adventure enrich "my-adventure"
+
+# Enrich only recent entries
+./sw-adventure enrich "my-adventure" --recent=10
+
+# Enrich entries from a specific session
+./sw-adventure enrich "my-adventure" --session=2
+
+# Re-generate existing descriptions (force mode)
+./sw-adventure enrich "my-adventure" --force
+
+# Preview with filters
+./sw-adventure enrich "my-adventure" --from=50 --to=100 --dry-run
+```
+
+The AI generates descriptions following these guidelines:
+- **Length:** 30-50 words per description
+- **Format:** [Characters] + [Location] + [Action] + [Atmosphere] + [Visual Details]
+- **Languages:** English (for image generation) + French (for readability)
+- **Context-aware:** Uses party composition, recent events, and session info
+
+Example output:
+```
+Entry 88 [note]:
+📝 EN: Aldric, Lyra, Thorin, and Gareth stand before Mother Isabelle in the
+       candlelit halls of the Convent, their burden lifted as the abbess
+       accepts stewardship of the pilgrimage to Twilight Mountain.
+
+📝 FR: Aldric, Lyra, Thorin et Gareth se tiennent devant Mère Isabelle dans
+       les salles du Couvent illuminées aux chandelles, soulagés de leur
+       fardeau tandis que l'abbesse accepte la garde du pèlerinage.
+```
+
 ## Example: Illustrating an Adventure Journal
 
-After playing a session, automatically generate images for key moments:
+After enriching your journal, automatically generate images for key moments:
 
 ```bash
 # Preview what would be generated

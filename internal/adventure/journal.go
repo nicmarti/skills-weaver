@@ -12,13 +12,15 @@ import (
 
 // JournalEntry represents a single entry in the adventure journal.
 type JournalEntry struct {
-	ID        int       `json:"id"`
-	Timestamp time.Time `json:"timestamp"`
-	SessionID int       `json:"session_id,omitempty"` // 0 if outside session
-	Type      string    `json:"type"`                 // combat, loot, story, note, quest, etc.
-	Content   string    `json:"content"`
-	Tags      []string  `json:"tags,omitempty"`
-	Important bool      `json:"important,omitempty"`
+	ID            int       `json:"id"`
+	Timestamp     time.Time `json:"timestamp"`
+	SessionID     int       `json:"session_id,omitempty"` // 0 if outside session
+	Type          string    `json:"type"`                 // combat, loot, story, note, quest, etc.
+	Content       string    `json:"content"`
+	Description   string    `json:"description,omitempty"`    // Detailed English description for image generation
+	DescriptionFr string    `json:"description_fr,omitempty"` // Detailed French description for reading
+	Tags          []string  `json:"tags,omitempty"`
+	Important     bool      `json:"important,omitempty"`
 }
 
 // Journal holds all journal entries for an adventure.
@@ -96,6 +98,35 @@ func (a *Adventure) LogEvent(entryType, content string) error {
 		SessionID: sessionID,
 		Type:      entryType,
 		Content:   content,
+	}
+
+	journal.Entries = append(journal.Entries, entry)
+	journal.NextID++
+
+	return a.SaveJournal(journal)
+}
+
+// LogEventWithDescriptions adds an entry with bilingual descriptions to the journal.
+func (a *Adventure) LogEventWithDescriptions(eventType, content, description, descriptionFr string) error {
+	journal, err := a.LoadJournal()
+	if err != nil {
+		return err
+	}
+
+	// Get current session ID if any
+	sessionID := 0
+	if session, _ := a.GetCurrentSession(); session != nil {
+		sessionID = session.ID
+	}
+
+	entry := JournalEntry{
+		ID:            journal.NextID,
+		Timestamp:     time.Now(),
+		SessionID:     sessionID,
+		Type:          eventType,
+		Content:       content,
+		Description:   description,
+		DescriptionFr: descriptionFr,
 	}
 
 	journal.Entries = append(journal.Entries, entry)

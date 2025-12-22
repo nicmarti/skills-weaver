@@ -659,9 +659,8 @@ func cmdJournal(args []string) error {
 
 	var jobs []promptJob
 	for _, entry := range entriesToIllustrate {
-		prompt := image.BuildJournalEntryPrompt(entry.Type, entry.Content)
+		prompt := image.BuildJournalEntryPrompt(entry)
 		if prompt != nil {
-			prompt.EntryID = entry.ID
 			jobs = append(jobs, promptJob{entry: entry, prompt: prompt})
 		}
 	}

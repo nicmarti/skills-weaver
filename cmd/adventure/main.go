@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/ai"
 )
 
 const (
@@ -60,6 +61,8 @@ func main() {
 		err = cmdLog(args)
 	case "journal":
 		err = cmdJournal(args)
+	case "enrich":
+		err = cmdEnrich(args)
 	case "status":
 		err = cmdStatus(args)
 	case "help":
@@ -107,7 +110,17 @@ COMMANDES SESSION:
 
 COMMANDES JOURNAL:
   log <aventure> <type> <message>          Ajouter une entrée
+      [--description="English description"]
+      [--description-fr="Description française"]
   journal <aventure> [--session=N]         Afficher le journal
+  enrich <aventure> [options]              Enrichir le journal avec IA
+      [--session=N]           Filtrer par session
+      [--recent=N]            Dernières N entrées
+      [--from=ID]             À partir de l'ID
+      [--to=ID]               Jusqu'à l'ID
+      [--batch=N]             Taille des lots (défaut: 10)
+      [--force]               Re-générer les descriptions existantes
+      [--dry-run]             Prévisualiser sans générer
 
 TYPES DE JOURNAL:
   combat, loot, story, note, quest, npc, location, rest
@@ -524,22 +537,51 @@ func cmdListSessions(args []string) error {
 
 func cmdLog(args []string) error {
 	if len(args) < 3 {
-		return fmt.Errorf("usage: adventure log <aventure> <type> <message>")
+		return fmt.Errorf("usage: adventure log <aventure> <type> <message> [--description=\"...\"] [--description-fr=\"...\"]")
 	}
 
-	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	advName := args[0]
+	entryType := args[1]
+
+	// Parse message and optional description flags
+	var messageParts []string
+	description := ""
+	descriptionFr := ""
+
+	for _, arg := range args[2:] {
+		if strings.HasPrefix(arg, "--description=") {
+			description = strings.TrimPrefix(arg, "--description=")
+		} else if strings.HasPrefix(arg, "--description-fr=") {
+			descriptionFr = strings.TrimPrefix(arg, "--description-fr=")
+		} else {
+			messageParts = append(messageParts, arg)
+		}
+	}
+
+	message := strings.Join(messageParts, " ")
+
+	adv, err := adventure.LoadByName(adventuresDir, advName)
 	if err != nil {
 		return err
 	}
 
-	entryType := args[1]
-	message := strings.Join(args[2:], " ")
-
-	if err := adv.LogEvent(entryType, message); err != nil {
+	// Use appropriate method based on whether descriptions are provided
+	if description != "" || descriptionFr != "" {
+		err = adv.LogEventWithDescriptions(entryType, message, description, descriptionFr)
+	} else {
+		err = adv.LogEvent(entryType, message) // Legacy
+	}
+	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Entrée ajoutée au journal : [%s] %s\n", entryType, message)
+	fmt.Printf("Entrée ajoutée : [%s] %s\n", entryType, message)
+	if description != "" {
+		fmt.Printf("  📝 EN: %s\n", description)
+	}
+	if descriptionFr != "" {
+		fmt.Printf("  📝 FR: %s\n", descriptionFr)
+	}
 	return nil
 }
 
@@ -668,6 +710,163 @@ func cmdStatus(args []string) error {
 	}
 
 	return nil
+}
+
+func cmdEnrich(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: adventure enrich <aventure> [options]\n\nOptions:\n  --session=N    Enrich entries from session N\n  --recent=N     Enrich last N entries\n  --from=ID      Start from entry ID\n  --to=ID        End at entry ID\n  --batch=N      Batch size (default 10)\n  --force        Re-enrich entries with existing descriptions\n  --dry-run      Preview entries without enriching")
+	}
+
+	opts := parseEnrichOptions(args[1:])
+
+	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	if err != nil {
+		return err
+	}
+
+	// Get entries to enrich
+	entries, err := adv.GetEntriesToEnrich(opts)
+	if err != nil {
+		return err
+	}
+
+	if len(entries) == 0 {
+		fmt.Println("✓ No entries to enrich")
+		return nil
+	}
+
+	fmt.Printf("Found %d entries to enrich\n\n", len(entries))
+
+	if opts.DryRun {
+		// Preview mode
+		for _, e := range entries {
+			ctx, _ := adv.GetEnrichmentContext(e)
+			fmt.Printf("\n[%d] %s: %s\n", e.ID, e.Type, e.Content)
+			if len(ctx.PartyMembers) > 0 {
+				fmt.Printf("  Party: %s\n", strings.Join(ctx.PartyMembers, ", "))
+			}
+			if len(ctx.RecentEntries) > 0 {
+				fmt.Printf("  Context: %s\n", strings.Join(ctx.RecentEntries, " → "))
+			}
+			if ctx.SessionInfo != "" {
+				fmt.Printf("  %s\n", ctx.SessionInfo)
+			}
+		}
+		fmt.Printf("\n%d entries ready for enrichment\n", len(entries))
+		fmt.Println("Run without --dry-run to enrich with AI")
+		return nil
+	}
+
+	// Create AI enricher
+	enricher, err := ai.NewEnricher()
+	if err != nil {
+		fmt.Println("✗ AI enrichment requires ANTHROPIC_API_KEY")
+		fmt.Printf("  Error: %v\n", err)
+		fmt.Println("\nSet your API key:")
+		fmt.Println("  export ANTHROPIC_API_KEY=\"your-key-here\"")
+		fmt.Println("\nOr use --dry-run to preview entries without enriching")
+		return err
+	}
+
+	fmt.Printf("Enriching %d entries with Claude...\n\n", len(entries))
+
+	// Process in batches with interactive confirmation
+	successCount := 0
+	for i := 0; i < len(entries); i += opts.BatchSize {
+		end := i + opts.BatchSize
+		if end > len(entries) {
+			end = len(entries)
+		}
+		batch := entries[i:end]
+
+		// Enrich batch
+		results := make(map[int]*ai.EnrichmentResult)
+		for _, entry := range batch {
+			ctx, _ := adv.GetEnrichmentContext(entry)
+			result, err := enricher.EnrichEntry(entry, ctx)
+			if err != nil {
+				fmt.Printf("  ✗ Entry %d: %v\n", entry.ID, err)
+				continue
+			}
+			results[entry.ID] = result
+		}
+
+		if len(results) == 0 {
+			fmt.Println("  ✗ No entries enriched in this batch")
+			continue
+		}
+
+		// Display batch results
+		fmt.Printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+		fmt.Printf("Batch %d-%d (%d enriched)\n", i+1, end, len(results))
+		fmt.Printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n")
+
+		for _, entry := range batch {
+			result, ok := results[entry.ID]
+			if !ok {
+				continue
+			}
+
+			fmt.Printf("[%d] %s: \"%s\"\n\n", entry.ID, entry.Type, entry.Content)
+			fmt.Printf("📝 EN (%d words):\n%s\n\n", len(strings.Fields(result.Description)), result.Description)
+			fmt.Printf("📝 FR (%d words):\n%s\n\n", len(strings.Fields(result.DescriptionFr)), result.DescriptionFr)
+		}
+
+		// Interactive confirmation
+		fmt.Print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+		fmt.Print("[A]ccept  [S]kip  [Q]uit: ")
+		var choice string
+		fmt.Scanln(&choice)
+
+		switch strings.ToLower(choice) {
+		case "a", "accept":
+			for entryID, result := range results {
+				if err := adv.UpdateEntryDescriptions(entryID, result.Description, result.DescriptionFr); err != nil {
+					fmt.Printf("✗ Error saving entry %d: %v\n", entryID, err)
+				} else {
+					successCount++
+				}
+			}
+			fmt.Printf("✓ Saved %d entries\n\n", len(results))
+		case "s", "skip":
+			fmt.Println("⊘ Skipped batch\n")
+		case "q", "quit":
+			fmt.Printf("\n✓ Enrichment stopped. %d entries enriched.\n", successCount)
+			return nil
+		default:
+			fmt.Println("⊘ Invalid choice, skipping batch\n")
+		}
+	}
+
+	fmt.Printf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+	fmt.Printf("✓ Enrichment complete: %d entries enriched\n", successCount)
+	return nil
+}
+
+func parseEnrichOptions(args []string) adventure.EnrichOptions {
+	opts := adventure.EnrichOptions{
+		BatchSize: 10, // Default batch size
+	}
+
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--session=") {
+			fmt.Sscanf(arg, "--session=%d", &opts.SessionID)
+		} else if strings.HasPrefix(arg, "--recent=") {
+			fmt.Sscanf(arg, "--recent=%d", &opts.RecentN)
+		} else if strings.HasPrefix(arg, "--from=") {
+			fmt.Sscanf(arg, "--from=%d", &opts.FromID)
+		} else if strings.HasPrefix(arg, "--to=") {
+			fmt.Sscanf(arg, "--to=%d", &opts.ToID)
+		} else if strings.HasPrefix(arg, "--batch=") {
+			fmt.Sscanf(arg, "--batch=%d", &opts.BatchSize)
+		} else if arg == "--force" {
+			opts.Force = true
+		} else if arg == "--dry-run" {
+			opts.DryRun = true
+		}
+	}
+
+	return opts
 }
 
 // Helper functions

@@ -124,16 +124,25 @@ Une aventure crée le répertoire suivant :
 
 ```
 data/adventures/la-mine-perdue/
-├── adventure.json     # Métadonnées de l'aventure
-├── party.json         # Groupe et formation
-├── inventory.json     # Inventaire partagé
-├── sessions.json      # Historique des sessions
-├── journal.json       # Journal automatique
-├── state.json         # État du jeu
-└── characters/        # Copies des personnages
+├── adventure.json         # Métadonnées de l'aventure
+├── party.json             # Groupe et formation
+├── inventory.json         # Inventaire partagé
+├── sessions.json          # Historique des sessions
+├── journal-meta.json      # Métadonnées journal (NextID, Categories)
+├── journal-session-0.json # Journal hors session
+├── journal-session-1.json # Journal session 1
+├── journal-session-N.json # Journal session N
+├── state.json             # État du jeu
+├── images/
+│   ├── session-0/         # Images hors session
+│   ├── session-1/         # Images session 1
+│   └── session-N/         # Images session N
+└── characters/            # Copies des personnages
     ├── aldric.json
     └── lyra.json
 ```
+
+**Note** : Le journal est organisé par session pour optimiser les performances. Les commandes CLI fonctionnent de manière transparente avec cette structure.
 
 ## Workflow Typique
 

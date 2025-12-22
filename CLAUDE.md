@@ -58,9 +58,40 @@ skillsweaver/
 │   ├── treasure.json        # Tables de trésors BFRPG
 │   ├── characters/          # Personnages sauvegardés
 │   ├── adventures/          # Aventures sauvegardées
-│   └── images/              # Images générées
+│   │   └── <nom-aventure>/
+│   │       ├── adventure.json         # Métadonnées aventure
+│   │       ├── sessions.json          # Historique sessions
+│   │       ├── party.json             # Composition du groupe
+│   │       ├── inventory.json         # Inventaire partagé
+│   │       ├── journal-meta.json      # Métadonnées journal (NextID, Categories)
+│   │       ├── journal-session-0.json # Journal hors session
+│   │       ├── journal-session-1.json # Journal session 1
+│   │       ├── journal-session-N.json # Journal session N
+│   │       ├── images/
+│   │       │   ├── session-0/         # Images hors session
+│   │       │   ├── session-1/         # Images session 1
+│   │       │   └── session-N/         # Images session N
+│   │       └── characters/            # Personnages de l'aventure
+│   └── images/              # Images générées (obsolète - maintenant par aventure)
 ├── ai/                      # Documentation et plans
 └── CLAUDE.md                # Ce fichier
+```
+
+### Structure du Journal par Session
+
+Le journal est organisé en fichiers séparés par session pour optimiser la performance :
+
+- **journal-meta.json** : Métadonnées globales (NextID, Categories, LastUpdate)
+- **journal-session-N.json** : Entrées pour la session N
+- **journal-session-0.json** : Entrées hors session
+
+**Avantages** :
+- Réduit l'utilisation de tokens (charge uniquement les sessions nécessaires)
+- Scalable (pas de limite de taille de journal)
+- Organisation claire par session de jeu
+- Images organisées de manière cohérente
+
+**Migration** : Utilisez `sw-adventure migrate-journal <aventure>` pour convertir un ancien journal.json monolithique vers la nouvelle structure.
 ```
 
 ## Architecture : Skills vs Agents
@@ -207,7 +238,13 @@ go build -o sw-adventure ./cmd/adventure
 ./sw-adventure journal "La Mine Perdue"   # Journal de l'aventure
 ./sw-adventure sessions "La Mine Perdue"  # Historique des sessions
 ./sw-adventure inventory "La Mine Perdue" # Inventaire partagé
+
+# Maintenance - Migration vers structure par session
+./sw-adventure migrate-journal "La Mine Perdue"    # Migrer journal.json vers fichiers session
+./sw-adventure validate-journal "La Mine Perdue"   # Valider intégrité des journaux
 ```
+
+**Note** : Les aventures existantes avec `journal.json` monolithique sont automatiquement supportées. La migration vers la structure par session est optionnelle mais recommandée pour améliorer les performances.
 
 ### Skill adventure-manager
 

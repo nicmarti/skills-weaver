@@ -89,13 +89,17 @@ func (a *Adventure) StartSession() (*Session, error) {
 	a.SessionCount = len(history.Sessions)
 	a.LastPlayed = time.Now()
 
-	// Save both
+	// Save session history first
 	if err := a.SaveSessions(history); err != nil {
 		return nil, err
 	}
+
+	// Save adventure metadata (preserve basePath since Save() modifies it)
+	originalBasePath := a.basePath
 	if err := a.Save(filepath.Dir(a.basePath)); err != nil {
 		return nil, err
 	}
+	a.basePath = originalBasePath
 
 	// Log to journal
 	a.LogEvent("session", fmt.Sprintf("Session %d démarrée", nextID))
@@ -137,13 +141,17 @@ func (a *Adventure) EndSession(summary string) (*Session, error) {
 	// Update adventure
 	a.LastPlayed = time.Now()
 
-	// Save both
+	// Save session history first
 	if err := a.SaveSessions(history); err != nil {
 		return nil, err
 	}
+
+	// Save adventure metadata (preserve basePath since Save() modifies it)
+	originalBasePath := a.basePath
 	if err := a.Save(filepath.Dir(a.basePath)); err != nil {
 		return nil, err
 	}
+	a.basePath = originalBasePath
 
 	// Log to journal
 	a.LogEvent("session", fmt.Sprintf("Session %d terminée - %s", session.ID, summary))

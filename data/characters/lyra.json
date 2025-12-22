@@ -7,18 +7,18 @@
   "xp": 0,
   "abilities": {
     "strength": 10,
-    "intelligence": 9,
-    "wisdom": 10,
-    "dexterity": 8,
-    "constitution": 13,
+    "intelligence": 10,
+    "wisdom": 12,
+    "dexterity": 14,
+    "constitution": 12,
     "charisma": 14
   },
   "modifiers": {
     "strength": 0,
     "intelligence": 0,
     "wisdom": 0,
-    "dexterity": -1,
-    "constitution": 1,
+    "dexterity": 1,
+    "constitution": 0,
     "charisma": 1
   },
   "hit_points": 5,
@@ -26,5 +26,20 @@
   "armor_class": 10,
   "gold": 110,
   "equipment": [],
+  "appearance": {
+    "age": 94,
+    "build": "slender",
+    "height": "average",
+    "hair_color": "silver-white",
+    "hair_style": "long, flowing, adorned with flowers",
+    "eye_color": "emerald green",
+    "skin_tone": "fair with moonlit glow",
+    "facial_feature": "delicate features, wild beauty",
+    "distinctive_feature": "pointed ears, nature-blessed aura",
+    "armor_description": "flowing green robes",
+    "weapon_description": "living wood staff with vines",
+    "accessories": "leather pouch, forest herbs",
+    "reference_image": "lyra_reference.png"
+  },
   "created_at": "2025-12-20T16:30:13.757806+01:00"
 }

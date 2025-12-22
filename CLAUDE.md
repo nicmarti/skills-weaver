@@ -489,6 +489,51 @@ go test ./internal/data/... -v
 go test ./internal/character/... -v
 ```
 
+## Conventions de Développement
+
+### Ajout de nouveaux packages dans `internal/`
+
+Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
+
+1. **Mettre à jour le Makefile** avec les nouvelles dépendances
+   - Ajouter le package aux dépendances du binaire concerné
+   - Exemple : Si vous créez `internal/combat/` utilisé par `cmd/adventure`, modifier :
+     ```makefile
+     $(BINARY_PREFIX)-adventure: cmd/adventure/main.go internal/adventure/*.go internal/combat/*.go
+     ```
+
+2. **Créer des tests unitaires**
+   - Tout nouveau package dans `internal/` doit avoir des tests
+   - Créer `<package>_test.go` dans le même répertoire
+   - Lancer `make test` pour vérifier que tous les tests passent
+
+3. **Vérifier la compilation**
+   ```bash
+   # Nettoyer et recompiler pour vérifier les dépendances
+   make clean
+   make
+
+   # Vérifier que les modifications du package déclenchent la recompilation
+   touch internal/<package>/<file>.go
+   make <binary-name>
+   ```
+
+### Packages actuellement dans `internal/`
+
+| Package | Utilisé par | Tests | Makefile |
+|---------|-------------|-------|----------|
+| `adventure` | `sw-adventure` | ✓ | ✓ |
+| `ai` | `sw-adventure` | - | ✓ |
+| `character` | `sw-character` | ✓ | ✓ |
+| `combat` | (orphelin) | ✓ | - |
+| `data` | `sw-character` | ✓ | ✓ |
+| `dice` | `sw-dice`, `sw-monster`, `sw-treasure` | ✓ | ✓ |
+| `image` | `sw-image` | - | ✓ |
+| `monster` | `sw-monster` | ✓ | ✓ |
+| `names` | `sw-names`, `sw-npc` | ✓ | ✓ |
+| `npc` | `sw-npc` | ✓ | ✓ |
+| `treasure` | `sw-treasure` | ✓ | ✓ |
+
 ## Conventions Git
 
 ### Commits

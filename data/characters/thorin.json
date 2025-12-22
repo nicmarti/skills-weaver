@@ -7,16 +7,16 @@
   "xp": 0,
   "abilities": {
     "strength": 13,
-    "intelligence": 6,
-    "wisdom": 18,
+    "intelligence": 9,
+    "wisdom": 15,
     "dexterity": 11,
-    "constitution": 13,
-    "charisma": 11
+    "constitution": 14,
+    "charisma": 10
   },
   "modifiers": {
     "strength": 1,
-    "intelligence": -1,
-    "wisdom": 3,
+    "intelligence": 0,
+    "wisdom": 1,
     "dexterity": 0,
     "constitution": 1,
     "charisma": 0
@@ -26,5 +26,20 @@
   "armor_class": 11,
   "gold": 120,
   "equipment": [],
+  "appearance": {
+    "age": 143,
+    "build": "robust",
+    "height": "short",
+    "hair_color": "white with streaks of gray",
+    "hair_style": "long flowing beard, simple leather cord",
+    "eye_color": "deep brown, wise",
+    "skin_tone": "pale from mountain caves",
+    "facial_feature": "kind wrinkles, gentle smile",
+    "distinctive_feature": "prayer beads in beard, peaceful presence",
+    "armor_description": "simple robes over chainmail",
+    "weapon_description": "wooden staff with carved runes",
+    "accessories": "prayer book",
+    "reference_image": "thorin_reference.png"
+  },
   "created_at": "2025-12-20T23:06:34.368643+01:00"
 }

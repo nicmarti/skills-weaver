@@ -159,7 +159,7 @@ OUTPUT FORMAT (JSON only, no other text):
 func getTypeFocus(entryType string) string {
 	focus := map[string]string{
 		"combat":      "Action and tension, dynamic battle scene with weapons and movement",
-		"exploration": "Environment and discovery, atmospheric exploration with lighting details",
+		"exploration": "Environment and discovery, exploration with lighting details",
 		"discovery":   "Moment of revelation, surprising find with magical or revealing effects",
 		"loot":        "Treasure itself, glittering gold and magical items with visual appeal",
 		"note":        "Character interaction or observation, narrative moment with emotion",
@@ -167,7 +167,7 @@ func getTypeFocus(entryType string) string {
 		"session":     "Overall party mood and achievement, triumphant or somber atmosphere",
 		"rest":        "Party recovering, campfire or inn scene with peaceful atmosphere",
 		"npc":         "Character introduction, distinctive appearance and setting",
-		"location":    "Place description, architectural details and atmospheric lighting",
+		"location":    "Place description, architectural details and great lighting",
 		"quest":       "Mission objective, sense of purpose and destination",
 	}
 
@@ -188,7 +188,7 @@ func (e *Enricher) callClaude(prompt string) (string, error) {
 		Messages: []anthropic.MessageParam{
 			anthropic.NewUserMessage(anthropic.NewTextBlock(prompt)),
 		},
-		MaxTokens: 500,
+		MaxTokens:   500,
 		Temperature: anthropic.Float(0.7),
 	})
 

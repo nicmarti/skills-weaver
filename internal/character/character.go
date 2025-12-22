@@ -43,9 +43,27 @@ type Character struct {
 	// Spell system fields
 	KnownSpells    []string       `json:"known_spells,omitempty"`    // Spell IDs known by the character
 	PreparedSpells []string       `json:"prepared_spells,omitempty"` // Spell IDs prepared for the day
-	SpellSlots     map[int]int    `json:"spell_slots,omitempty"`     // Available spell slots by level
-	SpellSlotsUsed map[int]int    `json:"spell_slots_used,omitempty"` // Used spell slots by level
-	CreatedAt      time.Time      `json:"created_at"`
+	SpellSlots     map[int]int          `json:"spell_slots,omitempty"`     // Available spell slots by level
+	SpellSlotsUsed map[int]int          `json:"spell_slots_used,omitempty"` // Used spell slots by level
+	Appearance     *CharacterAppearance `json:"appearance,omitempty"`       // Visual description for image generation
+	CreatedAt      time.Time            `json:"created_at"`
+}
+
+// CharacterAppearance stores visual description for image generation.
+type CharacterAppearance struct {
+	Age                int    `json:"age,omitempty"`
+	Build              string `json:"build,omitempty"`              // "slender", "stocky", "muscular", "average"
+	Height             string `json:"height,omitempty"`             // "tall", "average", "short"
+	HairColor          string `json:"hair_color,omitempty"`
+	HairStyle          string `json:"hair_style,omitempty"`
+	EyeColor           string `json:"eye_color,omitempty"`
+	SkinTone           string `json:"skin_tone,omitempty"`
+	FacialFeature      string `json:"facial_feature,omitempty"`     // "bearded", "clean-shaven", "scarred"
+	DistinctiveFeature string `json:"distinctive_feature,omitempty"` // "battle scar", "tattoo", "eye patch"
+	ArmorDescription   string `json:"armor_description,omitempty"`   // "plate armor", "leather vest"
+	WeaponDescription  string `json:"weapon_description,omitempty"`  // "longsword", "staff with crystal"
+	Accessories        string `json:"accessories,omitempty"`         // "shield", "holy symbol", "spell book"
+	ReferenceImage     string `json:"reference_image,omitempty"`     // Path to reference image for FLUX PuLID
 }
 
 // GenerationMethod specifies how ability scores are generated.
@@ -354,6 +372,72 @@ func (c *Character) Save(dir string) error {
 	}
 
 	return nil
+}
+
+// UpdateAppearance updates character appearance.
+func (c *Character) UpdateAppearance(appearance CharacterAppearance) {
+	c.Appearance = &appearance
+}
+
+// GetVisualDescription returns human-readable description.
+func (c *Character) GetVisualDescription() string {
+	if c.Appearance == nil {
+		return fmt.Sprintf("%s, %s %s", c.Name, c.Race, c.Class)
+	}
+
+	a := c.Appearance
+	parts := []string{c.Name}
+
+	// Age and race
+	if a.Age > 0 {
+		parts = append(parts, fmt.Sprintf("%d-year-old %s", a.Age, c.Race))
+	} else {
+		parts = append(parts, c.Race)
+	}
+
+	parts = append(parts, c.Class)
+
+	// Physical traits
+	if a.Build != "" || a.Height != "" {
+		physical := []string{}
+		if a.Height != "" {
+			physical = append(physical, a.Height)
+		}
+		if a.Build != "" {
+			physical = append(physical, a.Build)
+		}
+		parts = append(parts, strings.Join(physical, ", "))
+	}
+
+	// Distinctive features
+	if a.DistinctiveFeature != "" {
+		parts = append(parts, fmt.Sprintf("with %s", a.DistinctiveFeature))
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// GetImagePromptSnippet returns short reference for image prompts.
+func (c *Character) GetImagePromptSnippet() string {
+	if c.Appearance == nil {
+		return fmt.Sprintf("%s the %s %s", c.Name, c.Race, c.Class)
+	}
+
+	// Short form: "Aldric (human fighter, plate armor, longsword)"
+	equipment := []string{}
+	if c.Appearance.ArmorDescription != "" {
+		equipment = append(equipment, c.Appearance.ArmorDescription)
+	}
+	if c.Appearance.WeaponDescription != "" {
+		equipment = append(equipment, c.Appearance.WeaponDescription)
+	}
+
+	if len(equipment) > 0 {
+		return fmt.Sprintf("%s (%s %s, %s)",
+			c.Name, c.Race, c.Class, strings.Join(equipment, ", "))
+	}
+
+	return fmt.Sprintf("%s (%s %s)", c.Name, c.Race, c.Class)
 }
 
 // Load reads a character from a JSON file.

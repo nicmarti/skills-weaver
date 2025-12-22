@@ -147,10 +147,16 @@ func (a *Adventure) GetCharacters() ([]*character.Character, error) {
 
 	var characters []*character.Character
 	for _, name := range party.Characters {
+		// Try adventure-specific character file first
 		charPath := filepath.Join(a.basePath, "characters", slugify(name)+".json")
 		c, err := character.Load(charPath)
 		if err != nil {
-			continue // Skip missing characters
+			// If not found, try global characters directory
+			globalCharPath := filepath.Join("data", "characters", slugify(name)+".json")
+			c, err = character.Load(globalCharPath)
+			if err != nil {
+				continue // Skip missing characters
+			}
 		}
 		characters = append(characters, c)
 	}

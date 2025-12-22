@@ -90,7 +90,7 @@ OPTIONS JOURNAL:
   --start-id=<n>               ID de départ pour reprendre depuis une entrée (optionnel)
   --max=<n>                    Nombre maximum d'images à générer
   --parallel=<n>               Nombre de générations en parallèle (défaut: 4)
-  --model=<model>              Modèle fal.ai (schnell, banana) défaut: schnell
+  --model=<model>              Modèle fal.ai (schnell, banana) défaut: banana
   --dry-run                    Afficher les prompts sans générer
 
 MODÈLES FAL.AI:
@@ -117,6 +117,17 @@ func cmdCharacter(args []string) error {
 	opts := parseOptions(args[1:])
 	charName := args[0]
 
+	// Set defaults for character portraits
+	if opts["style"] == "" {
+		opts["style"] = "painted"
+	}
+	if opts["size"] == "" {
+		opts["size"] = "portrait_4_3"
+	}
+	if opts["model"] == "" {
+		opts["model"] = "banana"
+	}
+
 	// Build character file path
 	charPath := fmt.Sprintf("%s/characters/%s.json", dataDir, strings.ToLower(strings.ReplaceAll(charName, " ", "_")))
 
@@ -132,14 +143,25 @@ func cmdCharacter(args []string) error {
 		return err
 	}
 
-	// Build prompt
+	// Build prompt with specified style
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
+		opts["style"] = string(image.StyleIllustrated)
 		style = image.StyleIllustrated
 	}
 	prompt := image.BuildCharacterPrompt(char, style)
 
+	// For banana model (default for character portraits), add neutral background directive
+	model := opts["model"]
+	if model == "" {
+		model = "banana" // Default for character portraits
+	}
+	if model == "banana" {
+		prompt = prompt + ", background is a simple neutral color like black or white, character focus"
+	}
+
 	fmt.Printf("Génération du portrait de %s...\n", charName)
+	printGenerationInfo(opts, "square_hd")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -193,10 +215,18 @@ func cmdNPC(args []string) error {
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
 		style = image.StyleIllustrated
+		opts["style"] = string(style)
 	}
 	prompt := image.BuildNPCPrompt(n, style)
 
+	// For banana model (default), add neutral background directive for portraits
+	model := opts["model"]
+	if model == "" || model == "banana" {
+		prompt = prompt + ", neutral background, character focus"
+	}
+
 	fmt.Printf("Génération du portrait...\n")
+	printGenerationInfo(opts, "square_hd")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -240,11 +270,13 @@ func cmdScene(args []string) error {
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
 		style = image.StyleIllustrated
+		opts["style"] = string(style)
 	}
 	sceneType := opts["type"]
 	prompt := image.BuildScenePrompt(description, sceneType, style)
 
 	fmt.Printf("Génération de la scène...\n")
+	printGenerationInfo(opts, "landscape_16_9")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -281,10 +313,12 @@ func cmdMonster(args []string) error {
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
 		style = image.StyleDarkFantasy
+		opts["style"] = string(style)
 	}
 	prompt := image.BuildMonsterPrompt(monsterType, style)
 
 	fmt.Printf("Génération du monstre: %s...\n", monsterType)
+	printGenerationInfo(opts, "square_hd")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -329,10 +363,12 @@ func cmdItem(args []string) error {
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
 		style = image.StyleIllustrated
+		opts["style"] = string(style)
 	}
 	prompt := image.BuildItemPrompt(itemType, description, style)
 
 	fmt.Printf("Génération de l'objet: %s...\n", itemType)
+	printGenerationInfo(opts, "square_hd")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -380,10 +416,12 @@ func cmdLocation(args []string) error {
 	style := image.PromptStyle(opts["style"])
 	if style == "" {
 		style = image.StyleIllustrated
+		opts["style"] = string(style)
 	}
 	prompt := image.BuildLocationPrompt(locationType, name, style)
 
 	fmt.Printf("Génération du lieu: %s...\n", locationType)
+	printGenerationInfo(opts, "landscape_16_9")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -431,6 +469,7 @@ func cmdCustom(args []string) error {
 	}
 
 	fmt.Printf("Génération avec prompt personnalisé...\n")
+	printGenerationInfo(opts, "square_hd")
 	fmt.Printf("Prompt: %s\n\n", prompt)
 
 	// Generate image
@@ -550,8 +589,31 @@ func buildImageOptions(opts map[string]string) []image.Option {
 	if opts["format"] != "" {
 		imgOpts = append(imgOpts, image.WithOutputFormat(opts["format"]))
 	}
+	if opts["model"] != "" {
+		imgOpts = append(imgOpts, image.WithModel(opts["model"]))
+	}
 
 	return imgOpts
+}
+
+// printGenerationInfo displays generation parameters (model, style, size).
+func printGenerationInfo(opts map[string]string, defaultSize string) {
+	model := opts["model"]
+	if model == "" {
+		model = "schnell"
+	}
+
+	style := opts["style"]
+	if style == "" {
+		style = "(défaut)"
+	}
+
+	size := opts["size"]
+	if size == "" {
+		size = defaultSize
+	}
+
+	fmt.Printf("→ Modèle: %s | Style: %s | Taille: %s\n", model, style, size)
 }
 
 // Helper to output JSON
@@ -590,6 +652,28 @@ func cmdJournal(args []string) error {
 	adv, err := adventure.Load(advPath)
 	if err != nil {
 		return fmt.Errorf("chargement de l'aventure '%s': %w", advName, err)
+	}
+
+	// Load adventure characters for context
+	characters, err := adv.GetCharacters()
+	if err != nil {
+		fmt.Printf("⚠️  Attention : Impossible de charger les personnages : %v\n", err)
+		characters = nil
+	}
+
+	// Display party info
+	if len(characters) > 0 {
+		fmt.Printf("Groupe : ")
+		for i, c := range characters {
+			if i > 0 {
+				fmt.Print(", ")
+			}
+			fmt.Print(c.Name)
+			if c.Appearance != nil && c.Appearance.ReferenceImage != "" {
+				fmt.Print(" ✓") // Has reference image
+			}
+		}
+		fmt.Println()
 	}
 
 	// Load journal
@@ -659,7 +743,7 @@ func cmdJournal(args []string) error {
 
 	var jobs []promptJob
 	for _, entry := range entriesToIllustrate {
-		prompt := image.BuildJournalEntryPrompt(entry)
+		prompt := image.BuildJournalEntryPromptWithCharacters(entry, characters)
 		if prompt != nil {
 			jobs = append(jobs, promptJob{entry: entry, prompt: prompt})
 		}
@@ -668,8 +752,9 @@ func cmdJournal(args []string) error {
 	// Get model (default: schnell)
 	modelName := opts["model"]
 	if modelName == "" {
-		modelName = "schnell"
+		modelName = "banana" // Default: nano-banana for better quality
 	}
+
 	model := image.GetModel(modelName)
 
 	// Dry run mode - just print prompts
@@ -711,7 +796,19 @@ func cmdJournal(args []string) error {
 		parallelism = 8
 	}
 
-	fmt.Printf("Génération de %d images (modèle: %s, parallélisme: %d)...\n\n", len(jobs), model.Short, parallelism)
+	fmt.Printf("→ Modèle: %s | Parallélisme: %d\n", model.Short, parallelism)
+	fmt.Printf("Génération de %d images...\n", len(jobs))
+
+	// Display first prompt as example
+	if len(jobs) > 0 {
+		firstJob := jobs[0]
+		fmt.Printf("\n### Premier prompt (exemple)\n")
+		fmt.Printf("  Entrée ID: %d\n", firstJob.prompt.EntryID)
+		fmt.Printf("  Type: %s\n", firstJob.entry.Type)
+		fmt.Printf("  Style: %s\n", firstJob.prompt.Style)
+		fmt.Printf("  Taille: %s\n", firstJob.prompt.ImageSize)
+		fmt.Printf("  Prompt: %s\n\n", firstJob.prompt.Prompt)
+	}
 
 	// Channel for job distribution
 	jobsChan := make(chan promptJob, len(jobs))
@@ -739,13 +836,17 @@ func cmdJournal(args []string) error {
 				// Model name is appended automatically by the generator
 				filenamePrefix := fmt.Sprintf("journal_%03d_%s", job.prompt.EntryID, job.entry.Type)
 
-				imgOpts := []image.Option{
-					image.WithImageSize(job.prompt.ImageSize),
-					image.WithFilenamePrefix(filenamePrefix),
-					image.WithModel(m.Short),
-				}
+				var img *image.GeneratedImage
+				var err error
 
-				img, err := gen.Generate(job.prompt.Prompt, imgOpts...)
+			// Generate image with standard model (nano-banana by default)
+			imgOpts := []image.Option{
+				image.WithImageSize(job.prompt.ImageSize),
+				image.WithFilenamePrefix(filenamePrefix),
+				image.WithModel(m.Short),
+			}
+			img, err = gen.Generate(job.prompt.Prompt, imgOpts...)
+
 				if err != nil {
 					resultsChan <- result{entryID: job.prompt.EntryID, err: err}
 					continue

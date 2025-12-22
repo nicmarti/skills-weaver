@@ -30,6 +30,12 @@ const BasePromptSuffix = "medieval fantasy setting, dungeons and dragons style, 
 func BuildCharacterPrompt(char *character.Character, style PromptStyle) string {
 	var parts []string
 
+	// If character has detailed appearance, use it
+	if char.Appearance != nil && (char.Appearance.Age > 0 || char.Appearance.Build != "" || char.Appearance.HairColor != "") {
+		return buildDetailedCharacterPrompt(char, style)
+	}
+
+	// Fallback to generic descriptions for characters without appearance
 	// Race description
 	raceDesc := map[string]string{
 		"human":    "human",
@@ -67,6 +73,89 @@ func BuildCharacterPrompt(char *character.Character, style PromptStyle) string {
 	}
 
 	parts = append(parts, BasePromptSuffix)
+
+	return strings.Join(parts, ", ")
+}
+
+// buildDetailedCharacterPrompt builds a detailed prompt using character appearance.
+func buildDetailedCharacterPrompt(char *character.Character, style PromptStyle) string {
+	var parts []string
+	app := char.Appearance
+
+	// Start with character name and basic info
+	parts = append(parts, fmt.Sprintf("Portrait of %s", char.Name))
+
+	// Age and race
+	if app.Age > 0 {
+		parts = append(parts, fmt.Sprintf("%d-year-old %s", app.Age, char.Race))
+	} else {
+		parts = append(parts, char.Race)
+	}
+
+	// Class
+	parts = append(parts, char.Class)
+
+	// Physical build and height
+	if app.Height != "" && app.Build != "" {
+		parts = append(parts, fmt.Sprintf("%s and %s build", app.Height, app.Build))
+	} else if app.Height != "" {
+		parts = append(parts, app.Height)
+	} else if app.Build != "" {
+		parts = append(parts, app.Build+" build")
+	}
+
+	// Hair
+	if app.HairStyle != "" && app.HairColor != "" {
+		parts = append(parts, fmt.Sprintf("%s %s hair", app.HairColor, app.HairStyle))
+	} else if app.HairColor != "" {
+		parts = append(parts, app.HairColor+" hair")
+	} else if app.HairStyle != "" {
+		parts = append(parts, app.HairStyle+" hair")
+	}
+
+	// Eyes
+	if app.EyeColor != "" {
+		parts = append(parts, app.EyeColor+" eyes")
+	}
+
+	// Skin tone
+	if app.SkinTone != "" {
+		parts = append(parts, app.SkinTone+" skin")
+	}
+
+	// Facial features
+	if app.FacialFeature != "" {
+		parts = append(parts, app.FacialFeature)
+	}
+
+	// Distinctive features
+	if app.DistinctiveFeature != "" {
+		parts = append(parts, app.DistinctiveFeature)
+	}
+
+	// Armor/clothing
+	if app.ArmorDescription != "" {
+		parts = append(parts, "wearing "+app.ArmorDescription)
+	}
+
+	// Weapon (visible in portrait)
+	if app.WeaponDescription != "" {
+		parts = append(parts, "holding "+app.WeaponDescription)
+	}
+
+	// Accessories
+	if app.Accessories != "" {
+		parts = append(parts, "with "+app.Accessories)
+	}
+
+	// Add style suffix
+	if suffix, ok := StyleSuffixes[style]; ok {
+		parts = append(parts, suffix)
+	}
+
+	// Add base suffix
+	parts = append(parts, BasePromptSuffix)
+	parts = append(parts, "professional portrait photography, detailed character art")
 
 	return strings.Join(parts, ", ")
 }
@@ -358,7 +447,63 @@ func IsIllustratable(entryType string) bool {
 }
 
 // BuildJournalEntryPrompt creates a prompt for a journal entry.
-func BuildJournalEntryPrompt(entry adventure.JournalEntry) *JournalEntryPrompt {
+// BuildJournalEntryPromptWithCharacters builds prompt with character context for consistency.
+func BuildJournalEntryPromptWithCharacters(
+	entry adventure.JournalEntry,
+	characters []*character.Character,
+) *JournalEntryPrompt {
+	// Build base prompt without character context using the legacy function
+	baseResult := BuildJournalEntryPromptWithoutCharacters(entry)
+	if baseResult == nil {
+		return nil
+	}
+
+	// If no characters, return base result
+	if len(characters) == 0 {
+		return baseResult
+	}
+
+	// Build character references string
+	charRefs := buildCharacterReferences(characters)
+
+	// Inject character references into the prompt
+	if charRefs != "" {
+		baseResult.Prompt = injectCharacterContext(baseResult.Prompt, charRefs, entry.Type)
+	}
+
+	return baseResult
+}
+
+// buildCharacterReferences creates short character list for prompt.
+func buildCharacterReferences(characters []*character.Character) string {
+	if len(characters) == 0 {
+		return ""
+	}
+
+	refs := make([]string, 0, len(characters))
+	for _, c := range characters {
+		refs = append(refs, c.GetImagePromptSnippet())
+	}
+
+	return strings.Join(refs, ", ")
+}
+
+// injectCharacterContext adds character references to the prompt.
+func injectCharacterContext(basePrompt, charRefs, entryType string) string {
+	// Find the first period or colon to inject characters
+	parts := strings.SplitN(basePrompt, ":", 2)
+	if len(parts) == 2 {
+		// Format: "Prefix: Description. Suffix"
+		// Inject: "Prefix featuring Characters: Description. Suffix"
+		return parts[0] + " featuring " + charRefs + ":" + parts[1]
+	}
+
+	// Fallback: just prepend character info
+	return "Featuring " + charRefs + ". " + basePrompt
+}
+
+// BuildJournalEntryPromptWithoutCharacters is the original logic without character context.
+func BuildJournalEntryPromptWithoutCharacters(entry adventure.JournalEntry) *JournalEntryPrompt {
 	var prompt string
 	var style PromptStyle
 	var imageSize string
@@ -418,6 +563,11 @@ func BuildJournalEntryPrompt(entry adventure.JournalEntry) *JournalEntryPrompt {
 		Style:     style,
 		ImageSize: imageSize,
 	}
+}
+
+// BuildJournalEntryPrompt creates a prompt for a journal entry (legacy, without character context).
+func BuildJournalEntryPrompt(entry adventure.JournalEntry) *JournalEntryPrompt {
+	return BuildJournalEntryPromptWithCharacters(entry, nil)
 }
 
 // getEntryDescription returns the best description available (fallback: Description > DescriptionFr > Content).

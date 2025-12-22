@@ -26,5 +26,20 @@
   "armor_class": 12,
   "gold": 100,
   "equipment": [],
+  "appearance": {
+    "age": 23,
+    "build": "slender",
+    "height": "tall",
+    "hair_color": "brown",
+    "hair_style": "shoulder-length, tied back",
+    "eye_color": "hazel",
+    "skin_tone": "fair",
+    "facial_feature": "clean-shaven",
+    "distinctive_feature": "pale complexion, sharp features",
+    "armor_description": "light leather armor",
+    "weapon_description": "rapier and dagger",
+    "accessories": "noble's cloak",
+    "reference_image": "gareth_reference.png"
+  },
   "created_at": "2025-12-20T23:20:40.74613+01:00"
 }

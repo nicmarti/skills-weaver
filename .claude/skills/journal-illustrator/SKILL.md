@@ -78,8 +78,18 @@ go build -o sw-image ./cmd/image
 --start-id=<n>      # ID de départ pour reprendre depuis une entrée spécifique (optionnel)
 --max=<n>           # Nombre maximum d'images à générer
 --parallel=<n>      # Niveau de parallélisme (1-8, défaut: 4)
+--model=<model>     # Modèle fal.ai (schnell, banana, pulid) défaut: schnell
+--consistency       # Utiliser la cohérence de personnage (défaut: true avec pulid)
 --dry-run           # Afficher les prompts sans générer d'images
 ```
+
+### Modèles Disponibles
+
+| Modèle | Vitesse | Coût/image | Cohérence de personnage |
+|--------|---------|------------|------------------------|
+| `schnell` | ~3s | ~$0.003 | Non |
+| `banana` | ~5s | ~$0.039 | Non |
+| `pulid` | ~4s | ~$0.003-0.04 | Oui (requiert images de référence) |
 
 ## Exemples d'Utilisation
 
@@ -162,6 +172,62 @@ heroic pose"
 **Résultat** : L'image enrichie montrera les personnages nommés (Aldric, Lyra),
 l'environnement spécifique (couloir de pierre, torches, mousse), et l'atmosphère
 exacte du combat !
+
+## Cohérence de Personnage (Character Consistency)
+
+Le journal illustrator supporte la cohérence des personnages via FLUX PuLID :
+
+### Prérequis
+1. **Apparences des personnages** définies via `sw-character appearance`
+2. **Images de référence** définies via `sw-character set-reference`
+
+### Utilisation
+```bash
+# Configuration de l'apparence d'un personnage
+./sw-character appearance "Aldric" \
+  --age=34 \
+  --build=muscular \
+  --armor="plate armor" \
+  --weapon=longsword
+
+# Définir l'image de référence (portrait frontal recommandé)
+./sw-character set-reference "Aldric" path/to/aldric_portrait.png
+
+# Génération standard (sans cohérence)
+./sw-image journal "adventure" --model=schnell
+
+# Avec cohérence de personnage (requiert images de référence)
+./sw-image journal "adventure" --model=pulid --consistency
+```
+
+### Comment Ça Marche
+1. Charge les personnages du groupe d'aventure
+2. Identifie le personnage principal par entrée du journal (mention du nom ou défaut au leader)
+3. Utilise l'image de référence du personnage avec FLUX PuLID
+4. Injecte des descriptions courtes de personnages au lieu de répéter le texte complet
+
+### Exemple de Différence de Prompt
+
+**Sans cohérence** :
+```
+Epic fantasy battle scene: Aldric the human fighter (34 years old, muscular build,
+black hair, bearded, wearing plate armor) and Lyra the elf magic-user (young,
+slender, long silver hair) battle three goblins...
+```
+
+**Avec cohérence** :
+```
+Epic fantasy battle scene featuring Aldric (human fighter, plate armor, longsword),
+Lyra (elf magic-user, staff): The heroes battle three goblins in a torch-lit corridor...
+```
+
+L'image de référence garantit que le visage d'Aldric correspond à travers toutes les images.
+
+### Avantages
+- ✅ Visages cohérents des personnages à travers toutes les images du journal
+- ✅ Réduction des prompts (pas besoin de répéter les descriptions complètes)
+- ✅ Coût similaire à schnell (~$0.003-0.04/image)
+- ✅ Fallback automatique si l'image de référence est manquante
 
 ## Adaptation des Prompts
 

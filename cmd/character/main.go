@@ -44,6 +44,10 @@ func main() {
 		handleDelete(os.Args[2:])
 	case "export":
 		handleExport(os.Args[2:])
+	case "appearance":
+		handleAppearance(os.Args[2:])
+	case "set-reference":
+		handleSetReference(os.Args[2:])
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -286,6 +290,343 @@ func handleExport(args []string) {
 	}
 }
 
+// translateToEnglish translates common French appearance terms to English
+func translateToEnglish(value string) string {
+	// Start with the original value
+	result := value
+
+	// Common French to English translations for character appearance
+	translations := map[string]string{
+		// Build / Corpulence
+		"mince":      "slender",
+		"maigre":     "thin",
+		"svelte":     "slender",
+		"musclé":     "muscular",
+		"musculeux":  "muscular",
+		"trapu":      "stocky",
+		"robuste":    "stocky",
+		"moyen":      "average",
+		"moyenne":    "average",
+		"enrobé":     "heavy",
+		"corpulent":  "heavy",
+
+		// Height / Taille (specific forms to avoid partial matches)
+		"très grand":  "very tall",
+		"très grande": "very tall",
+		"très petit":  "very short",
+		"très petite": "very short",
+		"grande":      "tall",
+		"petite":      "short",
+
+		// Hair color / Couleur cheveux
+		"noir":       "black",
+		"noire":      "black",
+		"noirs":      "black",
+		"brun":       "brown",
+		"brune":      "brown",
+		"bruns":      "brown",
+		"châtain":    "brown",
+		"blond":      "blond",
+		"blonde":     "blond",
+		"argenté":    "silver",
+		"argentée":   "silver",
+		"roux":       "red",
+		"rousse":     "red",
+		"gris":       "gray",
+		"grise":      "gray",
+		"blanc":      "white",
+		"blanche":    "white",
+
+		// Hair style / Style cheveux (multi-word first)
+		"longs et ondulés":   "long and wavy",
+		"longs et bouclés":   "long and curly",
+		"courts et bouclés":  "short and curly",
+		"rasés":              "shaved",
+		"rasée":              "shaved",
+		"chauve":             "bald",
+		"courts":             "short",
+		"longs":              "long",
+		"ondulés":            "wavy",
+		"bouclé":             "curly",
+		"bouclés":            "curly",
+		"frisé":              "curly",
+		"ondulé":             "wavy",
+		"tressé":             "braided",
+		"attaché":            "tied back",
+		"hirsute":            "unkempt",
+		"presque":            "nearly",
+		" et ":               " and ",
+
+		// Eye color / Couleur yeux (multi-word phrases first to handle French word order)
+		"bleu clair":     "light blue",
+		"bleu foncé":     "dark blue",
+		"vert clair":     "light green",
+		"vert foncé":     "dark green",
+		"marron clair":   "light brown",
+		"marron foncé":   "dark brown",
+		"brun clair":     "light brown",
+		"brun foncé":     "dark brown",
+		"gris clair":     "light gray",
+		"gris foncé":     "dark gray",
+		"marron":         "brown",
+		"marrons":        "brown",
+		"bleu":           "blue",
+		"bleue":          "blue",
+		"bleus":          "blue",
+		"vert":           "green",
+		"verte":          "green",
+		"verts":          "green",
+		"noisette":       "hazel",
+
+		// Skin tone / Teint
+		"pâle":       "pale",
+		"bronzé":     "tanned",
+		"bronzée":    "tanned",
+		"basané":     "olive",
+		"basanée":    "olive",
+		"sombre":     "dark",
+		"légèrement": "lightly",
+
+		// Facial features / Traits faciaux
+		"barbu":      "bearded",
+		"imberbe":    "clean-shaven",
+		"rasé":       "clean-shaven",
+		"moustache":  "mustached",
+		"cicatrice":  "scarred",
+		"cicatrisé":  "scarred",
+		"ridé":       "wrinkled",
+
+		// Distinctive features / Traits distinctifs
+		"oreilles pointues":  "pointed ears",
+		"cicatrice à l'œil":  "eye scar",
+		"tatouage":           "tattoo",
+		"tatoué":             "tattooed",
+		"borgne":             "one-eyed",
+		"cache-œil":          "eye patch",
+		"balafre":            "scar",
+		"balafrée":           "scarred",
+		"percé":              "pierced",
+		"percée":             "pierced",
+
+		// Armor / Armure
+		"armure de plates":   "plate armor",
+		"cotte de mailles":   "chainmail",
+		"armure de cuir":     "leather armor",
+		"cuir clouté":        "studded leather",
+		"armure légère":      "light armor",
+		"armure lourde":      "heavy armor",
+		"robe":               "robe",
+
+		// Weapons / Armes
+		"épée longue":        "longsword",
+		"épée courte":        "shortsword",
+		"épée à deux mains":  "greatsword",
+		"dague":              "dagger",
+		"hache":              "axe",
+		"masse":              "mace",
+		"bâton":              "staff",
+		"arc":                "bow",
+		"arbalète":           "crossbow",
+		"lance":              "spear",
+
+		// Accessories / Accessoires
+		"bouclier":           "shield",
+		"symbole sacré":      "holy symbol",
+		"livre de sorts":     "spell book",
+		"grimoire":           "spell book",
+		"sacoche":            "pouch",
+		"besace":             "satchel",
+		"cape":               "cloak",
+		"capuche":            "hood",
+	}
+
+	// Sort translations by length (longest first) to handle multi-word phrases before single words
+	type translation struct {
+		fr string
+		en string
+	}
+	var sortedTranslations []translation
+	for fr, en := range translations {
+		sortedTranslations = append(sortedTranslations, translation{fr, en})
+	}
+	// Sort by length descending
+	for i := 0; i < len(sortedTranslations); i++ {
+		for j := i + 1; j < len(sortedTranslations); j++ {
+			if len(sortedTranslations[j].fr) > len(sortedTranslations[i].fr) {
+				sortedTranslations[i], sortedTranslations[j] = sortedTranslations[j], sortedTranslations[i]
+			}
+		}
+	}
+
+	// Apply translations in order (longest phrases first)
+	for _, t := range sortedTranslations {
+		result = strings.ReplaceAll(result, t.fr, t.en)
+	}
+
+	return result
+}
+
+func handleAppearance(args []string) {
+	if len(args) < 1 {
+		fmt.Fprintln(os.Stderr, "Error: character name required")
+		fmt.Fprintln(os.Stderr, "Usage: character appearance \"Name\" [--field=value ...]")
+		os.Exit(1)
+	}
+
+	name := args[0]
+	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
+	path := filepath.Join(defaultCharacterDir, filename)
+
+	// Load character
+	c, err := character.Load(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading character: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Initialize appearance if needed
+	if c.Appearance == nil {
+		c.Appearance = &character.CharacterAppearance{}
+	}
+
+	// Parse and apply appearance fields
+	updated := false
+	for _, arg := range args[1:] {
+		if !strings.HasPrefix(arg, "--") {
+			continue
+		}
+
+		parts := strings.SplitN(strings.TrimPrefix(arg, "--"), "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		field, value := parts[0], parts[1]
+		updated = true
+
+		// Translate French to English for all appearance fields
+		translatedValue := translateToEnglish(value)
+
+		switch field {
+		case "age":
+			fmt.Sscanf(value, "%d", &c.Appearance.Age)
+		case "build":
+			c.Appearance.Build = translatedValue
+		case "height":
+			c.Appearance.Height = translatedValue
+		case "hair-color":
+			c.Appearance.HairColor = translatedValue
+		case "hair-style":
+			c.Appearance.HairStyle = translatedValue
+		case "eye-color":
+			c.Appearance.EyeColor = translatedValue
+		case "skin-tone":
+			c.Appearance.SkinTone = translatedValue
+		case "facial-feature":
+			c.Appearance.FacialFeature = translatedValue
+		case "distinctive":
+			c.Appearance.DistinctiveFeature = translatedValue
+		case "armor":
+			c.Appearance.ArmorDescription = translatedValue
+		case "weapon":
+			c.Appearance.WeaponDescription = translatedValue
+		case "accessories":
+			c.Appearance.Accessories = translatedValue
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown field: %s\n", field)
+		}
+	}
+
+	if !updated {
+		// No fields specified, just display current appearance
+		fmt.Printf("## Apparence de %s\n\n", c.Name)
+		if c.Appearance == nil || (c.Appearance.Age == 0 && c.Appearance.Build == "" && c.Appearance.Height == "") {
+			fmt.Println("Aucune apparence définie.")
+		} else {
+			fmt.Println(c.GetVisualDescription())
+			fmt.Println()
+			if c.Appearance.ReferenceImage != "" {
+				fmt.Printf("Image de référence : %s\n", c.Appearance.ReferenceImage)
+			}
+		}
+		return
+	}
+
+	// Save character
+	if err := c.Save(defaultCharacterDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✓ Apparence mise à jour pour %s\n\n", c.Name)
+	fmt.Println(c.GetVisualDescription())
+	fmt.Println()
+	fmt.Printf("Pour la génération d'images : %s\n", c.GetImagePromptSnippet())
+}
+
+func handleSetReference(args []string) {
+	if len(args) < 2 {
+		fmt.Fprintln(os.Stderr, "Error: character name and image path required")
+		fmt.Fprintln(os.Stderr, "Usage: character set-reference \"Name\" <image-path>")
+		os.Exit(1)
+	}
+
+	name := args[0]
+	imagePath := args[1]
+
+	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
+	charPath := filepath.Join(defaultCharacterDir, filename)
+
+	// Verify image exists
+	if _, err := os.Stat(imagePath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: image not found: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Load character
+	c, err := character.Load(charPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading character: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Initialize appearance if needed
+	if c.Appearance == nil {
+		c.Appearance = &character.CharacterAppearance{}
+	}
+
+	// Copy image to characters directory
+	charSlug := strings.ToLower(strings.ReplaceAll(name, " ", "_"))
+	destFilename := charSlug + "_reference" + filepath.Ext(imagePath)
+	destPath := filepath.Join(defaultCharacterDir, destFilename)
+
+	input, err := os.ReadFile(imagePath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading image: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := os.WriteFile(destPath, input, 0644); err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving reference image: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Update character with reference image filename (relative path)
+	c.Appearance.ReferenceImage = destFilename
+
+	// Save character
+	if err := c.Save(defaultCharacterDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✓ Image de référence définie pour %s\n", c.Name)
+	fmt.Printf("  Source : %s\n", imagePath)
+	fmt.Printf("  Copié vers : %s\n", destPath)
+	fmt.Println()
+	fmt.Println("Cette image sera utilisée avec FLUX PuLID pour la cohérence des personnages.")
+}
+
 func getFlag(args []string, flag, defaultValue string) string {
 	prefix := flag + "="
 	for _, arg := range args {
@@ -331,12 +672,14 @@ USAGE:
     sw-character <command> [arguments]
 
 COMMANDES:
-    create "Nom" [options]    Crée un nouveau personnage
-    list                      Liste tous les personnages
-    show "Nom"                Affiche la fiche d'un personnage
-    delete "Nom"              Supprime un personnage
-    export "Nom" [--format]   Exporte un personnage
-    help                      Affiche cette aide
+    create "Nom" [options]       Crée un nouveau personnage
+    list                         Liste tous les personnages
+    show "Nom"                   Affiche la fiche d'un personnage
+    delete "Nom"                 Supprime un personnage
+    export "Nom" [--format]      Exporte un personnage
+    appearance "Nom" [options]   Définit/affiche l'apparence du personnage
+    set-reference "Nom" <image>  Définit l'image de référence pour PuLID
+    help                         Affiche cette aide
 
 OPTIONS POUR CREATE:
     --race=<race>       Race du personnage (human, elf, dwarf, halfling)
@@ -346,6 +689,20 @@ OPTIONS POUR CREATE:
 
 OPTIONS POUR EXPORT:
     --format=<format>   Format d'export (json, md)
+
+OPTIONS POUR APPEARANCE:
+    --age=<n>               Âge du personnage
+    --build=<value>         Corpulence (slender, stocky, muscular, average)
+    --height=<value>        Taille (tall, average, short)
+    --hair-color=<value>    Couleur des cheveux
+    --hair-style=<value>    Style de coiffure
+    --eye-color=<value>     Couleur des yeux
+    --skin-tone=<value>     Teint de peau
+    --facial-feature=<val>  Trait facial (bearded, clean-shaven, scarred)
+    --distinctive=<value>   Trait distinctif (battle scar, tattoo, eye patch)
+    --armor=<value>         Description de l'armure (plate armor, leather vest)
+    --weapon=<value>        Description de l'arme (longsword, staff with crystal)
+    --accessories=<value>   Accessoires (shield, holy symbol, spell book)
 
 RACES DISPONIBLES:
     human     - Humain (toutes classes, niveau illimité)
@@ -366,6 +723,8 @@ EXEMPLES:
     sw-character list
     sw-character show "Aldric"
     sw-character export "Aldric" --format=json
+    sw-character appearance "Aldric" --age=34 --build=muscular --armor="plate armor"
+    sw-character set-reference "Aldric" path/to/portrait.png
 
 NOTES SUR LES PV:
     Par défaut, les PV au niveau 1 sont lancés aléatoirement (règle BFRPG standard).

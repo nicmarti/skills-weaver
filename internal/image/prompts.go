@@ -474,7 +474,80 @@ func BuildJournalEntryPromptWithCharacters(
 	return baseResult
 }
 
-// buildCharacterReferences creates short character list for prompt.
+// buildDetailedCharacterReference creates a rich description for a character in journal context
+func buildDetailedCharacterReference(char *character.Character) string {
+	if char.Appearance == nil {
+		// Fallback to short snippet if no appearance data
+		return char.GetImagePromptSnippet()
+	}
+
+	a := char.Appearance
+	var parts []string
+
+	// Age and class
+	if a.Age > 0 {
+		parts = append(parts, fmt.Sprintf("%d-year-old %s %s", a.Age, char.Race, char.Class))
+	} else {
+		parts = append(parts, fmt.Sprintf("%s %s", char.Race, char.Class))
+	}
+
+	// Physical traits
+	if a.Height != "" || a.Build != "" {
+		traits := []string{}
+		if a.Height != "" {
+			traits = append(traits, a.Height)
+		}
+		if a.Build != "" {
+			traits = append(traits, a.Build)
+		}
+		parts = append(parts, strings.Join(traits, " and "))
+	}
+
+	// Hair and eyes
+	if a.HairColor != "" || a.EyeColor != "" {
+		features := []string{}
+		if a.HairColor != "" && a.HairStyle != "" {
+			features = append(features, fmt.Sprintf("%s %s", a.HairColor, a.HairStyle))
+		} else if a.HairColor != "" {
+			features = append(features, a.HairColor)
+		}
+		if a.EyeColor != "" {
+			features = append(features, fmt.Sprintf("%s eyes", a.EyeColor))
+		}
+		if len(features) > 0 {
+			parts = append(parts, strings.Join(features, " and "))
+		}
+	}
+
+	// Skin tone
+	if a.SkinTone != "" {
+		parts = append(parts, a.SkinTone)
+	}
+
+	// Distinctive features
+	if a.DistinctiveFeature != "" {
+		parts = append(parts, fmt.Sprintf("with %s", a.DistinctiveFeature))
+	}
+
+	// Equipment
+	equipment := []string{}
+	if a.ArmorDescription != "" {
+		equipment = append(equipment, a.ArmorDescription)
+	}
+	if a.WeaponDescription != "" {
+		equipment = append(equipment, a.WeaponDescription)
+	}
+	if a.Accessories != "" {
+		equipment = append(equipment, a.Accessories)
+	}
+	if len(equipment) > 0 {
+		parts = append(parts, fmt.Sprintf("carrying %s", strings.Join(equipment, " and ")))
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// buildCharacterReferences creates detailed character list for journal prompts.
 func buildCharacterReferences(characters []*character.Character) string {
 	if len(characters) == 0 {
 		return ""
@@ -482,10 +555,10 @@ func buildCharacterReferences(characters []*character.Character) string {
 
 	refs := make([]string, 0, len(characters))
 	for _, c := range characters {
-		refs = append(refs, c.GetImagePromptSnippet())
+		refs = append(refs, buildDetailedCharacterReference(c))
 	}
 
-	return strings.Join(refs, ", ")
+	return strings.Join(refs, "; ")
 }
 
 // injectCharacterContext adds character references to the prompt.
@@ -650,11 +723,11 @@ func buildNotePrompt(entry adventure.JournalEntry) string {
 func buildExpensePrompt(entry adventure.JournalEntry) string {
 	baseText := getEntryDescription(entry)
 	parts := []string{
-		"Medieval fantasy marketplace, trading scene",
+		"Fantasy scene, narrative moment",
 		baseText,
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
-		"merchants, coins, equipment, tavern or shop interior",
+		"storytelling, merchants, coins, equipment, tavern or shop interior",
 	}
 	return strings.Join(parts, ", ")
 }

@@ -838,17 +838,9 @@ func cmdJournal(args []string) error {
 		return nil
 	}
 
-	// Create output directory for adventure images
+	// Note: Images will be saved in session-specific directories
+	// images/session-N/ for each entry based on its SessionID
 	advImagesDir := filepath.Join(advPath, "images")
-	if err := os.MkdirAll(advImagesDir, 0755); err != nil {
-		return fmt.Errorf("création du répertoire images: %w", err)
-	}
-
-	// Create generator with adventure-specific output directory
-	gen, err := image.NewGenerator(advImagesDir)
-	if err != nil {
-		return err
-	}
 
 	// Determine parallelism level
 	parallelism := 4
@@ -898,26 +890,41 @@ func cmdJournal(args []string) error {
 		go func(workerID int, m image.Model) {
 			defer wg.Done()
 			for job := range jobsChan {
+				// Determine session directory for this entry
+				sessionDir := filepath.Join(advImagesDir, fmt.Sprintf("session-%d", job.entry.SessionID))
+
+				// Create session directory if needed
+				if err := os.MkdirAll(sessionDir, 0755); err != nil {
+					resultsChan <- result{entryID: job.prompt.EntryID, err: fmt.Errorf("création répertoire session: %w", err)}
+					continue
+				}
+
+				// Create generator for this session directory
+				gen, err := image.NewGenerator(sessionDir)
+				if err != nil {
+					resultsChan <- result{entryID: job.prompt.EntryID, err: fmt.Errorf("création générateur: %w", err)}
+					continue
+				}
+
 				// Build filename prefix: journal_XXX_type (e.g., journal_008_combat)
 				// Model name is appended automatically by the generator
 				filenamePrefix := fmt.Sprintf("journal_%03d_%s", job.prompt.EntryID, job.entry.Type)
 
 				var img *image.GeneratedImage
-				var err error
 
-			// Generate image with standard model (nano-banana by default)
-			imgOpts := []image.Option{
-				image.WithImageSize(job.prompt.ImageSize),
-				image.WithFilenamePrefix(filenamePrefix),
-				image.WithModel(m.Short),
-			}
+				// Generate image with standard model (nano-banana by default)
+				imgOpts := []image.Option{
+					image.WithImageSize(job.prompt.ImageSize),
+					image.WithFilenamePrefix(filenamePrefix),
+					image.WithModel(m.Short),
+				}
 
-			// Set deterministic seed for seedream model
-			if m.Short == "seedream" {
-				imgOpts = append(imgOpts, image.WithSeed(1024))
-			}
+				// Set deterministic seed for seedream model
+				if m.Short == "seedream" {
+					imgOpts = append(imgOpts, image.WithSeed(1024))
+				}
 
-			img, err = gen.Generate(job.prompt.Prompt, imgOpts...)
+				img, err = gen.Generate(job.prompt.Prompt, imgOpts...)
 
 				if err != nil {
 					resultsChan <- result{entryID: job.prompt.EntryID, err: err}
@@ -950,7 +957,8 @@ func cmdJournal(args []string) error {
 	fmt.Printf("\n## Résumé\n")
 	fmt.Printf("  Images générées : %d\n", successCount)
 	fmt.Printf("  Erreurs : %d\n", errorCount)
-	fmt.Printf("  Répertoire : %s\n", advImagesDir)
+	fmt.Printf("  Répertoire de base : %s\n", advImagesDir)
+	fmt.Printf("  Images organisées par session : images/session-N/\n")
 
 	return nil
 }

@@ -55,16 +55,19 @@ func (a *Adventure) GetEntriesToEnrich(opts EnrichOptions) ([]JournalEntry, erro
 
 // UpdateEntryDescriptions updates description fields for a single entry.
 func (a *Adventure) UpdateEntryDescriptions(entryID int, description, descriptionFr string) error {
+	// Load all journals to find the entry
 	journal, err := a.LoadJournal()
 	if err != nil {
 		return err
 	}
 
+	// Find the entry and update it
 	for i := range journal.Entries {
 		if journal.Entries[i].ID == entryID {
 			journal.Entries[i].Description = description
 			journal.Entries[i].DescriptionFr = descriptionFr
-			return a.SaveJournal(journal)
+			// Save to correct session file
+			return a.SaveJournalEntry(journal.Entries[i])
 		}
 	}
 

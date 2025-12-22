@@ -559,3 +559,161 @@ func TestSessionEntryTimestamp(t *testing.T) {
 		t.Errorf("Entry timestamp not within expected range")
 	}
 }
+
+// Tests for Phase 1: Metadata and Session Journal I/O
+
+func TestLoadJournalMetadata_NonExistent(t *testing.T) {
+	baseDir := t.TempDir()
+	adv := New("Test Adventure", "Test")
+	adv.SetBasePath(baseDir)
+
+	meta, err := adv.loadJournalMetadata()
+	if err != nil {
+		t.Fatalf("loadJournalMetadata() error = %v, want nil", err)
+	}
+	if meta.NextID != 1 {
+		t.Errorf("NextID = %d, want 1", meta.NextID)
+	}
+	if len(meta.Categories) == 0 {
+		t.Errorf("Categories is empty, want default categories")
+	}
+	if meta.LastUpdate.IsZero() {
+		t.Errorf("LastUpdate is zero, want current time")
+	}
+}
+
+func TestSaveAndLoadJournalMetadata(t *testing.T) {
+	baseDir := t.TempDir()
+	adv := New("Test Adventure", "Test")
+	adv.SetBasePath(baseDir)
+
+	// Save metadata
+	meta := &JournalMetadata{
+		NextID:     42,
+		Categories: []string{"custom", "types"},
+		LastUpdate: time.Now(),
+	}
+	err := adv.saveJournalMetadata(meta)
+	if err != nil {
+		t.Fatalf("saveJournalMetadata() error = %v", err)
+	}
+
+	// Load metadata
+	loaded, err := adv.loadJournalMetadata()
+	if err != nil {
+		t.Fatalf("loadJournalMetadata() error = %v", err)
+	}
+	if loaded.NextID != 42 {
+		t.Errorf("NextID = %d, want 42", loaded.NextID)
+	}
+	if len(loaded.Categories) != 2 {
+		t.Errorf("Categories count = %d, want 2", len(loaded.Categories))
+	}
+}
+
+func TestLoadSessionJournal_NonExistent(t *testing.T) {
+	baseDir := t.TempDir()
+	adv := New("Test Adventure", "Test")
+	adv.SetBasePath(baseDir)
+
+	sj, err := adv.loadSessionJournal(1)
+	if err != nil {
+		t.Fatalf("loadSessionJournal() error = %v, want nil", err)
+	}
+	if sj.SessionID != 1 {
+		t.Errorf("SessionID = %d, want 1", sj.SessionID)
+	}
+	if len(sj.Entries) != 0 {
+		t.Errorf("Entries count = %d, want 0", len(sj.Entries))
+	}
+}
+
+func TestSaveAndLoadSessionJournal(t *testing.T) {
+	baseDir := t.TempDir()
+	adv := New("Test Adventure", "Test")
+	adv.SetBasePath(baseDir)
+
+	// Create session journal with entries
+	sj := &SessionJournal{
+		SessionID: 2,
+		Entries: []JournalEntry{
+			{
+				ID:        10,
+				Timestamp: time.Now(),
+				SessionID: 2,
+				Type:      "combat",
+				Content:   "Battle with orcs",
+			},
+			{
+				ID:        11,
+				Timestamp: time.Now(),
+				SessionID: 2,
+				Type:      "loot",
+				Content:   "Found treasure chest",
+			},
+		},
+	}
+
+	// Save session journal
+	err := adv.saveSessionJournal(sj)
+	if err != nil {
+		t.Fatalf("saveSessionJournal() error = %v", err)
+	}
+
+	// Load session journal
+	loaded, err := adv.loadSessionJournal(2)
+	if err != nil {
+		t.Fatalf("loadSessionJournal() error = %v", err)
+	}
+	if loaded.SessionID != 2 {
+		t.Errorf("SessionID = %d, want 2", loaded.SessionID)
+	}
+	if len(loaded.Entries) != 2 {
+		t.Errorf("Entries count = %d, want 2", len(loaded.Entries))
+	}
+	if loaded.Entries[0].Content != "Battle with orcs" {
+		t.Errorf("First entry content mismatch")
+	}
+}
+
+func TestLoadSessionJournal_MultipleSessionsIndependent(t *testing.T) {
+	baseDir := t.TempDir()
+	adv := New("Test Adventure", "Test")
+	adv.SetBasePath(baseDir)
+
+	// Create and save session 1
+	sj1 := &SessionJournal{
+		SessionID: 1,
+		Entries: []JournalEntry{
+			{ID: 1, SessionID: 1, Type: "combat", Content: "Session 1 combat"},
+		},
+	}
+	adv.saveSessionJournal(sj1)
+
+	// Create and save session 2
+	sj2 := &SessionJournal{
+		SessionID: 2,
+		Entries: []JournalEntry{
+			{ID: 2, SessionID: 2, Type: "loot", Content: "Session 2 loot"},
+		},
+	}
+	adv.saveSessionJournal(sj2)
+
+	// Load session 1 and verify it only has session 1 entries
+	loaded1, _ := adv.loadSessionJournal(1)
+	if len(loaded1.Entries) != 1 {
+		t.Errorf("Session 1 entries count = %d, want 1", len(loaded1.Entries))
+	}
+	if loaded1.Entries[0].Content != "Session 1 combat" {
+		t.Errorf("Session 1 content mismatch")
+	}
+
+	// Load session 2 and verify it only has session 2 entries
+	loaded2, _ := adv.loadSessionJournal(2)
+	if len(loaded2.Entries) != 1 {
+		t.Errorf("Session 2 entries count = %d, want 1", len(loaded2.Entries))
+	}
+	if loaded2.Entries[0].Content != "Session 2 loot" {
+		t.Errorf("Session 2 content mismatch")
+	}
+}

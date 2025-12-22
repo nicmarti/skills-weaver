@@ -30,6 +30,19 @@ type Journal struct {
 	Categories []string       `json:"categories"` // Available entry types
 }
 
+// JournalMetadata tracks global journal state across all sessions.
+type JournalMetadata struct {
+	NextID     int       `json:"next_id"`      // Global ID counter
+	Categories []string  `json:"categories"`   // Available entry types
+	LastUpdate time.Time `json:"last_update"` // Last modification time
+}
+
+// SessionJournal holds entries for a specific session.
+type SessionJournal struct {
+	SessionID int            `json:"session_id"` // 0 for out-of-session
+	Entries   []JournalEntry `json:"entries"`
+}
+
 // Default journal categories
 var defaultCategories = []string{
 	"combat",     // Combat encounters
@@ -49,8 +62,68 @@ var defaultCategories = []string{
 	"use",        // Item usage
 }
 
-// LoadJournal loads the adventure journal.
+// LoadJournal loads the adventure journal by aggregating all session journals.
 func (a *Adventure) LoadJournal() (*Journal, error) {
+	// Try new format first (session-based journals)
+	meta, err := a.loadJournalMetadata()
+	if err != nil {
+		return nil, err
+	}
+
+	// Find all journal-session-*.json files
+	pattern := filepath.Join(a.basePath, "journal-session-*.json")
+	sessionFiles, err := filepath.Glob(pattern)
+	if err != nil {
+		return nil, fmt.Errorf("finding session journals: %w", err)
+	}
+
+	// If no session files exist, check for legacy journal.json
+	if len(sessionFiles) == 0 {
+		legacyPath := filepath.Join(a.basePath, "journal.json")
+		if _, err := os.Stat(legacyPath); err == nil {
+			// Legacy journal.json exists, load it
+			return a.loadLegacyJournal()
+		}
+		// No journals at all, return empty
+		return &Journal{
+			Entries:    []JournalEntry{},
+			NextID:     meta.NextID,
+			Categories: meta.Categories,
+		}, nil
+	}
+
+	// Load and aggregate entries from all session journals
+	var allEntries []JournalEntry
+	for _, file := range sessionFiles {
+		// Extract session ID from filename
+		var sessionID int
+		_, err := fmt.Sscanf(filepath.Base(file), "journal-session-%d.json", &sessionID)
+		if err != nil {
+			continue // Skip malformed filenames
+		}
+
+		sessionJournal, err := a.loadSessionJournal(sessionID)
+		if err != nil {
+			return nil, fmt.Errorf("loading session %d: %w", sessionID, err)
+		}
+		allEntries = append(allEntries, sessionJournal.Entries...)
+	}
+
+	// Sort by timestamp (oldest first)
+	sort.Slice(allEntries, func(i, j int) bool {
+		return allEntries[i].Timestamp.Before(allEntries[j].Timestamp)
+	})
+
+	return &Journal{
+		Entries:    allEntries,
+		NextID:     meta.NextID,
+		Categories: meta.Categories,
+	}, nil
+}
+
+// loadLegacyJournal loads the old monolithic journal.json format.
+// This provides backward compatibility during migration.
+func (a *Adventure) loadLegacyJournal() (*Journal, error) {
 	path := filepath.Join(a.basePath, "journal.json")
 
 	data, err := os.ReadFile(path)
@@ -79,9 +152,105 @@ func (a *Adventure) SaveJournal(journal *Journal) error {
 	return a.saveJSON(path, journal)
 }
 
+// loadJournalMetadata loads the journal metadata file.
+func (a *Adventure) loadJournalMetadata() (*JournalMetadata, error) {
+	path := filepath.Join(a.basePath, "journal-meta.json")
+
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		// Initialize default metadata
+		return &JournalMetadata{
+			NextID:     1,
+			Categories: defaultCategories,
+			LastUpdate: time.Now(),
+		}, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("reading journal-meta.json: %w", err)
+	}
+
+	var meta JournalMetadata
+	if err := json.Unmarshal(data, &meta); err != nil {
+		return nil, fmt.Errorf("parsing journal-meta.json: %w", err)
+	}
+
+	return &meta, nil
+}
+
+// SaveJournalMetadata saves the journal metadata file.
+func (a *Adventure) SaveJournalMetadata(meta *JournalMetadata) error {
+	meta.LastUpdate = time.Now()
+	path := filepath.Join(a.basePath, "journal-meta.json")
+	return a.saveJSON(path, meta)
+}
+
+// loadSessionJournal loads the journal for a specific session.
+func (a *Adventure) loadSessionJournal(sessionID int) (*SessionJournal, error) {
+	path := filepath.Join(a.basePath, fmt.Sprintf("journal-session-%d.json", sessionID))
+
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		// Create new session journal
+		return &SessionJournal{
+			SessionID: sessionID,
+			Entries:   []JournalEntry{},
+		}, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("reading journal-session-%d.json: %w", sessionID, err)
+	}
+
+	var sj SessionJournal
+	if err := json.Unmarshal(data, &sj); err != nil {
+		return nil, fmt.Errorf("parsing journal-session-%d.json: %w", sessionID, err)
+	}
+
+	return &sj, nil
+}
+
+// SaveSessionJournal saves the journal for a specific session.
+func (a *Adventure) SaveSessionJournal(sj *SessionJournal) error {
+	path := filepath.Join(a.basePath, fmt.Sprintf("journal-session-%d.json", sj.SessionID))
+	return a.saveJSON(path, sj)
+}
+
+// SaveJournalEntry saves a single journal entry to the appropriate session file.
+func (a *Adventure) SaveJournalEntry(entry JournalEntry) error {
+	// Load session journal for this entry's session
+	sessionJournal, err := a.loadSessionJournal(entry.SessionID)
+	if err != nil {
+		return fmt.Errorf("loading session journal: %w", err)
+	}
+
+	// Check if entry already exists (update) or needs to be added (insert)
+	found := false
+	for i := range sessionJournal.Entries {
+		if sessionJournal.Entries[i].ID == entry.ID {
+			// Update existing entry
+			sessionJournal.Entries[i] = entry
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		// Add new entry
+		sessionJournal.Entries = append(sessionJournal.Entries, entry)
+	}
+
+	// Sort entries by timestamp
+	sort.Slice(sessionJournal.Entries, func(i, j int) bool {
+		return sessionJournal.Entries[i].Timestamp.Before(sessionJournal.Entries[j].Timestamp)
+	})
+
+	// Save session journal
+	return a.SaveSessionJournal(sessionJournal)
+}
+
 // LogEvent adds an entry to the journal.
 func (a *Adventure) LogEvent(entryType, content string) error {
-	journal, err := a.LoadJournal()
+	// Load metadata for NextID
+	meta, err := a.loadJournalMetadata()
 	if err != nil {
 		return err
 	}
@@ -92,23 +261,29 @@ func (a *Adventure) LogEvent(entryType, content string) error {
 		sessionID = session.ID
 	}
 
+	// Create entry
 	entry := JournalEntry{
-		ID:        journal.NextID,
+		ID:        meta.NextID,
 		Timestamp: time.Now(),
 		SessionID: sessionID,
 		Type:      entryType,
 		Content:   content,
 	}
 
-	journal.Entries = append(journal.Entries, entry)
-	journal.NextID++
+	// Increment NextID and save metadata
+	meta.NextID++
+	if err := a.SaveJournalMetadata(meta); err != nil {
+		return fmt.Errorf("saving metadata: %w", err)
+	}
 
-	return a.SaveJournal(journal)
+	// Save entry to session-specific file
+	return a.SaveJournalEntry(entry)
 }
 
 // LogEventWithDescriptions adds an entry with bilingual descriptions to the journal.
 func (a *Adventure) LogEventWithDescriptions(eventType, content, description, descriptionFr string) error {
-	journal, err := a.LoadJournal()
+	// Load metadata for NextID
+	meta, err := a.loadJournalMetadata()
 	if err != nil {
 		return err
 	}
@@ -119,8 +294,9 @@ func (a *Adventure) LogEventWithDescriptions(eventType, content, description, de
 		sessionID = session.ID
 	}
 
+	// Create entry
 	entry := JournalEntry{
-		ID:            journal.NextID,
+		ID:            meta.NextID,
 		Timestamp:     time.Now(),
 		SessionID:     sessionID,
 		Type:          eventType,
@@ -129,26 +305,33 @@ func (a *Adventure) LogEventWithDescriptions(eventType, content, description, de
 		DescriptionFr: descriptionFr,
 	}
 
-	journal.Entries = append(journal.Entries, entry)
-	journal.NextID++
+	// Increment NextID and save metadata
+	meta.NextID++
+	if err := a.SaveJournalMetadata(meta); err != nil {
+		return fmt.Errorf("saving metadata: %w", err)
+	}
 
-	return a.SaveJournal(journal)
+	// Save entry to session-specific file
+	return a.SaveJournalEntry(entry)
 }
 
 // LogImportantEvent adds an important entry to the journal.
 func (a *Adventure) LogImportantEvent(entryType, content string, tags []string) error {
-	journal, err := a.LoadJournal()
+	// Load metadata for NextID
+	meta, err := a.loadJournalMetadata()
 	if err != nil {
 		return err
 	}
 
+	// Get current session ID if any
 	sessionID := 0
 	if session, _ := a.GetCurrentSession(); session != nil {
 		sessionID = session.ID
 	}
 
+	// Create entry
 	entry := JournalEntry{
-		ID:        journal.NextID,
+		ID:        meta.NextID,
 		Timestamp: time.Now(),
 		SessionID: sessionID,
 		Type:      entryType,
@@ -157,10 +340,14 @@ func (a *Adventure) LogImportantEvent(entryType, content string, tags []string) 
 		Important: true,
 	}
 
-	journal.Entries = append(journal.Entries, entry)
-	journal.NextID++
+	// Increment NextID and save metadata
+	meta.NextID++
+	if err := a.SaveJournalMetadata(meta); err != nil {
+		return fmt.Errorf("saving metadata: %w", err)
+	}
 
-	return a.SaveJournal(journal)
+	// Save entry to session-specific file
+	return a.SaveJournalEntry(entry)
 }
 
 // GetJournalEntries returns all journal entries.
@@ -196,20 +383,16 @@ func (a *Adventure) GetEntriesByType(entryType string) ([]JournalEntry, error) {
 }
 
 // GetEntriesBySession returns entries for a specific session.
+// Optimized to load only the specific session journal file.
 func (a *Adventure) GetEntriesBySession(sessionID int) ([]JournalEntry, error) {
-	entries, err := a.GetJournalEntries()
+	// Load only the specific session journal
+	sessionJournal, err := a.loadSessionJournal(sessionID)
 	if err != nil {
 		return nil, err
 	}
 
-	var filtered []JournalEntry
-	for _, e := range entries {
-		if e.SessionID == sessionID {
-			filtered = append(filtered, e)
-		}
-	}
-
-	return filtered, nil
+	// Entries are already sorted by timestamp when saved
+	return sessionJournal.Entries, nil
 }
 
 // GetImportantEntries returns only important entries.
@@ -271,7 +454,7 @@ func (a *Adventure) MarkEntryImportant(entryID int, important bool) error {
 	for i := range journal.Entries {
 		if journal.Entries[i].ID == entryID {
 			journal.Entries[i].Important = important
-			return a.SaveJournal(journal)
+			return a.SaveJournalEntry(journal.Entries[i])
 		}
 	}
 
@@ -294,7 +477,7 @@ func (a *Adventure) AddTagToEntry(entryID int, tag string) error {
 				}
 			}
 			journal.Entries[i].Tags = append(journal.Entries[i].Tags, tag)
-			return a.SaveJournal(journal)
+			return a.SaveJournalEntry(journal.Entries[i])
 		}
 	}
 
@@ -303,19 +486,43 @@ func (a *Adventure) AddTagToEntry(entryID int, tag string) error {
 
 // DeleteEntry removes an entry from the journal.
 func (a *Adventure) DeleteEntry(entryID int) error {
+	// Load all journals to find the entry and determine its session
 	journal, err := a.LoadJournal()
 	if err != nil {
 		return err
 	}
 
+	// Find the entry and determine which session it belongs to
+	var sessionID int
+	var found bool
 	for i := range journal.Entries {
 		if journal.Entries[i].ID == entryID {
-			journal.Entries = append(journal.Entries[:i], journal.Entries[i+1:]...)
-			return a.SaveJournal(journal)
+			sessionID = journal.Entries[i].SessionID
+			found = true
+			break
 		}
 	}
 
-	return fmt.Errorf("entry %d not found", entryID)
+	if !found {
+		return fmt.Errorf("entry %d not found", entryID)
+	}
+
+	// Load the session journal
+	sessionJournal, err := a.loadSessionJournal(sessionID)
+	if err != nil {
+		return err
+	}
+
+	// Remove the entry from the session
+	for i := range sessionJournal.Entries {
+		if sessionJournal.Entries[i].ID == entryID {
+			sessionJournal.Entries = append(sessionJournal.Entries[:i], sessionJournal.Entries[i+1:]...)
+			break
+		}
+	}
+
+	// Save the session journal
+	return a.SaveSessionJournal(sessionJournal)
 }
 
 // JournalToMarkdown generates a markdown summary of the journal.

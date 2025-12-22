@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/ai"
@@ -65,6 +67,10 @@ func main() {
 		err = cmdEnrich(args)
 	case "status":
 		err = cmdStatus(args)
+	case "migrate-journal":
+		err = cmdMigrateJournal(args)
+	case "validate-journal":
+		err = cmdValidateJournal(args)
 	case "help":
 		printUsage()
 	default:
@@ -124,6 +130,10 @@ COMMANDES JOURNAL:
 
 TYPES DE JOURNAL:
   combat, loot, story, note, quest, npc, location, rest
+
+COMMANDES MAINTENANCE:
+  migrate-journal <aventure>    Diviser journal.json en fichiers par session
+  validate-journal <aventure>   Valider l'intégrité des journaux
 
 EXEMPLES:
   sw-adventure create "La Mine Perdue" "Une aventure dans les montagnes"
@@ -902,4 +912,349 @@ func getTypeIcon(entryType string) string {
 		return icon
 	}
 	return "•"
+}
+
+// cmdMigrateJournal migrates a monolithic journal.json to per-session files.
+func cmdMigrateJournal(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: migrate-journal <aventure>")
+	}
+
+	// Load adventure
+	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	if err != nil {
+		return fmt.Errorf("chargement aventure: %w", err)
+	}
+
+	fmt.Printf("🔄 Migration du journal: %s\n\n", adv.Name)
+
+	// Check if legacy journal.json exists
+	legacyPath := adv.BasePath() + "/journal.json"
+	if _, err := os.Stat(legacyPath); os.IsNotExist(err) {
+		fmt.Println("✅ Aucun journal.json trouvé - aventure déjà migrée ou pas de journal")
+		return nil
+	}
+
+	// Check if already migrated (has session files)
+	metaPath := adv.BasePath() + "/journal-meta.json"
+	if _, err := os.Stat(metaPath); err == nil {
+		fmt.Println("⚠️  L'aventure semble déjà migrée (journal-meta.json existe)")
+		fmt.Println("   Voulez-vous continuer? Le journal.json sera sauvegardé.")
+		// For now, continue anyway
+	}
+
+	// Load legacy journal
+	fmt.Println("📖 Chargement du journal monolithique...")
+	journal, err := adv.LoadJournal()
+	if err != nil {
+		return fmt.Errorf("chargement journal: %w", err)
+	}
+
+	if len(journal.Entries) == 0 {
+		fmt.Println("✅ Journal vide - aucune migration nécessaire")
+		return nil
+	}
+
+	fmt.Printf("   Trouvé: %d entrées (NextID: %d)\n\n", len(journal.Entries), journal.NextID)
+
+	// Group entries by session
+	fmt.Println("📊 Analyse des sessions...")
+	sessionGroups := make(map[int][]adventure.JournalEntry)
+	for _, entry := range journal.Entries {
+		sessionGroups[entry.SessionID] = append(sessionGroups[entry.SessionID], entry)
+	}
+
+	var sessionIDs []int
+	for id := range sessionGroups {
+		sessionIDs = append(sessionIDs, id)
+	}
+
+	fmt.Printf("   Sessions trouvées: %v\n", sessionIDs)
+	for _, id := range sessionIDs {
+		sessionName := fmt.Sprintf("session-%d", id)
+		if id == 0 {
+			sessionName = "hors session"
+		}
+		fmt.Printf("   - %s: %d entrées\n", sessionName, len(sessionGroups[id]))
+	}
+	fmt.Println()
+
+	// Create backup
+	fmt.Println("💾 Sauvegarde du journal.json...")
+	backupPath := legacyPath + ".backup"
+	if err := copyFile(legacyPath, backupPath); err != nil {
+		return fmt.Errorf("création backup: %w", err)
+	}
+	fmt.Printf("   ✅ Backup créé: %s\n\n", backupPath)
+
+	// Create journal-meta.json
+	fmt.Println("📝 Création de journal-meta.json...")
+	meta := &adventure.JournalMetadata{
+		NextID:     journal.NextID,
+		Categories: journal.Categories,
+		LastUpdate: time.Now(),
+	}
+	if err := adv.SaveJournalMetadata(meta); err != nil {
+		return fmt.Errorf("sauvegarde metadata: %w", err)
+	}
+	fmt.Println("   ✅ Métadonnées créées\n")
+
+	// Create session journal files
+	fmt.Println("📁 Création des fichiers de session...")
+	for sessionID, entries := range sessionGroups {
+		sessionJournal := &adventure.SessionJournal{
+			SessionID: sessionID,
+			Entries:   entries,
+		}
+
+		// Sort entries by timestamp
+		sort.Slice(sessionJournal.Entries, func(i, j int) bool {
+			return sessionJournal.Entries[i].Timestamp.Before(sessionJournal.Entries[j].Timestamp)
+		})
+
+		if err := adv.SaveSessionJournal(sessionJournal); err != nil {
+			return fmt.Errorf("sauvegarde session %d: %w", sessionID, err)
+		}
+
+		sessionName := fmt.Sprintf("journal-session-%d.json", sessionID)
+		fmt.Printf("   ✅ %s (%d entrées)\n", sessionName, len(entries))
+	}
+	fmt.Println()
+
+	// Migrate images
+	fmt.Println("🖼️  Migration des images...")
+	imagesDir := adv.BasePath() + "/images"
+	if _, err := os.Stat(imagesDir); os.IsNotExist(err) {
+		fmt.Println("   ℹ️  Aucun répertoire images/ trouvé\n")
+	} else {
+		migratedCount, err := migrateImages(adv, imagesDir, sessionGroups)
+		if err != nil {
+			fmt.Printf("   ⚠️  Erreur migration images: %v\n", err)
+		} else {
+			fmt.Printf("   ✅ %d images migrées vers images/session-N/\n\n", migratedCount)
+		}
+	}
+
+	// Validate migration
+	fmt.Println("✔️  Validation de la migration...")
+	if err := validateMigration(adv, journal); err != nil {
+		return fmt.Errorf("validation échouée: %w", err)
+	}
+	fmt.Println("   ✅ Validation réussie\n")
+
+	// Archive journal.json
+	fmt.Println("📦 Archivage de journal.json...")
+	archivePath := legacyPath + ".archive"
+	if err := os.Rename(legacyPath, archivePath); err != nil {
+		fmt.Printf("   ⚠️  Impossible de renommer: %v\n", err)
+		fmt.Println("   Vous pouvez supprimer journal.json manuellement")
+	} else {
+		fmt.Printf("   ✅ Renommé en: journal.json.archive\n")
+	}
+
+	fmt.Println("\n🎉 Migration terminée avec succès!")
+	fmt.Println("   Le journal est maintenant divisé en fichiers par session")
+	fmt.Printf("   Backup disponible: %s\n", backupPath)
+
+	return nil
+}
+
+// migrateImages moves images to session-specific directories.
+func migrateImages(adv *adventure.Adventure, imagesDir string, sessionGroups map[int][]adventure.JournalEntry) (int, error) {
+	// Create entry ID to session mapping
+	entryToSession := make(map[int]int)
+	for sessionID, entries := range sessionGroups {
+		for _, entry := range entries {
+			entryToSession[entry.ID] = sessionID
+		}
+	}
+
+	// Read images directory
+	entries, err := os.ReadDir(imagesDir)
+	if err != nil {
+		return 0, err
+	}
+
+	migratedCount := 0
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		filename := entry.Name()
+
+		// Parse entry ID from filename: journal_NNN_type_model.png
+		var entryID int
+		if n, _ := fmt.Sscanf(filename, "journal_%d_", &entryID); n != 1 {
+			continue // Skip non-journal images
+		}
+
+		// Find session for this entry
+		sessionID, ok := entryToSession[entryID]
+		if !ok {
+			fmt.Printf("   ⚠️  Image %s: entrée %d non trouvée\n", filename, entryID)
+			continue
+		}
+
+		// Create session directory
+		sessionDir := fmt.Sprintf("%s/session-%d", imagesDir, sessionID)
+		if err := os.MkdirAll(sessionDir, 0755); err != nil {
+			return migratedCount, err
+		}
+
+		// Move image
+		oldPath := fmt.Sprintf("%s/%s", imagesDir, filename)
+		newPath := fmt.Sprintf("%s/%s", sessionDir, filename)
+		if err := os.Rename(oldPath, newPath); err != nil {
+			fmt.Printf("   ⚠️  Erreur déplacement %s: %v\n", filename, err)
+			continue
+		}
+
+		migratedCount++
+	}
+
+	return migratedCount, nil
+}
+
+// validateMigration checks that the migration was successful.
+func validateMigration(adv *adventure.Adventure, originalJournal *adventure.Journal) error {
+	// Load migrated journal (should aggregate all sessions)
+	migratedJournal, err := adv.LoadJournal()
+	if err != nil {
+		return fmt.Errorf("chargement journal migré: %w", err)
+	}
+
+	// Check entry count
+	if len(migratedJournal.Entries) != len(originalJournal.Entries) {
+		return fmt.Errorf("nombre d'entrées: %d != %d", len(migratedJournal.Entries), len(originalJournal.Entries))
+	}
+
+	// Check NextID
+	if migratedJournal.NextID != originalJournal.NextID {
+		return fmt.Errorf("NextID: %d != %d", migratedJournal.NextID, originalJournal.NextID)
+	}
+
+	// Check all entry IDs are unique
+	seenIDs := make(map[int]bool)
+	for _, entry := range migratedJournal.Entries {
+		if seenIDs[entry.ID] {
+			return fmt.Errorf("ID dupliqué trouvé: %d", entry.ID)
+		}
+		seenIDs[entry.ID] = true
+	}
+
+	return nil
+}
+
+// cmdValidateJournal validates the integrity of split journal files.
+func cmdValidateJournal(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: validate-journal <aventure>")
+	}
+
+	// Load adventure
+	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	if err != nil {
+		return fmt.Errorf("chargement aventure: %w", err)
+	}
+
+	fmt.Printf("🔍 Validation du journal: %s\n\n", adv.Name)
+
+	// Check for metadata file
+	metaPath := adv.BasePath() + "/journal-meta.json"
+	if _, err := os.Stat(metaPath); os.IsNotExist(err) {
+		return fmt.Errorf("journal-meta.json non trouvé - aventure pas encore migrée?")
+	}
+
+	// Load all journals
+	journal, err := adv.LoadJournal()
+	if err != nil {
+		return fmt.Errorf("chargement journal: %w", err)
+	}
+
+	fmt.Printf("📊 Statistiques:\n")
+	fmt.Printf("   Entrées totales: %d\n", len(journal.Entries))
+	fmt.Printf("   NextID: %d\n", journal.NextID)
+	fmt.Printf("   Catégories: %d\n\n", len(journal.Categories))
+
+	// Validate: All entry IDs unique
+	fmt.Println("✔️  Vérification des IDs uniques...")
+	seenIDs := make(map[int]bool)
+	duplicates := []int{}
+	for _, entry := range journal.Entries {
+		if seenIDs[entry.ID] {
+			duplicates = append(duplicates, entry.ID)
+		}
+		seenIDs[entry.ID] = true
+	}
+	if len(duplicates) > 0 {
+		return fmt.Errorf("IDs dupliqués trouvés: %v", duplicates)
+	}
+	fmt.Println("   ✅ Tous les IDs sont uniques\n")
+
+	// Validate: Chronological order within sessions
+	fmt.Println("✔️  Vérification de l'ordre chronologique par session...")
+	sessions, _ := adv.GetAllSessions()
+	for _, session := range sessions {
+		entries, _ := adv.GetEntriesBySession(session.ID)
+		for i := 1; i < len(entries); i++ {
+			if entries[i].Timestamp.Before(entries[i-1].Timestamp) {
+				return fmt.Errorf("session %d: ordre chronologique incorrect", session.ID)
+			}
+		}
+	}
+	// Check session 0 (out-of-session)
+	entries, _ := adv.GetEntriesBySession(0)
+	for i := 1; i < len(entries); i++ {
+		if entries[i].Timestamp.Before(entries[i-1].Timestamp) {
+			return fmt.Errorf("hors session: ordre chronologique incorrect")
+		}
+	}
+	fmt.Println("   ✅ Ordre chronologique correct\n")
+
+	// Validate: NextID is correct
+	fmt.Println("✔️  Vérification du NextID...")
+	maxID := 0
+	for _, entry := range journal.Entries {
+		if entry.ID > maxID {
+			maxID = entry.ID
+		}
+	}
+	if journal.NextID != maxID+1 {
+		return fmt.Errorf("NextID incorrect: %d (devrait être %d)", journal.NextID, maxID+1)
+	}
+	fmt.Println("   ✅ NextID correct\n")
+
+	// Report session distribution
+	fmt.Println("📁 Distribution par session:")
+	sessionCounts := make(map[int]int)
+	for _, entry := range journal.Entries {
+		sessionCounts[entry.SessionID]++
+	}
+
+	var sessionIDs []int
+	for id := range sessionCounts {
+		sessionIDs = append(sessionIDs, id)
+	}
+	sort.Ints(sessionIDs)
+
+	for _, id := range sessionIDs {
+		sessionName := fmt.Sprintf("Session %d", id)
+		if id == 0 {
+			sessionName = "Hors session"
+		}
+		fmt.Printf("   %s: %d entrées\n", sessionName, sessionCounts[id])
+	}
+
+	fmt.Println("\n✅ Validation réussie - journal intègre!")
+	return nil
+}
+
+// copyFile copies a file from src to dst.
+func copyFile(src, dst string) error {
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(dst, data, 0644)
 }

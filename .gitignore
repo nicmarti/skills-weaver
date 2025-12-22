@@ -46,3 +46,6 @@ go.work.sum
 # Documentation and assets
 ai/youtube
 data/images/
+
+# ignore backups
+*.backup

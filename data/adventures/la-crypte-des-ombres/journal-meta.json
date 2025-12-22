@@ -1,0 +1,21 @@
+{
+  "next_id": 94,
+  "categories": [
+    "combat",
+    "loot",
+    "story",
+    "note",
+    "quest",
+    "npc",
+    "location",
+    "rest",
+    "death",
+    "levelup",
+    "session",
+    "party",
+    "xp",
+    "expense",
+    "use"
+  ],
+  "last_update": "2025-12-23T00:10:48.616129+01:00"
+}

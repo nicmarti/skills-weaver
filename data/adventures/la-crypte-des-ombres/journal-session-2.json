@@ -1,0 +1,338 @@
+{
+  "session_id": 2,
+  "entries": [
+    {
+      "id": 30,
+      "timestamp": "2025-12-20T22:57:08.969027+01:00",
+      "session_id": 2,
+      "type": "session",
+      "content": "Session 2 démarrée",
+      "description": "Aldric, Lyra, Thorin, and Gareth gather in the shadowed crypt, their faces illuminated by flickering torchlight as they catch their breath after vanquishing Valdric. The shattered remnants of the dark gem scatter across ancient stone, while the defeated undead lord crumbles to dust. Victory hangs heavy in the cold air, tinged with the weight of mysteries still unsolved.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se rassemblent dans la crypte ombreuse, leurs visages illuminés par la lumière vacillante des torches tandis qu'ils reprennent leur souffle après avoir vaincu Valdric. Les fragments brisés de la gemme sombre se dispersent sur la pierre ancienne, tandis que le seigneur mort-vivant vaincu s'effondre en poussière. La victoire plane lourdement dans l'air glacial, teintée par le poids des mystères encore non résolus."
+    },
+    {
+      "id": 31,
+      "timestamp": "2025-12-20T22:58:21.620054+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Le groupe prend le temps de s'équiper à Pierrebrune avant de poursuivre l'enquête",
+      "description": "Aldric, Lyra, Thorin, and Gareth move through Pierrebrune's bustling marketplace, examining weapons and armor displayed on weathered wooden stalls. Sunlight glints off polished steel as the victorious adventurers replenish their supplies, their confidence evident in purposeful strides before pursuing the mysterious 'F.' and the Cult of Eternal Night.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth traversent le marché animé de Pierrebrune, examinant armes et armures étalées sur des étals en bois usé. La lumière du soleil scintille sur l'acier poli tandis que les aventuriers victorieux réapprovisionnent leurs équipements, leur assurance évidente dans leurs pas décidés avant de poursuivre le mystérieux 'F.' et le Culte de l'Éternelle Nuit."
+    },
+    {
+      "id": 32,
+      "timestamp": "2025-12-20T22:59:41.011416+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 10 po (Achat lanterne à l'auberge)",
+      "description": "The party gathers at the tavern counter in Pierrebrune as the innkeeper produces an oil lantern, its brass fixtures gleaming in warm candlelight. Aldric, Lyra, Thorin and Gareth examine the sturdy lamp before coins exchange hands, the transaction marking their practical preparations for darker crypts ahead.",
+      "description_fr": "Le groupe se rassemble au comptoir de l'auberge de Pierrebrune tandis que l'aubergiste sort une lanterne à huile, ses fixations en laiton scintillant à la lumière chaude des bougies. Aldric, Lyra, Thorin et Gareth examinent la lampe robuste avant que des pièces ne changent de mains, la transaction marquant leurs préparatifs pratiques pour les cryptes plus sombres qui les attendent."
+    },
+    {
+      "id": 33,
+      "timestamp": "2025-12-20T23:02:46.764823+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 337 po (Équipement chez Gareth Forgefer : harnois (300), bouclier (7), arc court (25), 20 flèches (5))",
+      "description": "Aldric, Lyra, Thorin, and Gareth crowd into Gareth Forgefer's bustling smithy, where the rhythmic clang of hammers echoes off stone walls. The dwarf craftsman displays gleaming armor and weapons across wooden benches as sparks dance from the roaring forge, casting warm amber light across the adventurers' eager faces.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se pressent dans la forge animée de Gareth Forgefer, où le bruit cadencé des marteaux résonne sur les murs de pierre. L'artisan nain expose l'armure scintillante et les armes sur des établis en bois tandis que les étincelles dansent du foyer rugissant, projetant une lumière ambrée chaude sur les visages impatients des aventuriers."
+    },
+    {
+      "id": 34,
+      "timestamp": "2025-12-20T23:02:51.84303+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Aldric s'équipe d'un harnois (CA 17) et d'un bouclier (+1). Lyra reçoit un arc court et 20 flèches",
+      "description": "Aldric stands in the bustling armor shop, trying on gleaming plate armor that catches the warm lamplight as he adjusts the straps. Beside him, Lyra examines a finely-crafted short bow with practiced hands, running her fingers along the smooth wood while the shopkeeper beams with pride at outfitting such capable adventurers.",
+      "description_fr": "Aldric se tient dans la boutique d'armure animée, essayant une armure de plaques scintillante qui capture la lumière chaude de la lanterne tandis qu'il ajuste les sangles. À côté de lui, Lyra examine un arc court finement travaillé avec des mains expertes, faisant glisser ses doigts le long du bois lisse tandis que l'armurier rayonne de fierté en équipant de tels aventuriers capables."
+    },
+    {
+      "id": 35,
+      "timestamp": "2025-12-20T23:04:20.523424+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Le groupe cherche un nouveau compagnon sur la place du marché de Pierrebrune",
+      "description": "Aldric, Lyra, Thorin, and Gareth move through Pierrebrune's bustling marketplace, scanning weathered faces among merchant stalls and crowded vendor tables. Sunlight glints off their newly polished armor as they seek a capable companion to join their ranks.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se déplacent sur la place du marché animée de Pierrebrune, scrutant les visages usés parmi les étals de marchands et les tables encombrées. La lumière du soleil scintille sur leur armure nouvellement polie tandis qu'ils cherchent un compagnon capable de les rejoindre."
+    },
+    {
+      "id": 36,
+      "timestamp": "2025-12-20T23:06:41.957523+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Thorin Chaosbrewer, clerc nain, rejoint le groupe sur la place du marché",
+      "description": "Thorin Chaosbrewer, a stout dwarf cleric with weathered armor, approaches the party in Pierrebrune's bustling marketplace as merchants hawk their wares. The dwarf's eyes gleam with purpose as he introduces himself, ready to join their quest into shadow and danger.",
+      "description_fr": "Thorin Chaosbrewer, un clerc nain trapu aux armures usées, s'approche du groupe sur la place du marché animée de Pierrebrune tandis que les marchands vantent leurs marchandises. Les yeux du nain brillent de détermination alors qu'il se présente, prêt à rejoindre leur quête dans l'ombre et le danger."
+    },
+    {
+      "id": 37,
+      "timestamp": "2025-12-20T23:07:48.411158+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 5 po (Marteau de guerre pour Thorin)",
+      "description": "Thorin approaches the blacksmith's anvil in Pierrebrune's bustling market square, where Gareth Forgefer holds up a gleaming war hammer. Firelight from the forge reflects off polished steel as the dwarf cleric examines the weapon with a satisfied nod, coins exchanging hands across the worn wooden counter.",
+      "description_fr": "Thorin s'approche de l'enclume du forgeron sur la place du marché animée de Pierrebrune, où Gareth Forgefer brandit un marteau de guerre étincelant. La lumière du foyer se reflète sur l'acier poli tandis que le clerc nain examine l'arme d'un hochement de tête satisfait, les pièces d'or changeant de mains sur le comptoir en bois usé."
+    },
+    {
+      "id": 38,
+      "timestamp": "2025-12-20T23:07:48.589442+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Thorin équipé d'un marteau de guerre nain. Le groupe se dirige vers la chapelle",
+      "description": "Thorin hefts his gleaming dwarven war hammer as the party moves through Pierrebrune's winding streets toward the chapel, morning light glinting off his freshly forged weapon while his companions follow with renewed purpose and determination",
+      "description_fr": "Thorin soulève son marteau de guerre nain étincelant tandis que le groupe traverse les rues sinueuses de Pierrebrune en direction de la chapelle, la lumière du matin scintillant sur son arme fraîchement forgée pendant que ses compagnons le suivent avec un nouvel élan et une détermination renouvelée"
+    },
+    {
+      "id": 39,
+      "timestamp": "2025-12-20T23:09:23.79891+01:00",
+      "session_id": 2,
+      "type": "discovery",
+      "content": "Le Père Bramwell révèle l'identité de 'F.' : Frère Mordecai Fane, nécromancien excommunié, opère depuis le monastère de Sombregarde",
+      "description": "Father Bramwell leans forward in the candlelit chapel, his weathered face grave as he reveals the terrible truth: Frère Mordecai Fane, a excommunicated necromancer, lurks within the shadows of Sombregarde Monastery. The party exchanges grim glances as flickering light dances across ancient stone walls.",
+      "description_fr": "Le Père Bramwell se penche en avant dans la chapelle éclairée aux chandelles, son visage ridé grave tandis qu'il révèle la terrible vérité : Frère Mordecai Fane, un nécromancien excommunié, se cache dans les ombres du Monastère de Sombregarde. Le groupe échange des regards sinistres tandis que la lumière vacillante danse sur les murs de pierre ancienne."
+    },
+    {
+      "id": 40,
+      "timestamp": "2025-12-20T23:12:59.501507+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 325 po (Potions chez Dame Isolde : 3 soins (150), 1 majeure (150), 1 antidote (25))",
+      "description": "The party enters Dame Isolde's apothecary where colorful potion vials glow softly on mahogany shelves. The wise herbalist carefully wraps healing draughts and antidotes in velvet cloth as candlelight flickers across glass bottles filled with shimmering liquids.",
+      "description_fr": "Le groupe entre dans l'apothicairerie de Dame Isolde où des fioles de potion colorées brillent doucement sur des étagères en acajou. L'herboriste avisée enveloppe soigneusement les potions de soin et les antidotes dans un tissu de velours tandis que la lumière des bougies scintille sur les bouteilles remplies de liquides chatoyants."
+    },
+    {
+      "id": 41,
+      "timestamp": "2025-12-20T23:12:59.690767+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 3× Potion de Soin (1d6+1 PV) à l'inventaire",
+      "description": "Dame Isolde's apothecary glows with amber candlelight as she carefully wraps three crystalline healing potions in soft cloth, their ruby-red liquid catching the flame like captured fire. Lyra and the party admire the delicate vials, each one promising restoration and hope.",
+      "description_fr": "L'apothicaire de Dame Isolde brille à la lumière ambrée des bougies tandis qu'elle enveloppe soigneusement trois potions de soin cristallines dans un tissu doux, leur liquide rouge rubis capturant la flamme comme du feu emprisonné. Lyra et le groupe admirent les fioles délicates, chacune promettant restauration et espoir."
+    },
+    {
+      "id": 42,
+      "timestamp": "2025-12-20T23:12:59.883821+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Potion de Soin Majeure (2d6+2 PV) à l'inventaire",
+      "description": "Dame Isolde carefully presents a crystalline vial of luminous potion to the party, its surface catching candlelight as swirling golden liquid glows within—a major healing draught that promises restoration and renewed strength for the weary adventurers.",
+      "description_fr": "Dame Isolde présente soigneusement une fiole cristalline de potion lumineuse au groupe, sa surface capturant la lueur des bougies tandis que le liquide doré tourbillonnant brille à l'intérieur—une puissante potion de soin qui promet restauration et force nouvelle aux aventuriers fatigués."
+    },
+    {
+      "id": 43,
+      "timestamp": "2025-12-20T23:13:00.082816+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Antidote à l'inventaire",
+      "description": "Dame Isolde carefully wraps a crystal vial of antidote in soft cloth at her apothecary counter, the potion's amber liquid catching candlelight as Thorin and his companions examine the protective remedy among shelves of glowing elixirs",
+      "description_fr": "Dame Isolde enveloppe soigneusement une fiole de cristal contenant l'antidote dans un tissu doux sur son comptoir d'apothicaire, le liquide ambré de la potion capturant la lumière des bougies tandis que Thorin et ses compagnons examinent ce remède protecteur parmi les étagères d'élixirs luminescents"
+    },
+    {
+      "id": 44,
+      "timestamp": "2025-12-20T23:13:07.345189+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Potion de Soin (1d6+1 PV) à l'inventaire",
+      "description": "Dame Isolde's apothecary glows with crystalline vials of shimmering healing potions arranged on velvet-lined shelves, their ruby and amber liquids catching candlelight as the party carefully selects remedies for their perilous journey ahead.",
+      "description_fr": "L'apothicaire de Dame Isolde brille avec des fioles cristallines de potions de soin scintillantes alignées sur des étagères doublées de velours, leurs liquides rubis et ambrés captant la lumière des bougies tandis que le groupe sélectionne soigneusement des remèdes pour son voyage périlleux."
+    },
+    {
+      "id": 45,
+      "timestamp": "2025-12-20T23:13:07.540944+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 2× Eau Bénite Consacrée (2d6 vs morts-vivants) à l'inventaire",
+      "description": "The party carefully uncorks two vials of blessed water, their sacred liquid glowing with faint divine radiance as candlelight dances across the glass. Holy symbols etched into the bottles shimmer with protective magic, ready to smite the undead horrors lurking in La Crypte des Ombres.",
+      "description_fr": "Le groupe débouche soigneusement deux fioles d'eau bénite consacrée, leur liquide sacré brillant d'une faible radiance divine tandis que la lumière des bougies danse sur le verre. Les symboles sacrés gravés dans les bouteilles scintillent de magie protectrice, prêts à frapper les horreurs mortes-vivantes qui se cachent dans La Crypte des Ombres."
+    },
+    {
+      "id": 46,
+      "timestamp": "2025-12-20T23:13:07.747654+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Parchemin du Rituel de Dissipation à l'inventaire",
+      "description": "The party carefully unfurls an ancient parchment, its yellowed surface inscribed with arcane symbols that shimmer faintly in torchlight. Lyra's eyes widen as she recognizes the ritual's power, the scroll radiating a subtle magical aura within the crypts' shadowy depths.",
+      "description_fr": "Le groupe déploie soigneusement un parchemin ancien, sa surface jaunie couverte de symboles arcanes qui scintillent faiblement à la lumière des torches. Les yeux de Lyra s'écarquillent en reconnaissant le pouvoir du rituel, le parchemin rayonnant d'une aura magique subtile dans les profondeurs ombreuses de la crypte."
+    },
+    {
+      "id": 47,
+      "timestamp": "2025-12-20T23:13:07.954172+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Achat de potions chez Dame Isolde : 3 soins, 1 majeure, 1 antidote",
+      "description": "Aldric, Lyra, Thorin, and Gareth enter Dame Isolde's apothecary, where colorful potion vials gleam on mahogany shelves in warm candlelight. The wise herbalist carefully wraps healing elixirs in soft velvet cloth, her weathered hands moving with practiced care as the adventurers examine their precious acquisitions.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth entrent dans l'apothicaire de Dame Isolde, où des fioles de potion colorées brillent sur des étagères en acajou à la lumière douce des bougies. L'herboriste avisée enveloppe soigneusement des élixirs de soin dans un tissu de velours doux, ses mains ridées se mouvant avec assurance tandis que les aventuriers examinent leurs précieuses acquisitions."
+    },
+    {
+      "id": 48,
+      "timestamp": "2025-12-20T23:14:14.373187+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Départ de Pierrebrune vers l'est, direction le monastère de Sombregarde (3 jours de marche)",
+      "description": "Aldric, Lyra, Thorin, and Gareth depart Pierrebrune eastward, their supplies packed with newly acquired potions and holy water. The winding road stretches toward distant Sombregarde monastery, its three-day journey unfolding beneath overcast skies as the adventurers venture deeper into mysterious territories.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth quittent Pierrebrune vers l'est, leurs provisions chargées de potions fraîchement acquises et d'eau bénite. La route sinueuse s'étend vers le lointain monastère de Sombregarde, son voyage de trois jours se déroulant sous des ciels nuageux tandis que les aventuriers s'enfoncent dans des territoires mystérieux."
+    },
+    {
+      "id": 49,
+      "timestamp": "2025-12-20T23:14:40.147829+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Embuscade au Pont du Gibet ! 3 squelettes éclaireurs du culte attaquent",
+      "description": "Aldric and Gareth clash steel with three skeletal warriors at the Gibbet Bridge, rusted swords scraping against gleaming blades as Lyra's magic crackles through the air. Thorin channels divine power while shadows writhe across ancient stone beneath the cursed gallows.",
+      "description_fr": "Aldric et Gareth entrechoquent l'acier avec trois guerriers squelettes au Pont du Gibet, des épées rouillées raclant contre des lames scintillantes tandis que la magie de Lyra crépite dans l'air. Thorin canalise la puissance divine pendant que les ombres se tordent sur la pierre ancienne sous la potence maudite."
+    },
+    {
+      "id": 50,
+      "timestamp": "2025-12-20T23:17:00.26594+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Victoire au Pont du Gibet ! 3 squelettes éclaireurs détruits. Aucun blessé. XP: 30",
+      "description": "Aldric, Lyra, Thorin, and Gareth stand victorious at the Gibbet Bridge as the last skeletal scout crumbles to dust, their weapons still raised in triumph. Moonlight glints off their steel as the cursed undead warriors collapse around them, bones scattering across ancient stone while the party remains unscathed.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se tiennent victorieux au Pont du Gibet tandis que le dernier éclaireur squelettique s'effondre en poussière, leurs armes toujours levées en triomphe. La lumière de la lune scintille sur leur acier tandis que les guerriers morts-vivants maudits s'effondrent autour d'eux, les os se dispersant sur la pierre ancienne."
+    },
+    {
+      "id": 51,
+      "timestamp": "2025-12-20T23:18:04.386406+01:00",
+      "session_id": 2,
+      "type": "npc",
+      "content": "Rencontre avec Vieux Cormac, l'ermite du Pont du Gibet - connaissance du monastère de Sombregarde",
+      "description": "Old Cormac sits by a crackling campfire near the misty Gallows Bridge, his weathered face lined with age and illuminated by flickering flames as he shares ancient secrets about Shadowkeep Monastery with the weary adventurers gathered close.",
+      "description_fr": "Le vieux Cormac est assis près d'un feu crépitant près du Pont du Gibet brumeux, son visage ridé par l'âge illuminé par les flammes vacillantes tandis qu'il partage des secrets anciens sur le Monastère de Sombregarde avec les aventuriers fatigués rassemblés autour de lui."
+    },
+    {
+      "id": 52,
+      "timestamp": "2025-12-20T23:20:29.625254+01:00",
+      "session_id": 2,
+      "type": "loot",
+      "content": "groupe ajoute 1× Clé de la Bibliothèque de Sombregarde à l'inventaire",
+      "description": "Cormac produces an ornate iron key from his weathered cloak, its intricate engravings glinting in candlelight as mysterious symbols pulse faintly along its length. The party accepts the ancient artifact—a key to Sombregarde's forbidden library.",
+      "description_fr": "Cormac sort une clé de fer ornée de son manteau usé, ses gravures complexes scintillant à la lumière des bougies tandis que des symboles mystérieux pulsent faiblement le long de sa longueur. Le groupe reçoit cet artefact ancien—la clé de la bibliothèque interdite de Sombregarde."
+    },
+    {
+      "id": 53,
+      "timestamp": "2025-12-20T23:20:29.80733+01:00",
+      "session_id": 2,
+      "type": "discovery",
+      "content": "Vieux Cormac confie la clé de la Bibliothèque et révèle l'existence du passage secret. Fane en attente à l'Autel Noir avec un Cristal de Pouvoir",
+      "description": "Vieux Cormac produces an ornate iron key from his weathered cloak, its intricate engravings glinting in firelight as he reveals the monastery's hidden passage. Behind him, shadows hint at an ancient stone doorway, while whispers of the Obsidian Altar and a glowing Power Crystal echo in the gathering darkness.",
+      "description_fr": "Vieux Cormac sort une clé de fer ornée de son manteau usé, ses gravures complexes scintillant à la lumière du feu tandis qu'il révèle le passage caché du monastère. Derrière lui, les ombres suggèrent une ancienne porte de pierre, tandis que des murmures de l'Autel Noir et d'un Cristal de Pouvoir lumineux résonnent dans l'obscurité croissante."
+    },
+    {
+      "id": 54,
+      "timestamp": "2025-12-20T23:20:44.620228+01:00",
+      "session_id": 2,
+      "type": "npc",
+      "content": "Sir Gareth Ironclad, chevalier errant, rejoint la quête pour détruire Fane",
+      "description": "Sir Gareth Ironclad arrives at the monastery entrance in gleaming plate armor, his weathered face and scarred hands speaking of countless battles. The noble knight kneels before Aldric, Lyra, and Thorin, pledging his sword to their cause against the dark sorcerer Fane as torchlight glints off his polished steel.",
+      "description_fr": "Sir Gareth Ironclad arrive à l'entrée du monastère vêtu d'une armure de plate étincelante, son visage ridé et ses mains cicatrisées témoignant d'innombrables combats. Le chevalier noble s'agenouille devant Aldric, Lyra et Thorin, promettant son épée à leur cause contre le sorcier noir Fane tandis que la lumière des torches scintille sur son acier poli."
+    },
+    {
+      "id": 55,
+      "timestamp": "2025-12-20T23:22:16.432359+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Départ pour Sombregarde. Formation : Aldric en tête, groupe en file indienne, Thorin à l'arrière",
+      "description": "Aldric leads the party in single file toward the looming monastery of Sombregarde, Thorin guarding the rear as they advance through misty forest paths. Ancient stone walls emerge from morning fog, their weathered surfaces marked by centuries of shadow and decay.",
+      "description_fr": "Aldric guide le groupe en file indienne vers le monastère imposant de Sombregarde, Thorin gardant l'arrière tandis qu'ils avancent sur des sentiers forestiers brumeux. Les murs de pierre anciens émergent du brouillard matinal, leurs surfaces usées marquées par des siècles d'ombre et de décadence."
+    },
+    {
+      "id": 56,
+      "timestamp": "2025-12-20T23:26:47.707111+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Le groupe choisit l'observation nocturne. Lyra (elfe) et Thorin (nain) utilisent leur vision nocturne pour reconnaître Sombregarde",
+      "description": "Lyra and Thorin crouch at the edge of Sombregarde's crumbling walls under starlit darkness, their keen eyes piercing the shadows where mortal sight fails. Ancient stone structures emerge from the gloom like sleeping giants, while the monastery's silhouette looms against the night sky, revealing hidden passages and guard positions invisible to lesser eyes.",
+      "description_fr": "Lyra et Thorin s'accroupissent à la lisière des murs décrépit de Sombregarde sous l'obscurité étoilée, leurs yeux perçants transperçant les ombres où la vue mortelle échoue. Les anciennes structures de pierre émergent de la pénombre comme des géants endormis, tandis que la silhouette du monastère se dresse contre le ciel nocturne, révélant des passages cachés et des positions de garde invisibles aux yeux ordinaires."
+    },
+    {
+      "id": 57,
+      "timestamp": "2025-12-20T23:26:47.890129+01:00",
+      "session_id": 2,
+      "type": "expense",
+      "content": "Le groupe dépense 0 po (Campement d'observation près de Sombregarde)",
+      "description": "The party settles into a makeshift camp beneath towering pines near Sombregarde's shadowed walls, their small fire casting dancing shadows across weathered faces. Lyra and Thorin keep watch through the darkness, their keen eyes piercing the night as distant torches flicker along the fortress ramparts.",
+      "description_fr": "Le groupe s'installe dans un campement improvisé sous de grands pins près des murs ombrageux de Sombregarde, leur petit feu projetant des ombres dansantes sur les visages fatigués. Lyra et Thorin montent la garde dans l'obscurité, leurs yeux perçants sondant la nuit tandis que des torches lointaines scintillent le long des remparts de la forteresse."
+    },
+    {
+      "id": 58,
+      "timestamp": "2025-12-20T23:28:46.6583+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Attente de l'orage. Thorin reconnaît les patrouilles et identifie une fenêtre de passage. Plan : entrer par la Bibliothèque avec la clé lors de la tempête",
+      "description": "Aldric, Lyra, and Thorin wait in darkness as storm clouds gather above Sombregarde's stone walls, the dwarf cleric's keen eyes identifying patrol patterns while lightning flashes illuminate secret passages. The party crouches low, watching torchlit guards march predictably through the tempest, recognizing their window of opportunity to slip through the Library entrance with Cormac's ancient key.",
+      "description_fr": "Aldric, Lyra et Thorin attendent dans l'obscurité tandis que des nuages d'orage s'amassent au-dessus des murs de pierre de Sombregarde, les yeux aiguisés du clerc nain identifiant les schémas de patrouille tandis que les éclairs illuminent les passages secrets. Le groupe se tapit bas, observant les gardes éclairés aux torches marcher prévisiblement à travers la tempête, reconnaissant leur fenêtre d'opportunité pour se glisser par l'entrée de la Bibliothèque avec la clé ancienne de Cormac."
+    },
+    {
+      "id": 59,
+      "timestamp": "2025-12-20T23:30:58.516127+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Combat contre le Spectre Ancien de la Bibliothèque ! Sir Gareth blessé. Les clercs tentent le Renvoi des Morts-Vivants",
+      "description": "Aldric, Lyra, Thorin, and Sir Gareth clash against a shimmering spectral figure in the ancient library, candlelight flickering wildly as the ghost's ethereal form phases through their steel. Sir Gareth staggers backward, blood streaming from a ghostly wound, while Thorin raises his holy symbol, channeling divine radiance to banish the undead abomination.",
+      "description_fr": "Aldric, Lyra, Thorin et Sir Gareth s'affrontent à une figure spectrale scintillante dans la bibliothèque ancienne, la lumière des bougies vacillant sauvagement tandis que la forme éthérée du fantôme traverse leur acier. Sir Gareth chancelle vers l'arrière, du sang s'écoulant d'une blessure fantomatique, tandis que Thorin lève son symbole sacré, canalisantune radiance divine pour bannir l'abomination des morts-vivants."
+    },
+    {
+      "id": 60,
+      "timestamp": "2025-12-20T23:31:31.745247+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "VICTOIRE ! Le Spectre Ancien de la Bibliothèque est détruit ! Eau bénite et Renvoi des Morts-Vivants ont été décisifs",
+      "description": "Aldric, Lyra, Thorin, and Gareth stand victorious in the Library's candlelit chamber as the Ancient Spectre dissolves into wisps of ethereal shadow. Holy water glows against stone floors while divine radiance from Thorin's turning banishes the last traces of undead malevolence into darkness.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se tiennent victorieux dans la chambre de la Bibliothèque éclairée aux chandelles tandis que le Spectre Ancien se dissout en volutes d'ombre éthérée. L'eau bénite brille sur les dalles de pierre tandis que la radiance divine du Renvoi de Thorin chasse les dernières traces de malveillance dans l'obscurité."
+    },
+    {
+      "id": 61,
+      "timestamp": "2025-12-20T23:33:23.150717+01:00",
+      "session_id": 2,
+      "type": "exploration",
+      "content": "Descente prudente vers le Niveau 2 par le passage secret. Le groupe écoute attentivement les sons des catacombes",
+      "description": "Aldric, Lyra, Thorin, and Gareth descend cautiously through a narrow secret passage into the catacombs below, their torches casting flickering shadows on damp stone walls. Water drips from moss-covered ceilings as they pause, listening intently to the oppressive silence broken only by distant echoes of unknown origin.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth descendent prudemment par un passage secret étroit vers les catacombes souterraines, leurs torches projetant des ombres vacillantes sur les murs de pierre humide. L'eau goutte des plafonds couverts de mousse tandis qu'ils s'arrêtent, écoutant attentivement le silence oppressant brisé seulement par des échos lointains d'origine inconnue."
+    },
+    {
+      "id": 62,
+      "timestamp": "2025-12-20T23:35:30.387781+01:00",
+      "session_id": 2,
+      "type": "note",
+      "content": "Le groupe délibère : contournement ouest ou attaque rapide directe vers l'Autel Noir",
+      "description": "The party gathers in the shadowy catacombs, torchlight casting wavering shadows as Aldric, Lyra, Thorin and Gareth debate their next move—Thorin gestures toward the western passage while Aldric points toward the distant altar, tension and exhaustion etched on their weathered faces.",
+      "description_fr": "Le groupe se rassemble dans les catacombes obscures, la lumière des torches projetant des ombres vacillantes tandis qu'Aldric, Lyra, Thorin et Gareth débattent de leur prochain mouvement—Thorin désigne le passage occidental tandis qu'Aldric pointe vers l'autel lointain, la tension et l'épuisement gravés sur leurs visages fatigués."
+    },
+    {
+      "id": 63,
+      "timestamp": "2025-12-20T23:37:45.040808+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "DÉCISION : Attaque rapide directe \\! Le groupe fonce vers le sud, vers l'Autel Noir de Fane \\!",
+      "description": "Aldric, Lyra, Thorin, and Gareth charge southward through shadowy catacombs toward the Black Altar of Fane, torchlight flickering across ancient stone as they rush headlong into the darkness, weapons drawn and ready for whatever horrors await them in the depths.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth foncent vers le sud à travers les catacombes ombreuses en direction de l'Autel Noir de Fane, la lumière des torches vacillant sur la pierre ancienne tandis qu'ils se précipitent dans l'obscurité, armes levées et prêts pour les horreurs qui les attendent dans les profondeurs."
+    },
+    {
+      "id": 64,
+      "timestamp": "2025-12-20T23:41:12.285933+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Stratégie divisée ! Aldric et Gareth contre les Goules. Lyra et Adanel chargent Fane. Thorin paralysé se libère !",
+      "description": "Aldric and Gareth clash steel against snarling Goules in the shadowy crypt while Lyra and Adanel surge forward toward the dark altar where Fane awaits. Thorin strains against paralyzing magic, his holy symbol glowing as he breaks free, ready to rejoin the fray.",
+      "description_fr": "Aldric et Gareth entrechoquent l'acier contre des Goules grondantes dans la crypte ombragée tandis que Lyra et Adanel se précipitent vers l'autel noir où Fane les attend. Thorin se débat contre la magie paralysante, son symbole sacré brillant alors qu'il se libère, prêt à rejoindre le combat."
+    },
+    {
+      "id": 65,
+      "timestamp": "2025-12-20T23:43:59.373814+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "Round 3 - Adanel lance le Rituel de Dissipation ! Aldric et Gareth chargent Fane. Thorin utilise le Renvoi des Morts-Vivants !",
+      "description": "Aldric and Gareth charge at Fane with raised steel as Adanel's arcane ritual crackles with dissipating energy around the Black Altar. Thorin breaks free from paralysis, channeling divine power against the undead while shadows writhe across ancient stone walls in the crypt's sickly torchlight.",
+      "description_fr": "Aldric et Gareth chargent Fane l'épée levée tandis que le Rituel de Dissipation d'Adanel crépite d'énergie autour de l'Autel Noir. Thorin se libère de la paralysie, canalisant la puissance divine contre les morts-vivants tandis que les ombres se tordent sur les murs de pierre ancienne à la lueur tremblante de la crypte."
+    },
+    {
+      "id": 66,
+      "timestamp": "2025-12-20T23:44:48.313278+01:00",
+      "session_id": 2,
+      "type": "combat",
+      "content": "VICTOIRE ÉPIQUE \\! Le Cristal de l'Éternelle Nuit DÉTRUIT \\! Frère Mordecai Fane vaincu \\! Sombregarde libérée \\!",
+      "description": "Aldric, Gareth, Lyra, and Thorin stand triumphant amid shattered obsidian shards and fallen undead as the Crystal of Eternal Night crumbles to dust, its dark power extinguished. Brother Mordecai Fane collapses defeated, his corrupted form dissolving into shadow while ethereal light floods the Black Altar, breaking Sombregarde's curse at last.",
+      "description_fr": "Aldric, Gareth, Lyra et Thorin se tiennent triomphants au milieu des éclats d'obsidienne brisée et des morts-vivants vaincus tandis que le Cristal de l'Éternelle Nuit s'effondre en poussière, son pouvoir ténébreux anéanti. Frère Mordecai Fane s'effondre vaincu, sa forme corrompue se dissolvant dans l'ombre tandis qu'une lumière éthérée inonde l'Autel Noir, brisant enfin la malédiction de Sombregarde."
+    }
+  ]
+}

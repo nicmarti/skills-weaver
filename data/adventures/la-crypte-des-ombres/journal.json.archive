@@ -784,9 +784,43 @@
       "content": "Avant départ pour Cordova : L'ordre de pèlerinage à la Montagne du Crépuscule est désormais géré par Mère Isabelle et le Couvent. Le groupe n'a plus de responsabilités directes concernant l'Âme Crépusculaire.",
       "description": "Mère Isabelle stands with Aldric, Lyra, Thorin, and Gareth in the stone courtyard of the Convent of the Sisters of Dawn, morning light casting long shadows as she formally transfers the sacred responsibility of the pilgrimage order to her capable hands, the weight of their burden visibly lifting from the adventurers' shoulders.",
       "description_fr": "Mère Isabelle se tient aux côtés d'Aldric, Lyra, Thorin et Gareth dans la cour de pierre du Couvent des Sœurs de l'Aube, la lumière du matin projetant de longues ombres tandis qu'elle transfère formellement la responsabilité sacrée de l'ordre de pèlerinage à ses mains capables, le poids de leur fardeau s'allègeant visiblement sur les épaules des aventuriers."
+    },
+    {
+      "id": 89,
+      "timestamp": "2025-12-22T23:09:47.300028+01:00",
+      "session_id": 5,
+      "type": "session",
+      "content": "Session 5 démarrée"
+    },
+    {
+      "id": 90,
+      "timestamp": "2025-12-22T23:20:23.503086+01:00",
+      "session_id": 5,
+      "type": "rencontre",
+      "content": "Rencontre avec Kess au port de Cordova -   Aldric s'approche lentement du banc où la femme est assise. De près, il peut voir qu'elle a des traits affûtés, une cicatrice qui court le long de sa mâchoire droite, et des yeux gris acier qui ne manquent rien. Elle porte une armure de cuir travaillée, usée mais bien entretenue. À sa ceinture pend une lame longue de qualité exceptionnelle. Le groupe est engagé par Kess pour suivre une caravane des Pierres Noires qui transporte des caisses mystérieuses en provenance du navire 'La Voie Nordique'. Départ prévu à minuit."
+    },
+    {
+      "id": 91,
+      "timestamp": "2025-12-22T23:23:57.091101+01:00",
+      "session_id": 5,
+      "type": "exploration",
+      "content": "Préparation et surveillance de la caravane des Pierres Noires - Le groupe se disperse dans Cordova en fin d'après-midi pour se préparer (Aldric affûte son épée, Lyra achète des composantes magiques, Thorin prie au temple local, Gareth écoute les rumeurs). À 23h15, retrouvailles avec Kess à L'Ancre Dorée. La caravane doit passer d'ici quelques minutes. Kess propose de suivre depuis les toits et rues pour rester discrets."
+    },
+    {
+      "id": 92,
+      "timestamp": "2025-12-22T23:37:12.489503+01:00",
+      "session_id": 5,
+      "type": "action",
+      "content": "Suivi de la caravane des Pierres Noires - Lyra et Kess en reconnaissance sur les toits, Aldric, Thorin et Gareth à distance à pied. La caravane contenant les caisses du navire 'La Voie Nordique' se dirige vers le nord depuis Cordova, escortée par 6 gardes à cheval. Investigation en cours sur la destination finale."
+    },
+    {
+      "id": 93,
+      "timestamp": "2025-12-22T23:37:12.672202+01:00",
+      "type": "session",
+      "content": "Session 5 terminée - Session 5 - En attente : Suivi de la caravane des Pierres Noires - Lyra et Kess reconnaissent depuis les toits pendant qu'Aldric, Thorin et Gareth suivent à distance à pied"
     }
   ],
-  "next_id": 89,
+  "next_id": 94,
   "categories": [
     "combat",
     "loot",

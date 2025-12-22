@@ -1,0 +1,257 @@
+{
+  "session_id": 1,
+  "entries": [
+    {
+      "id": 1,
+      "timestamp": "2025-12-20T18:32:45.856544+01:00",
+      "session_id": 1,
+      "type": "session",
+      "content": "Session 1 démarrée",
+      "description": "Aldric, Lyra, Thorin, and Gareth stand ready at the threshold of La Crypte des Ombres, torchlight casting dancing shadows across ancient stone entrance. The adventurers exchange determined glances, weapons gleaming as they prepare to descend into darkness and unknown dangers below.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se tiennent prêts au seuil de La Crypte des Ombres, la lumière des torches projetant des ombres dansantes sur l'ancienne entrée de pierre. Les aventuriers échangent des regards déterminés, leurs armes scintillant tandis qu'ils se préparent à descendre dans l'obscurité et les dangers inconnus."
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-12-20T18:33:30.895925+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Le groupe décide de s'équiper au village avant d'explorer la crypte",
+      "description": "Aldric, Lyra, Thorin, and Gareth move through the bustling village marketplace, examining weapons and provisions spread across wooden stalls. Sunlight glints off polished armor and sword blades as merchants call out their wares, the air thick with anticipation before the crypte's darkness awaits.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se déplacent dans le marché animé du village, examinant armes et provisions étalées sur des étals en bois. La lumière du soleil scintille sur l'armure polie et les lames d'épée tandis que les marchands crient leurs marchandises, l'air chargé d'anticipation avant l'obscurité de la crypte."
+    },
+    {
+      "id": 3,
+      "timestamp": "2025-12-20T18:35:35.516733+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Achat équipement chez Dorwin : sac à dos (4po), briquet (3po), 2 rations (10po), eau bénite (25po), corde (1po), 12 torches (2po) = 45 po",
+      "description": "Aldric, Lyra, Thorin, and Gareth crowd around Dorwin's cluttered shop counter, examining backpacks and torches as the elderly merchant carefully tallies their purchases on worn parchment, candlelight glinting off coils of rope and glass vials of holy water",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se pressent autour du comptoir encombré de la boutique de Dorwin, examinant des sacs à dos et des torches tandis que le vieux marchand compte soigneusement leurs achats sur un parchemin usé, la lumière des bougies scintillant sur les rouleaux de corde et les fioles d'eau bénite"
+    },
+    {
+      "id": 4,
+      "timestamp": "2025-12-20T18:35:35.686836+01:00",
+      "session_id": 1,
+      "type": "expense",
+      "content": "Le groupe dépense 45 po (Équipement chez Dorwin)",
+      "description": "Aldric, Lyra, Thorin, and Gareth crowd around Dorwin's cluttered shop counter, examining backpacks, coiled rope, and bundles of torches while the weathered merchant tallies their purchases on parchment by candlelight, his gnarled fingers moving across the worn parchment",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se pressent autour du comptoir encombré de la boutique de Dorwin, examinant des sacs à dos, de la corde enroulée et des paquets de torches tandis que le marchand usé compte leurs achats sur un parchemin à la lumière des bougies, ses doigts noueux se déplaçant sur le vieux parchemin"
+    },
+    {
+      "id": 5,
+      "timestamp": "2025-12-20T18:36:31.65308+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Le groupe examine l'extérieur du mausolée à la recherche d'indices",
+      "description": "Aldric, Lyra, Thorin, and Gareth circle the weathered mausoleum's exterior, torchlight revealing crumbling stone walls carved with faded symbols. Moss creeps across ancient foundations as they search for hidden entrances, their shadows stretching long across overgrown graves.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth contournent l'extérieur du mausolée usé par le temps, la lumière des torches révélant des murs de pierre écroulés gravés de symboles effacés. La mousse s'étend sur les fondations anciennes tandis qu'ils cherchent des entrées cachées, leurs ombres s'allongeant sur les tombes envahies par la végétation."
+    },
+    {
+      "id": 6,
+      "timestamp": "2025-12-20T18:40:40.31696+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Entrée dans le mausolée, torches allumées",
+      "description": "Aldric, Lyra, Thorin, and Gareth descend weathered stone steps into the mausoleum's shadowy depths, torches casting flickering light across crumbling walls carved with forgotten symbols. Cobwebs thick as curtains drape the entrance as their footsteps echo through the oppressive silence, revealing dust-laden air and the musty scent of centuries past.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth descendent les marches de pierre usées dans les profondeurs ombreuses du mausolée, les torches projetant une lumière vacillante sur les murs écroulés gravés de symboles oubliés. Des toiles d'araignée épaisses comme des rideaux drapent l'entrée tandis que leurs pas résonnent dans le silence oppressant, révélant un air chargé de poussière et l'odeur moisi des siècles passés."
+    },
+    {
+      "id": 7,
+      "timestamp": "2025-12-20T18:41:50.077142+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Descente de l'escalier, armes dégainées",
+      "description": "Aldric, Lyra, Thorin, and Gareth descend worn stone steps into gathering darkness, torches held high revealing ancient walls carved with faded inscriptions. Shadows flicker and dance across crumbling masonry as their footsteps echo through the oppressive silence of the mausoleum's depths.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth descendent d'anciens escaliers de pierre dans l'obscurité croissante, les torches levées haut révélant des murs anciens gravés d'inscriptions fanées. Les ombres dansent sur la maçonnerie écroulée tandis que leurs pas résonnent dans le silence oppressant des profondeurs du mausolée."
+    },
+    {
+      "id": 8,
+      "timestamp": "2025-12-20T18:42:23.745438+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "EMBUSCADE ! 3 squelettes attaquent dans la crypte inférieure",
+      "description": "Aldric and Gareth draw steel as three skeletal warriors erupt from ancient tombs, their bones scraping against stone in the torch-lit crypt. Rusted swords clash violently as Lyra and Thorin position themselves, shadows writhing wildly across crumbling walls while dust swirls in the flickering light.",
+      "description_fr": "Aldric et Gareth dégainent leurs épées tandis que trois guerriers squelettes surgissent des tombes anciennes, leurs os raclant la pierre dans la crypte éclairée aux torches. Les épées rouillées s'entrechoquent violemment tandis que Lyra et Thorin se positionnent, les ombres se tordant sur les murs écroulés tandis que la poussière tourbillonne à la lumière vacillante."
+    },
+    {
+      "id": 9,
+      "timestamp": "2025-12-20T18:43:48.777731+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Aldric lance l'eau bénite : 7 dégâts \\! Détruit 2 squelettes, 1 gravement touché",
+      "description": "Aldric hurls blessed water across the crypte inférieure as skeletal warriors crumble to dust, two skeletons shattering in brilliant flashes while a third staggers backward, its bleached bones cracking under divine power as torchlight flickers across ancient stone walls",
+      "description_fr": "Aldric projette l'eau bénite à travers la crypte tandis que les guerriers squelettiques s'effondrent en poussière, deux squelettes se désintégrant dans des éclats brillants pendant qu'un troisième chancelle en arrière, ses os blanchis se fendant sous la puissance divine tandis que la lumière des torches vacille sur les murs de pierre ancienne"
+    },
+    {
+      "id": 10,
+      "timestamp": "2025-12-20T18:46:41.686938+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Victoire \\! Aldric détruit le dernier squelette d'un coup de pommeau. 3 squelettes vaincus, 30 XP",
+      "description": "Aldric delivers the final blow, his pommel crushing the last skeletal warrior as it crumbles to dust in the torch-lit crypt. Bone fragments scatter across ancient stone as the three companions stand victorious amid the remains, their weapons still gleaming in the flickering light.",
+      "description_fr": "Aldric porte le coup final, son pommeau écrasant le dernier guerrier squelette qui s'effondre en poussière dans la crypte éclairée aux torches. Les fragments d'os se dispersent sur la pierre ancienne tandis que les trois compagnons se tiennent victorieux au milieu des restes, leurs armes scintillant toujours à la lumière vacillante."
+    },
+    {
+      "id": 11,
+      "timestamp": "2025-12-20T18:47:28.352407+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Lyra stabilisée. Un mage blessé (survivant) offre une potion de soin",
+      "description": "Lyra lies pale and still in the cryptic chamber as Thorin tends her wounds, while a robed mage emerges from the shadows with trembling hands, offering a glowing healing potion as torchlight flickers across weathered stone walls",
+      "description_fr": "Lyra gît pâle et immobile dans la chambre cryptique tandis que Thorin soigne ses blessures, un mage en robe surgissant des ombres avec des mains tremblantes, offrant une potion de soin lumineuse tandis que la lumière des torches vacille sur les murs de pierre usés"
+    },
+    {
+      "id": 12,
+      "timestamp": "2025-12-20T18:48:42.168376+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Repli tactique : le groupe escorte Marvos hors de la crypte pour se préparer",
+      "description": "Aldric, Lyra, Thorin, and Gareth escort the wounded mage Marvos up ancient stone steps, torchlight casting long shadows on crumbling cryptic walls as they leave the shadowy depths behind, moving toward daylight and safety above",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth escortent le mage blessé Marvos dans les anciens escaliers de pierre, la lumière des torches projetant de longues ombres sur les murs écroulés couverts de runes tandis qu'ils quittent les profondeurs ombragées, se dirigeant vers la lumière du jour et la sécurité"
+    },
+    {
+      "id": 13,
+      "timestamp": "2025-12-20T18:49:47.517748+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Repos court à l'auberge. Recherche d'un clerc au village",
+      "description": "Aldric, Lyra, Thorin, and Gareth rest wearily at a worn tavern table, candlelight casting long shadows across their dust-covered faces as they discuss their urgent search for a skilled cleric to aid their wounded companion Marvos",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se reposent dans une auberge fatiguée, la lumière des bougies projetant de longues ombres sur leurs visages couverts de poussière tandis qu'ils discutent de leur recherche urgente d'un clerc compétent pour aider leur compagnon blessé Marvos"
+    },
+    {
+      "id": 14,
+      "timestamp": "2025-12-20T18:50:10.14152+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Sœur Adanel Warhammer (Clerc N1, 6 PV) rejoint le groupe. Apporte 2 eaux bénites et Renvoi des morts-vivants",
+      "description": "Sister Adanel Warhammer, a sturdy dwarven cleric, stands before the party in the tavern's warm candlelight, her holy symbol gleaming as she presents vials of blessed water. The adventurers regard her with quiet respect, recognizing the divine strength that now joins their ranks against the shadow-haunted crypts.",
+      "description_fr": "Sœur Adanel Warhammer, une clerc naine robuste, se tient devant le groupe à la lumière chaleureuse des bougies de la taverne, son symbole sacré scintillant tandis qu'elle présente des fioles d'eau bénite. Les aventuriers la considèrent avec un respect tranquille, reconnaissant la force divine qui rejoint désormais leurs rangs contre les cryptes hantées par les ombres."
+    },
+    {
+      "id": 15,
+      "timestamp": "2025-12-20T18:51:13.547713+01:00",
+      "session_id": 1,
+      "type": "note",
+      "content": "Interrogatoire de Marvos sur le Seigneur Valdric",
+      "description": "Marvos the wounded mage slumps against cold cryptic stones as the party leans in close, torchlight casting long shadows across his haggard face while he reveals dark secrets about the sinister Lord Valdric with trembling voice and haunted eyes.",
+      "description_fr": "Marvos le mage blessé s'affaisse contre les pierres froides de la crypte tandis que le groupe se penche près de lui, la lumière des torches projetant de longues ombres sur son visage émacié pendant qu'il révèle de sombres secrets sur le sinistre Seigneur Valdric d'une voix tremblante et des yeux hantés."
+    },
+    {
+      "id": 16,
+      "timestamp": "2025-12-20T18:53:59.211474+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Retour à la crypte avec Sœur Adanel. Fouille de la salle des squelettes",
+      "description": "Aldric, Lyra, Thorin, and Sister Adanel descend into the torch-lit crypt, their flames casting dancing shadows across skeletal remains scattered across ancient stone floors. Dust hangs thick in the air as they methodically search the skeleton chamber, holy water glinting in the cleric's steady hands.",
+      "description_fr": "Aldric, Lyra, Thorin et Sœur Adanel descendent dans la crypte éclairée aux torches, leurs flammes projetant des ombres dansantes sur les restes squelettiques éparpillés sur les anciens sols de pierre. La poussière flotte épaisse dans l'air tandis qu'ils fouillent méthodiquement la salle des squelettes, l'eau bénite scintillant dans les mains fermes de la clerc."
+    },
+    {
+      "id": 17,
+      "timestamp": "2025-12-20T18:54:33.872424+01:00",
+      "session_id": 1,
+      "type": "loot",
+      "content": "Le groupe gagne 15 po (Cachette secrète dans la crypte)",
+      "description": "The party discovers a hidden stone alcove behind crumbling cryptic walls, where leather pouches overflow with gleaming gold coins that catch torchlight, casting dancing reflections across ancient dust-covered surfaces.",
+      "description_fr": "Le groupe découvre une alcôve cachée derrière des murs cryptiques en ruine, où des bourses de cuir débordent de pièces d'or scintillantes qui captent la lumière des torches, projetant des reflets dansants sur les surfaces anciennes couvertes de poussière."
+    },
+    {
+      "id": 18,
+      "timestamp": "2025-12-20T18:54:34.048243+01:00",
+      "session_id": 1,
+      "type": "discovery",
+      "content": "Cachette trouvée : potion de soin, 15 po, parchemin du Culte de l'Éternelle Nuit signé 'F.'",
+      "description": "The party carefully excavates a hidden alcove behind crumbling stone, revealing a ceramic vial of shimmering healing potion and an ancient parchment sealed with a dark wax sigil. Torchlight glints off mysterious symbols marked 'F.' as Sister Adanel's eyes narrow with concern.",
+      "description_fr": "Le groupe dégage soigneusement une alcôve cachée derrière la pierre écroulée, révélant une fiole de potion de soin scintillante et un parchemin ancien scellé d'un sceau de cire sombre. La lumière des torches scintille sur les symboles mystérieux marqués « F. » tandis que les yeux de Sœur Adanel se plissent d'inquiétude."
+    },
+    {
+      "id": 19,
+      "timestamp": "2025-12-20T18:57:28.623318+01:00",
+      "session_id": 1,
+      "type": "exploration",
+      "content": "Examen de l'autel et des runes magiques",
+      "description": "Aldric, Lyra, Thorin, and Gareth gather around an ancient stone altar deep within the crypt, candlelight casting dancing shadows across intricate runes carved into the walls. Sœur Adanel traces her fingers over glowing magical symbols while the air grows heavy with an otherworldly presence.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se rassemblent autour d'un autel de pierre ancien au cœur de la crypte, la lumière des bougies projetant des ombres dansantes sur les runes complexes gravées dans les murs. Sœur Adanel trace ses doigts sur des symboles magiques lumineux tandis que l'air devient lourd d'une présence surnaturelle."
+    },
+    {
+      "id": 20,
+      "timestamp": "2025-12-20T18:57:55.743952+01:00",
+      "session_id": 1,
+      "type": "discovery",
+      "content": "Sceau partiellement restauré ! Valdric affaibli (-2 attaque, pas de régénération)",
+      "description": "The party gathers around the ancient altar as Aldric traces a partially restored seal with his fingers, arcane runes suddenly flaring with sickly purple light. Valdric's spectral form materializes above the stone, visibly weakened, his ethereal body flickering and diminished as the seal's power drains his otherworldly strength.",
+      "description_fr": "Le groupe se rassemble autour de l'autel ancien tandis qu'Aldric trace un sceau partiellement restauré du bout des doigts, les runes magiques s'illuminant soudain d'une lumière pourpre maladive. La forme spectrale de Valdric se matérialise au-dessus de la pierre, visiblement affaiblie, son corps éthéré vacillant et diminué tandis que le pouvoir du sceau draine sa force surnaturelle."
+    },
+    {
+      "id": 21,
+      "timestamp": "2025-12-20T19:00:36.283718+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Embuscade préparée près de l'autel. Tactique : Aldric engage, Adanel repousse les sbires, Lyra vise la gemme",
+      "description": "Aldric charges forward as shadowy cultist minions emerge near the ancient altar, their forms flickering in candlelight. Sister Adanel channels divine force to repel the attackers while Lyra's arcane bolt streaks toward a glowing gemstone, its magical aura pulsing with dark energy as steel clashes against stone.",
+      "description_fr": "Aldric se précipite en avant tandis que les sbires des cultistes émergent près de l'autel ancien, leurs silhouettes vacillant à la lumière des chandelles. Sœur Adanel canalise la force divine pour repousser les assaillants tandis que le trait arcanique de Lyra fonce vers une gemme lumineuse, son aura magique pulsant d'énergie sombre alors que l'acier résonne contre la pierre."
+    },
+    {
+      "id": 22,
+      "timestamp": "2025-12-20T19:06:30.453814+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Round 4 : Assaut final sur Valdric. Adanel vise la gemme !",
+      "description": "Aldric and Gareth press their assault on the weakened Valdric as Lyra's magic crackles toward a glowing gemstone, her spell illuminating the ancient altar in brilliant arcane light. Steel rings against dark stone while shadows writhe across cryptic runes, the final confrontation reaching its desperate crescendo.",
+      "description_fr": "Aldric et Gareth intensifient leur assaut contre Valdric affaibli tandis que la magie de Lyra crépite vers une gemme lumineuse, son sort illuminant l'autel ancien d'une lumière magique brillante. L'acier résonne contre la pierre sombre tandis que les ombres se tordent sur les runes mystiques, la confrontation finale atteint son paroxysme désespéré."
+    },
+    {
+      "id": 23,
+      "timestamp": "2025-12-20T19:07:34.118968+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "Round 5 : ASSAUT FINAL ! Tous visent la gemme !",
+      "description": "Aldric, Lyra, Thorin, and Gareth converge on the weakened Valdric before the cursed altar, weapons flashing in candlelight as they strike at the glowing gemstone. Steel rings against dark magic while shadows writhe across ancient runes, the final assault echoing through the crypt.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth convergent sur Valdric affaibli devant l'autel maudit, les armes scintillant à la lumière des bougies tandis qu'ils frappent la gemme lumineuse. L'acier résonne contre la magie noire tandis que les ombres s'agitent sur les runes anciennes, l'assaut final résonnant dans la crypte."
+    },
+    {
+      "id": 24,
+      "timestamp": "2025-12-20T19:10:25.870771+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "MOMENT HÉROÏQUE ! Adanel soigne Lyra, Aldric entre en rage pour protéger ses amis !",
+      "description": "Aldric roars with primal fury as he shields his wounded companions, his blade gleaming in torchlight while Adanel channels divine radiance to mend Lyra's injuries. Steel rings against stone as the party stands united against the weakened sorcerer, shadows dancing wildly across the ancient altar.",
+      "description_fr": "Aldric rugit de fureur primitive en protégeant ses compagnons blessés, sa lame scintillant à la lumière des torches tandis qu'Adanel canalise la lumière divine pour soigner les blessures de Lyra. L'acier résonne contre la pierre tandis que le groupe se tient uni contre le magicien affaibli, les ombres dansant sauvagement sur l'autel ancien."
+    },
+    {
+      "id": 25,
+      "timestamp": "2025-12-20T19:12:07.15357+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "ROUND FINAL ! Assaut combiné des trois héros sur Valdric !",
+      "description": "Aldric, Lyra, and Thorin converge on the weakened Valdric at the ancient altar, weapons blazing in candlelit fury. Steel rings against dark magic as the party presses their final assault, shadows writhing across crumbling stone walls while the corrupted gem pulses with fading crimson light.",
+      "description_fr": "Aldric, Lyra et Thorin convergent sur le Valdric affaibli près de l'autel ancien, armes brandies dans une furie éclairée aux chandelles. L'acier résonne contre la magie noire tandis que le groupe lance son assaut final, les ombres se tordant sur les murs de pierre écroulée tandis que la gemme corrompue pulse d'une lumière cramoisie défaillante."
+    },
+    {
+      "id": 26,
+      "timestamp": "2025-12-20T19:12:44.711408+01:00",
+      "session_id": 1,
+      "type": "combat",
+      "content": "VICTOIRE ! Lyra brise la gemme de Valdric ! Le seigneur mort-vivant est DÉTRUIT !",
+      "description": "Lyra's arcane bolt shatters the glowing gemstone as Valdric shrieks, his undead form convulsing in the altar's eerie light. Aldric, Thorin, and Gareth stand triumphant amid crumbling shadows, their weapons gleaming as the dark sorcerer crumbles to dust across the cryptic chamber's ancient stones.",
+      "description_fr": "Le trait arcanique de Lyra brise la gemme lumineuse tandis que Valdric pousse un cri perçant, sa forme morte-vivante se convulsant à la lumière étrange de l'autel. Aldric, Thorin et Gareth se tiennent triomphants au milieu des ombres qui s'effondrent, leurs armes scintillant tandis que le sorcier noir se désagrège en poussière sur les pierres anciennes de la chambre cryptique."
+    },
+    {
+      "id": 27,
+      "timestamp": "2025-12-20T19:13:12.175529+01:00",
+      "session_id": 1,
+      "type": "loot",
+      "content": "Le groupe gagne 2000 po (Trésor de Valdric)",
+      "description": "The victorious party stands before Valdric's massive iron-bound chest, its lid thrown open to reveal thousands of gleaming gold coins cascading like a golden waterfall, jeweled weapons glinting in torchlight, and magical artifacts shimmering with ethereal inner radiance.",
+      "description_fr": "Le groupe victorieux se tient devant le massif coffre cerclé de fer de Valdric, son couvercle grand ouvert révélant des milliers de pièces d'or scintillantes en cascade comme une chute dorée, des armes serties de joyaux brillant à la lumière des torches, et des artefacts magiques chatoyant d'une radiance éthérée."
+    },
+    {
+      "id": 28,
+      "timestamp": "2025-12-20T19:13:12.351359+01:00",
+      "session_id": 1,
+      "type": "discovery",
+      "content": "Trésor de Valdric : 4000 pièces d'électrum (2000 po)",
+      "description": "The victorious party stands before Valdric's shattered treasure chest in the cryptic chamber, golden electrum coins cascading across ancient stone as ethereal light radiates from the broken gemstone fragments scattered at their feet, marking their triumph over darkness",
+      "description_fr": "Le groupe victorieux se tient devant le coffre brisé de Valdric dans la chambre cryptique, des pièces d'électrum dorées se déversant sur la pierre ancienne tandis qu'une lumière éthérée émane des fragments de gemme brisés dispersés à leurs pieds, marquant leur triomphe sur les ténèbres"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "session_id": 0,
+  "entries": [
+    {
+      "id": 29,
+      "timestamp": "2025-12-20T19:13:22.239124+01:00",
+      "type": "session",
+      "content": "Session 1 terminée - VICTOIRE \\! Valdric détruit, Pierrebrune sauvée. Le mystérieux 'F.' du Culte de l'Éternelle Nuit reste à identifier...",
+      "description": "Aldric, Lyra, Thorin, and Gareth stand triumphant amid shattered dark crystals and the defeated form of Valdric, their weapons raised in victory as ethereal light breaks through the crypts' ancient stones. Gold and electrum coins scatter across the chamber floor, glinting in the otherworldly glow of their hard-won triumph.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se tiennent en triomphe au milieu de cristaux sombres brisés et de la dépouille vaincue de Valdric, leurs armes levées en victoire tandis qu'une lumière éthérée perce à travers les pierres anciennes de la crypte. Des pièces d'or et d'électrum se dispersent sur le sol de la chambre, scintillant dans la lueur surnaturelle de leur victoire chèrement acquise."
+    },
+    {
+      "id": 67,
+      "timestamp": "2025-12-20T23:45:05.912792+01:00",
+      "type": "session",
+      "content": "Session 2 terminée - SESSION 2 VICTOIRE \\! Le Culte de l'Éternelle Nuit détruit. Frère Mordecai Fane vaincu. Le Cristal de Pouvoir détruit. Sombregarde libérée. Pierrebrune sauvée.",
+      "description": "The victorious party stands amid shattered obsidian crystals and fallen undead within the shadow-haunted crypt, weapons raised in triumph as ethereal light breaks through the darkness, Aldric and Gareth breathing heavily beside Lyra's glowing staff while Thorin's divine radiance illuminates their hard-won liberation.",
+      "description_fr": "Le groupe victorieux se tient au milieu de cristaux d'obsidienne brisés et de morts-vivants vaincus dans la crypte ombragée, armes levées en triomphe tandis qu'une lumière éthérée perce l'obscurité, Aldric et Gareth respirant lourdement aux côtés du bâton luminescent de Lyra tandis que la radiance divine de Thorin illumine leur libération chèrement acquise."
+    },
+    {
+      "id": 78,
+      "timestamp": "2025-12-22T14:34:14.640111+01:00",
+      "type": "session",
+      "content": "Session 3 terminée - Arrivée sécurisée au Couvent des Sœurs de l'Aube - Adanel protégée",
+      "description": "Aldric, Lyra, Thorin, and Gareth stand exhausted but triumphant before the sanctuary of the Couvent des Sœurs de l'Aube, morning light flooding through arched windows as Adanel emerges safely beside them, the perilous journey complete and darkness finally vanquished.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se tiennent épuisés mais triomphants devant le sanctuaire du Couvent des Sœurs de l'Aube, la lumière du matin inondant les fenêtres en arche tandis qu'Adanel émerge en sécurité à leurs côtés, le voyage périlleux enfin achevé et les ténèbres vaincues."
+    },
+    {
+      "id": 85,
+      "timestamp": "2025-12-22T14:58:15.501886+01:00",
+      "type": "session",
+      "content": "Session 4 terminée - Session 4 Complete - Montagne du Crépuscule: Accord de paix établi avec l'Âme Crépusculaire - Nouvelle mission: ordre de pèlerinage pacifique - Sept ans pour trouver une véritable libération",
+      "description": "Aldric, Lyra, Thorin, and Gareth stand atop the Twilight Mountain as dawn breaks, bathed in ethereal golden light. The party's faces glow with quiet triumph as they witness the Twilight Soul's peaceful presence shimmer before them, their long negotiation bearing fruit in this sacred moment of accord.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se tiennent au sommet de la Montagne du Crépuscule tandis que l'aube se lève, baignés dans une lumière dorée éthérée. Les visages du groupe brillent de triomphe tranquille tandis qu'ils témoignent de la présence paisible de l'Âme Crépusculaire scintiller devant eux, leur longue négociation portant ses fruits en ce moment sacré d'accord."
+    },
+    {
+      "id": 86,
+      "timestamp": "2025-12-22T15:06:28.986223+01:00",
+      "type": "loot",
+      "content": "Le groupe gagne 150 po (Bourse de Mère Isabelle - Aide du Couvent des Sœurs de l'Aube)",
+      "description": "Mother Isabelle presents a heavy leather purse to the grateful party, candlelight glinting off gold coins visible through the opening as the abbess's weathered hands transfer the convent's blessing and gratitude for their sacred mission to the Twilight Mountain",
+      "description_fr": "Mère Isabelle présente une lourde bourse de cuir au groupe reconnaissant, la lumière des bougies scintillant sur les pièces d'or visibles par l'ouverture tandis que les mains ridées de l'abbesse transmettent la bénédiction et la gratitude du couvent pour leur mission sacrée à la Montagne du Crépuscule"
+    },
+    {
+      "id": 87,
+      "timestamp": "2025-12-22T15:06:29.159952+01:00",
+      "type": "rest",
+      "content": "Repos à Cordova - L'Ancre Dorée - Tous les personnages en bonne santé et bien équipés. Préparation pour les futures quêtes.",
+      "description": "Aldric, Lyra, Thorin, and Gareth rest comfortably at The Golden Anchor in Cordova, their weapons cleaned and armor polished beside a crackling hearth. Warm firelight flickers across their satisfied faces as they share a peaceful meal, their bodies finally relaxed after the mountain's trials.",
+      "description_fr": "Aldric, Lyra, Thorin et Gareth se reposent confortablement à L'Ancre Dorée à Cordova, leurs armes nettoyées et armures polies près d'un foyer crépitant. La lumière chaude du feu danse sur leurs visages satisfaits tandis qu'ils partagent un repas paisible, leurs corps enfin détendus après les épreuves de la montagne."
+    },
+    {
+      "id": 88,
+      "timestamp": "2025-12-22T15:09:47.610559+01:00",
+      "type": "note",
+      "content": "Avant départ pour Cordova : L'ordre de pèlerinage à la Montagne du Crépuscule est désormais géré par Mère Isabelle et le Couvent. Le groupe n'a plus de responsabilités directes concernant l'Âme Crépusculaire.",
+      "description": "Mère Isabelle stands with Aldric, Lyra, Thorin, and Gareth in the stone courtyard of the Convent of the Sisters of Dawn, morning light casting long shadows as she formally transfers the sacred responsibility of the pilgrimage order to her capable hands, the weight of their burden visibly lifting from the adventurers' shoulders.",
+      "description_fr": "Mère Isabelle se tient aux côtés d'Aldric, Lyra, Thorin et Gareth dans la cour de pierre du Couvent des Sœurs de l'Aube, la lumière du matin projetant de longues ombres tandis qu'elle transfère formellement la responsabilité sacrée de l'ordre de pèlerinage à ses mains capables, le poids de leur fardeau s'allègeant visiblement sur les épaules des aventuriers."
+    },
+    {
+      "id": 93,
+      "timestamp": "2025-12-22T23:37:12.672202+01:00",
+      "type": "session",
+      "content": "Session 5 terminée - Session 5 - En attente : Suivi de la caravane des Pierres Noires - Lyra et Kess reconnaissent depuis les toits pendant qu'Aldric, Thorin et Gareth suivent à distance à pied"
+    }
+  ]
+}

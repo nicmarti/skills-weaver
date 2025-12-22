@@ -31,6 +31,14 @@
       "duration": "23m",
       "summary": "Session 4 Complete - Montagne du Crépuscule: Accord de paix établi avec l'Âme Crépusculaire - Nouvelle mission: ordre de pèlerinage pacifique - Sept ans pour trouver une véritable libération",
       "status": "completed"
+    },
+    {
+      "id": 5,
+      "started_at": "2025-12-22T23:09:47.299204+01:00",
+      "ended_at": "2025-12-22T23:37:12.671458+01:00",
+      "duration": "27m",
+      "summary": "Session 5 - En attente : Suivi de la caravane des Pierres Noires - Lyra et Kess reconnaissent depuis les toits pendant qu'Aldric, Thorin et Gareth suivent à distance à pied",
+      "status": "completed"
     }
   ]
 }

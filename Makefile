@@ -53,7 +53,7 @@ $(BINARY_PREFIX)-monster: cmd/monster/main.go internal/monster/*.go internal/dic
 $(BINARY_PREFIX)-treasure: cmd/treasure/main.go internal/treasure/*.go internal/dice/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/treasure
 
-$(BINARY_PREFIX)-dm: cmd/dm/main.go internal/agent/*.go internal/dmtools/*.go
+$(BINARY_PREFIX)-dm: cmd/dm/main.go internal/agent/*.go internal/dmtools/*.go internal/ui/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/dm
 
 $(BINARY_PREFIX)-equipment: cmd/equipment/main.go internal/equipment/*.go

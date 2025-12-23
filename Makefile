@@ -5,7 +5,8 @@
 BINARY_PREFIX = sw
 BINARIES = $(BINARY_PREFIX)-dice $(BINARY_PREFIX)-character $(BINARY_PREFIX)-adventure \
            $(BINARY_PREFIX)-names $(BINARY_PREFIX)-npc $(BINARY_PREFIX)-image \
-           $(BINARY_PREFIX)-monster $(BINARY_PREFIX)-treasure
+           $(BINARY_PREFIX)-monster $(BINARY_PREFIX)-treasure $(BINARY_PREFIX)-dm \
+           $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell
 
 # Go commands
 GOCMD = go
@@ -51,6 +52,15 @@ $(BINARY_PREFIX)-monster: cmd/monster/main.go internal/monster/*.go internal/dic
 
 $(BINARY_PREFIX)-treasure: cmd/treasure/main.go internal/treasure/*.go internal/dice/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/treasure
+
+$(BINARY_PREFIX)-dm: cmd/dm/main.go internal/agent/*.go internal/dmtools/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/dm
+
+$(BINARY_PREFIX)-equipment: cmd/equipment/main.go internal/equipment/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/equipment
+
+$(BINARY_PREFIX)-spell: cmd/spell/main.go internal/spell/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/spell
 
 # =============================================================================
 # Test targets

@@ -27,7 +27,9 @@ skillsweaver/
 │   │   ├── image-generator/     # Génération d'images
 │   │   ├── journal-illustrator/ # Illustration de journaux
 │   │   ├── monster-manual/      # Bestiaire
-│   │   └── treasure-generator/  # Génération de trésors
+│   │   ├── treasure-generator/  # Génération de trésors
+│   │   ├── equipment-browser/   # Catalogue d'équipement
+│   │   └── spell-reference/     # Grimoire des sorts
 │   └── agents/              # Sous-agents spécialisés
 │       ├── character-creator.md
 │       ├── rules-keeper.md
@@ -40,7 +42,9 @@ skillsweaver/
 │   ├── npc/                 # CLI sw-npc
 │   ├── image/               # CLI sw-image
 │   ├── monster/             # CLI sw-monster
-│   └── treasure/            # CLI sw-treasure
+│   ├── treasure/            # CLI sw-treasure
+│   ├── equipment/           # CLI sw-equipment
+│   └── spell/               # CLI sw-spell
 ├── internal/
 │   ├── dice/                # Package lancer de dés
 │   ├── data/                # Chargement données JSON
@@ -50,7 +54,9 @@ skillsweaver/
 │   ├── npc/                 # Package génération de PNJ
 │   ├── image/               # Package génération d'images
 │   ├── monster/             # Package bestiaire
-│   └── treasure/            # Package trésors
+│   ├── treasure/            # Package trésors
+│   ├── equipment/           # Package catalogue équipement
+│   └── spell/               # Package grimoire des sorts
 ├── data/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
@@ -139,12 +145,17 @@ Le journal est organisé en fichiers séparés par session pour optimiser la per
 │  │monster-    │ │treasure-   │ │journal-illustrator │  │
 │  │manual      │ │generator   │ │                    │  │
 │  └────────────┘ └────────────┘ └────────────────────┘  │
+│  ┌────────────┐ ┌────────────┐                         │
+│  │equipment-  │ │spell-      │                         │
+│  │browser     │ │reference   │                         │
+│  └────────────┘ └────────────┘                         │
 └─────────────────────────────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────┐
 │                    CLI (sw-*)                           │
 │  sw-dice, sw-character, sw-adventure, sw-names,        │
-│  sw-npc, sw-image, sw-monster, sw-treasure             │
+│  sw-npc, sw-image, sw-monster, sw-treasure,            │
+│  sw-equipment, sw-spell                                │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -188,6 +199,51 @@ go build -o sw-dice ./cmd/dice
 ### Skill dice-roller
 
 La skill `dice-roller` permet à Claude de lancer des dés automatiquement pendant une session. Elle est découverte automatiquement quand on parle de jets de dés.
+
+### CLI sw-dm (Dungeon Master Agent)
+
+Application interactive de Maître du Jeu autonome avec boucle d'agent complète :
+
+```bash
+# Compiler
+go build -o sw-dm ./cmd/dm
+
+# Lancer l'application
+./sw-dm
+
+# L'application propose un menu pour sélectionner l'aventure
+# Puis démarre une session REPL interactive avec streaming
+```
+
+**Fonctionnalités** :
+- Boucle d'agent complète avec tool_use (Anthropic API)
+- Streaming des réponses pour une expérience immersive
+- Auto-chargement du contexte d'aventure (groupe, inventaire, journal)
+- Accès direct aux packages Go (dice, monster, treasure, npc, etc.)
+- Interface REPL avec historique de conversation
+
+**Tools disponibles pour l'agent** :
+- `roll_dice` : Lancer des dés avec notation RPG
+- `get_monster` : Consulter les stats d'un monstre
+- `log_event` : Enregistrer un événement dans le journal
+- `add_gold` : Modifier l'or du groupe
+- `get_inventory` : Consulter l'inventaire partagé
+- `generate_treasure` : Générer un trésor BFRPG
+- `generate_npc` : Créer un PNJ complet
+- `generate_image` : Générer une illustration fantasy (requiert FAL_KEY)
+
+**Architecture** :
+- `internal/agent/` : Orchestration de la boucle d'agent
+  - `agent.go` : Boucle principale avec tool execution
+  - `tools.go` : Système de registry des tools
+  - `context.go` : Gestion contexte conversation/aventure
+  - `streaming.go` : Traitement événements streaming
+- `internal/dmtools/` : Wrappers des tools pour l'agent
+- `cmd/dm/main.go` : Application REPL
+
+**Prérequis** :
+- Variable d'environnement `ANTHROPIC_API_KEY` configurée
+- Une aventure existante dans `data/adventures/`
 
 ### CLI sw-character
 
@@ -435,6 +491,69 @@ go build -o sw-treasure ./cmd/treasure
 
 La skill `treasure-generator` permet à Claude de générer des trésors appropriés après les combats, en respectant les types de trésors assignés aux monstres.
 
+### CLI sw-equipment
+
+Consulter le catalogue d'équipement BFRPG :
+
+```bash
+# Compiler
+go build -o sw-equipment ./cmd/equipment
+
+# Lister les armes
+./sw-equipment weapons                    # Toutes les armes
+./sw-equipment weapons --type=melee      # Armes de mêlée
+./sw-equipment weapons --type=ranged     # Armes à distance
+
+# Lister les armures
+./sw-equipment armor                      # Toutes les armures
+./sw-equipment armor --type=heavy        # Armures lourdes
+
+# Équipement d'aventure
+./sw-equipment gear                       # Liste l'équipement
+./sw-equipment ammo                       # Munitions
+
+# Afficher un item
+./sw-equipment show longsword            # Détails de l'épée longue
+./sw-equipment search épée               # Recherche par nom FR/EN
+
+# Équipement de départ
+./sw-equipment starting fighter          # Équipement guerrier
+./sw-equipment starting magic-user       # Équipement magicien
+```
+
+### Skill equipment-browser
+
+La skill `equipment-browser` permet à Claude de consulter les armes, armures et équipement avec leurs statistiques (dégâts, CA, coût, propriétés).
+
+### CLI sw-spell
+
+Consulter le grimoire des sorts BFRPG :
+
+```bash
+# Compiler
+go build -o sw-spell ./cmd/spell
+
+# Lister les sorts
+./sw-spell list                              # Tous les sorts
+./sw-spell list --class=cleric              # Sorts de clerc
+./sw-spell list --class=magic-user          # Sorts de magicien
+./sw-spell list --class=cleric --level=1    # Clerc niveau 1
+
+# Afficher un sort
+./sw-spell show magic_missile               # Détails du projectile magique
+./sw-spell show cure_light_wounds           # Soins légers
+
+# Rechercher
+./sw-spell search lumière                   # Recherche par nom FR/EN
+
+# Sorts réversibles
+./sw-spell reversible                       # Liste les sorts avec forme inversée
+```
+
+### Skill spell-reference
+
+La skill `spell-reference` permet à Claude de consulter les sorts par classe et niveau, avec leurs effets détaillés (portée, durée, descriptions).
+
 ### CLI sw-validate
 
 Valider les données de jeu :
@@ -565,10 +684,12 @@ Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
 | `combat` | (orphelin) | ✓ | - |
 | `data` | `sw-character` | ✓ | ✓ |
 | `dice` | `sw-dice`, `sw-monster`, `sw-treasure` | ✓ | ✓ |
+| `equipment` | `sw-equipment` | - | ✓ |
 | `image` | `sw-image` | - | ✓ |
 | `monster` | `sw-monster` | ✓ | ✓ |
 | `names` | `sw-names`, `sw-npc` | ✓ | ✓ |
 | `npc` | `sw-npc` | ✓ | ✓ |
+| `spell` | `sw-spell` | - | ✓ |
 | `treasure` | `sw-treasure` | ✓ | ✓ |
 
 ## Conventions Git

@@ -101,7 +101,7 @@
       "name_en": "Staff",
       "damage": "1d6",
       "weight": 2,
-      "cost": 0,
+      "cost": 2,
       "type": "melee",
       "properties": ["two-handed"]
     },
@@ -184,7 +184,7 @@
       "id": "dart",
       "name": "Dard",
       "name_en": "Dart",
-      "damage": "1d3",
+      "damage": "1d4",
       "weight": 0.1,
       "cost": 0.5,
       "type": "ranged",

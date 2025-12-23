@@ -1,0 +1,273 @@
+{
+  "current_year": 1347,
+  "era": "Après la Fondation",
+  "historical_events": [
+    {
+      "year": 0,
+      "event": "Fondation du Premier Royaume Humain",
+      "description": "Établissement du premier royaume humain organisé (ancêtre d'Astrène)",
+      "significance": "Début de l'ère humaine dominante",
+      "affected_regions": ["Terres du Sud"]
+    },
+    {
+      "year": 200,
+      "event": "Apogée de l'Empire d'Astrène",
+      "description": "L'Empire d'Astrène contrôle 80% du continent, alliance avec elfes et nains",
+      "significance": "Âge d'or culturel et magique",
+      "affected_regions": ["Continent entier"]
+    },
+    {
+      "year": 547,
+      "event": "Fondation de Valdorine",
+      "description": "Marchands de Cordova déclarent indépendance, établissent monarchie marchande",
+      "significance": "Début de la domination maritime",
+      "affected_regions": ["Côte Occidentale"]
+    },
+    {
+      "year": 600,
+      "event": "Déclin d'Astrène",
+      "description": "Début du lent déclin de l'Empire : guerres civiles, terres épuisées, corruption",
+      "significance": "Fin de l'hégémonie impériale",
+      "affected_regions": ["Terres du Sud"]
+    },
+    {
+      "year": 750,
+      "event": "Fondation de Karvath",
+      "description": "Généraux rebelles établissent l'Empire militaire dans les montagnes",
+      "significance": "Émergence de la puissance militaire",
+      "affected_regions": ["Montagnes de Fer"]
+    },
+    {
+      "year": 897,
+      "event": "Fondation de Lumenciel",
+      "description": "Révolution religieuse, établissement de la Théocratie du Soleil Éternel",
+      "significance": "Début de l'influence spirituelle organisée",
+      "affected_regions": ["Terres Saintes"]
+    },
+    {
+      "year": 950,
+      "event": "Grande Guerre des Quatre Royaumes",
+      "description": "Conflit majeur impliquant les 4 royaumes, statu quo final",
+      "significance": "Établissement des frontières actuelles",
+      "affected_regions": ["Continent entier"],
+      "casualties": "Environ 100 000 morts"
+    },
+    {
+      "year": 1267,
+      "event": "Début de la Guerre de Frontière Karvath-Lumenciel",
+      "description": "Incident frontalier dégénère en guerre larvée permanente",
+      "significance": "Conflit actif depuis 80 ans",
+      "affected_regions": ["Frontière Karvath-Lumenciel"],
+      "status": "En cours"
+    },
+    {
+      "year": 1300,
+      "event": "Montée de la Guilde de l'Ombre",
+      "description": "Réseau criminel transnational gagne en influence, trafic d'artefacts",
+      "significance": "Acteur non-étatique majeur",
+      "affected_regions": ["Tous les royaumes"],
+      "status": "Actif, influence croissante"
+    },
+    {
+      "year": 1335,
+      "event": "Élection de Caelion 'le Lumineux'",
+      "description": "Haut-Archevêque Caelion élu après campagne d'influence, début de l'hypocrisie systémique",
+      "significance": "Tournant vers corruption au sein de Lumenciel",
+      "affected_regions": ["Lumenciel"],
+      "status": "Caelion toujours au pouvoir"
+    },
+    {
+      "year": 1339,
+      "event": "Élection d'Aldaren III 'le Calculateur'",
+      "description": "Roi Aldaren III élu par le Conseil des Marchands de Valdorine",
+      "significance": "Renforcement du pragmatisme économique",
+      "affected_regions": ["Valdorine"]
+    },
+    {
+      "year": 1342,
+      "event": "Ascension de Selkara 'la Lame'",
+      "description": "Selkara vainc ses 3 frères en combat rituel, devient Impératrice de Karvath",
+      "significance": "Leadership militaire renforcé, posture défensive",
+      "affected_regions": ["Karvath"]
+    }
+  ],
+  "recent_events": [
+    {
+      "year": 1347,
+      "month": "Il y a 3 semaines",
+      "event": "Kess embarque sur le Corbeaux des Mers",
+      "description": "Kess paie 500 po au Capitaine Meren pour voyage vers Shasseth (Terres Brûlées)",
+      "significance": "Début de la quête principale",
+      "affected_regions": ["Cordova", "Terres Brûlées"],
+      "witnesses": ["Capitaine Meren", "Maître des Docks"],
+      "notes": "Kess cherche 'quelque chose d'important' lié à la Crypte"
+    },
+    {
+      "year": 1347,
+      "month": "Il y a 3 semaines",
+      "event": "Sirène reçoit message codé de Kess",
+      "description": "Message crypté demandant aide : 'La Crypte. Dans trois semaines. Viens avec de bonnes lames.'",
+      "significance": "Sirène commence sa recherche de Kess",
+      "affected_regions": ["Lieu inconnu → Cordova"],
+      "notes": "Message incomplet, Kess disparaît avant rendez-vous"
+    },
+    {
+      "year": 1347,
+      "month": "Session 0",
+      "event": "Groupe de PJ arrive à Pierrebrune",
+      "description": "Le groupe (Aldric, Lyra, Thorin, Adanel, Gareth) commence l'exploration de la Crypte des Ombres",
+      "significance": "Début de l'aventure",
+      "affected_regions": ["Pierrebrune", "Crypte des Ombres"],
+      "party": ["Aldric (Human Fighter)", "Lyra (Elf Magic-user)", "Thorin (Dwarf Cleric)", "Adanel (Human Cleric)", "Gareth (Human Fighter)"]
+    },
+    {
+      "year": 1347,
+      "month": "Sessions 1-5",
+      "event": "Exploration de la Crypte des Ombres",
+      "description": "Découverte de la Crypte naine, combats contre squelettes et spectre, destruction du Cristal de Nuit Éternelle, défaite de Frère Mordecai Fane",
+      "significance": "Victoire majeure, artefact ancien détruit",
+      "affected_regions": ["Crypte des Ombres", "Sombregarde"],
+      "key_moments": [
+        "Embuscade au Gibet Bridge (3 squelettes)",
+        "Clé obtenue de l'hermite Cormac",
+        "Défaite du Spectre Ancien à la Bibliothèque",
+        "Destruction du Cristal de Nuit Éternelle",
+        "Défaite de Frère Mordecai Fane"
+      ],
+      "loot": "1293 po + potions + artefacts nains"
+    },
+    {
+      "year": 1347,
+      "month": "Session 6",
+      "event": "Retour à Cordova, rencontre avec Sirène",
+      "description": "Le groupe retourne à Cordova, rencontre Sirène à la Taverne du Voile Écarlate, enquête sur Kess",
+      "significance": "Lien entre Crypte et Guilde de l'Ombre révélé",
+      "affected_regions": ["Cordova"],
+      "key_npcs": ["Sirène", "Goruk", "Marta", "Capitaine Meren"],
+      "discoveries": [
+        "Kess aperçue surveillant contrebande au port (il y a 3 semaines)",
+        "Kess a séjourné à l'Auberge du Crâne d'Or (il y a 2,5 semaines)",
+        "Kess embarquée vers Shasseth avec le Capitaine Meren",
+        "Sirène révèle son lien avec la Guilde de l'Ombre"
+      ]
+    },
+    {
+      "year": 1347,
+      "month": "Session 6",
+      "event": "Alliance avec Valorian le Doré",
+      "description": "Le groupe accepte contrat de Valorian : sauver sa fille Elara, kidnappée par Vaskir",
+      "significance": "Établissement d'un allié puissant à Cordova",
+      "affected_regions": ["Cordova"],
+      "reward": "100 po d'acompte, promesse de 700 po à la livraison + alliance permanente"
+    },
+    {
+      "year": 1347,
+      "month": "Session 7",
+      "event": "Sauvetage d'Elara",
+      "description": "Infiltration de la Grotte de Shardech, sauvetage d'Elara, défaite des ravisseurs de Vaskir",
+      "significance": "Vaskir devient ennemi actif, Valorian allié permanent",
+      "affected_regions": ["Grotte de Shardech, près de Cordova"],
+      "tactics": "Infiltration discrète + diversion spectaculaire",
+      "reward": "1000 po (800 + 200 bonus) + alliance Valorian",
+      "consequences": "Vaskir furieux, représailles probables"
+    },
+    {
+      "year": 1347,
+      "month": "Session 7 (fin)",
+      "event": "Sirène reste à Cordova",
+      "description": "Sirène annonce qu'elle reste à Cordova pour 'voir quelqu'un', ne part pas pour Shasseth",
+      "significance": "Affaires personnelles non révélées, séparation du groupe",
+      "affected_regions": ["Cordova"],
+      "notes": "Raison exacte inconnue, potentielle intrigue future"
+    }
+  ],
+  "ongoing_situations": [
+    {
+      "situation": "Kess aux Terres Brûlées",
+      "status": "Active",
+      "description": "Kess explore les ruines de Shasseth, cherche artefacts liés à la Crypte",
+      "urgency": "Moyenne",
+      "potential_consequences": "Découverte majeure, danger pour Kess, lien avec conspiration plus large"
+    },
+    {
+      "situation": "Guerre Karvath-Lumenciel",
+      "status": "Active depuis 80 ans",
+      "description": "Guerre larvée à la frontière, raids fréquents",
+      "urgency": "Faible (statu quo)",
+      "potential_consequences": "Escalade possible si Lumenciel provoque trop"
+    },
+    {
+      "situation": "Infiltration de Lumenciel",
+      "status": "Active (secrète)",
+      "description": "Ordre de l'Aube Dorée infiltre les élites de Valdorine et Astrène",
+      "urgency": "Élevée (menace à long terme)",
+      "potential_consequences": "Domination spirituelle du continent, révélation = effondrement de Lumenciel"
+    },
+    {
+      "situation": "Dettes d'Astrène",
+      "status": "Active",
+      "description": "Astrène croule sous les dettes envers Valdorine",
+      "urgency": "Moyenne",
+      "potential_consequences": "Annexion déguisée d'ici 10-15 ans, guerre civile à la mort d'Edrian VII"
+    },
+    {
+      "situation": "Représailles de Vaskir",
+      "status": "Imminente",
+      "description": "Vaskir furieux après échec de la rançon, cherche vengeance",
+      "urgency": "Élevée",
+      "potential_consequences": "Attaque contre le groupe, Valorian, ou les deux"
+    }
+  ],
+  "prophecies_and_mysteries": [
+    {
+      "mystery": "Lien entre Crypte des Ombres et Terres Brûlées",
+      "description": "Kess croit qu'un lien existe entre la Crypte naine et les ruines de Shasseth",
+      "clues": [
+        "Cristal de Nuit Éternelle (détruit)",
+        "Frère Mordecai Fane cherchait pouvoir ancien",
+        "Kess paie 500 po pour aller à Shasseth",
+        "Message de Kess : 'quelque chose d'important'"
+      ],
+      "theories": [
+        "Artefacts nains dispersés dans les Terres Brûlées",
+        "Civilisation pré-humaine liée aux nains",
+        "Conspiration plus large impliquant objets maudits"
+      ],
+      "status": "Non résolu"
+    },
+    {
+      "mystery": "Véritable nature de la Guilde de l'Ombre",
+      "description": "Organisation secrète transnationale, objectifs inconnus",
+      "clues": [
+        "Kess et Sirène en faisaient partie",
+        "Trafic d'artefacts anciens",
+        "Assassinats politiques (généraux de Karvath)",
+        "Opère dans tous les royaumes"
+      ],
+      "theories": [
+        "Simple réseau criminel",
+        "Faction cherchant pouvoir via artefacts",
+        "Lien avec culte ancien ou organisation pré-humaine"
+      ],
+      "status": "Non résolu"
+    },
+    {
+      "mystery": "Hypocrisie de Lumenciel",
+      "description": "Corruption profonde du haut clergé, double discours",
+      "clues": [
+        "Richesse immense (plus riche que Valdorine)",
+        "Ordre de l'Aube Dorée (infiltration secrète)",
+        "Reliques vraies ET fausses",
+        "Guerre secrète interne (pieux vs machiavéliques)"
+      ],
+      "potential_revelation": "Scandale majeur si exposé publiquement, effondrement possible de Lumenciel",
+      "status": "Non découvert par les PJ"
+    }
+  ],
+  "notes": [
+    "Les événements des PJ peuvent modifier la timeline",
+    "Certains événements sont prévisibles, d'autres émergent du jeu",
+    "La chronologie est vivante : elle évolue avec les sessions",
+    "Les conséquences à long terme des actions des PJ doivent être documentées"
+  ]
+}

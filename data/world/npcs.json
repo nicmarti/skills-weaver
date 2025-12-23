@@ -1,0 +1,260 @@
+{
+  "recurring_npcs": [
+    {
+      "name": "Kess",
+      "race": "humaine",
+      "age": "jeune (25-30 ans)",
+      "gender": "féminin",
+      "appearance": {
+        "armor": "cuir rouge foncé",
+        "weapon": "rapière",
+        "eyes": "jade",
+        "hair": "brune",
+        "build": "athlétique",
+        "distinctive": "Regard perçant, toujours en mouvement"
+      },
+      "affiliations": ["Guilde de l'Ombre (actif)"],
+      "occupation": "Trafiquante d'artefacts, aventurière",
+      "first_seen": "Cordova, port (Session 0, avant départ pour Crypte)",
+      "last_seen": "Embarquée sur le Corbeaux des Mers, destination Shasseth (il y a 3 semaines)",
+      "current_location": "Shasseth (Terres Brûlées), explore Les ruines anciennes",
+      "personality": "Curieuse, prend des risques, cherche toujours à en savoir plus, opportuniste",
+      "motivations": ["Découvrir secrets de la Crypte des Ombres", "Trouver artefacts anciens de valeur", "Rembourser dette envers Sirène"],
+      "relationships": {
+        "Sirène": "Dette de vie (Sirène l'a sauvée il y a 7 ans), séparation il y a 7 ans, message codé envoyé il y a 3 semaines",
+        "Groupe de PJ": "Première rencontre : surveillance contrebande, fourni indices sur la Crypte",
+        "Vaskir": "Dette d'argent (conflit possible)"
+      },
+      "known_activities": [
+        "Surveillance du déchargement d'un navire venu du Nord (contrebande)",
+        "Recherche d'informations sur la Crypte des Ombres",
+        "Voyage vers Shasseth pour chercher 'quelque chose d'important'"
+      ],
+      "status": "Vivante, à Shasseth, destination finale inconnue",
+      "importance": "Clé de l'intrigue principale, lien entre Crypte et Terres Brûlées"
+    },
+    {
+      "name": "Sirène",
+      "race": "humaine",
+      "age": "mature (35-40 ans)",
+      "gender": "féminin",
+      "appearance": {
+        "eyes": "gris acier",
+        "scars": "cicatrice récente à la tempe",
+        "weapons": ["épée longue", "dague courte"],
+        "build": "musclée, guerrière expérimentée",
+        "clothing": "Armure de cuir renforcée, pratique",
+        "distinctive": "Regard intense, posture de prédateur"
+      },
+      "affiliations": ["Guilde de l'Ombre (ancienne, a quitté il y a 7 ans)"],
+      "occupation": "Guerrière mercenaire, chasseuse",
+      "first_seen": "Taverne du Voile Écarlate, Cordova (Session 6)",
+      "last_seen": "Cordova, après contrat Valorian (Session 6)",
+      "current_location": "Cordova (reste pour 'voir quelqu'un')",
+      "personality": "Calculatrice, loyale, guerrière expérimentée, voix basse et rauque, méfiante",
+      "motivations": ["Retrouver Kess", "Rembourser dette de sang", "Affaires personnelles à Cordova"],
+      "relationships": {
+        "Kess": "A sauvé sa vie il y a 7 ans (embuscade), cherche à la retrouver, reçu message codé il y a 3 semaines",
+        "Groupe de PJ": "Alliance temporaire (Sessions 6-7), respecte leur compétence",
+        "Valorian le Doré": "Connaît de réputation, respect mutuel"
+      },
+      "known_activities": [
+        "Recherche active de Kess à Cordova",
+        "Aide au groupe pour sauver Elara",
+        "Affaires personnelles non révélées à Cordova"
+      ],
+      "voice": "Basse, posée, légèrement rauque (quelqu'un qui a crié des ordres sur un champ de bataille)",
+      "status": "Vivante, à Cordova, intentions non révélées",
+      "importance": "Lien vers la Guilde de l'Ombre, potentielle alliée récurrente"
+    },
+    {
+      "name": "Valorian le Doré",
+      "race": "humain",
+      "age": "mature (45-50 ans)",
+      "gender": "masculin",
+      "title": "Marchand influent, homme d'affaires",
+      "residence": "Manoir de la Soie, collines nord de Cordova",
+      "appearance": {
+        "clothing": "Tunique de soie pourpre brodée d'or",
+        "jewelry": "Anneaux lourds aux doigts, chaîne d'or massive au cou",
+        "build": "Corpulent, bien nourri",
+        "hair": "Grisonnant, barbe soignée",
+        "distinctive": "Regard perçant de commerçant, mains soignées"
+      },
+      "personality": "Direct, juste, respectueux envers ceux qui risquent leur vie, pragmatique, généreux avec ceux qui le servent bien",
+      "motivations": ["Protéger sa famille (Elara)", "Maintenir son influence à Cordova", "Rembourser ses dettes d'honneur"],
+      "relationships": {
+        "Groupe de PJ": "Dette d'honneur (sauvetage d'Elara, Session 7), allié permanent, offre ressources/informations/refuge",
+        "Vaskir": "Ennemi juré (kidnapping de sa fille, rançon)",
+        "Elara": "Fille unique, très protecteur"
+      },
+      "resources": ["Or (très riche)", "Connexions régionales (marchands, nobles)", "Informations (réseau d'affaires)", "Refuge (Manoir de la Soie)"],
+      "known_activities": [
+        "Commerce de luxe (soieries, épices, objets rares)",
+        "Alliances avec Groupe de PJ (Session 7)",
+        "Préparation probable de représailles contre Vaskir"
+      ],
+      "status": "Vivant, Manoir de la Soie, allié actif",
+      "importance": "Allié puissant à Cordova, ressources accessibles, lien vers élite marchande de Valdorine"
+    },
+    {
+      "name": "Capitaine Meren le Noir",
+      "race": "humain",
+      "age": "mature (40-45 ans)",
+      "gender": "masculin",
+      "title": "Capitaine du Corbeaux des Mers",
+      "appearance": {
+        "build": "Large, imposant, barbe noire tressée",
+        "eyes": "Bleu pâle perçants",
+        "clothing": "Cape de laine brute sur chemise fine",
+        "weapon": "Épée avec garde gravée de symboles étranges (possiblement magique)",
+        "distinctive": "Présence imposante, regard calculateur"
+      },
+      "personality": "Posé, calculateur, voix douce (contraste avec apparence), mercenaire pragmatique, honorable dans ses contrats",
+      "occupation": "Capitaine de navire, transporteur discret, mercenaire maritime",
+      "services": "Transport maritime vers destinations dangereuses (Terres Brûlées, routes de contrebande)",
+      "relationships": {
+        "Kess": "Cliente payante (500 po pour aller-retour Shasseth), l'a transportée il y a 3 semaines",
+        "Groupe de PJ": "Contrat commercial potentiel (offre transport vers Shasseth)",
+        "Dent d'Or": "Lieutenant fidèle"
+      },
+      "location": "Chantier naval de Cordova",
+      "known_activities": [
+        "Transport de Kess vers Shasseth (il y a 3 semaines)",
+        "Commerce et transport discret",
+        "Contrats de transport pour groupes d'aventuriers"
+      ],
+      "pricing": "500 po par personne pour voyage dangereux, négociable avec informations intéressantes",
+      "status": "Vivant, Cordova, disponible pour contrats",
+      "importance": "Lien vers Terres Brûlées, transport maritime, source d'informations"
+    },
+    {
+      "name": "Vaskir",
+      "race": "humain",
+      "age": "inconnu (adulte)",
+      "gender": "masculin",
+      "title": "Trafiquant d'armes, chef de la pègre locale",
+      "affiliations": ["Pègre de Cordova", "Possiblement lié à la Guilde de l'Ombre"],
+      "appearance": "Non décrit en détail",
+      "personality": "Dangereux, bien connecté, rancunier, impitoyable",
+      "activities": ["Trafic d'armes", "Extorsion", "Kidnapping", "Contrôle de territoires portuaires"],
+      "relationships": {
+        "Valorian le Doré": "Ennemi actif (tentative de rançon d'Elara échouée)",
+        "Groupe de PJ": "Ennemi indirect (échec du kidnapping)",
+        "Kess": "Dette possible mentionnée par Goruk"
+      },
+      "location": "Cordova (quartiers portuaires, cachettes multiples)",
+      "status": "Vivant, actif, probablement en colère après échec rançon",
+      "threat_level": "Élevé (violent, ressources importantes, réseau criminel)",
+      "importance": "Antagoniste potentiel, lien vers pègre de Cordova"
+    },
+    {
+      "name": "Goruk",
+      "race": "demi-orc",
+      "age": "adulte (30-40 ans)",
+      "gender": "masculin",
+      "occupation": "Tavernier",
+      "location": "Taverne du Voile Écarlate, Cordova",
+      "appearance": "Musclé, défenses visibles, cicatrices",
+      "personality": "Bourru mais serviable, connaît les rumeurs du port",
+      "relationships": {
+        "Groupe de PJ": "Neutre-amical, fourni informations sur Kess",
+        "Sirène": "Connaît de vue, respectueux"
+      },
+      "known_information": ["Rumeurs du port", "Disparition de Kess", "Affaires de Vaskir"],
+      "status": "Vivant, Taverne du Voile Écarlate",
+      "importance": "Source d'informations locale, contact récurrent à Cordova"
+    },
+    {
+      "name": "Marta",
+      "race": "humaine",
+      "age": "mature (50-60 ans)",
+      "gender": "féminin",
+      "occupation": "Aubergiste",
+      "location": "Auberge du Crâne d'Or, Cordova",
+      "appearance": "Cheveux gris, regard méfiant mais juste",
+      "personality": "Professionnelle, discrète, mémoire excellente des clients",
+      "relationships": {
+        "Groupe de PJ": "Cliente respectueuse, fourni informations sur Kess",
+        "Sirène": "Méfiante (reconnaît la guerrière)"
+      },
+      "known_information": ["Kess a séjourné il y a 2,5 semaines", "Sortait la nuit pour rencontrer quelqu'un", "Parlait de 'vérifier quelque chose'"],
+      "status": "Vivante, Auberge du Crâne d'Or",
+      "importance": "Source d'informations, hébergement de qualité à Cordova"
+    },
+    {
+      "name": "Elara",
+      "race": "humaine",
+      "age": "jeune (18-20 ans)",
+      "gender": "féminin",
+      "title": "Fille de Valorian le Doré",
+      "appearance": "Non décrit en détail, probablement vêtements riches",
+      "personality": "Non révélée en détail",
+      "relationships": {
+        "Valorian": "Père (très protecteur)",
+        "Groupe de PJ": "Sauvée par le groupe (Session 7), reconnaissance"
+      },
+      "status": "Vivante, Manoir de la Soie, en sécurité",
+      "importance": "Lien familial avec Valorian, potentielle source d'information future"
+    },
+    {
+      "name": "Dent d'Or",
+      "race": "humain",
+      "age": "adulte (35-45 ans)",
+      "gender": "masculin",
+      "occupation": "Lieutenant du Capitaine Meren",
+      "appearance": "Dent en or visible, musclé",
+      "personality": "Fidèle, direct, guerrier",
+      "relationships": {
+        "Capitaine Meren": "Lieutenant de confiance",
+        "Groupe de PJ": "Rencontre brève au chantier naval"
+      },
+      "location": "Chantier naval, Cordova",
+      "status": "Vivant, actif",
+      "importance": "Contact secondaire, lien vers équipage de Meren"
+    },
+    {
+      "name": "Cormac l'Hermite",
+      "race": "humain",
+      "age": "vieux (70+ ans)",
+      "gender": "masculin",
+      "occupation": "Hermite, ancien érudit",
+      "location": "Collines près de Pierrebrune",
+      "appearance": "Barbe longue, vêtements usés, regard perçant",
+      "personality": "Sage, mystérieux, connaît l'histoire de la Crypte",
+      "relationships": {
+        "Groupe de PJ": "Fourni clé de la Bibliothèque de Sombregarde (Session 2)"
+      },
+      "known_information": ["Histoire de la Crypte des Ombres", "Localisation de Sombregarde", "Ancien gardien de connaissances"],
+      "status": "Vivant, ermitage près de Pierrebrune",
+      "importance": "Source de connaissances sur la Crypte, potentiel mentor"
+    }
+  ],
+  "npc_groups": [
+    {
+      "name": "Équipage du Corbeaux des Mers",
+      "leader": "Capitaine Meren le Noir",
+      "type": "Mercenaires maritimes",
+      "size": "20-30 marins",
+      "characteristics": "Disciplinés, fidèles à Meren, compétents",
+      "location": "Chantier naval de Cordova",
+      "status": "Actifs, disponibles pour contrats"
+    },
+    {
+      "name": "Réseau de Vaskir",
+      "leader": "Vaskir",
+      "type": "Pègre locale",
+      "size": "50-100 membres (estimation)",
+      "characteristics": "Violents, bien armés, contrôle quartiers portuaires",
+      "location": "Cordova (zones portuaires, entrepôts)",
+      "status": "Actifs, probablement en colère après échec rançon"
+    }
+  ],
+  "notes": [
+    "Les PNJ évoluent : leurs relations et statuts changent selon actions des PJ",
+    "Certains PNJ peuvent mourir ou disparaître",
+    "Nouveaux PNJ apparaissent au fil des aventures",
+    "Maintenir cohérence des apparences, voix et personnalités",
+    "Les PNJ ont leurs propres motivations indépendantes des PJ"
+  ]
+}

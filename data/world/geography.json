@@ -1,0 +1,277 @@
+{
+  "continents": [
+    {
+      "name": "Continent Principal",
+      "regions": [
+        {
+          "name": "Côte Occidentale",
+          "kingdom": "Valdorine",
+          "description": "Région côtière prospère, dominée par le commerce maritime et les ports actifs",
+          "cities": [
+            {
+              "name": "Cordova",
+              "type": "port majeur",
+              "kingdom": "Valdorine",
+              "population": "150 000 habitants",
+              "description": "Ville portuaire scintillante, commerce actif, contrebande tolérée. Capitale de Valdorine.",
+              "key_locations": [
+                "Taverne du Voile Écarlate (taverne populaire, Goruk tavernier)",
+                "Auberge du Crâne d'Or (auberge respectable, Marta aubergiste)",
+                "Manoir de la Soie (résidence de Valorian le Doré)",
+                "Chantier Naval (base du Capitaine Meren le Noir)",
+                "Docks Marchands (commerce, contrebande)"
+              ],
+              "distances": {
+                "Pierrebrune": "3 jours à pied (90-100 km)",
+                "Fer-de-Lance": "12 jours à pied (400 km), frontière Valdorine-Karvath",
+                "Shasseth": "15 jours par mer (2500 km)"
+              },
+              "notes": "Alliance établie avec Valorian le Doré (Session 6). Ennemi: Vaskir (trafiquant)."
+            },
+            {
+              "name": "Port-de-Lune",
+              "type": "port industriel",
+              "kingdom": "Valdorine",
+              "population": "80 000 habitants",
+              "description": "Chantiers navals majeurs, construction de galères de guerre",
+              "distances": {
+                "Cordova": "5 jours par mer (150 km)"
+              }
+            },
+            {
+              "name": "Havre-d'Argent",
+              "type": "port financier",
+              "kingdom": "Valdorine",
+              "population": "50 000 habitants",
+              "description": "Centre bancaire, coffres royaux, change de monnaies",
+              "distances": {
+                "Cordova": "7 jours par mer (200 km)"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Collines de l'Ombre",
+          "kingdom": "Valdorine",
+          "description": "Région montagneuse côtière, villages dispersés, cryptes anciennes",
+          "cities": [
+            {
+              "name": "Pierrebrune",
+              "type": "village",
+              "kingdom": "Valdorine",
+              "population": "500 habitants",
+              "description": "Village paisible près de la Crypte des Ombres. Point de départ de l'aventure.",
+              "key_locations": [
+                "Crypte des Ombres (crypte naine ancienne, sous Sombregarde)",
+                "Bibliothèque de Sombregarde (ruines, clé obtenue de l'hermite Cormac)",
+                "Gibet Bridge (pont, site d'embuscade par squelettes)"
+              ],
+              "distances": {
+                "Cordova": "3 jours à pied (90-100 km)"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Montagnes de Fer",
+          "kingdom": "Karvath",
+          "description": "Région montagneuse fortifiée, centre militaire de l'Empire",
+          "cities": [
+            {
+              "name": "Fer-de-Lance",
+              "type": "forteresse capitale",
+              "kingdom": "Karvath",
+              "population": "100 000 habitants",
+              "description": "Forteresse imprenable, casernes géantes, centre du pouvoir militaire",
+              "distances": {
+                "Cordova": "12 jours à pied (400 km)",
+                "Aurore-Sainte": "8 jours à pied (280 km, frontière contestée)"
+              }
+            },
+            {
+              "name": "Porte-de-Fer",
+              "type": "forteresse frontalière",
+              "kingdom": "Karvath",
+              "population": "60 000 habitants",
+              "description": "Base militaire avancée, frontière sud de Karvath",
+              "distances": {
+                "Fer-de-Lance": "5 jours à pied (150 km)"
+              }
+            },
+            {
+              "name": "Forge-Noire",
+              "type": "cité industrielle",
+              "kingdom": "Karvath",
+              "population": "70 000 habitants",
+              "description": "Production d'armes et armures, fumées constantes des forges",
+              "distances": {
+                "Fer-de-Lance": "3 jours à pied (100 km)"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Terres Saintes",
+          "kingdom": "Lumenciel",
+          "description": "Région fertile et forestière, dominée par l'influence religieuse",
+          "cities": [
+            {
+              "name": "Aurore-Sainte",
+              "type": "capitale théocratique",
+              "kingdom": "Lumenciel",
+              "population": "120 000 habitants",
+              "description": "Cathédrale monumentale, monastères, siège du pouvoir religieux",
+              "key_locations": [
+                "Grande Cathédrale du Soleil Éternel",
+                "Cryptes secrètes (quartier général de l'Ordre de l'Aube Dorée)",
+                "Palais des Sept Archevêques"
+              ],
+              "distances": {
+                "Fer-de-Lance": "8 jours à pied (280 km, frontière contestée)"
+              }
+            },
+            {
+              "name": "Refuge-des-Purs",
+              "type": "forteresse religieuse",
+              "kingdom": "Lumenciel",
+              "population": "40 000 habitants",
+              "description": "Ville fortifiée, base de l'Inquisition, prisons pour hérétiques",
+              "distances": {
+                "Aurore-Sainte": "4 jours à pied (120 km)"
+              }
+            },
+            {
+              "name": "Vallon-de-Prière",
+              "type": "cité monastique",
+              "kingdom": "Lumenciel",
+              "population": "35 000 habitants",
+              "description": "Séminaires, formation des clercs, bibliothèque théologique",
+              "distances": {
+                "Aurore-Sainte": "3 jours à pied (100 km)"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Terres du Sud",
+          "kingdom": "Astrène",
+          "description": "Région autrefois fertile, maintenant en déclin, vestiges de grandeur passée",
+          "cities": [
+            {
+              "name": "Étoile-d'Automne",
+              "type": "capitale impériale",
+              "kingdom": "Astrène",
+              "population": "90 000 habitants",
+              "description": "Palais en ruine mais splendide, bibliothèques anciennes, université prestigieuse",
+              "key_locations": [
+                "Université d'Étoile-d'Automne (mages et érudits)",
+                "Grande Bibliothèque Impériale",
+                "Palais Royal (splendeur fanée)"
+              ],
+              "distances": {
+                "Cordova": "10 jours à pied (350 km)"
+              }
+            },
+            {
+              "name": "Valombre",
+              "type": "ville fantôme",
+              "kingdom": "Astrène",
+              "population": "30 000 habitants",
+              "description": "Ancienne cité minière épuisée, déclin économique",
+              "distances": {
+                "Étoile-d'Automne": "4 jours à pied (130 km)"
+              }
+            },
+            {
+              "name": "Port-des-Souvenirs",
+              "type": "port décati",
+              "kingdom": "Astrène",
+              "population": "25 000 habitants",
+              "description": "Port autrefois prospère, maintenant en ruine, commerce résiduel",
+              "distances": {
+                "Étoile-d'Automne": "6 jours à pied (200 km)",
+                "Cordova": "8 jours par mer (250 km)"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Terres Brûlées",
+          "kingdom": "Territoire contesté",
+          "description": "Région désertique à l'est du continent, ruines anciennes, territoire sans contrôle réel",
+          "cities": [
+            {
+              "name": "Shasseth",
+              "type": "ruines anciennes",
+              "kingdom": "Aucun",
+              "population": "Quelques centaines (nomades, explorateurs)",
+              "description": "Ruines d'une cité pré-humaine, vestiges mystérieux, destination de Kess",
+              "key_locations": [
+                "Ruines principales (artefacts anciens)",
+                "Avant-postes de Valdorine (commerce d'épices)"
+              ],
+              "distances": {
+                "Cordova": "15 jours par mer (2500 km)"
+              },
+              "notes": "Climat désertique extrême (45°C jour, 5°C nuit). Tempêtes de sable fréquentes."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "trade_routes": [
+    {
+      "name": "Route Maritime du Nord",
+      "type": "maritime",
+      "legality": "contrebande tolérée",
+      "goods": ["objets maudits", "artefacts anciens", "reliques naines", "épices rares"],
+      "ports": ["Cordova", "Port du Noir (origine inconnue)"],
+      "dangers": "Pirates, contrôles occasionnels de Karvath",
+      "notes": "Route utilisée pour importer artefacts dangereux. Kess surveillait cette route."
+    },
+    {
+      "name": "Route Terrestre Centrale",
+      "type": "terrestre",
+      "legality": "légale",
+      "goods": ["grains", "métaux", "tissus", "armes"],
+      "cities": ["Cordova", "Fer-de-Lance", "Aurore-Sainte"],
+      "dangers": "Tensions à la frontière Karvath-Lumenciel, bandits",
+      "notes": "Route commerciale principale entre les royaumes. Karvath contrôle strictement."
+    },
+    {
+      "name": "Route Maritime vers les Terres Brûlées",
+      "type": "maritime",
+      "legality": "légale mais dangereuse",
+      "goods": ["épices rares", "artefacts anciens", "soie"],
+      "ports": ["Cordova", "Shasseth"],
+      "dangers": "Tempêtes, pirates, créatures marines",
+      "notes": "15 jours de voyage. Route utilisée par le Capitaine Meren le Noir."
+    }
+  ],
+  "frontiers": [
+    {
+      "between": ["Valdorine", "Karvath"],
+      "status": "Neutre-tendue",
+      "description": "Frontière relativement calme, mais tensions commerciales. Karvath exige laissez-passer.",
+      "crossings": ["Porte-de-Fer (contrôle militaire strict)"]
+    },
+    {
+      "between": ["Karvath", "Lumenciel"],
+      "status": "Hostile (guerre larvée depuis 80 ans)",
+      "description": "Frontière militarisée, raids fréquents, villages brûlés",
+      "crossings": ["Aucun passage sûr, traversée dangereuse"]
+    },
+    {
+      "between": ["Valdorine", "Astrène"],
+      "status": "Ouverte (allié économique)",
+      "description": "Frontière libre, commerce actif, Valdorine protège son débiteur",
+      "crossings": ["Multiples, peu de contrôles"]
+    }
+  ],
+  "notes": [
+    "Distances basées sur 30-40 km/jour à pied, 150 km/jour par mer avec vent favorable",
+    "Les routes maritimes dépendent des vents et des marées",
+    "Frontières peuvent changer selon événements politiques"
+  ]
+}

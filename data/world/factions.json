@@ -1,0 +1,275 @@
+{
+  "kingdoms": [
+    {
+      "id": "valdorine",
+      "name": "Royaume de Valdorine",
+      "motto": "L'argent n'a pas d'odeur",
+      "capital": "Cordova",
+      "government": "Monarchie marchande élective",
+      "population": 800000,
+      "territory": "Côte ouest du continent, contrôle des îles proches",
+      "symbol": "Navire d'or sur fond bleu marine",
+      "colors": ["bleu", "or", "pourpre"],
+      "ruler": {
+        "name": "Roi Aldaren III 'le Calculateur'",
+        "age": 52,
+        "personality": "Pragmatique, froid en affaires, tolère la corruption tant qu'elle profite au royaume",
+        "legitimacy": "Élu il y a 8 ans par le Conseil des Marchands"
+      },
+      "motivation": "Domination économique : contrôler toutes les routes commerciales maritimes, accumuler la richesse, maintenir le monopole sur le commerce d'épices, de soie et d'artefacts anciens",
+      "strengths": [
+        "Marine la plus puissante (120 navires de guerre, 300 navires marchands)",
+        "Richesse immense (coffres du royaume, financement de mercenaires et espions)",
+        "Réseau d'information (espions dans tous les ports, guilde des marchands organisée)",
+        "Pragmatisme (alliances opportunistes)",
+        "Ports fortifiés (Cordova, Port-de-Lune, Havre-d'Argent)"
+      ],
+      "weaknesses": [
+        "Armée terrestre faible (5 000 soldats permanents, dépend de mercenaires)",
+        "Corruption endémique (contrebande attire organisations criminelles)",
+        "Dépendance au commerce (blocus maritime = paralysie)",
+        "Divisions internes (Grandes Familles en compétition)",
+        "Manque d'idéologie unificatrice (l'argent ne suffit pas toujours)"
+      ],
+      "values": ["Profit", "Pragmatisme", "Liberté commerciale", "Cosmopolitisme"],
+      "religion": "Tolérance religieuse (tous les cultes acceptés tant qu'ils payent taxes)",
+      "dominant_class": ["Marchands", "Banquiers", "Armateurs"],
+      "language": "Valdin (dérivé du commerce, beaucoup de mots étrangers)",
+      "relations": {
+        "karvath": "Neutre-tendu (rivalité pragmatique pour les routes commerciales)",
+        "lumenciel": "Méfiance hostile (hypocrisie religieuse insupportable, ingérence moralisatrice)",
+        "astrene": "Allié économique (protège son débiteur, échanges de luxe contre protection maritime)"
+      },
+      "military": {
+        "professional_soldiers": 5000,
+        "conscripts": 15000,
+        "navy": "120 navires de guerre",
+        "special_units": ["Espions maritimes", "Mercenaires d'élite"]
+      }
+    },
+    {
+      "id": "karvath",
+      "name": "Empire de Karvath",
+      "motto": "Discipline, honneur, force",
+      "capital": "Fer-de-Lance",
+      "government": "Monarchie militaire absolue",
+      "population": 1200000,
+      "territory": "Centre-nord du continent, montagnes et plaines",
+      "symbol": "Aigle de fer sur fond rouge sang",
+      "colors": ["rouge", "noir", "acier"],
+      "ruler": {
+        "name": "Impératrice Selkara 'la Lame'",
+        "age": 38,
+        "personality": "Impitoyable, stratège brillante, respectée et crainte",
+        "legitimacy": "A vaincu ses 3 frères en combat rituel pour le trône (il y a 5 ans)"
+      },
+      "motivation": "Ordre et défense : maintenir la discipline intérieure, protéger les frontières avec force inégalée, préserver l'honneur militaire. Karvath ne cherche pas l'expansion systématique, mais la sécurité absolue.",
+      "strengths": [
+        "Armée la plus puissante (40 000 soldats d'élite, 80 000 conscrits entraînés)",
+        "Discipline de fer (chaîne de commandement implacable, désertion = exécution)",
+        "Logistique exceptionnelle (routes militaires, forts tous les 50 km)",
+        "Cavalerie lourde dévastatrice (5 000 chevaliers en armure complète)",
+        "Ingénieurs de siège experts (catapultes, béliers, tours)"
+      ],
+      "weaknesses": [
+        "Marine inexistante (seulement 20 navires, incapable de projeter puissance en mer)",
+        "Économie militarisée (taxes écrasantes, population appauvrie)",
+        "Rigidité structurelle (hiérarchie inflexible, difficulté à s'adapter)",
+        "Répression brutale (révoltes occasionnelles dans régions frontalières)",
+        "Manque de diplomatie (communication directe perçue comme arrogance)"
+      ],
+      "values": ["Honneur", "Courage", "Obéissance", "Sacrifice pour l'empire"],
+      "religion": "Culte de l'Empereur/Impératrice (divinité vivante), culte de la guerre",
+      "dominant_class": ["Officiers militaires", "Généraux", "Noblesse guerrière"],
+      "language": "Karvathien (langue dure, beaucoup de termes militaires)",
+      "relations": {
+        "valdorine": "Neutre-tendu (besoin de commerce maritime mais rivalité idéologique)",
+        "lumenciel": "Hostile défensif (guerre de frontière depuis 80 ans, Karvath défend)",
+        "astrene": "Respect distant (mépris militaire, mais respect profond pour mages et érudits)"
+      },
+      "military": {
+        "professional_soldiers": 40000,
+        "conscripts": 80000,
+        "navy": "20 navires",
+        "special_units": ["Cavalerie lourde (5 000)", "Ingénieurs de siège", "Gardes impériaux"]
+      }
+    },
+    {
+      "id": "lumenciel",
+      "name": "Théocratie de Lumenciel",
+      "motto": "Par la foi, nous éclairons le monde",
+      "capital": "Aurore-Sainte",
+      "government": "Théocratie (Haut Conseil des Sept Archevêques)",
+      "population": 600000,
+      "territory": "Nord-est du continent, terres fertiles et forêts sacrées",
+      "symbol": "Soleil d'or rayonnant sur fond blanc",
+      "colors": ["blanc", "or", "bleu ciel"],
+      "ruler": {
+        "name": "Haut-Archevêque Caelion 'le Lumineux'",
+        "age": 67,
+        "personality": "Calculateur sous un masque de piété, stratège politique brillant, dévotion affichée masquant pragmatisme absolu",
+        "legitimacy": "Élu par le Haut Conseil il y a 12 ans après campagne d'influence subtile"
+      },
+      "motivation": "Conversion universelle : étendre l'influence du Culte du Soleil Éternel à tous les royaumes par diplomatie, infiltration et persuasion. La vraie puissance est spirituelle, pas militaire. Contrôler les âmes et consciences.",
+      "strengths": [
+        "Richesse immense (dîmes et donations massives, plus riche que Valdorine)",
+        "Réseau d'influence (prêtres missionnaires dans tous les royaumes, infiltration de noblesse)",
+        "Inquisition secrète (espionnage sophistiqué, chantage, manipulation politique)",
+        "Clercs combattants (2 000 paladins d'élite, 5 000 prêtres-guerriers, loyauté absolue)",
+        "Reliques sacrées (artefacts authentiques ET faux pour impressionner convertis)"
+      ],
+      "weaknesses": [
+        "Hypocrisie interne (corruption profonde du haut clergé : simonie, détournements, scandales)",
+        "Armée limitée (15 000 soldats seulement, compensé par influence politique)",
+        "Méfiance généralisée (autres royaumes se méfient des intentions réelles)",
+        "Double discours dangereux (si hypocrisie exposée publiquement = effondrement total)",
+        "Guerre secrète interne (faction pieuse authentique vs faction machiavélique)"
+      ],
+      "values_displayed": ["Foi", "Pureté", "Obéissance divine", "Sacrifice", "Chasteté"],
+      "values_real": ["Pouvoir", "Influence", "Richesse", "Contrôle des masses"],
+      "religion": "Culte du Soleil Éternel (dieu unique de lumière et ordre)",
+      "dominant_class": ["Haut clergé (maîtres de l'intrigue)", "Évêques (administrateurs)", "Prêtres (exécutants)"],
+      "language": "Lumin (langue sacrée, utilisée pour obscurcir la vérité)",
+      "relations": {
+        "valdorine": "Infiltration active (conversion de riches marchands, dons 'charitables')",
+        "karvath": "Hostile (guerre de frontière, mais infiltration difficile)",
+        "astrene": "Influence croissante (conversion de nobles affaiblis, cible prioritaire)"
+      },
+      "military": {
+        "professional_soldiers": 15000,
+        "conscripts": 10000,
+        "navy": "0 navires",
+        "special_units": ["Paladins d'élite (2 000)", "Inquisition (réseau secret)", "Ordre de l'Aube Dorée"]
+      },
+      "secret_orders": [
+        {
+          "name": "Ordre de l'Aube Dorée",
+          "purpose": "Infiltration et conversion des élites des autres royaumes",
+          "methods": ["chantage spirituel", "dons charitables avec contreparties", "reliques impressionnantes"],
+          "known_members": "À découvrir par les PJ",
+          "headquarters": "Aurore-Sainte (cryptes sous la cathédrale)",
+          "status": "Actif, réseau étendu dans Valdorine et Astrène"
+        }
+      ],
+      "critical_secret": "La dévotion affichée masque une corruption profonde. Si cette hypocrisie est exposée publiquement, tout l'édifice s'effondre. Le haut clergé est machiavélique, utilisant la foi comme outil de contrôle."
+    },
+    {
+      "id": "astrene",
+      "name": "Royaume d'Astrène",
+      "motto": "La gloire passée éclaire encore nos nuits",
+      "capital": "Étoile-d'Automne",
+      "government": "Monarchie héréditaire absolue",
+      "population": 500000,
+      "territory": "Sud du continent, terres autrefois fertiles, maintenant épuisées",
+      "symbol": "Couronne de lauriers fanée sur fond violet",
+      "colors": ["violet", "argent", "noir"],
+      "ruler": {
+        "name": "Roi Edrian VII 'le Mélancolique'",
+        "age": 61,
+        "personality": "Nostalgique, cultivé, indécis, alcoolique léger",
+        "legitimacy": "Héritier direct de la lignée des Astrène (800 ans de règne)",
+        "succession": "3 enfants incompétents, guerre civile probable à sa mort"
+      },
+      "motivation": "Survie dynastique : préserver la lignée royale, maintenir l'illusion de grandeur, éviter l'annexion par voisins, trouver un héritier digne",
+      "strengths": [
+        "Savoir et érudition (plus grande concentration de mages et érudits du continent)",
+        "Université d'Étoile-d'Automne (institution prestigieuse, respectée dans tous les royaumes)",
+        "Artefacts magiques (collection impressionnante héritée de l'empire, certains fonctionnels)",
+        "Diplomatie raffinée (meilleurs diplomates, négociateurs habiles, alliances matrimoniales)",
+        "Patrimoine culturel (arts, musique, littérature, influence culturelle > puissance militaire)"
+      ],
+      "weaknesses": [
+        "Armée dérisoire (3 000 gardes royaux, équipement d'époque, pas d'entraînement moderne)",
+        "Corruption totale (tous les postes vendus, justice achetée, administration paralysée)",
+        "Économie effondrée (dettes massives envers Valdorine, terres épuisées)",
+        "Succession contestée (3 héritiers incompétents, guerre civile probable)",
+        "Population démoralisée (exode rural, famines locales, désespoir généralisé)"
+      ],
+      "values": ["Honneur (de façade)", "Tradition", "Raffinement", "Nostalgie"],
+      "religion": "Panthéon ancien (12 dieux), pratique rituelle mais peu de vraie foi",
+      "dominant_class": ["Noblesse terrienne (ruinée mais arrogante)", "Mages et érudits", "Diplomates"],
+      "language": "Astrénien classique (langue complexe, archaïsmes)",
+      "relations": {
+        "valdorine": "Dépendance économique totale (dettes, protection maritime, commerce)",
+        "karvath": "Respect mutuel (tribut symbolique payé, mais Karvath n'envahit pas par respect du savoir)",
+        "lumenciel": "Neutre-distant (relations diplomatiques minimales, mais infiltration active)"
+      },
+      "military": {
+        "professional_soldiers": 3000,
+        "conscripts": 5000,
+        "navy": "10 navires vétustes",
+        "special_units": ["Mages de combat (quelques dizaines)", "Gardes du palais (d'apparat)"]
+      },
+      "importance": "Faible militairement mais intellectuellement indispensable. Bibliothèques et université sont des trésors nationaux convoités. Aucun royaume ne veut détruire Astrène, tous veulent contrôler son savoir."
+    }
+  ],
+  "secret_organizations": [
+    {
+      "name": "Guilde de l'Ombre",
+      "origin": "Réseau ancien, au moins 50 ans, possiblement plus",
+      "structure": "Réseau décentralisé, pas de hiérarchie stricte, système de faveurs et contacts",
+      "activities": ["Trafic d'artefacts anciens", "Reliques interdites", "Objets maudits", "Connaissances interdites", "Assassinats politiques", "Corruption"],
+      "methods": ["Messages codés", "Réseau de faveurs", "Contrebande maritime", "Infiltration des ports"],
+      "signs": "À découvrir dans les aventures",
+      "known_members": [
+        "Kess (active, recherche artefacts liés à la Crypte)",
+        "Sirène (ancienne, a quitté il y a 7 ans après embuscade)"
+      ],
+      "influence": "Multi-royaumes, opère principalement dans les ports (Cordova, Port-de-Lune)",
+      "threat_level": "Inconnue (aucun royaume ne connaît l'étendue réelle)",
+      "particularity": "Seule organisation non-étatique capable d'opérer dans les 4 royaumes simultanément"
+    }
+  ],
+  "conflicts": [
+    {
+      "name": "Rivalité Pragmatique : Valdorine vs Karvath",
+      "type": "Guerre froide",
+      "cause": "Contrôle des routes commerciales (maritimes vs terrestres), rivalité idéologique (profit vs honneur)",
+      "manifestation": "Espionnage commercial, négociations tendues, incidents diplomatiques mineurs",
+      "risk": "Faible (aucun n'a intérêt à guerre totale, commerce mutuel nécessaire)",
+      "duration": "Permanent depuis fondation des royaumes"
+    },
+    {
+      "name": "Guerre de Frontière : Karvath vs Lumenciel",
+      "type": "Guerre larvée",
+      "cause": "Territoire contesté (plaines fertiles), mais surtout conflit idéologique profond",
+      "manifestation": "Raids défensifs de Karvath, infiltration de missionnaires de Lumenciel",
+      "risk": "Moyen (Karvath ne veut pas conquérir, Lumenciel teste les limites)",
+      "duration": "80 ans (depuis 1267)"
+    },
+    {
+      "name": "Guerre Spirituelle Secrète : Lumenciel (infiltration)",
+      "type": "Infiltration",
+      "cause": "Conversion universelle comme stratégie de domination à long terme",
+      "manifestation": "Missionnaires, conversions de nobles, dons 'charitables' avec contreparties, chantage spirituel",
+      "targets": ["Astrène (nobles affaiblis, faciles à convertir)", "Valdorine (riches marchands)"],
+      "risk": "Élevé à long terme (si réussit = domination spirituelle du continent)",
+      "threat": "Inconnue (seul le Haut Conseil connaît l'ampleur du réseau)"
+    },
+    {
+      "name": "Chantage Économique : Valdorine vs Astrène",
+      "type": "Domination économique",
+      "cause": "Dettes impayées d'Astrène envers Valdorine",
+      "manifestation": "Menaces de saisie de terres, augmentation des taux d'intérêt, mais protection maintenue",
+      "paradox": "Valdorine veut garder Astrène faible mais vivant (débiteur permanent + accès au savoir)",
+      "risk": "Annexion déguisée d'ici 10-15 ans si situation ne change pas"
+    },
+    {
+      "name": "Infiltration Criminelle : Guilde de l'Ombre",
+      "type": "Réseau criminel transnational",
+      "cause": "Pouvoir et profit via artefacts et reliques",
+      "manifestation": "Trafic d'objets anciens, assassinats politiques, corruption, contrebande",
+      "particularity": "Seul acteur non-étatique capable d'opérer dans les 4 royaumes",
+      "threat": "Inconnue (aucun royaume ne connaît l'étendue, même Lumenciel)"
+    }
+  ],
+  "notes": [
+    "La vraie menace n'est pas militaire (Karvath défensif), mais spirituelle/politique (Lumenciel).",
+    "Karvath respecte le savoir (protège Astrène malgré faiblesse militaire).",
+    "Hypocrisie de Lumenciel est leur plus grande vulnérabilité. Si exposée = effondrement.",
+    "Les factions ne sont jamais monolithiques. Factions internes existent partout.",
+    "Événements des PJ peuvent modifier l'équilibre politique (mort, scandale, découverte artefact)."
+  ],
+  "year": 1347,
+  "era": "Après la Fondation (du premier royaume humain)"
+}

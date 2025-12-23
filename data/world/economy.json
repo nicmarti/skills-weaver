@@ -1,0 +1,222 @@
+{
+  "black_market": {
+    "description": "Marché noir actif dans les ports de Valdorine, principalement Cordova",
+    "goods": [
+      {
+        "category": "reliques_naines",
+        "description": "Artefacts et objets anciens provenant de cryptes naines",
+        "price_range": "500-5000 po",
+        "buyers": ["Guilde de l'Ombre", "Collectionneurs privés", "Mages érudits", "Nobles d'Astrène"],
+        "sources": ["Cryptes anciennes", "Ruines naines", "Tombes profanées"],
+        "legality": "Illégal (profanation de tombes)",
+        "risk": "Moyen (pas de peine de mort, mais amendes lourdes)"
+      },
+      {
+        "category": "artefacts_maudits",
+        "description": "Objets magiques dangereux, malédictions, reliques interdites",
+        "price_range": "1000-10000 po",
+        "buyers": ["Cultistes", "Mages noirs", "Guilde de l'Ombre", "Lumenciel (secrètement)"],
+        "sources": ["Ruines anciennes", "Sites de batailles", "Terres Brûlées"],
+        "legality": "Strictement illégal (exécution dans Lumenciel)",
+        "risk": "Très élevé"
+      },
+      {
+        "category": "armes_militaires",
+        "description": "Armes de qualité militaire, armures complètes, armes de siège",
+        "price_range": "100-2000 po",
+        "buyers": ["Rebelles", "Mercenaires", "Seigneurs de guerre"],
+        "sources": ["Forges de Karvath (vol)", "Arsenaux volés", "Production clandestine"],
+        "legality": "Illégal (contrebande d'armes)",
+        "risk": "Moyen",
+        "main_trader": "Vaskir (Cordova)"
+      },
+      {
+        "category": "informations",
+        "description": "Secrets politiques, plans militaires, localisations de trésors",
+        "price_range": "50-5000 po selon valeur",
+        "buyers": ["Royaumes", "Marchands", "Aventuriers", "Assassins"],
+        "sources": ["Espionnage", "Corruption", "Trahison"],
+        "legality": "Variable",
+        "risk": "Très élevé (exécution pour trahison)"
+      },
+      {
+        "category": "objets_religieux_voles",
+        "description": "Reliques sacrées volées, fausses reliques",
+        "price_range": "1000-20000 po",
+        "buyers": ["Collectionneurs", "Faux prophètes", "Lumenciel (récupération secrète)"],
+        "sources": ["Temples pillés", "Faussaires habiles"],
+        "legality": "Illégal (sacrilège)",
+        "risk": "Très élevé (exécution dans Lumenciel)"
+      }
+    ],
+    "trade_hubs": [
+      {
+        "name": "Cordova",
+        "kingdom": "Valdorine",
+        "description": "Principal hub de contrebande du continent, autorités tolérantes",
+        "specialties": ["Artefacts anciens", "Reliques naines", "Informations"],
+        "key_figures": ["Guilde de l'Ombre (Kess, anciennement Sirène)", "Vaskir (armes)"]
+      },
+      {
+        "name": "Port-de-Lune",
+        "kingdom": "Valdorine",
+        "description": "Marché noir secondaire, moins surveillé",
+        "specialties": ["Armes", "Équipement militaire volé"]
+      },
+      {
+        "name": "Shasseth",
+        "kingdom": "Aucun",
+        "description": "Marché noir dans les Terres Brûlées, artefacts anciens",
+        "specialties": ["Artefacts pré-humains", "Reliques des Terres Brûlées"]
+      }
+    ]
+  },
+  "standard_prices": {
+    "transport": {
+      "passage_maritime_standard": "50 po par personne (destination proche, 1-3 jours)",
+      "passage_maritime_long": "100-200 po par personne (destination lointaine, 5-10 jours)",
+      "passage_maritime_dangereux": "500 po par personne (Terres Brûlées, routes dangereuses)",
+      "passage_maritime_discret": "Double le prix standard (contrebande, pas de questions)",
+      "location_navire_entier": "2000-5000 po selon durée et danger"
+    },
+    "mercenaires": {
+      "garde_du_corps_journee": "10 po par jour",
+      "mercenaire_competent": "50 po par semaine",
+      "mercenaire_elite": "100 po par semaine",
+      "contrat_mission_simple": "100-500 po (escorte, protection)",
+      "contrat_mission_dangereuse": "500-2000 po (combat, infiltration)",
+      "contrat_mission_suicide": "5000+ po (très peu acceptent)"
+    },
+    "hebergement": {
+      "auberge_bas_de_gamme": "5 pa par nuit (paillasse commune)",
+      "auberge_moyenne": "5 pa par nuit (lit simple, propre)",
+      "auberge_qualite": "2 po par nuit (chambre privée, Auberge du Crâne d'Or)",
+      "manoir_location": "10-20 po par nuit (luxe, services)",
+      "repas_simple": "1-2 pa",
+      "repas_qualite": "4 pa (Auberge du Crâne d'Or)"
+    },
+    "services": {
+      "forgeron_reparation": "10% du prix de l'objet",
+      "forgeron_fabrication": "Prix matériaux + 50 po main d'œuvre",
+      "mage_identification": "50 po par objet magique",
+      "mage_sorts_mineurs": "10-50 po selon sort",
+      "clerc_soins": "Don suggéré 10-50 po selon gravité",
+      "scribe_copie": "1 po par page",
+      "guide_local": "5 po par jour"
+    },
+    "informations": {
+      "rumeur_commune": "1-5 po",
+      "information_fiable": "10-50 po",
+      "secret_important": "100-500 po",
+      "plan_militaire": "1000+ po",
+      "localisation_tresor": "500-5000 po"
+    }
+  },
+  "currency": {
+    "valdorine": {
+      "name": "Couronne valdine",
+      "symbol": "CV",
+      "standard": "1 CV = 1 pièce d'or standard",
+      "notes": "Monnaie la plus acceptée, stable"
+    },
+    "karvath": {
+      "name": "Aigle de fer",
+      "symbol": "AF",
+      "standard": "1 AF = 1 pièce d'or standard",
+      "notes": "Moins acceptée hors Karvath, mais valeur stable"
+    },
+    "lumenciel": {
+      "name": "Soleil d'or",
+      "symbol": "SG",
+      "standard": "1 SG = 1,2 pièce d'or standard",
+      "notes": "Légèrement surévaluée (confiance religieuse), mais acceptée"
+    },
+    "astrene": {
+      "name": "Laurier impérial",
+      "symbol": "LI",
+      "standard": "1 LI = 0,8 pièce d'or standard",
+      "notes": "Dévaluée (économie effondrée), peu acceptée hors Astrène"
+    },
+    "universal": {
+      "name": "Pièce d'or standard",
+      "symbol": "po",
+      "notes": "Référence universelle pour les échanges, acceptée partout"
+    }
+  },
+  "resources": {
+    "strategic": [
+      {
+        "name": "Mithril",
+        "description": "Métal nain léger et résistant",
+        "rarity": "Très rare",
+        "price": "1000 po pour 1 kg",
+        "sources": ["Anciennes mines naines", "Reliques", "Forges de Karvath (alliés nains)"],
+        "uses": ["Armures légères mais résistantes", "Armes magiques", "Chaînes incassables"]
+      },
+      {
+        "name": "Cristaux magiques",
+        "description": "Cristaux contenant de l'énergie magique",
+        "rarity": "Rare",
+        "price": "500-5000 po selon taille et puissance",
+        "sources": ["Ruines anciennes", "Terres Brûlées", "Cryptes"],
+        "uses": ["Enchantements", "Sorts permanents", "Artefacts magiques"]
+      },
+      {
+        "name": "Épices rares",
+        "description": "Épices des Terres Brûlées",
+        "rarity": "Rare",
+        "price": "100 po pour 1 kg",
+        "sources": ["Shasseth", "Terres Brûlées"],
+        "uses": ["Cuisine de luxe", "Médecine", "Parfums"],
+        "trade_control": "Monopole de Valdorine via Capitaine Meren"
+      },
+      {
+        "name": "Parchemins de sorts anciens",
+        "description": "Sorts oubliés ou interdits",
+        "rarity": "Très rare",
+        "price": "1000-10000 po",
+        "sources": ["Bibliothèques d'Astrène", "Ruines", "Marché noir"],
+        "uses": ["Apprentissage de sorts", "Recherche magique"]
+      }
+    ]
+  },
+  "economic_power": {
+    "richest_kingdoms": [
+      {
+        "rank": 1,
+        "kingdom": "Lumenciel",
+        "wealth_source": "Dîmes et donations massives (population fanatique)",
+        "estimated_treasury": "15 000 000 po",
+        "notes": "Plus riche que Valdorine, mais richesse moins liquide (bâtiments, reliques)"
+      },
+      {
+        "rank": 2,
+        "kingdom": "Valdorine",
+        "wealth_source": "Commerce maritime, taxes portuaires",
+        "estimated_treasury": "12 000 000 po",
+        "notes": "Or liquide le plus important, capacité à financer guerres"
+      },
+      {
+        "rank": 3,
+        "kingdom": "Karvath",
+        "wealth_source": "Tributs, mines, production d'armes",
+        "estimated_treasury": "8 000 000 po",
+        "notes": "Richesse investie dans l'armée, peu de réserves"
+      },
+      {
+        "rank": 4,
+        "kingdom": "Astrène",
+        "wealth_source": "Vestiges passés, dettes",
+        "estimated_treasury": "2 000 000 po (dont 1 000 000 en dettes)",
+        "notes": "Richesse culturelle > richesse financière"
+      }
+    ]
+  },
+  "notes": [
+    "Les prix varient selon l'offre et la demande",
+    "La Guilde de l'Ombre contrôle une partie significative du marché noir",
+    "Lumenciel est secrètement le royaume le plus riche (dîmes)",
+    "Valdorine maintient Astrène dans les dettes pour contrôle",
+    "Le marché noir de Cordova représente ~10% du PIB de Valdorine"
+  ]
+}

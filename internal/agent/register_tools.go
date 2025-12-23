@@ -3,11 +3,12 @@ package agent
 import (
 	"fmt"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/dmtools"
 )
 
 // registerAllTools registers all available tools in the registry.
-func registerAllTools(registry *ToolRegistry, dataDir, adventurePath string) error {
+func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure) error {
 	// Register dice roller
 	registry.Register(dmtools.NewDiceRollerTool())
 
@@ -32,13 +33,13 @@ func registerAllTools(registry *ToolRegistry, dataDir, adventurePath string) err
 	}
 	registry.Register(npcTool)
 
-	// Register adventure tools
-	registry.Register(dmtools.NewLogEventTool(adventurePath))
-	registry.Register(dmtools.NewAddGoldTool(adventurePath))
-	registry.Register(dmtools.NewGetInventoryTool(adventurePath))
+	// Register adventure tools - now passing Adventure object for real persistence
+	registry.Register(dmtools.NewLogEventTool(adv))
+	registry.Register(dmtools.NewAddGoldTool(adv))
+	registry.Register(dmtools.NewGetInventoryTool(adv))
 
 	// Register image generation tool
-	imageTool, err := dmtools.NewGenerateImageTool(adventurePath)
+	imageTool, err := dmtools.NewGenerateImageTool(adv.BasePath())
 	if err != nil {
 		// Log warning but don't fail if FAL_KEY is not set
 		fmt.Printf("Warning: Image generation tool not available: %v\n", err)

@@ -2,7 +2,12 @@ package dmtools
 
 import (
 	"fmt"
+	"strings"
 	"time"
+
+	"dungeons/internal/adventure"
+	"dungeons/internal/npc"
+	"dungeons/internal/treasure"
 )
 
 // SimpleTool is a basic tool implementation.
@@ -21,7 +26,7 @@ func (t *SimpleTool) Execute(params map[string]interface{}) (interface{}, error)
 }
 
 // NewLogEventTool creates a tool to log events to the adventure journal.
-func NewLogEventTool(adventurePath string) *SimpleTool {
+func NewLogEventTool(adv *adventure.Adventure) *SimpleTool {
 	return &SimpleTool{
 		name:        "log_event",
 		description: "Log an important event to the adventure journal (combat, discovery, loot, quest, npc encounter, location, etc.)",
@@ -44,9 +49,15 @@ func NewLogEventTool(adventurePath string) *SimpleTool {
 			eventType := params["event_type"].(string)
 			content := params["content"].(string)
 
-			// Simplified: just return success for now
-			timestamp := time.Now()
+			// Call real persistence
+			if err := adv.LogEvent(eventType, content); err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   err.Error(),
+				}, nil
+			}
 
+			timestamp := time.Now()
 			return map[string]interface{}{
 				"success": true,
 				"display": fmt.Sprintf("✓ Logged [%s at %s]: %s", eventType, timestamp.Format("15:04"), content),
@@ -56,7 +67,7 @@ func NewLogEventTool(adventurePath string) *SimpleTool {
 }
 
 // NewAddGoldTool creates a tool to modify party gold.
-func NewAddGoldTool(adventurePath string) *SimpleTool {
+func NewAddGoldTool(adv *adventure.Adventure) *SimpleTool {
 	return &SimpleTool{
 		name:        "add_gold",
 		description: "Add or remove gold from the party's shared inventory (use negative numbers to remove)",
@@ -81,6 +92,33 @@ func NewAddGoldTool(adventurePath string) *SimpleTool {
 				reason = r
 			}
 
+			// Load inventory
+			inv, err := adv.LoadInventory()
+			if err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   fmt.Sprintf("Failed to load inventory: %v", err),
+				}, nil
+			}
+
+			// Modify gold
+			inv.Gold += amount
+
+			// Save inventory
+			if err := adv.SaveInventory(inv); err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   fmt.Sprintf("Failed to save inventory: %v", err),
+				}, nil
+			}
+
+			// Log event
+			logContent := fmt.Sprintf("%+d po", amount)
+			if reason != "" {
+				logContent += fmt.Sprintf(" (%s)", reason)
+			}
+			adv.LogEvent("expense", logContent)
+
 			verb := "ajouté"
 			displayAmount := amount
 			if amount < 0 {
@@ -88,9 +126,9 @@ func NewAddGoldTool(adventurePath string) *SimpleTool {
 				displayAmount = -amount
 			}
 
-			display := fmt.Sprintf("✓ %s %d po", verb, displayAmount)
+			display := fmt.Sprintf("✓ %s %d po (total: %d po)", verb, displayAmount, inv.Gold)
 			if reason != "" {
-				display += fmt.Sprintf(" (%s)", reason)
+				display += fmt.Sprintf(" - %s", reason)
 			}
 
 			return map[string]interface{}{
@@ -102,7 +140,7 @@ func NewAddGoldTool(adventurePath string) *SimpleTool {
 }
 
 // NewGetInventoryTool creates a tool to get the party's inventory.
-func NewGetInventoryTool(adventurePath string) *SimpleTool {
+func NewGetInventoryTool(adv *adventure.Adventure) *SimpleTool {
 	return &SimpleTool{
 		name:        "get_inventory",
 		description: "Get the party's current shared inventory (gold and items)",
@@ -111,11 +149,34 @@ func NewGetInventoryTool(adventurePath string) *SimpleTool {
 			"properties": map[string]interface{}{},
 		},
 		execute: func(params map[string]interface{}) (interface{}, error) {
-			// Simplified: return mock data for now
-			display := "Or: 1293 po\nObjets: Potions de soin x4"
+			// Load real inventory
+			inv, err := adv.LoadInventory()
+			if err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   fmt.Sprintf("Failed to load inventory: %v", err),
+				}, nil
+			}
+
+			// Format display
+			display := fmt.Sprintf("Or: %d po", inv.Gold)
+			if len(inv.Items) > 0 {
+				display += "\nObjets:"
+				for _, item := range inv.Items {
+					if item.Quantity > 1 {
+						display += fmt.Sprintf("\n- %s x%d", item.Name, item.Quantity)
+					} else {
+						display += fmt.Sprintf("\n- %s", item.Name)
+					}
+				}
+			} else {
+				display += "\nAucun objet"
+			}
 
 			return map[string]interface{}{
 				"success": true,
+				"gold":    inv.Gold,
+				"items":   inv.Items,
 				"display": display,
 			}, nil
 		},
@@ -124,6 +185,12 @@ func NewGetInventoryTool(adventurePath string) *SimpleTool {
 
 // NewGenerateTreasureTool creates a tool to generate treasure.
 func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
+	// Create treasure generator
+	gen, err := treasure.NewGenerator(dataDir)
+	if err != nil {
+		return nil, fmt.Errorf("creating treasure generator: %w", err)
+	}
+
 	return &SimpleTool{
 		name:        "generate_treasure",
 		description: "Generate a treasure hoard according to BFRPG treasure types (A-U). Each monster type has an associated treasure type.",
@@ -138,14 +205,56 @@ func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
 			"required": []string{"treasure_type"},
 		},
 		execute: func(params map[string]interface{}) (interface{}, error) {
-			treasureType := params["treasure_type"].(string)
+			treasureType := strings.ToUpper(params["treasure_type"].(string))
 
-			// Simplified: return mock treasure
-			display := fmt.Sprintf("Trésor type %s:\n- Pièces: 100 po\n- 2 gemmes", treasureType)
+			// Generate real treasure
+			generated, err := gen.GenerateTreasure(treasureType)
+			if err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   err.Error(),
+				}, nil
+			}
+
+			// Format display
+			display := fmt.Sprintf("Trésor type %s (valeur totale: %d po)\n", treasureType, generated.TotalValueGP)
+
+			// Coins
+			if len(generated.Coins) > 0 {
+				display += "\nPièces:"
+				for _, coin := range generated.Coins {
+					display += fmt.Sprintf("\n- %d %s (%d po)", coin.Amount, coin.NameFR, coin.ValueGP)
+				}
+			}
+
+			// Gems
+			if len(generated.Gems) > 0 {
+				display += fmt.Sprintf("\n\nGemmes (%d):", len(generated.Gems))
+				for _, gem := range generated.Gems {
+					display += fmt.Sprintf("\n- %s (%d po)", gem.Name, gem.Value)
+				}
+			}
+
+			// Jewelry
+			if len(generated.Jewelry) > 0 {
+				display += fmt.Sprintf("\n\nBijoux (%d):", len(generated.Jewelry))
+				for _, jewel := range generated.Jewelry {
+					display += fmt.Sprintf("\n- %s (%d po)", jewel.Name, jewel.Value)
+				}
+			}
+
+			// Magic items
+			if len(generated.MagicItems) > 0 {
+				display += fmt.Sprintf("\n\nObjets magiques (%d):", len(generated.MagicItems))
+				for _, item := range generated.MagicItems {
+					display += fmt.Sprintf("\n- %s", item.Name)
+				}
+			}
 
 			return map[string]interface{}{
-				"success": true,
-				"display": display,
+				"success":  true,
+				"treasure": generated,
+				"display":  display,
 			}, nil
 		},
 	}, nil
@@ -153,6 +262,12 @@ func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
 
 // NewGenerateNPCTool creates a tool to generate NPCs.
 func NewGenerateNPCTool(dataDir string) (*SimpleTool, error) {
+	// Create NPC generator
+	gen, err := npc.NewGenerator(dataDir)
+	if err != nil {
+		return nil, fmt.Errorf("creating NPC generator: %w", err)
+	}
+
 	return &SimpleTool{
 		name:        "generate_npc",
 		description: "Generate a complete NPC with name, appearance, personality, motivation, and secret",
@@ -169,14 +284,49 @@ func NewGenerateNPCTool(dataDir string) (*SimpleTool, error) {
 					"enum":        []string{"m", "f"},
 					"description": "NPC gender (optional, defaults to random)",
 				},
+				"occupation": map[string]interface{}{
+					"type":        "string",
+					"enum":        []string{"commoner", "skilled", "authority", "underworld", "religious", "adventurer"},
+					"description": "NPC occupation type (optional, defaults to random)",
+				},
+				"attitude": map[string]interface{}{
+					"type":        "string",
+					"enum":        []string{"friendly", "neutral", "unfriendly", "hostile"},
+					"description": "NPC attitude (optional, defaults to neutral)",
+				},
 			},
 		},
 		execute: func(params map[string]interface{}) (interface{}, error) {
-			// Simplified: return mock NPC
-			display := "Garrick le Marchand\nRace: Humain | Sexe: Masculin\nApparence: Grand, barbe grise\nPersonnalité: Rusé mais honnête"
+			// Build options from parameters
+			var opts []npc.Option
+			if race, ok := params["race"].(string); ok && race != "" {
+				opts = append(opts, npc.WithRace(race))
+			}
+			if gender, ok := params["gender"].(string); ok && gender != "" {
+				opts = append(opts, npc.WithGender(gender))
+			}
+			if occupation, ok := params["occupation"].(string); ok && occupation != "" {
+				opts = append(opts, npc.WithOccupationType(occupation))
+			}
+			if attitude, ok := params["attitude"].(string); ok && attitude != "" {
+				opts = append(opts, npc.WithAttitude(attitude))
+			}
+
+			// Generate real NPC
+			generated, err := gen.Generate(opts...)
+			if err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   err.Error(),
+				}, nil
+			}
+
+			// Use ToShortDescription for compact display
+			display := generated.ToShortDescription()
 
 			return map[string]interface{}{
 				"success": true,
+				"npc":     generated,
 				"display": display,
 			}, nil
 		},

@@ -62,6 +62,180 @@
       "timestamp": "2025-12-22T23:37:12.672202+01:00",
       "type": "session",
       "content": "Session 5 terminée - Session 5 - En attente : Suivi de la caravane des Pierres Noires - Lyra et Kess reconnaissent depuis les toits pendant qu'Aldric, Thorin et Gareth suivent à distance à pied"
+    },
+    {
+      "id": 94,
+      "timestamp": "2025-12-23T00:40:58.666091+01:00",
+      "type": "exploration",
+      "content": "Le groupe progresse dans le Passage des Sentinelles. Formation: Thorin (avant avec lanterne), Lyra et Gareth (milieu), Kess et Aldric (arrière-garde). Sons d'alarme résonnent encore dans la forteresse."
+    },
+    {
+      "id": 95,
+      "timestamp": "2025-12-23T00:57:14.424654+01:00",
+      "type": "discovery",
+      "content": "Découverte du trésor dans l'ancienne salle de garde : Cotte de mailles naine +1 (CA 15), Marteau de guerre +1 'Frappe-Juste' (1d8+1, +1 toucher, lueur vs morts-vivants), 150 pièces d'or, fiole de poison noir (2d6 dégâts, JS CON DD12)"
+    },
+    {
+      "id": 96,
+      "timestamp": "2025-12-23T00:57:18.306411+01:00",
+      "type": "loot",
+      "content": "Le groupe gagne 150 po (Trésor de la salle de garde)"
+    },
+    {
+      "id": 97,
+      "timestamp": "2025-12-23T01:08:55.718015+01:00",
+      "type": "exploration",
+      "content": "Thorin cherche une issue secrète dans l'ancien poste de garde nain (Perception: 7)"
+    },
+    {
+      "id": 98,
+      "timestamp": "2025-12-23T01:09:07.40413+01:00",
+      "type": "combat",
+      "content": "3e coup de bélier : 2 dégâts à la barricade renforcée"
+    },
+    {
+      "id": 99,
+      "timestamp": "2025-12-23T01:14:32.14602+01:00",
+      "type": "fuite",
+      "content": "Évasion dramatique par trappe secrète - Le groupe découvre la trappe de fuite dans la salle d'armes naine, descend 50 pieds, échappe aux gardes des Pierres Noires. Accès au Niveau Inférieur de la Crypte: corridor funéraire nain ancien avec cristaux luminescents, trois chemins possibles (gauche descente, centre avenue principale, droite passage d'air frais). Thorin ressent la présence des ancêtres nains. Groupe en sécurité temporaire mais piégé sous terre."
+    },
+    {
+      "id": 100,
+      "timestamp": "2025-12-23T01:16:26.569228+01:00",
+      "type": "exploration",
+      "content": "Progression dans l'avenue funéraire principale - Découverte de l'architecture monumentale : piliers gravés du Clan du Marteau Éternel, alcôves de maîtres-artisans nains. Runes et inscriptions deviennent plus élaborées."
+    },
+    {
+      "id": 101,
+      "timestamp": "2025-12-23T01:16:38.138714+01:00",
+      "type": "exploration",
+      "content": "Statues de guerriers nains découvertes : gardiens de pierre monumentaux, certains gravement endommagés par des combats violents. Marques de griffures et impacts suggèrent une créature puissante."
+    },
+    {
+      "id": 102,
+      "timestamp": "2025-12-23T01:16:49.889641+01:00",
+      "type": "exploration",
+      "content": "Changement atmosphérique dans les profondeurs : température baisse, humidité augmente, brise souterraine. Odeur de pierre mouillée et présence indéterminée. Cristaux luminescents se raréfient."
+    },
+    {
+      "id": 103,
+      "timestamp": "2025-12-23T01:17:00.380978+01:00",
+      "type": "exploration",
+      "content": "Lyra perçoit clairement la respiration : son régulier, profond et lent, beaucoup plus proche. Le Marteau +1 de Gareth réagit, lueur pulsant comme un cœur. Tension maximale."
+    },
+    {
+      "id": 104,
+      "timestamp": "2025-12-23T01:17:10.537115+01:00",
+      "type": "exploration",
+      "content": "Runes d'avertissement en vieux nain : 'Ici repose... gardien éternel... prix du sang... n'éveillez pas'. Thorin identifie des avertissements placés devant des tombes interdites."
+    },
+    {
+      "id": 105,
+      "timestamp": "2025-12-23T01:17:32.811904+01:00",
+      "type": "discovery",
+      "content": "DÉCOUVERTE MAJEURE - LA CHAMBRE DU REPOS ÉTERNEL : Cathédrale souterraine circulaire (40 pieds de haut, 100 pieds de diamètre). 12 piliers titanesques en marbre noir veiné d'or. 6 sarcophages monumentaux de guerriers nains disposés en cercle. AU CENTRE : Autel/sarcophage colossal (15x8 pieds) enveloppé de chaînes de mithril scellées par des runes. Les chaînes pulsent au rythme de la respiration. Le Marteau +1 brille intensément. Magie divine ancestrale présente."
+    },
+    {
+      "id": 106,
+      "timestamp": "2025-12-23T01:19:39.10526+01:00",
+      "type": "pause",
+      "content": "Session 5 en pause - Groupe dans la Grande Chambre Funéraire du Niveau Inférieur de la Crypte. Créature puissante scellée par chaînes de mithril respirant au centre. Marteau +1 Frappe-Juste réagit à sa présence. Trois passages disponibles (gauche-monte, droite-descend, face-traverse). Décision sur la marche à suivre à prendre lors de la prochaine session."
+    },
+    {
+      "id": 107,
+      "timestamp": "2025-12-23T16:11:19+01:00",
+      "type": "session",
+      "content": "SESSION 5 RÉSUMÉE - Grande Chambre Funéraire découverte. Dalle centrale avec glyphes, 3 passages (nord: flux énergie, est: inscriptions, ouest: scellé). Présence mystérieuse scellée détectée."
+    },
+    {
+      "id": 108,
+      "timestamp": "2025-12-23T16:11:19+01:00",
+      "type": "quest",
+      "content": "OBJECTIF EN COURS : Déterminer la nature de la créature scellée dans la dalle centrale de la Grande Chambre Funéraire."
+    },
+    {
+      "id": 109,
+      "timestamp": "2025-12-23T16:11:19+01:00",
+      "type": "quest",
+      "content": "SOUS-QUÊTES : (1) Déchiffrer les runes naines sur la dalle, (2) Explorer les 3 passages (nord/est/ouest), (3) Décider d'établir ou non un contact avec la créature."
+    },
+    {
+      "id": 110,
+      "timestamp": "2025-12-23T16:11:19+01:00",
+      "type": "note",
+      "content": "ÉTAT DU GROUPE fin session 5 : Aldric (6/8 HP), Lyra (5/5 HP, sorts utilisés), Thorin (6/7 HP, 1 sort niveau 1 restant), Adanel (6/6 HP), Gareth (5/8 HP)."
+    },
+    {
+      "id": 111,
+      "timestamp": "2025-12-23T16:11:19+01:00",
+      "type": "location",
+      "content": "POSITION ACTUELLE : Grande Chambre Funéraire Souterraine (Niveau 2 des catacombes de Sombregarde)."
+    },
+    {
+      "id": 112,
+      "timestamp": "2025-12-23T16:11:19+01:00",
+      "type": "note",
+      "content": "HOOKS POUR SESSION 6 : Kess mentionnée à Cordova (port). Groupe devra acheter équipement/sorts avant retour crypte."
+    },
+    {
+      "id": 113,
+      "timestamp": "2025-12-23T16:16:58+01:00",
+      "type": "npc",
+      "content": "RENCONTRE : Sirène, ancienne voleuse à la Taverne du Voile Écarlate. Connaît Kess depuis 10 ans (Guilde de l'Ombre). Attitude amicale mais prudente."
+    },
+    {
+      "id": 114,
+      "timestamp": "2025-12-23T16:21:12+01:00",
+      "type": "discovery",
+      "content": "INFORMATION : Kess aperçue récemment au port de Cordova, surveillant discrètement des cargaisons de contrebande."
+    },
+    {
+      "id": 115,
+      "timestamp": "2025-12-23T16:21:12+01:00",
+      "type": "npc",
+      "content": "RÉVÉLATION : Sirène et Kess ont travaillé ensemble dans la Guilde de l'Ombre. Kess a mystérieusement quitté Pierrebrune il y a quelques semaines."
+    },
+    {
+      "id": 116,
+      "timestamp": "2025-12-23T16:26:17+01:00",
+      "type": "story",
+      "content": "BACKSTORY : Sirène et Kess se connaissent depuis 10 ans. Ont fait un job ensemble il y a 7 ans qui a mal tourné. Kess a disparu après, Sirène a raccroché."
+    },
+    {
+      "id": 117,
+      "timestamp": "2025-12-23T16:26:17+01:00",
+      "type": "npc",
+      "content": "INFORMATION : Marta (aubergiste Voile Écarlate) a vu Kess recevoir un visiteur nocturne mystérieux il y a 3 semaines. Homme encapuchonné, conversation tendue."
+    },
+    {
+      "id": 118,
+      "timestamp": "2025-12-23T16:29:54+01:00",
+      "type": "discovery",
+      "content": "RÉVÉLATION MAJEURE : Kess s'est embarquée volontairement sur le navire 'Les Corbeaux des Mers' (capitaine Meren le Noir) en direction de Shasseth."
+    },
+    {
+      "id": 119,
+      "timestamp": "2025-12-23T16:36:36+01:00",
+      "type": "quest",
+      "content": "INFORMATION DE MEREN : Kess est partie de son plein gré à Shasseth. A payé 500 po pour la traversée. Semblait poursuivre quelque chose d'important."
+    },
+    {
+      "id": 120,
+      "timestamp": "2025-12-23T16:36:36+01:00",
+      "type": "note",
+      "content": "NÉGOCIATION VOYAGE : Meren demande 2000 po pour transporter le groupe à Shasseth. Groupe dispose actuellement de 1293 po. Besoin de 707 po supplémentaires."
+    },
+    {
+      "id": 121,
+      "timestamp": "2025-12-23T16:38:42+01:00",
+      "type": "quest",
+      "content": "NOUVEAU CONTRAT : Valorian le Doré (riche marchand) offre 600 po pour sauver sa fille Elara, enlevée par des bandits et retenue dans une grotte près de Cordova."
+    },
+    {
+      "id": 122,
+      "timestamp": "2025-12-23T16:42:55+01:00",
+      "type": "quest",
+      "content": "NÉGOCIATION RÉUSSIE : Valorian accepte 800 po total (700 po à la livraison + 100 po d'acompte immédiat). Le groupe récupère l'acompte de 100 po."
     }
   ]
 }

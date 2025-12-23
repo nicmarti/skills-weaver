@@ -6,7 +6,7 @@ BINARY_PREFIX = sw
 BINARIES = $(BINARY_PREFIX)-dice $(BINARY_PREFIX)-character $(BINARY_PREFIX)-adventure \
            $(BINARY_PREFIX)-names $(BINARY_PREFIX)-npc $(BINARY_PREFIX)-image \
            $(BINARY_PREFIX)-monster $(BINARY_PREFIX)-treasure $(BINARY_PREFIX)-dm \
-           $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell
+           $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell $(BINARY_PREFIX)-rebuild-journal
 
 # Go commands
 GOCMD = go
@@ -61,6 +61,16 @@ $(BINARY_PREFIX)-equipment: cmd/equipment/main.go internal/equipment/*.go
 
 $(BINARY_PREFIX)-spell: cmd/spell/main.go internal/spell/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/spell
+
+$(BINARY_PREFIX)-rebuild-journal: cmd/rebuild-journal/main.go internal/adventure/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/rebuild-journal
+
+# =============================================================================
+# Maintenance targets
+# =============================================================================
+
+rebuild-journal: $(BINARY_PREFIX)-rebuild-journal ## Reconstruit les événements perdus du journal
+	./$(BINARY_PREFIX)-rebuild-journal
 
 # =============================================================================
 # Test targets

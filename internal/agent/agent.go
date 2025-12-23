@@ -42,8 +42,8 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 	// Initialize tool registry with adventure context
 	toolRegistry := NewToolRegistry(adventureCtx)
 
-	// Register all tools
-	if err := registerAllTools(toolRegistry, "data", adventureCtx.BasePath()); err != nil {
+	// Register all tools - pass Adventure object for real persistence
+	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure); err != nil {
 		return nil, fmt.Errorf("failed to register tools: %w", err)
 	}
 

@@ -91,7 +91,7 @@ export ANTHROPIC_API_KEY="your_anthropic_api_key"
 ```
 
 **Usage:**
-- `sw-dm`: Uses Claude Sonnet 3.7 for immersive game sessions (~$3 per million input tokens, ~$15 per million output tokens)
+- `sw-dm`: Uses Claude Haiku 4.5 for fast, immersive game sessions (~$1/M input tokens, ~$5/M output tokens)
 - `sw-adventure enrich`: Uses Claude Haiku 4.5 for cost-effective descriptions (~$0.0003 per entry)
 
 ## Quick Start

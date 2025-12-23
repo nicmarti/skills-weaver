@@ -3,19 +3,18 @@ package ui
 
 import "github.com/charmbracelet/lipgloss"
 
-// Colors for dark background terminal
+// Adaptive colors that work on both light and dark backgrounds
 var (
-	Purple      = lipgloss.Color("141")   // Lighter purple for visibility
-	Gold        = lipgloss.Color("220")   // Gold/yellow
-	LightGray   = lipgloss.Color("250")   // Light gray
-	Green       = lipgloss.Color("120")   // Bright green
-	Red         = lipgloss.Color("196")   // Bright red
-	White       = lipgloss.Color("255")   // Pure white
-	Cyan        = lipgloss.Color("51")    // Cyan for accents
-	DarkGray    = lipgloss.Color("240")   // Dark gray for subtle elements
+	Purple = lipgloss.AdaptiveColor{Light: "99", Dark: "141"}
+	Gold   = lipgloss.AdaptiveColor{Light: "136", Dark: "220"}
+	Gray   = lipgloss.AdaptiveColor{Light: "240", Dark: "250"}
+	Green  = lipgloss.AdaptiveColor{Light: "28", Dark: "120"}
+	Red    = lipgloss.AdaptiveColor{Light: "160", Dark: "196"}
+	Text   = lipgloss.AdaptiveColor{Light: "235", Dark: "255"}
+	Cyan   = lipgloss.AdaptiveColor{Light: "37", Dark: "51"}
 )
 
-// Styles for different UI elements (optimized for black background)
+// Styles for different UI elements (work on both light and dark backgrounds)
 var (
 	// LogoStyle for ASCII art logo
 	LogoStyle = lipgloss.NewStyle().
@@ -25,7 +24,7 @@ var (
 
 	// InfoStyle for info lines (model, author, license)
 	InfoStyle = lipgloss.NewStyle().
-			Foreground(LightGray).
+			Foreground(Gray).
 			Italic(true).
 			Align(lipgloss.Center)
 
@@ -39,19 +38,19 @@ var (
 
 	// SubtitleStyle for subtitles
 	SubtitleStyle = lipgloss.NewStyle().
-			Foreground(LightGray).
+			Foreground(Gray).
 			Italic(true)
 
-	// PromptStyle for user input prompt (bright green)
+	// PromptStyle for user input prompt
 	PromptStyle = lipgloss.NewStyle().
 			Foreground(Green).
 			Bold(true)
 
-	// DMStyle for Dungeon Master narrative text (white on black)
+	// DMStyle for Dungeon Master narrative text
 	DMStyle = lipgloss.NewStyle().
-		Foreground(White)
+		Foreground(Text)
 
-	// ToolStyle for tool execution messages (lighter purple)
+	// ToolStyle for tool execution messages
 	ToolStyle = lipgloss.NewStyle().
 			Foreground(Purple)
 
@@ -64,7 +63,7 @@ var (
 	InfoBoxStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(Cyan).
-			Foreground(White).
+			Foreground(Text).
 			Padding(1, 2)
 
 	// AdventureTitleStyle for adventure name display
@@ -75,7 +74,7 @@ var (
 
 	// MenuItemStyle for menu items
 	MenuItemStyle = lipgloss.NewStyle().
-			Foreground(White)
+			Foreground(Text)
 
 	// MenuSelectedStyle for selected menu items
 	MenuSelectedStyle = lipgloss.NewStyle().

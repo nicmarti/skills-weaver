@@ -18,6 +18,9 @@ const (
 )
 
 func main() {
+	// Clear screen at startup
+	ui.ClearScreen()
+
 	// Initial title (will be replaced by banner after adventure selection)
 	fmt.Println(ui.SubtitleStyle.Render("SkillsWeaver - Sélection d'aventure"))
 

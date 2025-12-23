@@ -5,10 +5,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// ClearScreen clears the terminal screen and sets black background
+// ClearScreen clears the terminal screen
 func ClearScreen() {
-	// Clear screen and set black background with white text
-	fmt.Print("\033[H\033[2J\033[40m\033[37m")
+	// Clear screen only - let terminal use its own theme
+	fmt.Print("\033[H\033[2J")
 }
 
 // ShowBanner displays the application banner with model info
@@ -56,7 +56,7 @@ func ShowAdventureInfo(name, location string, gold int, party string, lastAction
 	// Last action if available
 	if lastAction != "" {
 		fmt.Println()
-		lastActionStyle := lipgloss.NewStyle().Foreground(White)
+		lastActionStyle := lipgloss.NewStyle().Foreground(Text)
 		fmt.Println(lastActionStyle.Render(fmt.Sprintf("📖 %s", lastAction)))
 	}
 	fmt.Println()

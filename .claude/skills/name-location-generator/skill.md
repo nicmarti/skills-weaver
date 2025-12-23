@@ -25,7 +25,7 @@ go build -o sw-location-names ./cmd/location-names
 ### Génération par Type
 
 ```bash
-# Types disponibles: city, town, village, region, ruin, generic, special
+# Types disponibles: city, town, village, region
 ./sw-location-names <type> --kingdom=<royaume> [--count=N]
 
 # Options:
@@ -97,22 +97,6 @@ go build -o sw-location-names ./cmd/location-names
 # Région mélancolique
 ./sw-location-names region --kingdom=astrene
 # Exemple: Terres du Sud, Val de l'Oubli, Plaines Fanées
-```
-
-### Lieux Neutres
-
-```bash
-# Ruines anciennes
-./sw-location-names ruin --count=3
-# Exemple: Ancien Forteresse (Ruines), Oublié Temple, Vieux Tour
-
-# Lieu géographique neutre
-./sw-location-names generic --count=3
-# Exemple: Forêt Sombre, Montagnes Gelées, Marais Brumeux
-
-# Lieu spécial
-./sw-location-names special
-# Exemple: Terres Brûlées, Grande Forêt, Profonds Marécages
 ```
 
 ### Génération Multiple
@@ -202,7 +186,6 @@ DM: [Utilise ce nom dans narration]
 | Bourg | Town | `town` |
 | Village | Village | `village` |
 | Région | Region | `region` |
-| Ruine | Ruin | `ruin` |
 | Valdorine | Valdorine | `valdorine` |
 | Karvath | Karvath | `karvath` |
 | Lumenciel | Lumenciel | `lumenciel` |
@@ -242,9 +225,10 @@ Combinaisons possibles :
 
 - Pour une **cité majeure** : `./sw-location-names city --kingdom=<faction>`
 - Pour un **village mineur** : `./sw-location-names village --kingdom=<faction>`
-- Pour une **ruine mystérieuse** : `./sw-location-names ruin`
-- Pour des **Terres Brûlées** : `./sw-location-names special`
+- Pour une **région géographique** : `./sw-location-names region --kingdom=<faction>`
 - Pour une **liste de choix** : `--count=5`
+
+**Note** : Pour les ruines, Terres Brûlées et autres lieux spéciaux sans faction, laissez le dungeon-master créer des noms contextuels qui s'intègrent mieux à l'histoire.
 
 ## Utilisé par
 

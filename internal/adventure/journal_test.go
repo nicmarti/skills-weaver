@@ -593,7 +593,7 @@ func TestSaveAndLoadJournalMetadata(t *testing.T) {
 		Categories: []string{"custom", "types"},
 		LastUpdate: time.Now(),
 	}
-	err := adv.saveJournalMetadata(meta)
+	err := adv.SaveJournalMetadata(meta)
 	if err != nil {
 		t.Fatalf("saveJournalMetadata() error = %v", err)
 	}
@@ -655,7 +655,7 @@ func TestSaveAndLoadSessionJournal(t *testing.T) {
 	}
 
 	// Save session journal
-	err := adv.saveSessionJournal(sj)
+	err := adv.SaveSessionJournal(sj)
 	if err != nil {
 		t.Fatalf("saveSessionJournal() error = %v", err)
 	}
@@ -688,7 +688,7 @@ func TestLoadSessionJournal_MultipleSessionsIndependent(t *testing.T) {
 			{ID: 1, SessionID: 1, Type: "combat", Content: "Session 1 combat"},
 		},
 	}
-	adv.saveSessionJournal(sj1)
+	adv.SaveSessionJournal(sj1)
 
 	// Create and save session 2
 	sj2 := &SessionJournal{
@@ -697,7 +697,7 @@ func TestLoadSessionJournal_MultipleSessionsIndependent(t *testing.T) {
 			{ID: 2, SessionID: 2, Type: "loot", Content: "Session 2 loot"},
 		},
 	}
-	adv.saveSessionJournal(sj2)
+	adv.SaveSessionJournal(sj2)
 
 	// Load session 1 and verify it only has session 1 entries
 	loaded1, _ := adv.loadSessionJournal(1)

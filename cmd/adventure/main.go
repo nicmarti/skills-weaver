@@ -839,12 +839,12 @@ func cmdEnrich(args []string) error {
 			}
 			fmt.Printf("✓ Saved %d entries\n\n", len(results))
 		case "s", "skip":
-			fmt.Println("⊘ Skipped batch\n")
+			fmt.Print("⊘ Skipped batch\n")
 		case "q", "quit":
 			fmt.Printf("\n✓ Enrichment stopped. %d entries enriched.\n", successCount)
 			return nil
 		default:
-			fmt.Println("⊘ Invalid choice, skipping batch\n")
+			fmt.Print("⊘ Invalid choice, skipping batch\n")
 		}
 	}
 
@@ -997,7 +997,7 @@ func cmdMigrateJournal(args []string) error {
 	if err := adv.SaveJournalMetadata(meta); err != nil {
 		return fmt.Errorf("sauvegarde metadata: %w", err)
 	}
-	fmt.Println("   ✅ Métadonnées créées\n")
+	fmt.Print("   ✅ Métadonnées créées\n")
 
 	// Create session journal files
 	fmt.Println("📁 Création des fichiers de session...")
@@ -1025,7 +1025,7 @@ func cmdMigrateJournal(args []string) error {
 	fmt.Println("🖼️  Migration des images...")
 	imagesDir := adv.BasePath() + "/images"
 	if _, err := os.Stat(imagesDir); os.IsNotExist(err) {
-		fmt.Println("   ℹ️  Aucun répertoire images/ trouvé\n")
+		fmt.Print("   ℹ️  Aucun répertoire images/ trouvé\n")
 	} else {
 		migratedCount, err := migrateImages(adv, imagesDir, sessionGroups)
 		if err != nil {
@@ -1040,7 +1040,7 @@ func cmdMigrateJournal(args []string) error {
 	if err := validateMigration(adv, journal); err != nil {
 		return fmt.Errorf("validation échouée: %w", err)
 	}
-	fmt.Println("   ✅ Validation réussie\n")
+	fmt.Print("   ✅ Validation réussie\n")
 
 	// Archive journal.json
 	fmt.Println("📦 Archivage de journal.json...")
@@ -1190,7 +1190,7 @@ func cmdValidateJournal(args []string) error {
 	if len(duplicates) > 0 {
 		return fmt.Errorf("IDs dupliqués trouvés: %v", duplicates)
 	}
-	fmt.Println("   ✅ Tous les IDs sont uniques\n")
+	fmt.Print("   ✅ Tous les IDs sont uniques\n")
 
 	// Validate: Chronological order within sessions
 	fmt.Println("✔️  Vérification de l'ordre chronologique par session...")
@@ -1210,7 +1210,7 @@ func cmdValidateJournal(args []string) error {
 			return fmt.Errorf("hors session: ordre chronologique incorrect")
 		}
 	}
-	fmt.Println("   ✅ Ordre chronologique correct\n")
+	fmt.Print("   ✅ Ordre chronologique correct\n")
 
 	// Validate: NextID is correct
 	fmt.Println("✔️  Vérification du NextID...")
@@ -1223,7 +1223,7 @@ func cmdValidateJournal(args []string) error {
 	if journal.NextID != maxID+1 {
 		return fmt.Errorf("NextID incorrect: %d (devrait être %d)", journal.NextID, maxID+1)
 	}
-	fmt.Println("   ✅ NextID correct\n")
+	fmt.Print("   ✅ NextID correct\n")
 
 	// Report session distribution
 	fmt.Println("📁 Distribution par session:")

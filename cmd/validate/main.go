@@ -66,7 +66,6 @@ type LocationNamesFile struct {
 	Karvath   map[string]interface{} `json:"karvath"`
 	Lumenciel map[string]interface{} `json:"lumenciel"`
 	Astrene   map[string]interface{} `json:"astrene"`
-	Neutral   map[string]interface{} `json:"neutral"`
 }
 
 var validTreasureTypes = map[string]bool{
@@ -363,16 +362,6 @@ func validateLocationNames(dataDir string) []data.ValidationError {
 				})
 			}
 		}
-	}
-
-	// Check neutral section exists
-	if lnf.Neutral == nil {
-		errors = append(errors, data.ValidationError{
-			File:     "location-names.json",
-			Field:    "neutral",
-			Message:  "neutral section is missing",
-			Severity: "warning",
-		})
 	}
 
 	return errors

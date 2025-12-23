@@ -35,12 +35,6 @@ func main() {
 		err = cmdGenerate(gen, "village", args)
 	case "region", "région":
 		err = cmdGenerate(gen, "region", args)
-	case "ruin", "ruine":
-		err = cmdRuin(gen, args)
-	case "generic", "générique":
-		err = cmdNeutral(gen, "generic", args)
-	case "special", "spécial":
-		err = cmdNeutral(gen, "special", args)
 	case "list":
 		err = cmdList(gen, args)
 	case "help":
@@ -68,9 +62,6 @@ COMMANDES:
   town <royaume>                Générer un nom de bourg
   village <royaume>             Générer un nom de village
   region <royaume>              Générer un nom de région
-  ruin                          Générer un nom de ruines
-  generic                       Générer un lieu géographique neutre
-  special                       Générer un lieu spécial (Terres Brûlées, etc.)
   list [kingdoms|types]         Lister les options disponibles
   help                          Afficher cette aide
 
@@ -88,10 +79,7 @@ EXEMPLES:
   sw-location-names city --kingdom=valdorine
   sw-location-names town --kingdom=karvath --count=5
   sw-location-names village --kingdom=lumenciel
-  sw-location-names region --kingdom=astrene
-  sw-location-names ruin --count=3
-  sw-location-names generic --count=5
-  sw-location-names special`)
+  sw-location-names region --kingdom=astrene`)
 }
 
 func cmdGenerate(gen *locations.Generator, locationType string, args []string) error {
@@ -153,53 +141,6 @@ func cmdGenerate(gen *locations.Generator, locationType string, args []string) e
 	return nil
 }
 
-func cmdRuin(gen *locations.Generator, args []string) error {
-	count := 1
-
-	// Parse options
-	for _, arg := range args {
-		if strings.HasPrefix(arg, "--count=") {
-			n, err := strconv.Atoi(strings.TrimPrefix(arg, "--count="))
-			if err == nil && n > 0 {
-				count = n
-			}
-		}
-	}
-
-	for i := 0; i < count; i++ {
-		name := gen.GenerateRuin(true)
-		fmt.Println(name)
-	}
-
-	return nil
-}
-
-func cmdNeutral(gen *locations.Generator, neutralType string, args []string) error {
-	count := 1
-
-	// Parse options
-	for _, arg := range args {
-		if strings.HasPrefix(arg, "--count=") {
-			n, err := strconv.Atoi(strings.TrimPrefix(arg, "--count="))
-			if err == nil && n > 0 {
-				count = n
-			}
-		}
-	}
-
-	for i := 0; i < count; i++ {
-		var name string
-		if neutralType == "generic" {
-			name = gen.GenerateGeneric()
-		} else {
-			name = gen.GenerateSpecial()
-		}
-		fmt.Println(name)
-	}
-
-	return nil
-}
-
 func cmdList(gen *locations.Generator, args []string) error {
 	listType := "all"
 	if len(args) > 0 {
@@ -222,9 +163,6 @@ func cmdList(gen *locations.Generator, args []string) error {
 		fmt.Println("- town         (Bourg)")
 		fmt.Println("- village      (Village)")
 		fmt.Println("- region       (Région géographique)")
-		fmt.Println("- ruin         (Ruines)")
-		fmt.Println("- generic      (Lieu géographique neutre)")
-		fmt.Println("- special      (Lieu spécial)")
 
 	default:
 		fmt.Println("## Royaumes Disponibles")
@@ -240,9 +178,6 @@ func cmdList(gen *locations.Generator, args []string) error {
 		fmt.Println("- town         (Bourg)")
 		fmt.Println("- village      (Village)")
 		fmt.Println("- region       (Région géographique)")
-		fmt.Println("- ruin         (Ruines)")
-		fmt.Println("- generic      (Lieu géographique neutre)")
-		fmt.Println("- special      (Lieu spécial)")
 	}
 
 	return nil

@@ -120,51 +120,6 @@ func TestGenerateRegion(t *testing.T) {
 	}
 }
 
-func TestGenerateRuin(t *testing.T) {
-	gen, err := NewGenerator("../../data")
-	if err != nil {
-		t.Fatalf("Failed to create generator: %v", err)
-	}
-
-	for i := 0; i < 5; i++ {
-		name := gen.GenerateRuin(true)
-		if name == "" {
-			t.Error("GenerateRuin returned empty name")
-		}
-		t.Logf("Ruin %d: %s", i+1, name)
-	}
-}
-
-func TestGenerateGeneric(t *testing.T) {
-	gen, err := NewGenerator("../../data")
-	if err != nil {
-		t.Fatalf("Failed to create generator: %v", err)
-	}
-
-	for i := 0; i < 5; i++ {
-		name := gen.GenerateGeneric()
-		if name == "" {
-			t.Error("GenerateGeneric returned empty name")
-		}
-		t.Logf("Generic %d: %s", i+1, name)
-	}
-}
-
-func TestGenerateSpecial(t *testing.T) {
-	gen, err := NewGenerator("../../data")
-	if err != nil {
-		t.Fatalf("Failed to create generator: %v", err)
-	}
-
-	for i := 0; i < 5; i++ {
-		name := gen.GenerateSpecial()
-		if name == "" {
-			t.Error("GenerateSpecial returned empty name")
-		}
-		t.Logf("Special %d: %s", i+1, name)
-	}
-}
-
 func TestGenerateMultiple(t *testing.T) {
 	gen, err := NewGenerator("../../data")
 	if err != nil {

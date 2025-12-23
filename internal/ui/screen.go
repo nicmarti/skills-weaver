@@ -1,24 +1,35 @@
 package ui
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/charmbracelet/lipgloss"
+)
 
-// ClearScreen clears the terminal screen
+// ClearScreen clears the terminal screen and sets black background
 func ClearScreen() {
-	fmt.Print("\033[H\033[2J")
+	// Clear screen and set black background with white text
+	fmt.Print("\033[H\033[2J\033[40m\033[37m")
 }
 
 // ShowBanner displays the application banner with model info
 func ShowBanner(model string) {
-	banner := TitleStyle.Render("SkillsWeaver")
-	subtitle := SubtitleStyle.Render("Dungeon Master Agent")
-	info := SubtitleStyle.Render(fmt.Sprintf(
-		"Model: %s | Author: Nicolas Martignole | License: CC BY-SA 4.0",
+	// ASCII art logo
+	logo := LogoStyle.Render(`
+    ⚔️  🎲                      🎲  ⚔️
+   ╔══════════════════════════════╗
+   ║      SkillsWeaver            ║
+   ║   ~ Dungeon Master Agent ~   ║
+   ╚══════════════════════════════╝
+    ⚔️  🎲                      🎲  ⚔️
+`)
+
+	info := InfoStyle.Render(fmt.Sprintf(
+		"Model: %s | Author: Nicolas Martignole | CC BY-SA 4.0",
 		model,
 	))
 
 	fmt.Println()
-	fmt.Println(banner)
-	fmt.Println(subtitle)
+	fmt.Println(logo)
 	fmt.Println(info)
 	fmt.Println()
 }
@@ -45,7 +56,8 @@ func ShowAdventureInfo(name, location string, gold int, party string, lastAction
 	// Last action if available
 	if lastAction != "" {
 		fmt.Println()
-		fmt.Println(SubtitleStyle.Render(fmt.Sprintf("📖 %s", lastAction)))
+		lastActionStyle := lipgloss.NewStyle().Foreground(White)
+		fmt.Println(lastActionStyle.Render(fmt.Sprintf("📖 %s", lastAction)))
 	}
 	fmt.Println()
 }

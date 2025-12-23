@@ -3,17 +3,32 @@ package ui
 
 import "github.com/charmbracelet/lipgloss"
 
-// Colors used throughout the application
+// Colors for dark background terminal
 var (
-	Purple = lipgloss.Color("99")
-	Gold   = lipgloss.Color("220")
-	Gray   = lipgloss.Color("245")
-	Green  = lipgloss.Color("82")
-	Red    = lipgloss.Color("196")
+	Purple      = lipgloss.Color("141")   // Lighter purple for visibility
+	Gold        = lipgloss.Color("220")   // Gold/yellow
+	LightGray   = lipgloss.Color("250")   // Light gray
+	Green       = lipgloss.Color("120")   // Bright green
+	Red         = lipgloss.Color("196")   // Bright red
+	White       = lipgloss.Color("255")   // Pure white
+	Cyan        = lipgloss.Color("51")    // Cyan for accents
+	DarkGray    = lipgloss.Color("240")   // Dark gray for subtle elements
 )
 
-// Styles for different UI elements
+// Styles for different UI elements (optimized for black background)
 var (
+	// LogoStyle for ASCII art logo
+	LogoStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(Gold).
+			Align(lipgloss.Center)
+
+	// InfoStyle for info lines (model, author, license)
+	InfoStyle = lipgloss.NewStyle().
+			Foreground(LightGray).
+			Italic(true).
+			Align(lipgloss.Center)
+
 	// TitleStyle for main titles with double border
 	TitleStyle = lipgloss.NewStyle().
 			Bold(true).
@@ -22,24 +37,23 @@ var (
 			BorderForeground(Purple).
 			Padding(0, 2)
 
-	// SubtitleStyle for subtitles and info lines
+	// SubtitleStyle for subtitles
 	SubtitleStyle = lipgloss.NewStyle().
-			Foreground(Gray).
+			Foreground(LightGray).
 			Italic(true)
 
-	// PromptStyle for user input prompt
+	// PromptStyle for user input prompt (bright green)
 	PromptStyle = lipgloss.NewStyle().
 			Foreground(Green).
 			Bold(true)
 
-	// DMStyle for Dungeon Master narrative text
+	// DMStyle for Dungeon Master narrative text (white on black)
 	DMStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("252"))
+		Foreground(White)
 
-	// ToolStyle for tool execution messages
+	// ToolStyle for tool execution messages (lighter purple)
 	ToolStyle = lipgloss.NewStyle().
-			Foreground(Purple).
-			Faint(true)
+			Foreground(Purple)
 
 	// ErrorStyle for error messages
 	ErrorStyle = lipgloss.NewStyle().
@@ -49,7 +63,8 @@ var (
 	// InfoBoxStyle for adventure info boxes with rounded border
 	InfoBoxStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(Purple).
+			BorderForeground(Cyan).
+			Foreground(White).
 			Padding(1, 2)
 
 	// AdventureTitleStyle for adventure name display
@@ -60,7 +75,7 @@ var (
 
 	// MenuItemStyle for menu items
 	MenuItemStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("252"))
+			Foreground(White)
 
 	// MenuSelectedStyle for selected menu items
 	MenuSelectedStyle = lipgloss.NewStyle().

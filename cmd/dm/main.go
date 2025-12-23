@@ -37,15 +37,15 @@ func main() {
 	}
 
 	if len(adventures) == 0 {
-		fmt.Println("No adventures found in", adventuresDir)
-		fmt.Println("Create an adventure first using: ./sw-adventure create \"<name>\" \"<description>\"")
+		fmt.Println(ui.ErrorStyle.Render("No adventures found in " + adventuresDir))
+		fmt.Println(ui.MenuItemStyle.Render("Create an adventure first using: ./sw-adventure create \"<name>\" \"<description>\""))
 		os.Exit(1)
 	}
 
 	// Show menu
 	selectedAdventure := showAdventureMenu(adventures)
 	if selectedAdventure == "" {
-		fmt.Println("No adventure selected. Exiting.")
+		fmt.Println(ui.SubtitleStyle.Render("No adventure selected. Exiting."))
 		return
 	}
 
@@ -54,7 +54,7 @@ func main() {
 	ui.ShowBanner("Claude Haiku 4.5")
 
 	// Load adventure context
-	fmt.Printf("Chargement de l'aventure '%s'...\n\n", selectedAdventure)
+	fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("Chargement de l'aventure '%s'...\n", selectedAdventure)))
 	adventureCtx, err := agent.LoadAdventureContext(adventuresDir, selectedAdventure)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading adventure: %v\n", err)
@@ -75,7 +75,7 @@ func main() {
 	displayWelcome(adventureCtx)
 
 	// Start REPL
-	fmt.Println("\nTapez 'exit' ou 'quit' pour quitter.\n")
+	fmt.Println(ui.SubtitleStyle.Render("Tapez 'exit' ou 'quit' pour quitter.\n"))
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -90,7 +90,7 @@ func main() {
 		}
 
 		if input == "exit" || input == "quit" {
-			fmt.Println("\nAu revoir, aventuriers !")
+			fmt.Println(ui.MenuItemStyle.Render("\nAu revoir, aventuriers !"))
 			break
 		}
 
@@ -129,19 +129,19 @@ func listAdventures() ([]adventure.Adventure, error) {
 
 // showAdventureMenu displays the adventure selection menu.
 func showAdventureMenu(adventures []adventure.Adventure) string {
-	fmt.Println("Aventures disponibles:\n")
+	fmt.Println(ui.MenuItemStyle.Render("Aventures disponibles:\n"))
 
 	for i, adv := range adventures {
 		timeSince := time.Since(adv.LastPlayed)
 		timeStr := formatTimeSince(timeSince)
 
-		fmt.Printf("%d. %s\n", i+1, adv.Name)
-		fmt.Printf("   Dernière session: %s\n", timeStr)
-		fmt.Printf("   Sessions: %d | Statut: %s\n\n", adv.SessionCount, adv.Status)
+		fmt.Println(ui.MenuItemStyle.Render(fmt.Sprintf("%d. %s", i+1, adv.Name)))
+		fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("   Dernière session: %s", timeStr)))
+		fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("   Sessions: %d | Statut: %s\n", adv.SessionCount, adv.Status)))
 	}
 
-	fmt.Println("0. Quitter")
-	fmt.Print("\nChoisissez une aventure (1-", len(adventures), "): ")
+	fmt.Println(ui.MenuItemStyle.Render("0. Quitter"))
+	fmt.Print(ui.MenuItemStyle.Render(fmt.Sprintf("\nChoisissez une aventure (1-%d): ", len(adventures))))
 
 	scanner := bufio.NewScanner(os.Stdin)
 	if !scanner.Scan() {
@@ -156,7 +156,7 @@ func showAdventureMenu(adventures []adventure.Adventure) string {
 	// Parse choice
 	var idx int
 	if _, err := fmt.Sscanf(choice, "%d", &idx); err != nil || idx < 1 || idx > len(adventures) {
-		fmt.Println("Choix invalide")
+		fmt.Println(ui.ErrorStyle.Render("Choix invalide"))
 		return ""
 	}
 

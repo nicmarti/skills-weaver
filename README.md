@@ -10,10 +10,34 @@ The engine is based on [Basic Fantasy RPG](https://www.basicfantasy.org/) rules.
 
 You can watch a sample game session on [my YouTube channel](https://youtu.be/K5CCB7MmegM) - English subtitles available
 
+## How to Play
+
+**To play a game session, use `sw-dm`** - the autonomous Dungeon Master application:
+
+```bash
+# Build the tools
+make build
+
+# Set your Anthropic API key
+export ANTHROPIC_API_KEY="your_key"
+
+# Launch the Dungeon Master
+./sw-dm
+```
+
+The `sw-dm` application provides an immersive, interactive RPG experience with:
+- Streaming narrative responses
+- Automatic dice rolling and rule application
+- Adventure state management (party, inventory, journal)
+- Optional AI image generation during gameplay
+
+> **Note:** While Claude Code can also orchestrate gameplay using the agents and skills in this repository, `sw-dm` provides a more streamlined and immersive experience for actual game sessions.
+
 ## What is this repository?
 
 SkillsWeaver demonstrates how to build a complex, multi-tool AI application using Claude Code's skills and agents system. It includes:
 
+- **Autonomous Dungeon Master** (`sw-dm`) - Interactive REPL with full agent loop and tool use
 - **Dice rolling** with standard RPG notation (2d6+3, 4d6kh3, advantage/disadvantage)
 - **Character generation** following BFRPG rules (4 races, 4 classes)
 - **Adventure management** with session tracking and automatic journaling
@@ -43,21 +67,32 @@ brew install go
 
 ### 3. fal.ai API Key (for image generation) - OPTIONAL
 
+**OPTIONAL for `sw-image` and `sw-dm` (image generation)**
+
 Get your API key from [fal.ai](https://fal.ai) and set it:
 
 ```bash
 export FAL_KEY="your_fal_ai_api_key"
 ```
 
-### 4. Anthropic API Key (for journal enrichment) - OPTIONAL
+The `sw-dm` Dungeon Master can generate images during gameplay if FAL_KEY is configured. The skill-based `sw-image` tool also uses it for character portraits and scene illustrations.
 
-The `sw-adventure enrich` command uses Claude API to automatically generate bilingual descriptions for journal entries. Get your API key from [Anthropic Console](https://console.anthropic.com/) and set it:
+### 4. Anthropic API Key
+
+**REQUIRED for `sw-dm` (Dungeon Master agent)**
+**OPTIONAL for `sw-adventure enrich` (journal enrichment)**
+
+The autonomous Dungeon Master (`sw-dm`) requires direct access to Claude API for the agent loop. The `sw-adventure enrich` command also uses it for bilingual journal descriptions.
+
+Get your API key from [Anthropic Console](https://console.anthropic.com/) and set it:
 
 ```bash
 export ANTHROPIC_API_KEY="your_anthropic_api_key"
 ```
 
-**Note:** Journal enrichment uses Claude Haiku 4.5 for cost-effective, high-quality descriptions (~$0.0003 per entry).
+**Usage:**
+- `sw-dm`: Uses Claude Sonnet 3.7 for immersive game sessions (~$3 per million input tokens, ~$15 per million output tokens)
+- `sw-adventure enrich`: Uses Claude Haiku 4.5 for cost-effective descriptions (~$0.0003 per entry)
 
 ## Quick Start
 
@@ -78,6 +113,9 @@ go build -o sw-npc ./cmd/npc
 go build -o sw-image ./cmd/image
 go build -o sw-monster ./cmd/monster
 go build -o sw-treasure ./cmd/treasure
+go build -o sw-equipment ./cmd/equipment  # Equipment browser
+go build -o sw-spell ./cmd/spell          # Spell reference
+go build -o sw-dm ./cmd/dm                # Autonomous Dungeon Master
 ```
 
 ### 2. Start Claude Code
@@ -94,6 +132,111 @@ Once in Claude Code, the skills are automatically discovered. Try:
 - *"Create a dwarf fighter named Thorin"* → Uses character-generator skill
 - *"Generate a portrait for Thorin"* → Uses image-generator skill
 - *"Start a new adventure called The Lost Mine"* → Uses adventure-manager skill
+
+## Autonomous Dungeon Master (sw-dm)
+
+The `sw-dm` binary is a standalone Go application that acts as an autonomous Dungeon Master using the Anthropic API directly. Unlike the Claude Code skills that require manual orchestration, `sw-dm` runs a complete **agent loop** with tool use.
+
+### Features
+
+- **Full Agent Loop**: User → Claude → Tool Use → Execution → Claude → Response
+- **Streaming Responses**: Real-time text streaming for immersive narrative
+- **Adventure Auto-Loading**: Automatically loads party, inventory, journal, and game state
+- **Direct Go Package Calls**: Tools call internal Go packages directly (no subprocess execution)
+- **Interactive REPL**: Command-line interface with conversation history
+- **Context Management**: Smart truncation to stay under token limits
+
+### Available Tools
+
+The Dungeon Master has access to these tools during gameplay:
+
+| Tool | Purpose |
+|------|---------|
+| `roll_dice` | Roll dice with RPG notation (d20, 2d6+3, 4d6kh3) |
+| `get_monster` | Look up monster stats from the bestiary |
+| `log_event` | Record events in the adventure journal |
+| `add_gold` | Modify the party's gold |
+| `get_inventory` | Check the shared inventory |
+| `generate_treasure` | Generate treasure using BFRPG tables |
+| `generate_npc` | Create NPCs with personality and motivations |
+| `generate_image` | Generate fantasy-style images from prompts (requires FAL_KEY) |
+
+### Usage
+
+```bash
+# Launch the Dungeon Master
+./sw-dm
+
+# Select your adventure from the menu
+# The DM loads the full context and starts the REPL
+
+> We enter the dark corridor cautiously
+[DM narrates and rolls dice automatically]
+
+> I attack the goblin with my longsword
+[DM rolls attack, damage, updates journal]
+
+> exit
+```
+
+### Example Session
+
+```
+============================================================
+  La Crypte des Ombres
+============================================================
+
+📍 Lieu: Niveau Inférieur - Grande Chambre Funéraire
+💰 Or: 1593 po
+
+👥 Groupe:
+   - Aldric (human fighter, niveau 1)
+   - Lyra (elf magic-user, niveau 1)
+   - Thorin (dwarf cleric, niveau 1)
+   - Gareth (human fighter, niveau 1)
+
+📖 Dernière action: Une créature scellée par des chaînes de
+    mithril respire au centre de la chambre...
+============================================================
+
+> Aldric s'approche prudemment de la créature
+
+[🎲 roll_dice: Perception check]
+Le Maître du Jeu lance les dés...
+
+Aldric avance avec précaution. Les chaînes de mithril tintent
+légèrement à chaque respiration de la créature. Son marteau
+Frappe-Juste émet une faible lueur bleue, réagissant à une
+présence magique puissante...
+
+[✓ log_event: Aldric approaches the chained creature]
+```
+
+### Architecture
+
+```
+sw-dm
+├── internal/agent/
+│   ├── agent.go          # Main agent loop
+│   ├── tools.go          # Tool registry
+│   ├── context.go        # Conversation & adventure context
+│   └── streaming.go      # Event processing
+├── internal/dmtools/     # Tool implementations
+└── cmd/dm/main.go        # REPL application
+```
+
+### Why Two Approaches?
+
+**Claude Code Skills** (`.claude/skills/`):
+- Best for: Collaborative development, learning, exploring
+- User controls flow and decisions
+- Claude Code provides IDE integration
+
+**Autonomous DM** (`sw-dm`):
+- Best for: Actual gameplay sessions
+- DM controls flow and makes decisions autonomously
+- Faster, more immersive experience
+- Direct API access with streaming
 
 ## How It Works
 
@@ -127,8 +270,14 @@ Markdown files that teach Claude how to use specific tools:
 - `dice-roller` - Roll dice with RPG notation
 - `character-generator` - Create BFRPG characters
 - `adventure-manager` - Manage campaigns and sessions
+- `name-generator` - Generate fantasy names by race
+- `npc-generator` - Create NPCs with personalities and secrets
 - `image-generator` - Generate fantasy illustrations
 - `journal-illustrator` - Illustrate adventure journals
+- `monster-manual` - Monster stats and encounters
+- `treasure-generator` - Generate treasure using BFRPG tables
+- `equipment-browser` - Browse weapons, armor, and gear
+- `spell-reference` - Spell details by class and level
 
 ### Agents (`.claude/agents/`)
 
@@ -140,12 +289,17 @@ Specialized sub-agents for complex tasks:
 ### CLI Tools (`cmd/`)
 
 Go binaries that perform the actual work:
+- `sw-dm` - Autonomous Dungeon Master with full agent loop
 - `sw-dice` - Dice rolling engine
 - `sw-character` - Character management
 - `sw-adventure` - Adventure/campaign tracking
+- `sw-names` - Fantasy name generation
+- `sw-npc` - NPC generation with personalities
 - `sw-image` - Image generation via fal.ai
 - `sw-monster` - Monster stats and encounters
 - `sw-treasure` - Treasure generation
+- `sw-equipment` - Equipment catalog (weapons, armor, gear)
+- `sw-spell` - Spell reference (divine and arcane)
 
 ## Example: Enriching Journal Entries with AI
 
@@ -289,16 +443,51 @@ The reference image ensures Aldric's face matches across all images, eliminating
 ```
 skillsweaver/
 ├── .claude/
-│   ├── skills/           # Claude Code skills
-│   └── agents/           # Specialized sub-agents
-├── cmd/                  # Go CLI source code
-├── internal/             # Go packages
+│   ├── skills/              # Claude Code skills
+│   └── agents/              # Specialized sub-agents
+├── cmd/                     # Go CLI source code
+│   ├── dice/                # sw-dice
+│   ├── character/           # sw-character
+│   ├── adventure/           # sw-adventure
+│   ├── names/               # sw-names
+│   ├── npc/                 # sw-npc
+│   ├── image/               # sw-image
+│   ├── monster/             # sw-monster
+│   ├── treasure/            # sw-treasure
+│   ├── equipment/           # sw-equipment
+│   ├── spell/               # sw-spell
+│   └── dm/                  # sw-dm (Autonomous DM)
+├── internal/                # Go packages
+│   ├── agent/               # Agent loop orchestration
+│   │   ├── agent.go         # Main agent loop
+│   │   ├── tools.go         # Tool registry
+│   │   ├── context.go       # Context management
+│   │   └── streaming.go     # Event processing
+│   ├── dmtools/             # Tool implementations for DM
+│   ├── dice/                # Dice rolling logic
+│   ├── character/           # Character management
+│   ├── adventure/           # Adventure management
+│   ├── monster/             # Bestiary
+│   ├── treasure/            # Treasure generation
+│   ├── npc/                 # NPC generation
+│   ├── names/               # Name generation
+│   ├── image/               # Image generation
+│   ├── equipment/           # Equipment catalog
+│   └── spell/               # Spell reference
 ├── data/
-│   ├── characters/       # Saved characters (JSON)
-│   ├── adventures/       # Saved adventures (JSON)
-│   └── images/           # Generated images
-├── CLAUDE.md             # Project instructions for Claude
-└── README.md             # This file
+│   ├── characters/          # Saved characters (JSON)
+│   ├── adventures/          # Saved adventures (JSON)
+│   │   └── <adventure>/
+│   │       ├── adventure.json
+│   │       ├── party.json
+│   │       ├── inventory.json
+│   │       ├── journal-*.json
+│   │       └── images/
+│   ├── monsters.json        # Bestiary
+│   ├── treasure.json        # Treasure tables
+│   └── names.json           # Name dictionaries
+├── CLAUDE.md                # Project instructions for Claude
+└── README.md                # This file
 ```
 
 ## License

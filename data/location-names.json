@@ -1,0 +1,165 @@
+{
+  "valdorine": {
+    "cities": {
+      "prefixes": ["Cor", "Port", "Havre", "Mar", "Nav", "Bel", "Costa", "Véra", "Sér"],
+      "roots": ["dova", "luna", "vel", "mar", "pel", "ciel", "ora", "azur", "rena"],
+      "suffixes": ["ia", "aven", "bay", "point", "mare", "della", "port", "luz"]
+    },
+    "towns": {
+      "prefixes": ["San", "Belle", "Beau", "Clair", "Blanc", "Doux", "Frais", "Libre"],
+      "suffixes": ["mont", "val", "fort", "roc", "eau", "rive", "port", "champs"]
+    },
+    "villages": {
+      "prefixes": ["Le", "La", "Les"],
+      "names": ["Mouettes", "Marées", "Écailles", "Sardines", "Voiles", "Ancres", "Quais", "Barques", "Filets", "Coraux"]
+    },
+    "regions": {
+      "templates": [
+        "Côte {adjective}",
+        "Golfe {noun-gen}",
+        "Îles {adjective-pl}",
+        "Baie {adjective}",
+        "Cap {noun-gen}"
+      ],
+      "adjectives": ["Occidentale", "Orientale", "Dorée", "Argentée", "Bleue", "Tranquille", "Sauvage"],
+      "adjectives_plural": ["Dorées", "Argentées", "Bleues", "Tranquilles", "Sauvages", "Perdues"],
+      "nouns": ["Marchands", "Navigateurs", "Corsaires", "Marins", "Pêcheurs", "Tempêtes", "Vents"]
+    }
+  },
+  "karvath": {
+    "cities": {
+      "prefixes": ["Fer", "Ker", "Roc", "Forte", "Garde", "Kark", "Dure", "Pierre", "Mont"],
+      "roots": ["lank", "marthu", "swod", "porte", "mur", "tour", "pic", "crak", "kre"],
+      "suffixes": ["krou", "kros", "heim", "burg", "stein", "wald", "gard", "kren", "kar"]
+    },
+    "towns": {
+      "prefixes": ["Haut", "Mont", "Val", "Roc", "Pierre", "Fort", "Kark", "Dure", "Pierre", "Meh"],
+      "suffixes": ["kern", "crak", "stein", "wald", "fort", "hoff", "dorf", "heim"]
+    },
+    "villages": {
+      "prefixes": ["Kerm", "Kemu", "Emki","Serk","Durk"],
+      "suffixes": ["bourg", "wald", "dorf", "heim", "stein", "hoff", "garde", "kross"]
+    },
+    "regions": {
+      "templates": [
+        "Montagnes {noun-gen}",
+        "Plaines {noun-gen}",
+        "Défilé {noun-gen}",
+        "Pics {noun-gen}",
+        "Col {noun-gen}"
+      ],
+      "nouns": ["Haut Kerms", "WalRoc", "Durekren", "Salk", "Lankh", "Martord", "Kemul", "Hoskros", "Kerkhus"]
+    }
+  },
+  "lumenciel": {
+    "cities": {
+      "prefixes": ["Aurore", "Lumière", "Saint", "Sainte", "Céleste", "Divine", "Béni", "Sacré", "Pur"],
+      "roots": ["sancta", "lumen", "ciel", "âme", "lumina", "dieu", "grâce", "foi", "prière"],
+      "suffixes": ["sainte", "bénie", "divine", "des-anges", "céleste", "lumineuse", "pure"]
+    },
+    "towns": {
+      "prefixes": ["Vallon", "Pré", "Mont", "Val", "Clos", "Champ"],
+      "suffixes": ["de-Prière", "du-Repos", "de-Foi", "Béni", "Sacré", "de-Grâce", "du-Culte"]
+    },
+    "villages": {
+      "prefixes": ["Saint", "Sainte", "Bon", "Bonne"],
+      "suffixes": ["Foi", "Grâce", "Prière", "Espoir", "Lumière", "Repos", "Paix"]
+    },
+    "regions": {
+      "templates": [
+        "Terres {adjective-pl}",
+        "Forêt {noun-gen}",
+        "Val {noun-gen}",
+        "Champs {adjective-pl}",
+        "Collines {adjective-pl}"
+      ],
+      "adjectives_plural": ["Saintes", "Bénies", "Divines", "Pures", "Lumineuses", "Sacrées"],
+      "nouns": ["Grâce", "Lumière", "Pureté", "Foi", "Prière", "Dieu", "Âmes"]
+    }
+  },
+  "astrene": {
+    "cities": {
+      "prefixes": ["Staro", "Lunh", "Astro", "Nyx", "Alba", "Crepus", "Aurore", "Leudin", "Nux"],
+      "roots": ["automne", "crépuscule", "aurore", "noctis", "stra", "nox", "luna", "stella", "umbra"],
+      "suffixes": ["d'Automne", "Impériale", "Kampus", "d'Éther", "Ternus", "Fanée", "Oubliée"]
+    },
+    "towns": {
+      "prefixes": ["Val", "Ombre", "Brume", "Vieux", "Ancienne", "Vieille"],
+      "suffixes": ["ombre", "ancienne", "fanée", "oubliée", "pâle", "grise", "mélancolique"]
+    },
+    "villages": {
+      "prefixes": ["Petit", "Ancien", "Vieux"],
+      "suffixes": ["brume", "ombre", "repos", "oubli", "crépuscule", "déclin", "passé"]
+    },
+    "regions": {
+      "templates": [
+        "Terres {noun-gen}",
+        "Val {noun-gen}",
+        "Plaines {adjective-pl}",
+        "Forêt {adjective}",
+        "Landes {adjective-pl}"
+      ],
+      "nouns": ["Sud", "Oubli", "Passé", "Mémoire", "Sages", "Étoiles", "Automne"],
+      "adjectives": ["Fanée", "Ancienne", "Oubliée", "Mélancolique", "Pâle", "Grise"],
+      "adjectives_plural": ["Fanées", "Anciennes", "Oubliées", "Mélancoliques", "Pâles", "Grises"]
+    }
+  },
+  "neutral": {
+    "ruins": {
+      "prefixes": ["Vieux", "Ancienne", "Ancien", "Oublié", "Oubliée", "Perdu", "Perdue"],
+      "bases": ["Fort", "Forteresse", "Tour", "Château", "Temple", "Sanctuaire", "Crypte", "Citadelle"],
+      "suffixes": ["Ruines", "Vestiges", "Décombres", "Débris"]
+    },
+    "generic": {
+      "geographical": [
+        "Collines",
+        "Montagnes",
+        "Vallée",
+        "Plaines",
+        "Forêt",
+        "Bois",
+        "Marais",
+        "Marécages",
+        "Désert",
+        "Landes",
+        "Lacs",
+        "Rivière",
+        "Plateau"
+      ],
+      "adjectives": [
+        "Sombre",
+        "Sombres",
+        "Brumeux",
+        "Brumeuses",
+        "Verdoyant",
+        "Verdoyantes",
+        "Aride",
+        "Arides",
+        "Gelé",
+        "Gelées",
+        "Brûlé",
+        "Brûlées",
+        "Sauvage",
+        "Sauvages",
+        "Maudit",
+        "Maudites",
+        "Perdu",
+        "Perdues",
+        "Profond",
+        "Profondes"
+      ]
+    },
+    "special": {
+      "prefixes": ["Les", "Le", "La"],
+      "descriptors": [
+        "Terres Brûlées",
+        "Terres Mortes",
+        "Terres Désolées",
+        "Grande Forêt",
+        "Grand Désert",
+        "Vaste Marais",
+        "Profonds Marécages"
+      ]
+    }
+  }
+}

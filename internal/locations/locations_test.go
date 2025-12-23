@@ -91,11 +91,6 @@ func TestGenerateVillage(t *testing.T) {
 			}
 
 			t.Logf("%s village: %s", kingdom, name)
-
-			// Valdorine villages should have "Le/La/Les" prefix
-			if kingdom == "valdorine" && !strings.HasPrefix(name, "Le ") && !strings.HasPrefix(name, "La ") && !strings.HasPrefix(name, "Les ") {
-				t.Errorf("Valdorine village should start with Le/La/Les, got: %s", name)
-			}
 		})
 	}
 }

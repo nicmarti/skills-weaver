@@ -33,6 +33,7 @@ type VillageParts struct {
 // RegionTemplates holds templates for region names.
 type RegionTemplates struct {
 	Templates         []string `json:"templates"`
+	Names             []string `json:"names"`
 	Adjectives        []string `json:"adjectives"`
 	AdjectivesPlural  []string `json:"adjectives_plural"`
 	Nouns             []string `json:"nouns"`
@@ -61,7 +62,7 @@ type GenericNames struct {
 
 // SpecialNames holds special location patterns.
 type SpecialNames struct {
-	Prefixes    []string `json:"prefixes"`
+	Templates   []string `json:"templates"`
 	Descriptors []string `json:"descriptors"`
 }
 
@@ -182,17 +183,7 @@ func (g *Generator) GenerateVillage(kingdom string) (string, error) {
 		return "", fmt.Errorf("unknown kingdom: %s", kingdom)
 	}
 
-	// Valdorine uses "Le/La/Les + Name" pattern
-	if kingdom == "valdorine" {
-		if len(parts.Prefixes) == 0 || len(parts.Names) == 0 {
-			return "", fmt.Errorf("insufficient village parts for Valdorine")
-		}
-		prefix := parts.Prefixes[g.rng.Intn(len(parts.Prefixes))]
-		name := parts.Names[g.rng.Intn(len(parts.Names))]
-		return fmt.Sprintf("%s %s", prefix, name), nil
-	}
-
-	// Other kingdoms use "Prefix + Suffix" pattern
+	// All kingdoms use "Prefix + Suffix" pattern
 	if len(parts.Prefixes) == 0 || len(parts.Suffixes) == 0 {
 		return "", fmt.Errorf("insufficient village parts for kingdom: %s", kingdom)
 	}
@@ -200,7 +191,7 @@ func (g *Generator) GenerateVillage(kingdom string) (string, error) {
 	prefix := parts.Prefixes[g.rng.Intn(len(parts.Prefixes))]
 	suffix := parts.Suffixes[g.rng.Intn(len(parts.Suffixes))]
 
-	return fmt.Sprintf("%s-%s", prefix, suffix), nil
+	return fmt.Sprintf("%s%s", prefix, suffix), nil
 }
 
 // GenerateRegion generates a region name for a kingdom.
@@ -229,6 +220,13 @@ func (g *Generator) GenerateRegion(kingdom string) (string, error) {
 
 	// Replace placeholders
 	result := template
+	if strings.Contains(template, "{name}") {
+		if len(templates.Names) == 0 {
+			return "", fmt.Errorf("no names for kingdom: %s", kingdom)
+		}
+		name := templates.Names[g.rng.Intn(len(templates.Names))]
+		result = strings.Replace(result, "{name}", name, 1)
+	}
 	if strings.Contains(template, "{adjective-pl}") {
 		if len(templates.AdjectivesPlural) == 0 {
 			return "", fmt.Errorf("no plural adjectives for kingdom: %s", kingdom)
@@ -249,6 +247,13 @@ func (g *Generator) GenerateRegion(kingdom string) (string, error) {
 		}
 		noun := templates.Nouns[g.rng.Intn(len(templates.Nouns))]
 		result = strings.Replace(result, "{noun-gen}", "des "+noun, 1)
+	}
+	if strings.Contains(template, "{noun}") {
+		if len(templates.Nouns) == 0 {
+			return "", fmt.Errorf("no nouns for kingdom: %s", kingdom)
+		}
+		noun := templates.Nouns[g.rng.Intn(len(templates.Nouns))]
+		result = strings.Replace(result, "{noun}", noun, 1)
 	}
 
 	return result, nil
@@ -288,17 +293,44 @@ func (g *Generator) GenerateGeneric() string {
 func (g *Generator) GenerateSpecial() string {
 	special := g.data.Neutral.Special
 
-	// 70% chance to use predefined descriptors
-	if g.rng.Intn(10) < 7 {
+	// 50% chance to use predefined descriptors
+	if len(special.Descriptors) > 0 && g.rng.Intn(10) < 5 {
 		return special.Descriptors[g.rng.Intn(len(special.Descriptors))]
 	}
 
-	// Otherwise compose: prefix + generic
-	prefix := special.Prefixes[g.rng.Intn(len(special.Prefixes))]
-	generic := g.data.Neutral.Generic.Geographical[g.rng.Intn(len(g.data.Neutral.Generic.Geographical))]
-	adj := g.data.Neutral.Generic.Adjectives[g.rng.Intn(len(g.data.Neutral.Generic.Adjectives))]
+	// Otherwise use templates if available
+	if len(special.Templates) > 0 {
+		template := special.Templates[g.rng.Intn(len(special.Templates))]
+		result := template
 
-	return fmt.Sprintf("%s %s %s", prefix, generic, adj)
+		// Replace {geographical}
+		if strings.Contains(template, "{geographical}") {
+			geo := g.data.Neutral.Generic.Geographical[g.rng.Intn(len(g.data.Neutral.Generic.Geographical))]
+			result = strings.Replace(result, "{geographical}", geo, 1)
+		}
+
+		// Replace {adjective}
+		if strings.Contains(template, "{adjective}") {
+			adj := g.data.Neutral.Generic.Adjectives[g.rng.Intn(len(g.data.Neutral.Generic.Adjectives))]
+			result = strings.Replace(result, "{adjective}", adj, 1)
+		}
+
+		// Replace {name} - generate a random region-like name
+		if strings.Contains(template, "{name}") {
+			// Use a mix of geographical and proper nouns
+			name := g.data.Neutral.Generic.Geographical[g.rng.Intn(len(g.data.Neutral.Generic.Geographical))]
+			result = strings.Replace(result, "{name}", name, 1)
+		}
+
+		return result
+	}
+
+	// Fallback to descriptor if no templates
+	if len(special.Descriptors) > 0 {
+		return special.Descriptors[g.rng.Intn(len(special.Descriptors))]
+	}
+
+	return "Terres Inconnues"
 }
 
 // GenerateMultiple generates multiple unique names.

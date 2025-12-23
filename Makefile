@@ -6,7 +6,8 @@ BINARY_PREFIX = sw
 BINARIES = $(BINARY_PREFIX)-dice $(BINARY_PREFIX)-character $(BINARY_PREFIX)-adventure \
            $(BINARY_PREFIX)-names $(BINARY_PREFIX)-npc $(BINARY_PREFIX)-image \
            $(BINARY_PREFIX)-monster $(BINARY_PREFIX)-treasure $(BINARY_PREFIX)-dm \
-           $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell $(BINARY_PREFIX)-rebuild-journal
+           $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell $(BINARY_PREFIX)-rebuild-journal \
+           $(BINARY_PREFIX)-location-names
 
 # Go commands
 GOCMD = go
@@ -64,6 +65,9 @@ $(BINARY_PREFIX)-spell: cmd/spell/main.go internal/spell/*.go
 
 $(BINARY_PREFIX)-rebuild-journal: cmd/rebuild-journal/main.go internal/adventure/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/rebuild-journal
+
+$(BINARY_PREFIX)-location-names: cmd/location-names/main.go internal/locations/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/location-names
 
 # =============================================================================
 # Maintenance targets

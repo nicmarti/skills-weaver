@@ -60,6 +60,15 @@ type SpellList struct {
 	Divine map[string][]string `json:"divine"`
 }
 
+// LocationNamesFile represents the location-names.json structure.
+type LocationNamesFile struct {
+	Valdorine map[string]interface{} `json:"valdorine"`
+	Karvath   map[string]interface{} `json:"karvath"`
+	Lumenciel map[string]interface{} `json:"lumenciel"`
+	Astrene   map[string]interface{} `json:"astrene"`
+	Neutral   map[string]interface{} `json:"neutral"`
+}
+
 var validTreasureTypes = map[string]bool{
 	"A": true, "B": true, "C": true, "D": true, "E": true,
 	"F": true, "G": true, "H": true, "I": true, "J": true,
@@ -81,12 +90,13 @@ OPTIONS:
   --help, -h    Show this help message
 
 VALIDATIONS:
-  - races.json      : allowed_classes reference valid classes
-  - equipment.json  : starting_equipment references valid items
-  - monsters.json   : treasure_type is valid (A-U or 'none')
-  - names.json      : all races have name entries
-  - spells.json     : spell_lists reference valid spell IDs
-  - journal.json    : bilingual descriptions consistency and length
+  - races.json          : allowed_classes reference valid classes
+  - equipment.json      : starting_equipment references valid items
+  - monsters.json       : treasure_type is valid (A-U or 'none')
+  - names.json          : all races have name entries
+  - location-names.json : all kingdoms have required location types
+  - spells.json         : spell_lists reference valid spell IDs
+  - journal.json        : bilingual descriptions consistency and length
 
 EXAMPLES:
   sw-validate              # Validate data in ./data directory
@@ -126,6 +136,9 @@ func main() {
 
 	// Validate names coverage
 	allErrors = append(allErrors, validateNames(*dataDir, gd)...)
+
+	// Validate location names
+	allErrors = append(allErrors, validateLocationNames(*dataDir)...)
 
 	// Validate spells
 	allErrors = append(allErrors, validateSpells(*dataDir)...)
@@ -278,6 +291,88 @@ func validateNames(dataDir string, gd *data.GameData) []data.ValidationError {
 				Severity: "warning",
 			})
 		}
+	}
+
+	return errors
+}
+
+func validateLocationNames(dataDir string) []data.ValidationError {
+	var errors []data.ValidationError
+
+	filePath := filepath.Join(dataDir, "location-names.json")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			errors = append(errors, data.ValidationError{
+				File:     "location-names.json",
+				Field:    "",
+				Message:  "file not found",
+				Severity: "warning",
+			})
+			return errors
+		}
+		errors = append(errors, data.ValidationError{
+			File:     "location-names.json",
+			Field:    "",
+			Message:  fmt.Sprintf("error reading file: %v", err),
+			Severity: "error",
+		})
+		return errors
+	}
+
+	var lnf LocationNamesFile
+	if err := json.Unmarshal(content, &lnf); err != nil {
+		errors = append(errors, data.ValidationError{
+			File:     "location-names.json",
+			Field:    "",
+			Message:  fmt.Sprintf("JSON parse error: %v", err),
+			Severity: "error",
+		})
+		return errors
+	}
+
+	// Check that all 4 kingdoms exist
+	kingdoms := map[string]map[string]interface{}{
+		"valdorine": lnf.Valdorine,
+		"karvath":   lnf.Karvath,
+		"lumenciel": lnf.Lumenciel,
+		"astrene":   lnf.Astrene,
+	}
+
+	requiredSections := []string{"cities", "towns", "villages", "regions"}
+
+	for kingdom, kingdomData := range kingdoms {
+		if kingdomData == nil {
+			errors = append(errors, data.ValidationError{
+				File:     "location-names.json",
+				Field:    kingdom,
+				Message:  fmt.Sprintf("kingdom '%s' is missing", kingdom),
+				Severity: "error",
+			})
+			continue
+		}
+
+		// Check that each kingdom has required sections
+		for _, section := range requiredSections {
+			if _, ok := kingdomData[section]; !ok {
+				errors = append(errors, data.ValidationError{
+					File:     "location-names.json",
+					Field:    fmt.Sprintf("%s.%s", kingdom, section),
+					Message:  fmt.Sprintf("missing required section '%s'", section),
+					Severity: "warning",
+				})
+			}
+		}
+	}
+
+	// Check neutral section exists
+	if lnf.Neutral == nil {
+		errors = append(errors, data.ValidationError{
+			File:     "location-names.json",
+			Field:    "neutral",
+			Message:  "neutral section is missing",
+			Severity: "warning",
+		})
 	}
 
 	return errors

@@ -40,6 +40,7 @@ skillsweaver/
 │   ├── adventure/           # CLI sw-adventure
 │   ├── names/               # CLI sw-names
 │   ├── npc/                 # CLI sw-npc
+│   ├── location-names/      # CLI sw-location-names
 │   ├── image/               # CLI sw-image
 │   ├── monster/             # CLI sw-monster
 │   ├── treasure/            # CLI sw-treasure
@@ -52,6 +53,7 @@ skillsweaver/
 │   ├── adventure/           # Package aventures/campagnes
 │   ├── names/               # Package génération de noms
 │   ├── npc/                 # Package génération de PNJ
+│   ├── locations/           # Package génération de noms de lieux
 │   ├── image/               # Package génération d'images
 │   ├── monster/             # Package bestiaire
 │   ├── treasure/            # Package trésors
@@ -60,6 +62,7 @@ skillsweaver/
 ├── data/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
+│   ├── location-names.json  # Dictionnaires de noms de lieux
 │   ├── monsters.json        # Bestiaire BFRPG
 │   ├── treasure.json        # Tables de trésors BFRPG
 │   ├── characters/          # Personnages sauvegardés
@@ -142,20 +145,21 @@ Le journal est organisé en fichiers séparés par session pour optimiser la per
 │  │generator   │ │generator   │ │                    │  │
 │  └────────────┘ └────────────┘ └────────────────────┘  │
 │  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
-│  │monster-    │ │treasure-   │ │journal-illustrator │  │
-│  │manual      │ │generator   │ │                    │  │
+│  │name-       │ │monster-    │ │treasure-generator  │  │
+│  │location-   │ │manual      │ │                    │  │
+│  │generator   │ │            │ │                    │  │
 │  └────────────┘ └────────────┘ └────────────────────┘  │
-│  ┌────────────┐ ┌────────────┐                         │
-│  │equipment-  │ │spell-      │                         │
-│  │browser     │ │reference   │                         │
-│  └────────────┘ └────────────┘                         │
+│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
+│  │equipment-  │ │spell-      │ │journal-illustrator │  │
+│  │browser     │ │reference   │ │                    │  │
+│  └────────────┘ └────────────┘ └────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────┐
 │                    CLI (sw-*)                           │
 │  sw-dice, sw-character, sw-adventure, sw-names,        │
-│  sw-npc, sw-image, sw-monster, sw-treasure,            │
-│  sw-equipment, sw-spell                                │
+│  sw-npc, sw-location-names, sw-image, sw-monster,      │
+│  sw-treasure, sw-equipment, sw-spell                   │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -359,6 +363,38 @@ go build -o sw-npc ./cmd/npc
 ### Skill npc-generator
 
 La skill `npc-generator` permet à Claude de créer des PNJ complets avec apparence, personnalité, motivations et secrets.
+
+### CLI sw-location-names
+
+Générer des noms de lieux cohérents avec les 4 factions :
+
+```bash
+# Compiler
+go build -o sw-location-names ./cmd/location-names
+
+# Générer des noms par royaume
+./sw-location-names city --kingdom=valdorine    # Cité maritime
+./sw-location-names town --kingdom=karvath      # Bourg militaire
+./sw-location-names village --kingdom=lumenciel # Village religieux
+./sw-location-names region --kingdom=astrene    # Région mélancolique
+
+# Lieux neutres
+./sw-location-names ruin                        # Ruines anciennes
+./sw-location-names generic                     # Lieu géographique
+./sw-location-names special                     # Terres Brûlées, etc.
+
+# Génération multiple
+./sw-location-names city --kingdom=valdorine --count=5
+
+# Lister les options
+./sw-location-names list                        # Tout
+./sw-location-names list kingdoms               # Royaumes
+./sw-location-names list types                  # Types de lieux
+```
+
+### Skill name-location-generator
+
+La skill `name-location-generator` permet à Claude de générer des noms de lieux (cités, villages, régions) cohérents avec les 4 factions. Utilise des styles distincts par royaume : valdorine maritime, karvath militaire, lumenciel religieux, astrène mélancolique.
 
 ### CLI sw-image
 
@@ -686,6 +722,7 @@ Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
 | `dice` | `sw-dice`, `sw-monster`, `sw-treasure` | ✓ | ✓ |
 | `equipment` | `sw-equipment` | - | ✓ |
 | `image` | `sw-image` | - | ✓ |
+| `locations` | `sw-location-names` | ✓ | ✓ |
 | `monster` | `sw-monster` | ✓ | ✓ |
 | `names` | `sw-names`, `sw-npc` | ✓ | ✓ |
 | `npc` | `sw-npc` | ✓ | ✓ |

@@ -49,3 +49,8 @@ data/images/
 
 # ignore backups
 *.backup
+/sw-dm
+/sw-equipment
+/sw-location-names
+/sw-rebuild-journal
+/sw-spell

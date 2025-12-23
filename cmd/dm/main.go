@@ -240,7 +240,9 @@ func NewTerminalOutput() *TerminalOutput {
 
 // OnTextChunk displays a text chunk immediately (streaming).
 func (to *TerminalOutput) OnTextChunk(text string) {
-	fmt.Print(text)
+	// Apply markdown V2 rendering (supports **bold** and *italic* with nesting)
+	rendered := ui.RenderDMTextV2(text)
+	fmt.Print(rendered)
 }
 
 // OnToolStart displays when a tool starts executing.

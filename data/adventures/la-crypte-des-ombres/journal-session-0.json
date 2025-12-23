@@ -236,6 +236,54 @@
       "timestamp": "2025-12-23T16:42:55+01:00",
       "type": "quest",
       "content": "NÉGOCIATION RÉUSSIE : Valorian accepte 800 po total (700 po à la livraison + 100 po d'acompte immédiat). Le groupe récupère l'acompte de 100 po."
+    },
+    {
+      "id": 123,
+      "timestamp": "2025-12-23T17:26:25.529517+01:00",
+      "type": "story",
+      "content": "Lyra et Gareth franchissent avec succès la Fissure Nord. Lyra descend gracieusement (16), Gareth moins (7) mais arrive. Ils débouchent dans l'Antichambre Souterraine (Salle A2) et découvrent un garde endormi assis sur un tabouret. Croisement imminent."
+    },
+    {
+      "id": 124,
+      "timestamp": "2025-12-23T17:31:54.619024+01:00",
+      "type": "story",
+      "content": "Lyra et Gareth maîtrisent et ligotent le garde de l'Antichambre (Salle A2) sans déclencher l'alerte majeure. Ils descendent l'escalier vers le Niveau 3. Bruit détecté par la Sentinelle qui commence à investiguer. Elara est en vue dans la cellule centrale."
+    },
+    {
+      "id": 125,
+      "timestamp": "2025-12-23T17:33:24.711088+01:00",
+      "type": "combat",
+      "content": "Lyra lance un Sort de Sommeil sur la Sentinelle du Couloir Level 3. Jet réussi (14 PV affectés). La sentinelle échoue son jet de sauvegarde (3 ! critique ratée). Elle s'effondre inconsciente. Élara est maintenant visible et accessible dans sa cellule."
+    },
+    {
+      "id": 126,
+      "timestamp": "2025-12-23T17:35:48.617623+01:00",
+      "type": "story",
+      "content": "Lyra montre le médaillon en or à Elara, ainsi que le parchemin de Valorian. Gareth mentionne les pommes dorées. Elara est convaincue. Gareth récupère les clefs sur la sentinelle et libère Elara. Elle reprend sa dague. Les pas d'un garde se rapprochent de l'escalier."
+    },
+    {
+      "id": 127,
+      "timestamp": "2025-12-23T17:37:20.821019+01:00",
+      "type": "combat",
+      "content": "Les trois se cachent dans une cellule vide. Gareth redresse le garde endormi sur sa chaise. Un deuxième garde descend, découvre la cellule vide, et déclenche l'ALERTE GÉNÉRALE. Gardes convergeant vers le Niveau 3."
+    },
+    {
+      "id": 128,
+      "timestamp": "2025-12-23T17:41:47.62965+01:00",
+      "type": "combat",
+      "content": "Aldric et Thorin créent une diversion spectaculaire à l'entrée principale. Ils neutralisent les 3 gardes en combat rapide. Pendant ce temps, Lyra, Gareth et Elara libérée remontent via l'escalier. Tous grimpent la fissure nord. Thorin est tiré du haut de justesse avant que les gardes ne le rattrapent. ELARA EST LIBRE. Mission d'infiltration réussie."
+    },
+    {
+      "id": 129,
+      "timestamp": "2025-12-23T17:46:17.01226+01:00",
+      "type": "expense",
+      "content": "+1000 po (Récompense de Valorian pour le sauvetage d'Elara (800 po + bonus 200 po))"
+    },
+    {
+      "id": 130,
+      "timestamp": "2025-12-23T17:48:36.94356+01:00",
+      "type": "quest",
+      "content": "MISSION RÉUSSIE : Elara libérée et ramenée à Valorian. Récompense complète : 1000 po. Alliance établie avec Valorian de Cordova. Le groupe part maintenant au port pour payer le Capitaine Meren (500 po). Or total : 2693 po."
     }
   ]
 }

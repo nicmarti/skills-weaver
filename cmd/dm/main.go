@@ -255,14 +255,15 @@ func (to *TerminalOutput) OnToolComplete(toolName string, result interface{}) {
 	// Extract display message if available
 	if m, ok := result.(map[string]interface{}); ok {
 		if display, ok := m["display"].(string); ok {
-			msg = fmt.Sprintf("[✓ %s]\n", display)
+			msg = fmt.Sprintf("[✓ %s]", display)
 		} else {
-			msg = fmt.Sprintf("[✓ %s complete]\n", toolName)
+			msg = fmt.Sprintf("[✓ %s complete]", toolName)
 		}
 	} else {
-		msg = fmt.Sprintf("[✓ %s complete]\n", toolName)
+		msg = fmt.Sprintf("[✓ %s complete]", toolName)
 	}
 	fmt.Print(ui.ToolStyle.Render(msg))
+	fmt.Println() // Ensure newline after tool result
 }
 
 // OnError displays an error.

@@ -87,7 +87,7 @@ OPTIONS COMMUNES:
   --format=<format>            Format de sortie (png, jpeg, webp)
 
 OPTIONS JOURNAL:
-  --types=<types>              Types à illustrer (combat,exploration,discovery,loot,session)
+  --types=<types>              Types à illustrer (combat,exploration,story,discovery,loot,session)
   --start-id=<n>               ID de départ pour reprendre depuis une entrée (optionnel)
   --max=<n>                    Nombre maximum d'images à générer
   --parallel=<n>               Nombre de générations en parallèle (défaut: 4)

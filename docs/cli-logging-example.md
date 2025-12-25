@@ -1,4 +1,4 @@
-# CLI Command Logging in sw-dm.log
+# CLI Command Logging in sw-dm
 
 ## Vue d'ensemble
 
@@ -11,7 +11,12 @@ Depuis la dernière mise à jour, `sw-dm` log automatiquement les commandes CLI 
 
 ## Format du Log
 
-Le log est écrit dans `data/adventures/<nom-aventure>/sw-dm.log`. Pour chaque tool call, vous verrez :
+⚠️ **Log Rotation** : Depuis la dernière mise à jour, les logs sont créés par session pour éviter des fichiers trop gros :
+- `sw-dm-session-1.log`, `sw-dm-session-2.log`, etc.
+- L'ancien `sw-dm.log` monolithique est automatiquement archivé s'il fait > 1MB
+- Voir [docs/log-rotation.md](log-rotation.md) pour plus de détails
+
+Le log est écrit dans `data/adventures/<nom-aventure>/sw-dm-session-N.log`. Pour chaque tool call, vous verrez :
 
 ```
 [2025-12-25 18:55:17] TOOL CALL: generate_npc (ID: toolu_019mdxsi5zFptF9nq7a8q75N)

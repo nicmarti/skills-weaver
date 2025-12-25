@@ -384,7 +384,7 @@ go build -o sw-dm ./cmd/dm
 
 **Note** : Voir `docs/readline-integration.md` pour plus de détails sur l'interface utilisateur.
 
-**Logging automatique des commandes CLI** : Chaque tool appelé par sw-dm est automatiquement loggé avec sa commande CLI équivalente dans `data/adventures/<nom>/sw-dm.log`. Cela permet de :
+**Logging automatique des commandes CLI** : Chaque tool appelé par sw-dm est automatiquement loggé avec sa commande CLI équivalente dans `data/adventures/<nom>/sw-dm-session-N.log` (un fichier par session pour éviter les fichiers trop gros). Cela permet de :
 - Reproduire facilement les opérations (copier-coller la commande)
 - Tester avec des paramètres différents
 - Déboguer et améliorer les outils
@@ -413,9 +413,11 @@ Extraction des commandes :
 # Commandes d'un tool spécifique
 ./scripts/extract-cli-commands.sh la-crypte-des-ombres generate_map
 
-# Grep manuel
-grep "Equivalent CLI:" data/adventures/*/sw-dm.log
+# Grep manuel (cherche dans tous les fichiers de log)
+grep "Equivalent CLI:" data/adventures/*/sw-dm*.log
 ```
+
+**Note** : Les logs sont maintenant créés par session (`sw-dm-session-N.log`) pour éviter des fichiers trop gros. Le script d'extraction cherche automatiquement dans tous les fichiers. Voir `docs/log-rotation.md` pour plus de détails.
 
 Voir `docs/cli-logging-example.md` pour plus d'exemples et de patterns d'utilisation.
 

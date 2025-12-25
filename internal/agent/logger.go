@@ -10,13 +10,40 @@ import (
 
 // Logger handles debug logging for the agent.
 type Logger struct {
-	file    *os.File
-	enabled bool
+	file       *os.File
+	enabled    bool
+	sessionNum int
+}
+
+// SessionsData represents the sessions.json structure
+type SessionsData struct {
+	Sessions []struct {
+		ID int `json:"id"`
+	} `json:"sessions"`
 }
 
 // NewLogger creates a new logger that writes to the adventure directory.
+// It creates a session-specific log file (sw-dm-session-N.log) to avoid huge monolithic logs.
 func NewLogger(adventurePath string) (*Logger, error) {
-	logPath := filepath.Join(adventurePath, "sw-dm.log")
+	// Determine current session number
+	sessionNum, err := getCurrentSessionNumber(adventurePath)
+	if err != nil {
+		// If can't determine session, use timestamp-based log
+		sessionNum = 0
+	}
+
+	// Archive old monolithic sw-dm.log if it exists and is large
+	oldLogPath := filepath.Join(adventurePath, "sw-dm.log")
+	archiveOldLogIfNeeded(oldLogPath)
+
+	// Create session-specific log file
+	var logPath string
+	if sessionNum > 0 {
+		logPath = filepath.Join(adventurePath, fmt.Sprintf("sw-dm-session-%d.log", sessionNum))
+	} else {
+		// Fallback: use timestamp
+		logPath = filepath.Join(adventurePath, fmt.Sprintf("sw-dm-%s.log", time.Now().Format("20060102-150405")))
+	}
 
 	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
@@ -24,16 +51,77 @@ func NewLogger(adventurePath string) (*Logger, error) {
 	}
 
 	logger := &Logger{
-		file:    file,
-		enabled: true,
+		file:       file,
+		enabled:    true,
+		sessionNum: sessionNum,
 	}
 
 	// Write session start marker
 	logger.LogSeparator()
-	logger.LogInfo("New session started")
+	if sessionNum > 0 {
+		logger.LogInfo(fmt.Sprintf("Session %d log started", sessionNum))
+	} else {
+		logger.LogInfo("New log started (session number unknown)")
+	}
 	logger.LogSeparator()
 
 	return logger, nil
+}
+
+// getCurrentSessionNumber reads sessions.json and returns the last session ID + 1
+// (representing the next/current session being played)
+func getCurrentSessionNumber(adventurePath string) (int, error) {
+	sessionsPath := filepath.Join(adventurePath, "sessions.json")
+
+	// If sessions.json doesn't exist yet, this is session 1
+	if _, err := os.Stat(sessionsPath); os.IsNotExist(err) {
+		return 1, nil
+	}
+
+	data, err := os.ReadFile(sessionsPath)
+	if err != nil {
+		return 0, err
+	}
+
+	var sessionsData SessionsData
+	if err := json.Unmarshal(data, &sessionsData); err != nil {
+		return 0, err
+	}
+
+	// Find highest session ID
+	maxID := 0
+	for _, session := range sessionsData.Sessions {
+		if session.ID > maxID {
+			maxID = session.ID
+		}
+	}
+
+	// Current session is last session ID + 1, or 1 if no sessions yet
+	if maxID == 0 {
+		return 1, nil
+	}
+	return maxID + 1, nil
+}
+
+// archiveOldLogIfNeeded archives sw-dm.log if it exists and is larger than 1MB
+func archiveOldLogIfNeeded(logPath string) {
+	info, err := os.Stat(logPath)
+	if os.IsNotExist(err) {
+		// No old log, nothing to do
+		return
+	}
+	if err != nil {
+		// Can't stat, skip archiving
+		return
+	}
+
+	// Archive if larger than 1MB (or always archive on first rotation)
+	const maxSize = 1 * 1024 * 1024
+	if info.Size() > maxSize {
+		archivePath := fmt.Sprintf("%s.archived-%s", logPath, time.Now().Format("20060102-150405"))
+		os.Rename(logPath, archivePath)
+		fmt.Printf("Archived old log to: %s\n", archivePath)
+	}
 }
 
 // Close closes the log file.

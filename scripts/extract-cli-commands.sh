@@ -40,17 +40,25 @@ fi
 
 # Find log files
 if [ -n "$ADVENTURE_NAME" ]; then
-    LOG_FILE="$ADVENTURES_DIR/$ADVENTURE_NAME/sw-dm.log"
-    if [ ! -f "$LOG_FILE" ]; then
-        echo -e "${YELLOW}Error: Log file not found: $LOG_FILE${NC}"
+    ADVENTURE_DIR="$ADVENTURES_DIR/$ADVENTURE_NAME"
+    if [ ! -d "$ADVENTURE_DIR" ]; then
+        echo -e "${YELLOW}Error: Adventure directory not found: $ADVENTURE_DIR${NC}"
         exit 1
     fi
-    LOG_FILES=("$LOG_FILE")
-else
-    # Find all log files
-    mapfile -t LOG_FILES < <(find "$ADVENTURES_DIR" -name "sw-dm.log" 2>/dev/null)
+
+    # Find all log files for this adventure (session-specific and old monolithic)
+    mapfile -t LOG_FILES < <(find "$ADVENTURE_DIR" -name "sw-dm-session-*.log" -o -name "sw-dm.log" 2>/dev/null | sort)
+
     if [ ${#LOG_FILES[@]} -eq 0 ]; then
-        echo -e "${YELLOW}No sw-dm.log files found in $ADVENTURES_DIR${NC}"
+        echo -e "${YELLOW}No log files found in $ADVENTURE_DIR${NC}"
+        exit 1
+    fi
+else
+    # Find all log files from all adventures (session-specific and old monolithic)
+    mapfile -t LOG_FILES < <(find "$ADVENTURES_DIR" -name "sw-dm-session-*.log" -o -name "sw-dm.log" 2>/dev/null | sort)
+
+    if [ ${#LOG_FILES[@]} -eq 0 ]; then
+        echo -e "${YELLOW}No log files found in $ADVENTURES_DIR${NC}"
         exit 1
     fi
 fi
@@ -61,8 +69,9 @@ echo ""
 # Process each log file
 for LOG_FILE in "${LOG_FILES[@]}"; do
     ADVENTURE=$(basename "$(dirname "$LOG_FILE")")
+    LOG_FILENAME=$(basename "$LOG_FILE")
 
-    echo -e "${BLUE}Adventure: $ADVENTURE${NC}"
+    echo -e "${BLUE}Adventure: $ADVENTURE (${LOG_FILENAME})${NC}"
     echo ""
 
     # Extract commands with context

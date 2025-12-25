@@ -91,6 +91,14 @@ func (l *Logger) LogToolCall(toolName string, toolID string, params map[string]i
 	}
 }
 
+// LogCLICommand logs the equivalent CLI command for a tool call.
+func (l *Logger) LogCLICommand(command string) {
+	if !l.enabled || l.file == nil || command == "" {
+		return
+	}
+	l.file.WriteString(fmt.Sprintf("  Equivalent CLI:\n  %s\n", command))
+}
+
 // LogToolResult logs a tool execution result.
 func (l *Logger) LogToolResult(toolName string, toolID string, result interface{}) {
 	if !l.enabled || l.file == nil {

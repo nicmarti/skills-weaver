@@ -216,6 +216,10 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 		// Log tool call
 		if a.logger != nil {
 			a.logger.LogToolCall(use.Name, use.ID, use.Input)
+			// Log equivalent CLI command if available
+			if cliCmd := ToolToCLICommand(use.Name, use.Input); cliCmd != "" {
+				a.logger.LogCLICommand(cliCmd)
+			}
 		}
 
 		// Notify output handler

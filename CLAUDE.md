@@ -384,6 +384,41 @@ go build -o sw-dm ./cmd/dm
 
 **Note** : Voir `docs/readline-integration.md` pour plus de détails sur l'interface utilisateur.
 
+**Logging automatique des commandes CLI** : Chaque tool appelé par sw-dm est automatiquement loggé avec sa commande CLI équivalente dans `data/adventures/<nom>/sw-dm.log`. Cela permet de :
+- Reproduire facilement les opérations (copier-coller la commande)
+- Tester avec des paramètres différents
+- Déboguer et améliorer les outils
+
+Exemple de log :
+```
+[2025-12-25 19:30:45] TOOL CALL: generate_map (ID: toolu_01Abc...)
+  Parameters:
+  {
+    "type": "city",
+    "name": "Port-Sombre",
+    "kingdom": "valdorine"
+  }
+  Equivalent CLI:
+  ./sw-map generate city "Port-Sombre" --kingdom=valdorine
+```
+
+Extraction des commandes :
+```bash
+# Toutes les commandes de toutes les aventures
+./scripts/extract-cli-commands.sh
+
+# Commandes d'une aventure spécifique
+./scripts/extract-cli-commands.sh la-crypte-des-ombres
+
+# Commandes d'un tool spécifique
+./scripts/extract-cli-commands.sh la-crypte-des-ombres generate_map
+
+# Grep manuel
+grep "Equivalent CLI:" data/adventures/*/sw-dm.log
+```
+
+Voir `docs/cli-logging-example.md` pour plus d'exemples et de patterns d'utilisation.
+
 ### CLI sw-character
 
 Créer et gérer des personnages BFRPG :

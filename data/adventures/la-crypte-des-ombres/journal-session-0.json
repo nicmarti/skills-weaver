@@ -566,6 +566,120 @@
       "timestamp": "2025-12-25T18:55:15.608312+01:00",
       "type": "story",
       "content": "ARRIVÉE À VALBOURG : Le groupe passe le contrôle de l'officière Lumenciel sans trop de difficultés. L'officière note leur arrivée mais les laisse passer. Intentions : trouver Renald pour obtenir des papiers et libre-passages officiels avant de continuer vers Aurore-Sainte."
+    },
+    {
+      "id": 178,
+      "timestamp": "2025-12-25T19:04:58.211525+01:00",
+      "type": "npc",
+      "content": "À Valbourg, le groupe rencontre Marta à L'Étoile de Garde. Elle les informe de l'existence de Renald, ancien officier de Lumenciel qui aide à obtenir des documents officiels légitimes. Coût estimé : 150-200 po pour quatre libre-passages."
+    },
+    {
+      "id": 179,
+      "timestamp": "2025-12-25T19:14:10.798791+01:00",
+      "type": "expense",
+      "content": "-180 po (Paiement à Renald pour quatre libre-passages officiels et lettre d'introduction aux Archives Éternelles (45 po par personne))"
+    },
+    {
+      "id": 180,
+      "timestamp": "2025-12-25T19:15:17.544912+01:00",
+      "type": "note",
+      "content": "Paiement à Renald pour quatre libre-passages officiels et lettre d'introduction aux Archives Éternelles (45 po par personne)"
+    },
+    {
+      "id": 181,
+      "timestamp": "2025-12-25T19:15:40.233355+01:00",
+      "type": "story",
+      "content": "DÉPART DE VALBOURG : Petit-déjeuner à L'Étoile de Garde. Le groupe est maintenant légalement régularisé avec :\n- 4 libre-passages officiels valides jusqu'à 3 mois\n- Lettre d'introduction aux Archives Éternelles signée par Renald\n- Informations clés : Morwen vit au-dessus de \"La Plume Eternelle\" au Quartier marchand\n- Avertissements : Archives strictes, surveillance religieuse, jours de fermeture\n- Route vers Aurore-Sainte : 1.5-2 jours de marche, direction nord-est"
+    },
+    {
+      "id": 182,
+      "timestamp": "2025-12-25T19:18:57.54483+01:00",
+      "type": "location",
+      "content": "CARTE RÉGIONALE GÉNÉRÉE : Côte Occidentale Valdorine-Lumenciel. \nTrajet du groupe : Port-Sombre (Valdorine) → Havre-d'Argent (Valdorine, 30-40 km par mer) → Valbourg (Frontière, 30-40 km par mer) → Aurore-Sainte (Lumenciel, 40-50 km par terre, 1.5-2 jours de marche).\n\nDISTANCES VÉRIFIÉES :\n- Port-Sombre à Havre-d'Argent : ~2 jours de navigation maritime\n- Havre-d'Argent à Valbourg : ~2 jours de navigation maritime\n- Valbourg à Aurore-Sainte : ~1.5-2 jours de marche terrestre (route nord-est)\n\nGÉOGRAPHIE :\n- Océan Occidental à l'ouest, route maritime côtière\n- Montagnes côtières séparant le littoral des terres intérieures\n- Forêts de transition entre Valdorine (tolérante) et Lumenciel (stricte)\n- Frontière clairement marquée à Valbourg (contrôle militaire/religieux)"
+    },
+    {
+      "id": 183,
+      "timestamp": "2025-12-25T19:26:22.747898+01:00",
+      "type": "story",
+      "content": "ARRIVÉE À AURORE-SAINTE : Le groupe franchit les portes de la capitale religieuse de Lumenciel en fin d'après-midi. Papiers officiels acceptés par les clercs-gardes à l'entrée. Groupe décide de se diriger vers le Quartier marchand pour trouver une auberge confortable, cohérente avec la couverture de marchands respectables."
+    },
+    {
+      "id": 184,
+      "timestamp": "2025-12-25T19:26:33.884807+01:00",
+      "type": "expense",
+      "content": "-8 po (Logement à L'Auberge de la Croix d'Or, Aurore-Sainte (2 nuits, 2 chambres))"
+    },
+    {
+      "id": 185,
+      "timestamp": "2025-12-25T19:26:47.115629+01:00",
+      "type": "story",
+      "content": "SESSION 5 RÉSUMÉ: Le groupe a voyagé de Port-Sombre à Aurore-Sainte. Chemin: Port-Sombre (navire) → Havre-d'Argent (Seraphina, vêtements marchands) → Valbourg (Marta, Renald, papiers officiels) → Aurore-Sainte (entrée acceptée). Groupe maintenant installé à L'Auberge de la Croix d'Or, prêt pour infiltration Archives demain."
+    },
+    {
+      "id": 186,
+      "timestamp": "2025-12-25T19:26:47.120966+01:00",
+      "type": "quest",
+      "content": "OBJECTIF PRINCIPAL: Infiltrer les Archives Éternelles à Aurore-Sainte pour trouver des informations sur la créature ancienne de Shasseth mentionnée par Malachai. Utiliser lettre d'introduction de Renald pour accès légitime."
+    },
+    {
+      "id": 187,
+      "timestamp": "2025-12-25T19:26:47.123237+01:00",
+      "type": "quest",
+      "content": "SOUS-QUÊTES OUVERTES:\n1. Localiser et rencontrer Morwen à La Plume Eternelle (Quartier marchand) - contact clé de Malachai\n2. Naviguer bureaucratie Archives Éternelles - quels documents chercher ?\n3. Identifier menaces potentielles à Aurore-Sainte - surveillance Lumenciel\n4. Comprendre nature de la créature ancienne - pourquoi Malachai la craint-elle ?\n5. Relier informations à quête plus large - pourquoi Shasseth est important"
+    },
+    {
+      "id": 188,
+      "timestamp": "2025-12-25T19:26:53.385259+01:00",
+      "type": "note",
+      "content": "ÉTAT DU GROUPE (Fin Session 5):\n- Aldric (Human Fighter): PV 9/9, équipé normalement, armes dissimulées sous vêtements marchands\n- Lyra (Elf Magic-User): PV 4/4, sortilèges intacts, équipement normal\n- Thorin (Dwarf Cleric): PV 8/8, symbole religieux accessible, sorts de prêtre intacts\n- Gareth (Human Fighter): PV 9/9, équipé normalement, armes dissimulées\n\nINVENTAIRE COMMUN:\n- Or: 3805 po\n- Papiers officiels: 4 libre-passages Lumenciel (sceellés, valides 3 mois)\n- Lettre d'introduction: Signée Renald, recommande groupe aux Archives Éternelles\n- Vêtements: 4 sets complets marchands respectables (acquis Havre-d'Argent)\n- Équipement adventurier: Complet mais dissimulé discrètement\n\nRESSOURCES MAGIQUES/SPÉCIALISÉES:\n- Lyra: Tous les sorts préparés, aucun utilisé\n- Thorin: Tous les sorts de cleric disponibles, aucun utilisé"
+    },
+    {
+      "id": 189,
+      "timestamp": "2025-12-25T19:26:53.38931+01:00",
+      "type": "location",
+      "content": "POSITION: Aurore-Sainte, Quartier marchand, L'Auberge de la Croix d'Or. Nuit du jour 8 (fin d'après-midi → crépuscule → nuit). Groupe reposé, prêt pour action demain matin. Archives Éternelles à proximité (quartier voisin, accès possible dès l'aube)."
+    },
+    {
+      "id": 190,
+      "timestamp": "2025-12-25T19:26:58.507876+01:00",
+      "type": "note",
+      "content": "HOOKS OUVERTES POUR SESSION 6:\n1. **ARCHIVES ÉTERNELLES** - Présentation demain matin. Quels documents chercher ? Comment naviguer bureaucratie ? Quels garde/clercs interroger ?\n2. **MORWEN** - La Plume Eternelle, Quartier marchand. Contact clé. Peut-elle offrir informations additionnelles ? Accès secret aux Archives ?\n3. **SURVEILLANCE LUMENCIEL** - Groupe est enregistré. Officiellement acceptés, mais surveillance discrète ? Inquisition religieuse ?\n4. **CRÉATURE ANCIENNE** - Pourquoi Malachai la craint ? Connexion à Shasseth ? Danger immédiat ou historique ?\n5. **TERRAIN POLITIQUE** - Quels sont les enjeux réels à Aurore-Sainte ? Lumenciel vs Valdorine ? Factions internes ?\n6. **RETOUR À SHASSETH** - Après Archives, comment retourner vers Terres Brûlées ? Kess attend toujours ?"
+    },
+    {
+      "id": 191,
+      "timestamp": "2025-12-25T19:27:01.976468+01:00",
+      "type": "xp",
+      "content": "XP DISTRIBUÉS SESSION 5: 500 po par personnage.\nRaison: Voyage stratégique (Port-Sombre → Aurore-Sainte), acquisition papiers officiels (Renald), évitement dangers diplomatiques, infiltration réussie capitale religieuse, prise de contact avec PNJ clés (Seraphina, Marta, Renald, Barthélémy).\nTotal XP party: 2000 po collectifs."
+    },
+    {
+      "id": 192,
+      "timestamp": "2025-12-25T19:27:07.23508+01:00",
+      "type": "story",
+      "content": "--- FIN SESSION 5 ---\nSession 5: \"La Route vers Aurore-Sainte\"\nDurée narrative: Port-Sombre (jour 3-4) → Havre-d'Argent (jour 5) → Valbourg (jour 6) → Aurore-Sainte (jour 8)\nRésumé: Groupe embarque sur navire Capitaine Meren. Arrêt stratégique Havre-d'Argent (vêtements). Arrivée Valbourg (papiers officiels Renald, auberge Marta). Traversée terrestre. Arrivée Aurore-Sainte. Installation L'Auberge de la Croix d'Or. Prêt pour infiltration Archives Éternelles Session 6.\nPNJ rencontrés: Seraphina (marchande), Marta (aubergiste), Renald (ancien officier), Barthélémy (aubergiste), officière Lumenciel, clercs-gardes\nÉvénements clés: Acquisition vêtements marchands, obtention libre-passages officiels, vérification documents, arrivée capitale religieuse\nMenaces évitées: Contrôle douane, surveillance religieuse\nRessources dépensées: 388 po (200 vêtements + 180 papiers + 8 auberge)\nÉtat final: Groupe repos complet, ressources magiques intactes, position stratégique Aurore-Sainte"
+    },
+    {
+      "id": 193,
+      "timestamp": "2025-12-25T19:27:09.445913+01:00",
+      "type": "note",
+      "content": "SAUVEGARDE SESSION 5 COMPLÈTE ✓\nToutes les données enregistrées. Prêt pour reprise Session 6."
+    },
+    {
+      "id": 194,
+      "timestamp": "2025-12-25T19:27:17.777728+01:00",
+      "type": "note",
+      "content": "WORLD-KEEPER UPDATE SESSION 5 :\n\n**PNJ RENCONTRÉS :**\n- Seraphina Bloodaxe : Marchande à Havre-d'Argent. Curieuse, impulsive, aime les potins. A vendu 4 sets vêtements marchands. Contact : Havre-d'Argent, boutique \"Vêtements \u0026 Tissus\"\n- Marta : Aubergiste discrète à Valbourg, L'Étoile de Garde. Ancienne voyageuse, comprend les gens. Recommande Renald et Morwen.\n- Renald : Ancien officier de Lumenciel, tient écurie à Valbourg. Pragmatique, conscience morale, aide voyageurs. A donné 4 libre-passages + lettre Archives.\n- Barthélémy : Aubergiste respectable à Aurore-Sainte, L'Auberge de la Croix d'Or. Bienveillant, expérimenté, reçoit régulièrement chercheurs Archives.\n\n**LIEUX ENREGISTRÉS :**\n- Havre-d'Argent : Petit port commercial Valdorine, entre Cordova et Valbourg. Commerce, marchandises, Seraphina.\n- Valbourg : Port fortifié frontière Valdorine-Lumenciel. Contrôle officiel, L'Étoile de Garde (Marta), écurie (Renald), temple blanc.\n- Aurore-Sainte : Capitale religieuse Lumenciel, 40 000 habitants. 4 quartiers : Temple, Archives, Marchand, Pénitents. L'Auberge de la Croix d'Or (Barthélémy).\n\n**TIMELINE :**\n- Session 5 : Groupe navigue Port-Sombre → Aurore-Sainte. Obtient papiers officiels (Renald). Arrive Aurore-Sainte, accepté à l'entrée.\n\n**FACTIONS/POLITIQUES :**\n- Lumenciel : Accepte groupe officiellement, grâce à lettre Renald (ancien officier).\n- Renald : Pont diplomatique entre groupe et autorités Lumenciel.\n- Valdorine : Tolérance continue (Havre-d'Argent sans problèmes).\n\n**ÉVÉNEMENT IMPORTANT :**\n- Groupe maintenant légalement régularisé à Aurore-Sainte. Prêt pour infiltration Archives."
+    },
+    {
+      "id": 202,
+      "timestamp": "2025-12-25T21:32:01.002368+01:00",
+      "type": "session",
+      "content": "Session 6 terminée - Session 6 : Infiltration des Archives Éternelles d'Aurore-Sainte. Le groupe a découvert que le Sceau de Shasseth au Niveau 4 a été délibérément sabordé par l'Inquisiteur Mordecai il y a 3 mois. Lyra a renforcé temporairement le Sceau mais a été gravement affaiblie. L'Inquisiteur local accepte de les accompagner voir le Cardinal. Découverte majeure : un traître au sein de l'Ordre des Inquisiteurs de Lumenciel. Course contre la montre - 1-2 semaines avant libération complète de l'Entité."
+    },
+    {
+      "id": 203,
+      "timestamp": "2025-12-25T21:32:03.513601+01:00",
+      "type": "note",
+      "content": "FIN SESSION 6. État groupe : Aldric (intact), Gareth (intact), Lyra (épuisée/blessée mentalement mais soignée), Thorin (intact). Ressources : 3417 po. Localisation : Aurore-Sainte, Archives Éternelles, en route vers le Cardinal."
     }
   ]
 }

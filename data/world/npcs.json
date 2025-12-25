@@ -183,21 +183,6 @@
       "importance": "Source d'informations, hébergement de qualité à Cordova"
     },
     {
-      "name": "Elara",
-      "race": "humaine",
-      "age": "jeune (18-20 ans)",
-      "gender": "féminin",
-      "title": "Fille de Valorian le Doré",
-      "appearance": "Non décrit en détail, probablement vêtements riches",
-      "personality": "Non révélée en détail",
-      "relationships": {
-        "Valorian": "Père (très protecteur)",
-        "Groupe de PJ": "Sauvée par le groupe (Session 7), reconnaissance"
-      },
-      "status": "Vivante, Manoir de la Soie, en sécurité",
-      "importance": "Lien familial avec Valorian, potentielle source d'information future"
-    },
-    {
       "name": "Dent d'Or",
       "race": "humain",
       "age": "adulte (35-45 ans)",
@@ -212,22 +197,6 @@
       "location": "Chantier naval, Cordova",
       "status": "Vivant, actif",
       "importance": "Contact secondaire, lien vers équipage de Meren"
-    },
-    {
-      "name": "Cormac l'Hermite",
-      "race": "humain",
-      "age": "vieux (70+ ans)",
-      "gender": "masculin",
-      "occupation": "Hermite, ancien érudit",
-      "location": "Collines près de Pierrebrune",
-      "appearance": "Barbe longue, vêtements usés, regard perçant",
-      "personality": "Sage, mystérieux, connaît l'histoire de la Crypte",
-      "relationships": {
-        "Groupe de PJ": "Fourni clé de la Bibliothèque de Sombregarde (Session 2)"
-      },
-      "known_information": ["Histoire de la Crypte des Ombres", "Localisation de Sombregarde", "Ancien gardien de connaissances"],
-      "status": "Vivant, ermitage près de Pierrebrune",
-      "importance": "Source de connaissances sur la Crypte, potentiel mentor"
     }
   ],
   "npc_groups": [

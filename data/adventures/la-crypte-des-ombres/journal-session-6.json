@@ -1,0 +1,54 @@
+{
+  "session_id": 6,
+  "entries": [
+    {
+      "id": 195,
+      "timestamp": "2025-12-25T19:51:29.64584+01:00",
+      "session_id": 6,
+      "type": "session",
+      "content": "Session 6 démarrée"
+    },
+    {
+      "id": 196,
+      "timestamp": "2025-12-25T19:54:01.128105+01:00",
+      "session_id": 6,
+      "type": "story",
+      "content": "Groupe arrive aux Archives Éternelles mais décide de consulter d'abord Morwen à la Plume Éternelle (contact Guilde de l'Ombre) avant d'entrer. Prudence stratégique."
+    },
+    {
+      "id": 197,
+      "timestamp": "2025-12-25T20:06:11.299195+01:00",
+      "session_id": 6,
+      "type": "story",
+      "content": "Morwen révèle l'existence de l'Entité de Nuit Éternelle scellée sous les Archives depuis 1500 ans. Un mystérieux envoyé de Lumenciel a visité les niveaux inférieurs il y a 3 mois. Peu après, tremblements anormaux détectés. Suspicion : l'envoyé a peut-être volontairement endommagé le Sceau de Shasseth pour libérer l'Entité."
+    },
+    {
+      "id": 198,
+      "timestamp": "2025-12-25T20:11:30.151324+01:00",
+      "session_id": 6,
+      "type": "strategy",
+      "content": "Plan d'infiltration des Archives Éternelles : Gareth et Lyra en uniformes de chercheur descendent aux niveaux inférieurs. Aldric et Thorin restent en tant que marchands au Niveau 1 avec leurs papiers de Renald et créent une diversion si nécessaire."
+    },
+    {
+      "id": 199,
+      "timestamp": "2025-12-25T20:47:16.428808+01:00",
+      "session_id": 6,
+      "type": "story",
+      "content": "Gareth révèle partiellement son objectif au Frère Conservateur. Propose d'aller vérifier le Sceau au Niveau 4 avec support de Aldric et Thorin. Souligne l'intérêt de Lumenciel dans cette investigation."
+    },
+    {
+      "id": 200,
+      "timestamp": "2025-12-25T21:23:50.645206+01:00",
+      "session_id": 6,
+      "type": "story",
+      "content": "Groupe complet descend au Niveau 4 de la Crypte Inférieure pour vérifier l'état du Sceau de Shasseth et comparer avec celui protégé à Shasseth."
+    },
+    {
+      "id": 201,
+      "timestamp": "2025-12-25T21:29:19.426881+01:00",
+      "session_id": 6,
+      "type": "story",
+      "content": "Découverte majeure : l'Inquisiteur Mordecai (supposément mort) aurait jeté le sort de sabotage sur le Sceau il y a 3 mois. Il était en mission d'inspection secrète du Cardinal. Traître potentiel au sein de l'Ordre des Inquisiteurs. Urgence absolue : le Sceau du Niveau 4 se désagrège. Le groupe doit rencontrer le Cardinal pour obtenir ressources et solutions."
+    }
+  ]
+}

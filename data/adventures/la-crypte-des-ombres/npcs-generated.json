@@ -132,8 +132,96 @@
         "appearances": 1,
         "promoted_to_world": false,
         "world_keeper_notes": "Pending world-keeper validation"
+      },
+      {
+        "id": "npc_004",
+        "generated_at": "2025-12-25T19:04:58.212405+01:00",
+        "session_number": 5,
+        "npc": {
+          "name": "Zephyr Bloodaxe",
+          "race": "human",
+          "gender": "male",
+          "occupation": "garde de ville",
+          "appearance": {
+            "build": "corpulent",
+            "height": "de taille moyenne",
+            "hair_color": "argenté",
+            "hair_style": "longs",
+            "eye_color": "bleus clairs",
+            "skin": "tachée de rousseur",
+            "facial_feature": "un tatouage facial",
+            "distinctive_feature": "un pendentif remarquable"
+          },
+          "personality": {
+            "trait_principal": "réfléchi",
+            "trait_secondaire": "chaotique",
+            "defaut": "garde rancune",
+            "qualite": "bon conteur"
+          },
+          "motivation": {
+            "goal": "obtenir la reconnaissance",
+            "fear": "la mort",
+            "secret": "est recherché ailleurs"
+          },
+          "voice": {
+            "tone": "chantante",
+            "manner": "raconte des anecdotes"
+          },
+          "quirk": "tripote ses vêtements",
+          "attitude": "prudent mais correct"
+        },
+        "context": "Renald, ancien écuyer de Lumenciel, tient une écurie à Valbourg près du temple. Aide discrètement à obtenir des documents officiels légitimes",
+        "importance": "mentioned",
+        "notes": [],
+        "appearances": 1,
+        "promoted_to_world": false,
+        "world_keeper_notes": "Pending world-keeper validation"
+      },
+      {
+        "id": "npc_005",
+        "generated_at": "2025-12-25T19:26:22.751984+01:00",
+        "session_number": 5,
+        "npc": {
+          "name": "Gareth Spearpoint",
+          "race": "human",
+          "gender": "male",
+          "occupation": "cartographe",
+          "appearance": {
+            "build": "musclé",
+            "height": "très grand",
+            "hair_color": "brun foncé",
+            "hair_style": "bouclés",
+            "eye_color": "bleus foncés",
+            "skin": "olivâtre",
+            "facial_feature": "un menton carré",
+            "distinctive_feature": "un tic facial"
+          },
+          "personality": {
+            "trait_principal": "optimiste",
+            "trait_secondaire": "rêveur",
+            "defaut": "vole parfois",
+            "qualite": "bon négociateur"
+          },
+          "motivation": {
+            "goal": "servir une cause noble",
+            "fear": "la pauvreté",
+            "secret": "a un enfant secret"
+          },
+          "voice": {
+            "tone": "nasillarde",
+            "manner": "fait des digressions"
+          },
+          "quirk": "tripote ses vêtements",
+          "attitude": "confiant"
+        },
+        "context": "Aubergiste du Quartier marchand à Aurore-Sainte, établissement confortable et respectable pour marchands pieux",
+        "importance": "mentioned",
+        "notes": [],
+        "appearances": 1,
+        "promoted_to_world": false,
+        "world_keeper_notes": "Pending world-keeper validation"
       }
     ]
   },
-  "next_id": 4
+  "next_id": 6
 }

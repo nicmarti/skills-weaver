@@ -221,6 +221,26 @@ func (g *Generator) Generate(opts ...Option) (*NPC, error) {
 func (g *Generator) generateOccupation(occType string) string {
 	occType = strings.ToLower(occType)
 
+	// Check if occType is a specific occupation (exists in any category)
+	allCategories := [][]string{
+		g.traits.Occupation.Commoner,
+		g.traits.Occupation.Skilled,
+		g.traits.Occupation.Authority,
+		g.traits.Occupation.Underworld,
+		g.traits.Occupation.Religious,
+		g.traits.Occupation.Adventurer,
+	}
+
+	for _, category := range allCategories {
+		for _, occupation := range category {
+			if occupation == occType {
+				// Found exact match - use it directly
+				return occupation
+			}
+		}
+	}
+
+	// Not a specific occupation, treat as category
 	var pool []string
 	switch occType {
 	case "commoner", "roturier":

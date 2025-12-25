@@ -573,6 +573,90 @@ sw-names npc villain       # Malachar (antagoniste)
 - **Halfelin** : Anglais bucolique + nature (Baggins, Greenhill, Meadowbrook)
 - **Humain** : Médiéval européen + épique (Ironhand, Stormrider, Blackwood)
 
+### Génération de PNJ (`generate_npc` tool)
+
+Le tool `generate_npc` crée automatiquement des PNJ complets avec nom, apparence, personnalité, motivation et secrets. Tous les PNJ générés sont automatiquement sauvegardés dans l'aventure.
+
+#### Paramètres
+
+```json
+{
+  "race": "human|elf|dwarf|halfling",      // Optionnel
+  "gender": "m|f",                          // Optionnel
+  "occupation": "category ou occupation",   // Optionnel
+  "attitude": "friendly|neutral|unfriendly|hostile",  // Optionnel
+  "context": "Lieu et situation"            // Recommandé
+}
+```
+
+#### Occupation : Catégorie vs Spécifique
+
+Le paramètre `occupation` accepte DEUX types de valeurs :
+
+**1. Catégorie** (génération aléatoire dans la catégorie) :
+- `commoner` : Fermier, pêcheur, bûcheron, aubergiste, cuisinier, etc.
+- `skilled` : Marchand, apothicaire, musicien, acrobate, orfèvre, etc.
+- `authority` : Garde, capitaine, magistrat, noble mineur, diplomate, etc.
+- `underworld` : Voleur, contrebandier, assassin, espion, receleur, etc.
+- `religious` : Prêtre, moine, pèlerin, inquisiteur, ermite, etc.
+- `adventurer` : Chasseur de primes, explorateur, garde du corps, etc.
+
+**2. Occupation spécifique** (utilise exactement cette profession) :
+- `aubergiste`, `marchand`, `garde de ville`, `prêtre`, `voleur`, `forgeron`, etc.
+
+#### Exemples d'Utilisation
+
+```json
+// Catégorie (aléatoire parmi "skilled")
+{
+  "race": "human",
+  "gender": "f",
+  "occupation": "skilled",
+  "attitude": "friendly",
+  "context": "Aubergiste de L'Étoile de Garde, Valbourg"
+}
+// → Peut générer : marchand, apothicaire, musicien, etc.
+
+// Occupation spécifique (exacte)
+{
+  "race": "human",
+  "gender": "f",
+  "occupation": "aubergiste",
+  "attitude": "friendly",
+  "context": "Aubergiste de L'Étoile de Garde, Valbourg"
+}
+// → Génère forcément une aubergiste
+
+// PNJ de passage (catégorie)
+{
+  "occupation": "commoner",
+  "context": "Paysan sur la route"
+}
+
+// PNJ clé avec profession précise
+{
+  "race": "dwarf",
+  "gender": "m",
+  "occupation": "forgeron",
+  "attitude": "neutral",
+  "context": "Maître forgeron de Valbourg, spécialisé armes Karvath"
+}
+```
+
+#### Occupations Disponibles (Complètes)
+
+**Commoner** : fermier, pêcheur, bûcheron, mineur, berger, meunier, boulanger, boucher, tanneur, tisserand, potier, charpentier, maçon, forgeron, cordonnier, tailleur, aubergiste, cuisinier, serveur, palefrenier, porteur, mendiant, fossoyeur, balayeur
+
+**Skilled** : marchand, apothicaire, herboriste, guérisseur, sage-femme, scribe, cartographe, bibliothécaire, tuteur, musicien, acteur, jongleur, acrobate, artiste, sculpteur, orfèvre, horloger, armurier, sellier, navigateur, ingénieur
+
+**Authority** : garde de ville, sergent, capitaine de la garde, magistrat, conseiller, noble mineur, intendant, bailli, prévôt, héraut, diplomate, ambassadeur, collecteur d'impôts
+
+**Underworld** : voleur, pickpocket, cambrioleur, receleur, contrebandier, faussaire, assassin, espion, informateur, bookmaker, usurier, proxénète, chef de gang, mercenaire
+
+**Religious** : prêtre, acolyte, moine, nonne, pèlerin, inquisiteur, exorciste, oracle, prophète, ermite
+
+**Adventurer** : chasseur de primes, explorateur, chasseur de monstres, garde du corps, escorte de caravane, aventurier retraité, chercheur de trésors, archéologue, naturaliste
+
 ### Génération de Noms de Lieux (`sw-location-names`)
 
 Utilise `sw-location-names` pour générer des noms de cités, villages et régions cohérents avec les 4 factions.

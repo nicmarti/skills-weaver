@@ -287,8 +287,7 @@ func NewGenerateNPCTool(dataDir string, adv *adventure.Adventure) (*SimpleTool, 
 				},
 				"occupation": map[string]interface{}{
 					"type":        "string",
-					"enum":        []string{"commoner", "skilled", "authority", "underworld", "religious", "adventurer"},
-					"description": "NPC occupation type (optional, defaults to random)",
+					"description": "NPC occupation. Can be: (1) a category like 'commoner', 'skilled', 'authority', 'underworld', 'religious', 'adventurer' for random selection, OR (2) a specific occupation like 'aubergiste', 'marchand', 'garde de ville', 'voleur', 'prêtre', etc. (optional, defaults to random)",
 				},
 				"attitude": map[string]interface{}{
 					"type":        "string",

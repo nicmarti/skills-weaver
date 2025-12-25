@@ -345,14 +345,30 @@ go build -o sw-dm ./cmd/dm
 - Interface REPL avec historique de conversation
 
 **Tools disponibles pour l'agent** :
+
+**Gestion de session** (CRITIQUE pour le journal) :
+- `start_session` : Démarrer une nouvelle session de jeu (OBLIGATOIRE au début)
+- `end_session` : Terminer la session avec résumé (OBLIGATOIRE à la fin)
+- `get_session_info` : Consulter l'état de la session active
+
+**Mécanique de jeu** :
 - `roll_dice` : Lancer des dés avec notation RPG
 - `get_monster` : Consulter les stats d'un monstre
 - `log_event` : Enregistrer un événement dans le journal
 - `add_gold` : Modifier l'or du groupe
 - `get_inventory` : Consulter l'inventaire partagé
+
+**Génération de contenu** :
 - `generate_treasure` : Générer un trésor BFRPG
-- `generate_npc` : Créer un PNJ complet
+- `generate_npc` : Créer un PNJ complet (auto-sauvegardé)
 - `generate_image` : Générer une illustration fantasy (requiert FAL_KEY)
+- `generate_map` : Générer prompt carte 2D avec validation world-keeper
+
+**NPC Management** :
+- `update_npc_importance` : Mettre à jour l'importance d'un PNJ
+- `get_npc_history` : Consulter l'historique d'un PNJ
+
+**IMPORTANT** : L'agent dungeon-master DOIT appeler `start_session` au début de chaque partie et `end_session` à la fin. Sans cela, tous les événements seront enregistrés dans `journal-session-0.json` au lieu d'être correctement organisés par session.
 
 **Architecture** :
 - `internal/agent/` : Orchestration de la boucle d'agent
@@ -360,7 +376,11 @@ go build -o sw-dm ./cmd/dm
   - `tools.go` : Système de registry des tools
   - `context.go` : Gestion contexte conversation/aventure
   - `streaming.go` : Traitement événements streaming
+  - `register_tools.go` : Enregistrement de tous les tools
 - `internal/dmtools/` : Wrappers des tools pour l'agent
+  - `simple_tools.go` : Tools basiques (log_event, add_gold, etc.)
+  - `session_tools.go` : Gestion de session (start/end/get_info)
+  - `dice_tool.go`, `monster_tool.go`, `npc_management_tools.go`, etc.
 - `cmd/dm/main.go` : Application REPL
 
 **Prérequis** :

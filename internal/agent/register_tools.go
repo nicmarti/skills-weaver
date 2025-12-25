@@ -33,6 +33,11 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	}
 	registry.Register(npcTool)
 
+	// Register session management tools (MUST be registered for proper session tracking)
+	registry.Register(dmtools.NewStartSessionTool(adv))
+	registry.Register(dmtools.NewEndSessionTool(adv))
+	registry.Register(dmtools.NewGetSessionInfoTool(adv))
+
 	// Register adventure tools - now passing Adventure object for real persistence
 	registry.Register(dmtools.NewLogEventTool(adv))
 	registry.Register(dmtools.NewAddGoldTool(adv))

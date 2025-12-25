@@ -81,6 +81,37 @@ ui.RenderDMText("Vous voyez *un dragon* qui s'approche!")
 
 **Note** : La V2 est maintenant utilisée par défaut dans sw-dm. Utilisez la V1 uniquement si vous avez du contenu existant avec l'ancienne syntaxe.
 
+#### Streaming Renderer (streaming_renderer.go) - Pour sw-dm ✨
+
+Pour le texte streamé chunk-par-chunk (comme les réponses de l'API Anthropic), utilisez le **StreamingMarkdownRenderer** qui maintient l'état du markdown entre les chunks :
+
+```go
+// Créer un renderer avec état
+renderer := ui.NewStreamingMarkdownRenderer()
+
+// Traiter les chunks au fur et à mesure
+for chunk := range streamingResponse {
+    rendered := renderer.AddChunk(chunk)
+    fmt.Print(rendered)  // Affiche immédiatement
+}
+
+// Flush à la fin
+fmt.Print(renderer.Flush())
+
+// Reset pour le prochain message
+renderer.Reset()
+```
+
+**Fonctionnalités** :
+- Gère correctement `**texte en gras**` même si les `**` arrivent dans des chunks séparés
+- Les noms de lieux en gras (**La Taverne du Voile Écarlate**) sont affichés en **cyan** pour les distinguer
+- Buffer intelligent qui attend les lignes complètes avant le rendu
+- Maintient l'état bold/italic entre les chunks
+
+**Quand utiliser quoi** :
+- `RenderMarkdownV2()` : Pour du texte complet déjà en mémoire
+- `StreamingMarkdownRenderer` : Pour du texte qui arrive en streaming (API, websockets)
+
 ### 3. Fonctions d'affichage (screen.go)
 
 ```go
@@ -162,35 +193,38 @@ __texte__     → italique (alternative)
 *gras _et italique_*  → combinaison de styles
 ```
 
-### 3. Streaming markdown
+### 3. Streaming markdown ✅ IMPLEMENTED
 
-Pour le streaming du DM (texte qui arrive par chunks), gérer les patterns incomplets :
+Le `StreamingMarkdownRenderer` gère maintenant le streaming avec patterns incomplets :
 
 ```go
-type MarkdownStreamer struct {
-    buffer string
-    style  lipgloss.Style
-}
+// Voir streaming_renderer.go
+renderer := ui.NewStreamingMarkdownRenderer()
 
-func (ms *MarkdownStreamer) Write(chunk string) {
-    // Accumule les chunks
-    // Parse et rend seulement les patterns complets
-    // Garde les patterns incomplets en buffer
-}
+// Traite les chunks en maintenant l'état
+rendered := renderer.AddChunk("**La Taverne")  // Buffer incomplet
+rendered = renderer.AddChunk(" du Voile Écarlate**\n")  // Rendu complet en cyan
+
+// Flush automatique à la fin
+renderer.Flush()
 ```
+
+**Implémenté dans** : `internal/ui/streaming_renderer.go` et utilisé par `cmd/dm/main.go`
 
 ### 4. Styles contextuels additionnels
 
 ```go
+// Descriptions de lieux - ✅ IMPLEMENTED
+LocationStyle = lipgloss.NewStyle().
+    Foreground(Cyan).  // Cyan pour distinguer les lieux
+    Bold(true)
+
+// Exemples d'autres styles possibles :
+
 // Dialogues de PNJ
 NPCDialogStyle = lipgloss.NewStyle().
-    Foreground(Cyan).
+    Foreground(Gold).
     Italic(true)
-
-// Descriptions de lieux
-LocationStyle = lipgloss.NewStyle().
-    Foreground(Purple).
-    Bold(true)
 
 // Actions de combat
 CombatStyle = lipgloss.NewStyle().
@@ -198,13 +232,7 @@ CombatStyle = lipgloss.NewStyle().
     Bold(true)
 ```
 
-Utilisation avec prefixes :
-
-```go
-"[PNJ] _Bienvenue, voyageur!_"  → style PNJ + italique
-"[Lieu] *La crypte sombre*"     → style lieu + gras
-"[Combat] *Attaque!*"           → style combat + gras
-```
+**Note** : Le `LocationStyle` est automatiquement appliqué par le `StreamingMarkdownRenderer` sur tout texte en gras (`**texte**`), ce qui permet de distinguer visuellement les noms de lieux des autres emphases.
 
 ## Tests
 

@@ -284,6 +284,288 @@
       "timestamp": "2025-12-23T17:48:36.94356+01:00",
       "type": "quest",
       "content": "MISSION RÉUSSIE : Elara libérée et ramenée à Valorian. Récompense complète : 1000 po. Alliance établie avec Valorian de Cordova. Le groupe part maintenant au port pour payer le Capitaine Meren (500 po). Or total : 2693 po."
+    },
+    {
+      "id": 131,
+      "timestamp": "2025-12-23T19:54:05.074989+01:00",
+      "type": "expense",
+      "content": "-500 po (Paiement du passage pour le Capitaine Meren - traversée vers les Terres Brûlées)"
+    },
+    {
+      "id": 132,
+      "timestamp": "2025-12-23T19:54:05.076505+01:00",
+      "type": "story",
+      "content": "Le groupe paie 500 po au Capitaine Meren pour la traversée jusqu'aux Terres Brûlées. Départ prévu dans deux jours à marée haute. Sirène et le groupe embarqueront ensemble."
+    },
+    {
+      "id": 133,
+      "timestamp": "2025-12-23T20:03:23.452103+01:00",
+      "type": "npc",
+      "content": "À la Taverne du Voile Écarlate, le groupe interroge Sirène sur Kess, la Guilde des Ombres, et l'origine de sa cicatrice récente à la tempe."
+    },
+    {
+      "id": 134,
+      "timestamp": "2025-12-23T20:15:48.18244+01:00",
+      "type": "story",
+      "content": "Le groupe choisit la voie du subterfuge. Ils se rendront à L'Ancre Noyée à Port-Sombre pour établir le contact avec la Guilde des Ombres via une mission test. Sirène approuve le plan. Le groupe quitte la taverne pour rejoindre le Capitaine Meren au port."
+    },
+    {
+      "id": 135,
+      "timestamp": "2025-12-23T20:24:18.944603+01:00",
+      "type": "location",
+      "content": "Le groupe arrive à L'Ancre Noyée à Port-Sombre. Ambiance oppressante, taverne de mercenaires et d'exilés. Krell, le barman, établit les règles. Le groupe commande des boissons et adopte une posture d'attente."
+    },
+    {
+      "id": 136,
+      "timestamp": "2025-12-24T11:39:55.063272+01:00",
+      "type": "npc",
+      "content": "À L'Ancre Noyée, Malachai, coordinateur de la Guilde des Ombres aux Terres Brûlées, aborde le groupe. Le groupe révèle son vrai but : retrouver Kess, capturé par les Inquisiteurs de Lumenciel, et obtenir des informations sur les Souterrains de la Conviction."
+    },
+    {
+      "id": 137,
+      "timestamp": "2025-12-24T11:45:17.739652+01:00",
+      "type": "quest",
+      "content": "Malachai donne au groupe une mission : récupérer un parchemin volé à la Guilde par Corstin, un marchand de Valdorine. Le parchemin contient une liste d'actifs importants. Corstin est retranchés aux Falaises de Scorpierre, à deux jours de marche au nord, avec une douzaine d'hommes. Délai : 3 jours. Le groupe pose des questions sur le lieu et la cible avant de se retirer pour dormir."
+    },
+    {
+      "id": 138,
+      "timestamp": "2025-12-24T11:45:17.744057+01:00",
+      "type": "note",
+      "content": "ÉTAT GROUPE APRÈS MISSION ACCEPTÉE:\n- Aldric (human fighter): En bonne santé, alerté, prêt au combat\n- Lyra (elf magic-user): En bonne santé, aura magique active, observatrice\n- Thorin (dwarf cleric): En bonne santé, spirituellement perturbé par l'absence de divinité en ce lieu\n- Gareth (human fighter): En bonne santé, socially adept, leader de facto du groupe\n- Or: 2193 po\n- Position: L'Ancre Noyée, Port-Sombre, Terres Brûlées\n- Prochaine étape: Dormir avant de partir aux Falaises de Scorpierre"
+    },
+    {
+      "id": 139,
+      "timestamp": "2025-12-24T12:14:54.499513+01:00",
+      "type": "quest",
+      "content": "Le groupe quitte L'Ancre Noyée pour se rendre aux Falaises de Scorpierre. Objectif: récupérer le parchemin volé à la Guilde chez Corstin. Délai: 3 jours. Distance estimée: 2 jours de marche au nord selon Malachai."
+    },
+    {
+      "id": 140,
+      "timestamp": "2025-12-24T12:15:57.755925+01:00",
+      "type": "story",
+      "content": "Premier campement sur la route des Falaises de Scorpierre. Lyra assure la garde de nuit (vision nocturne elfe). Aldric, Gareth, Thorin et Vex (guide de la Guilde) discutent stratégie d'approche contre Corstin et ses 12 hommes."
+    },
+    {
+      "id": 141,
+      "timestamp": "2025-12-24T12:21:16.18792+01:00",
+      "type": "story",
+      "content": "Ascension des Falaises de Scorpierre. Thorin glisse sur le sentier ouest — Vex le rattrape. Le groupe se divise : Lyra et Gareth contournent par la face nord (plus agile), tandis qu'Aldric, Thorin et Vex continuent lentement par le sentier ouest."
+    },
+    {
+      "id": 142,
+      "timestamp": "2025-12-24T12:37:29.437694+01:00",
+      "type": "discovery",
+      "content": "Découverte majeure : Malachai a sciemment piégé Corstin. Le parchemin contient 50 noms d'agents de la Guilde et des informations sensibles. Lumenciel est impliquée dans une \"Opération Aurore Phase 3\". Malachai a probablement des copies du document. Contacts de Malachai incluent des clercs de Lumenciel qui le considèrent comme un seigneur spirituel."
+    },
+    {
+      "id": 143,
+      "timestamp": "2025-12-24T12:43:23.683234+01:00",
+      "type": "expense",
+      "content": "+2000 po (Trésor trouvé dans le coffre de Corstin aux Falaises de Scorpierre)"
+    },
+    {
+      "id": 144,
+      "timestamp": "2025-12-24T12:46:23.41562+01:00",
+      "type": "story",
+      "content": "Retour à Port-Sombre avec le parchemin. Corstin évadé discrètement vers la sécurité. Le groupe négocie avec Malachai : information sur Kess en échange de nouvelles missions. Malachai demande une nouvelle mission mais le groupe impose ses conditions d'abord."
+    },
+    {
+      "id": 145,
+      "timestamp": "2025-12-24T12:48:58.454494+01:00",
+      "type": "quest",
+      "content": "Le groupe accepte la mission de récupérer Kess à Shasseth. Récompense : 3000 po + dette de la Guilde. Malachai mentionne une deuxième mission optionnelle plus grande après. Le groupe se repose une nuit à L'Ancre Noyée pour se rétablir complètement avant le voyage maritime."
+    },
+    {
+      "id": 146,
+      "timestamp": "2025-12-24T12:52:09.507036+01:00",
+      "type": "note",
+      "content": "PAUSE SESSION - État : Le groupe se repose une nuit à L'Ancre Noyée après victoire aux Falaises de Scorpierre. Corstin évadé vers la sécurité maritime. Parchemin rendu à Malachai. Mission acceptée : récupérer Kess à Shasseth (15 jours de bateau). Récompense : 3000 po + dette de la Guilde. Départ prévu demain à l'aube avec le Capitaine Meren le Noir."
+    },
+    {
+      "id": 147,
+      "timestamp": "2025-12-24T12:52:12.332799+01:00",
+      "type": "note",
+      "content": "HP PAR PERSONNAGE : Aldric (8/10 - blessure au bras guérie), Lyra (7/6 - sortilèges restaurés), Thorin (10/10 - Cure Light Wounds réutilisable), Gareth (9/9), Vex (6/6 - compagnon de route). SORTS : Lyra a Sommeil et Projectile Magique disponibles. POSITION : L'Ancre Noyée, Port-Sombre. PROCHAINE ACTION : Courses de provisions, équipement, rencontre Capitaine Meren le Noir, embarquement pour Shasseth (15 jours)."
+    },
+    {
+      "id": 148,
+      "timestamp": "2025-12-24T12:52:16.843555+01:00",
+      "type": "note",
+      "content": "HOOKS NARRATIFS POUR PROCHAINE SESSION : 1) Voyage maritime vers Shasseth (15 jours) - possibilité de tempête, créatures marines, événements étranges magiquement ; 2) Arrivée à Shasseth - ruines anciennes, présence des \"Anciens\" (créatures non-humaines), protocoles de sécurité ; 3) Rencontre Kess et Raith - négociation pour ramener Kess, obtenir les documents sur Opération Aurore ; 4) Mystère de Lumenciel - infiltration, corruption, implications politiques ; 5) Deuxième mission optionnelle de Malachai mentionnée mais pas révélée."
+    },
+    {
+      "id": 149,
+      "timestamp": "2025-12-24T16:15:46.754501+01:00",
+      "type": "story",
+      "content": "Le groupe embarque à bord du navire du Capitaine Meren le Noir au port de Port-Sombre. Départ vers Shasseth (15 jours de navigation). Mission officielle : récupérer Kess et Raith. Récompense : 3000 po + dette de la Guilde. Mystère d'Opération Aurore en arrière-plan. Équipage fiable, conditions météorologiques bonnes au départ."
+    },
+    {
+      "id": 150,
+      "timestamp": "2025-12-24T16:24:01.517565+01:00",
+      "type": "story",
+      "content": "Le groupe se familiarise avec le plan de navigation du Capitaine Meren. 15 jours de voyage : côtes calmes de Valdorine (j.1-3), haute mer instable (j.4-7), approche des Terres Brûlées avec phénomènes magiques étranges (j.8-12), arrivée à Shasseth (j.13-15). Risques : tempêtes possibles, eaux magiques perturbantes, créatures marines. Débarquement par canot à environ 500 mètres de la côte. Le groupe accepte sans objection et se prépare pour la traversée."
+    },
+    {
+      "id": 151,
+      "timestamp": "2025-12-24T16:31:05.063275+01:00",
+      "type": "story",
+      "content": "Le groupe débarque à Shasseth sur la côte rocheuse. Crique naturelle identifiée et sécurisée pour le canot. Décision de prendre le Sentier de Grimpe à l'est pour approche tactique discrète. Tous les personnages explorent ensemble. Recherche de traces au sol et reconnaissance visuelle lancées."
+    },
+    {
+      "id": 152,
+      "timestamp": "2025-12-24T16:33:23.851994+01:00",
+      "type": "npc",
+      "content": "Le groupe suit les traces de Kess à travers les ruines anciennes. Progression vers le Bâtiment Central, identification d'une magie de guidage rituelle. Rencontre directe avec Kess devant le temple principal. Révélation : Kess refuse de partir volontairement. Mention d'une \"vraie mission\" et de l'importance de ce qui doit être récupéré. Les Anciens sont impliqués."
+    },
+    {
+      "id": 153,
+      "timestamp": "2025-12-24T16:36:33.475016+01:00",
+      "type": "story",
+      "content": "Rencontre avec Kess à Shasseth. Révélation : Kess n'est pas prisonnière mais volontaire. Elle a été transformée/changée par les Anciens après avoir découvert la vérité sur sa mission. Le \"document\" cherché est un sceau ancien qui enferme une menace. Opération Aurore = tentative de Lumenciel de voler le sceau. Malachai envoie le groupe pour protéger Kess et pour les impliquer dans la guerre cachée contre Lumenciel. Troisième faction inconnue également en jeu. Tension croissante."
+    },
+    {
+      "id": 154,
+      "timestamp": "2025-12-24T16:40:47.116014+01:00",
+      "type": "discovery",
+      "content": "Analyse détaillée du sceau par Thorin : structure de binding ancienne, présence consciente emprisonnée, microfissures détectées (aggravation depuis 2 semaines). Vérification de Lyra : Kess est liée magiquement aux Anciens (alliance volontaire), libre arbitre intact, pas de contrôle. Confirmation : Lumenciel arrive pour voler/briser le sceau. Troisième faction inconnue également en approche. Trois jours avant confrontation majeure."
+    },
+    {
+      "id": 155,
+      "timestamp": "2025-12-24T16:45:20.150502+01:00",
+      "type": "story",
+      "content": "Discussions stratégiques avec Kess et les Anciens. Lumenciel arrive dans 24h (par mer) - ils connaissent l'emplacement via interrogatoire d'un érudit d'Astrène. Le sceau ne peut pas être déplacé (lié aux fondations de Shasseth). Trois options de renforcement : défenses magiques (6-8h), ritual de silence (4-5h), préparation physique. La vraie menace : créature ancienne qui s'éveille (arrive dans 3-4 jours). Fissures du sceau = appel interne, pas attaque externe. Communion imminente entre les deux créatures = danger critique. Temps de réaction limité."
+    },
+    {
+      "id": 156,
+      "timestamp": "2025-12-24T16:50:28.060704+01:00",
+      "type": "story",
+      "content": "Rituel de renforcement magique du sceau avec Lyra et les Anciens. Durée : 7 heures intensives. Lyra a donné son énergie vitale pour revitaliser les protections du sceau. Résultat : protection renforcée pour ~3 semaines, capable de résister à attaque magique modérée. Lyra complètement épuisée (aucun sort, récupération 24-48h). Lumenciel arrivera demain matin/nuit (15-18h). Groupe doit décider : défendre le temple, intercepter à la côte, préparer rituel de silence, ou envoyer secours."
+    },
+    {
+      "id": 157,
+      "timestamp": "2025-12-24T16:54:55.937264+01:00",
+      "type": "story",
+      "content": "Corbeau magique envoyé à Malachai avec rapport de situation : menace triple (Lumenciel + créature qui s'éveille + synchronisation). Rituel de silence magique réussi avec aide du groupe - voile établi pour 3 jours (bloque communion entre les deux créatures). Groupe maintenant en position de défense. Lumenciel arrive au matin. Repos du groupe avant bataille immédiate."
+    },
+    {
+      "id": 158,
+      "timestamp": "2025-12-24T17:00:48.931343+01:00",
+      "type": "combat",
+      "content": "Aldric, Thorin et Gareth quittent le temple pour préparer une embuscade sur la route. Aldric identifie un terrain idéal : défilé naturel avec éboulis instable en haut de falaise. Plan tactique : fragiliser l'arête avec magie (Thorin), frapper pour déclencher l'éboulis (Aldric), attaque coordonnée depuis la falaise (Thorin) et du bas (Aldric \u0026 Gareth). Positions finales établies. Lumenciel arrive - embuscade est prête."
+    },
+    {
+      "id": 159,
+      "timestamp": "2025-12-24T17:06:22.375931+01:00",
+      "type": "combat",
+      "content": "Embuscade lancée - éboulis tue 7-8 combattants de Lumenciel. Combat rapproché engagé. Thorin se soigne (Cure Légère). Aldric et Gareth blessent des combattants. Bénédiction lancée par Thorin sur les deux combattants. Les Anciens interviennent magiquement - créent barrière vers le temple et Voile de Déception. Lumenciel compte ~14-15 combattants restants. Combat féroce mais groupe tient. Anciens offrent support tactique."
+    },
+    {
+      "id": 160,
+      "timestamp": "2025-12-24T17:09:00.288179+01:00",
+      "type": "combat",
+      "content": "Combat au défilé - ronde 2. Thorin se soigne complètement (7/8 PV). Aldric et Gareth continuent le combat au corps à corps. Thorin blesse un mage avec Projectile Magique. Gareth abat un combattant d'élite en contre-attaque. Les Anciens renforcent les défenses magiques (Voile de Déception, barrière). Lumenciel lance une dernière charge - le leader attaque Aldric mais manque. Aldric blesse le leader. Lumenciel reconnaît la défaite et se retire vers les navires. Première phase victoire pour le groupe."
+    },
+    {
+      "id": 161,
+      "timestamp": "2025-12-24T17:13:05.86478+01:00",
+      "type": "story",
+      "content": "VICTOIRES ET ACCOMPLISSEMENTS SESSION:\n- Éboulis orchestré : 8-9 combattants de Lumenciel tués\n- Gareth : 2 combattants d'élite abattus en direct (~10 PV total)\n- Thorin : 1 mage de Lumenciel blessé/désorganisé\n- Aldric : Blessa le leader de Lumenciel (prêtre guerrier en chef)\n- Défense du défilé contre 25-30 combattants organisés\n- Repousse de Lumenciel via stratégie combinée\n- Alliance confirmée avec les Anciens\n- Terrain contrôlé : Shasseth sécurisé temporairement\n- Corbeau magique envoyé à Malachai : renfort Guilde en route\n\nTOTAL XP À DISTRIBUER:\n- Monstres vaincus: 13 ennemis = ~650 XP (base)\n- Tactique d'embuscade réussie (bonus): +100 XP\n- Défense contre force supérieure: +100 XP\n- Alliance avec Anciens: +50 XP\nTOTAL ESTIMÉ: ~900 XP par personnage (à confirmer après session)\n\nRépartition proposée: 900 XP chacun (Aldric, Thorin, Gareth) - Lyra doit participer au prochain combat pour bonus similaire."
+    },
+    {
+      "id": 162,
+      "timestamp": "2025-12-24T17:17:29.761592+01:00",
+      "type": "combat",
+      "content": "Sabotage nocturne du Navire 2 de Lumenciel. Aldric et Gareth nagent discrètement vers le navire endommagé, pénètrent la cale, créent des brèches d'eau via outils de sabotage. Retraite silencieuse vers la côte. Thorin lance deux Bûcher Sacrés depuis la côte - voiles et pont s'enflamment. Navire 2 coule en moins de 10 minutes avec perte de ravitaillement massale pour Lumenciel. Équipage évacué en canots - aucune mort. Lumenciel réduit à 2 navires avec ressources limitées. Renforts de la Guilde imminents."
+    },
+    {
+      "id": 163,
+      "timestamp": "2025-12-24T17:21:27.111736+01:00",
+      "type": "story",
+      "content": "Surveillance d'une heure des deux navires de Lumenciel restants. Période d'observation : chaos initial, tentative de rituel de communication avec hiérarchie, réception d'ordres de retraite. Lumenciel reconnaît la défaite et lève les ancres. 2 navires en retraite vers Lumenciel. Kira et agents de la Guilde confirment victoire tactique. Analyse : Lumenciel reviendra dans 3-4 semaines avec meilleure préparation. Temps gagnés pour renforcer Shasseth. Groupe demeure au contrôle du terrain."
+    },
+    {
+      "id": 164,
+      "timestamp": "2025-12-24T17:25:19.538792+01:00",
+      "type": "story",
+      "content": "RÉSUMÉ FINAL SESSION - SHASSETH VICTOIRE:\n\nLe groupe retourne au temple après victoire finale. Lumenciel confirmé en retraite. Kess accepte de rester à Shasseth pour protéger le Sceau et servir les Anciens. Lyra récupère progressivement. Guilde de l'Ombre établit position défensive permanente avec Kira. Anciens donnent bénédiction pour voyage.\n\nGroupe retourne au canot, puis au navire du Capitaine Meren. Départ de Shasseth au matin. Route retour vers Port-Sombre : 12-14 jours de navigation.\n\nMission Shasseth : COMPLÉTÉE AVEC SUCCÈS\n- Kess localisée et alliée sécurisée\n- Sceau protégé et renforcé\n- Lumenciel repoussée\n- Alliance Anciens établie\n- Threat window : 3-4 semaines avant nouvelle tentative\n\nProchaine étape : Rapport à Malachai à l'Ancre Noyée, Port-Sombre."
+    },
+    {
+      "id": 165,
+      "timestamp": "2025-12-24T17:25:38.200282+01:00",
+      "type": "story",
+      "content": "Arrivée à Port-Sombre après 13 jours de navigation. Groupe se présente à Malachai à l'Ancre Noyée. Rapport de mission complété. Malachai satisfait des résultats : Kess sécurisée, Sceau protégé, Lumenciel repoussée, Alliance Anciens. Récompense : 3000 po (ajout à trésor du groupe). Proposition : rester à Port-Sombre pour entraînement et préparation. Guerre cachée contre Lumenciel confirmée en cours."
+    },
+    {
+      "id": 166,
+      "timestamp": "2025-12-24T17:28:30.040499+01:00",
+      "type": "story",
+      "content": "SESSION 1 COMPLÈTE - SAUVEGARDE FINALE\n\nGROUPE: Aldric (Human Fighter), Lyra (Elf Magic-User), Thorin (Dwarf Cleric), Gareth (Human Fighter)\n\nLIEU FINAL: Port-Sombre - L'Ancre Noyée (base Malachai)\n\nÉTAT DU GROUPE:\n- Aldric: Indemne, 900 XP gagné\n- Thorin: Indemne, 900 XP gagné  \n- Gareth: Indemne, 900 XP gagné\n- Lyra: Récupération magie, 700 XP gagné\n\nTRÉSOR FINAL: 7193 po (4193 initial + 3000 récompense Malachai)\n\nALLIÉS MAJEURS ÉTABLIS:\n- Malachai (Guilde de l'Ombre) - Chef, allié officiel\n- Kira (Commandante côtière Guilde) - Défense Shasseth permanente\n- Les Anciens de Shasseth (3 êtres antiques) - Alliés magiques majeurs\n- Kess (Agent transformée) - Reste à Shasseth pour protéger Sceau\n\nMISSIONS ACCOMPLIES:\n✅ Récupération de Kess à Shasseth\n✅ Protection du Sceau antique\n✅ Repoussement de Lumenciel (2 navires en retraite)\n✅ Établissement alliance Anciens\n✅ Sabotage/coulage Navire 2 Lumenciel\n✅ Installation Guilde à Shasseth défense permanente\n\nMENACES IDENTIFIÉES:\n- Lumenciel (théocratie hostile, retour prévu 3-4 semaines)\n- Créature ancienne inconnue (s'éveille, arrivée Shasseth imminente)\n\nOBJETS ACTUELS:\n- Parchemin du Rituel de Dissipation\n- Clé de la Bibliothèque de Sombregarde\n- Potions: 3x (1d6+1), 1x (2d6+2)\n\nPROCHAINE SESSION:\n- Entrainement à Port-Sombre avec Guilde\n- Préparation défenses Shasseth\n- Confrontation créature ancienne imminente\n- Escalade guerre Lumenciel\n\nSESSION TERMINÉE - PRÊTE POUR REPRISE"
+    },
+    {
+      "id": 167,
+      "timestamp": "2025-12-24T19:38:47.836468+01:00",
+      "type": "story",
+      "content": "Groupe se prépare pour réunion stratégique avec Malachai à l'Ancre Noyée. Objectif: établir connexions avec agents Guilde dans autres villes et planifier prochaines phases contre Lumenciel."
+    },
+    {
+      "id": 168,
+      "timestamp": "2025-12-24T19:46:00.271156+01:00",
+      "type": "story",
+      "content": "Groupe interroge Malachai sur la créature qui s'éveille à Shasseth. Demande conseil sur trouver un mage ou magicienne capable de la combattre."
+    },
+    {
+      "id": 169,
+      "timestamp": "2025-12-24T20:03:07.845891+01:00",
+      "type": "quest",
+      "content": "Groupe décide de voyager à Aurore-Sainte pour infiltrer les Archives Éternelles de Lumenciel et trouver des informations sur la créature ancienne de Shasseth. Malachai prépare la mission."
+    },
+    {
+      "id": 170,
+      "timestamp": "2025-12-24T20:04:29.871865+01:00",
+      "type": "note",
+      "content": "Groupe analyse la géopolitique : Aurore-Sainte en territoire Lumenciel (danger), Étoile-d'Automne en territoire Astrène (sûr mais neutre). Réflexion tactique sur le choix de route."
+    },
+    {
+      "id": 171,
+      "timestamp": "2025-12-24T20:30:14.5178+01:00",
+      "type": "quest",
+      "content": "DÉCISION STRATÉGIQUE: Groupe choisit la route DIRECTE vers Aurore-Sainte (5 jours). Départ demain matin de Port-Sombre avec le Capitaine Meren. Itinéraire: Port-Sombre → Havre-d'Argent (2 jours) → Valbourg (1.5 jour, frontière Lumenciel) → Aurore-Sainte (1.5-2 jours). Objectif: Infiltrer Archives Éternelles avec aide de Morwen. Risque élevé mais urgence pour Shasseth. Groupe préfère speed + action directe."
+    },
+    {
+      "id": 172,
+      "timestamp": "2025-12-25T18:37:23.643353+01:00",
+      "type": "story",
+      "content": "DÉPART POUR AURORE-SAINTE : Le groupe embarque sur le navire du Capitaine Meren à Port-Sombre. Itinéraire : Port-Sombre → Havre-d'Argent (2 jours de voyage maritime) → Valbourg (1.5 jour par terre, frontière Lumenciel) → Aurore-Sainte (1.5-2 jours, cœur du territoire Lumenciel). Objectif : Infiltrer les Archives Éternelles et trouver des informations sur la créature ancienne de Shasseth. Morwen (contact de Malachai) doit les attendre à Aurore-Sainte."
+    },
+    {
+      "id": 173,
+      "timestamp": "2025-12-25T18:38:56.54048+01:00",
+      "type": "story",
+      "content": "À Havre-d'Argent, le groupe décide de se procurer des habits de marchands pour passer inaperçus à la frontière de Lumenciel. Recherche de magasin de vêtements discrets."
+    },
+    {
+      "id": 174,
+      "timestamp": "2025-12-25T18:41:10.391712+01:00",
+      "type": "npc",
+      "content": "À Havre-d'Argent, le groupe rencontre Seraphina, une marchande de vêtements. Ils se présentent comme des marchands pieux en route pour Aurore-Sainte, cherchant à acquérir des habits respectable et discret pour le voyage."
+    },
+    {
+      "id": 175,
+      "timestamp": "2025-12-25T18:45:16.573481+01:00",
+      "type": "expense",
+      "content": "-200 po (Achat de vêtements de marchands à Havre-d'Argent chez Seraphina (4 ensembles complets))"
+    },
+    {
+      "id": 176,
+      "timestamp": "2025-12-25T18:47:48.922423+01:00",
+      "type": "story",
+      "content": "Le groupe remercie Seraphina et quitte Havre-d'Argent. Seraphina a révélé l'existence de Renald (écuyer à Valbourg, peut aider avec les documents) et confirmé que Morwen est à Aurore-Sainte. Le groupe adopte la stratégie : navire maritime jusqu'à Valbourg, puis trajet à pied jusqu'à Aurore-Sainte (plus crédible pour des marchands itinérants)."
+    },
+    {
+      "id": 177,
+      "timestamp": "2025-12-25T18:55:15.608312+01:00",
+      "type": "story",
+      "content": "ARRIVÉE À VALBOURG : Le groupe passe le contrôle de l'officière Lumenciel sans trop de difficultés. L'officière note leur arrivée mais les laisse passer. Intentions : trouver Renald pour obtenir des papiers et libre-passages officiels avant de continuer vers Aurore-Sainte."
     }
   ]
 }

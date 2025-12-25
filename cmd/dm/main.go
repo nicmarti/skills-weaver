@@ -1,11 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/chzyer/readline"
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/agent"
@@ -77,18 +79,42 @@ func main() {
 	// Display welcome
 	displayWelcome(adventureCtx)
 
-	// Start REPL
-	fmt.Println(ui.SubtitleStyle.Render("Tapez 'exit' ou 'quit' pour quitter.\n"))
-	scanner := bufio.NewScanner(os.Stdin)
+	// Start REPL with readline for proper line editing
+	fmt.Println(ui.SubtitleStyle.Render("Tapez 'exit' ou 'quit' pour quitter. Utilisez ↑/↓ pour l'historique.\n"))
+
+	// Configure readline
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:          ui.PromptStyle.Render("> "),
+		HistoryFile:     "/tmp/sw-dm-history.txt",
+		InterruptPrompt: "^C",
+		EOFPrompt:       "exit",
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error initializing readline: %v\n", err)
+		os.Exit(1)
+	}
+	defer rl.Close()
 
 	for {
-		fmt.Print(ui.PromptStyle.Render("> "))
-		if !scanner.Scan() {
+		line, err := rl.Readline()
+		if err == readline.ErrInterrupt {
+			// Ctrl+C pressed
+			if len(line) == 0 {
+				fmt.Println(ui.MenuItemStyle.Render("\nAu revoir, aventuriers !"))
+				break
+			}
+			continue
+		} else if err == io.EOF {
+			// Ctrl+D pressed
+			fmt.Println(ui.MenuItemStyle.Render("\nAu revoir, aventuriers !"))
 			break
 		}
 
-		input := strings.TrimSpace(scanner.Text())
+		input := strings.TrimSpace(line)
 		if input == "" {
+			// Don't send empty messages to the API (handles spaces, tabs, newlines, etc.)
+			// Show a helpful message instead
+			fmt.Println(ui.SubtitleStyle.Render("💡 Message vide détecté. Tapez votre action ou 'exit' pour quitter."))
 			continue
 		}
 
@@ -144,14 +170,20 @@ func showAdventureMenu(adventures []adventure.Adventure) string {
 	}
 
 	fmt.Println(ui.MenuItemStyle.Render("0. Quitter"))
-	fmt.Print(ui.MenuItemStyle.Render(fmt.Sprintf("\nChoisissez une aventure (1-%d): ", len(adventures))))
 
-	scanner := bufio.NewScanner(os.Stdin)
-	if !scanner.Scan() {
+	// Use readline for menu selection too
+	rl, err := readline.New(ui.MenuItemStyle.Render(fmt.Sprintf("\nChoisissez une aventure (1-%d): ", len(adventures))))
+	if err != nil {
+		return ""
+	}
+	defer rl.Close()
+
+	line, err := rl.Readline()
+	if err != nil {
 		return ""
 	}
 
-	choice := strings.TrimSpace(scanner.Text())
+	choice := strings.TrimSpace(line)
 	if choice == "0" {
 		return ""
 	}
@@ -231,22 +263,30 @@ func formatTimeSince(d time.Duration) string {
 }
 
 // TerminalOutput implements the OutputHandler interface for terminal display.
-type TerminalOutput struct{}
+type TerminalOutput struct {
+	renderer *ui.StreamingMarkdownRenderer
+}
 
 // NewTerminalOutput creates a new terminal output handler.
 func NewTerminalOutput() *TerminalOutput {
-	return &TerminalOutput{}
+	return &TerminalOutput{
+		renderer: ui.NewStreamingMarkdownRenderer(),
+	}
 }
 
 // OnTextChunk displays a text chunk immediately (streaming).
 func (to *TerminalOutput) OnTextChunk(text string) {
-	// Apply markdown V2 rendering (supports **bold** and *italic* with nesting)
-	rendered := ui.RenderDMTextV2(text)
+	// Use streaming renderer to handle markdown across chunks
+	rendered := to.renderer.AddChunk(text)
 	fmt.Print(rendered)
 }
 
 // OnToolStart displays when a tool starts executing.
 func (to *TerminalOutput) OnToolStart(toolName, toolID string) {
+	// Flush any pending renderer content
+	if flushed := to.renderer.Flush(); flushed != "" {
+		fmt.Print(flushed)
+	}
 	msg := fmt.Sprintf("\n[🎲 %s...]\n", toolName)
 	fmt.Print(ui.ToolStyle.Render(msg))
 }
@@ -270,11 +310,20 @@ func (to *TerminalOutput) OnToolComplete(toolName string, result interface{}) {
 
 // OnError displays an error.
 func (to *TerminalOutput) OnError(err error) {
+	// Flush any pending renderer content
+	if flushed := to.renderer.Flush(); flushed != "" {
+		fmt.Print(flushed)
+	}
 	msg := fmt.Sprintf("\n⚠️  Erreur: %v\n", err)
 	fmt.Fprint(os.Stderr, ui.ErrorStyle.Render(msg))
 }
 
 // OnComplete is called when the agent finishes processing.
 func (to *TerminalOutput) OnComplete() {
-	// Nothing to do for terminal output
+	// Flush any remaining buffered markdown content
+	if flushed := to.renderer.Flush(); flushed != "" {
+		fmt.Print(flushed)
+	}
+	// Reset renderer state for next message
+	to.renderer.Reset()
 }

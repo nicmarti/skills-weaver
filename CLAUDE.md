@@ -29,7 +29,8 @@ skillsweaver/
 │   │   ├── monster-manual/      # Bestiaire
 │   │   ├── treasure-generator/  # Génération de trésors
 │   │   ├── equipment-browser/   # Catalogue d'équipement
-│   │   └── spell-reference/     # Grimoire des sorts
+│   │   ├── spell-reference/     # Grimoire des sorts
+│   │   └── map-generator/       # Génération de prompts pour cartes 2D
 │   └── agents/              # Sous-agents spécialisés
 │       ├── character-creator.md
 │       ├── rules-keeper.md
@@ -37,6 +38,7 @@ skillsweaver/
 ├── cmd/
 │   ├── dice/                # CLI sw-dice
 │   ├── character/           # CLI sw-character
+│   ├── character-sheet/     # CLI sw-character-sheet
 │   ├── adventure/           # CLI sw-adventure
 │   ├── names/               # CLI sw-names
 │   ├── npc/                 # CLI sw-npc
@@ -45,11 +47,13 @@ skillsweaver/
 │   ├── monster/             # CLI sw-monster
 │   ├── treasure/            # CLI sw-treasure
 │   ├── equipment/           # CLI sw-equipment
-│   └── spell/               # CLI sw-spell
+│   ├── spell/               # CLI sw-spell
+│   └── map/                 # CLI sw-map
 ├── internal/
 │   ├── dice/                # Package lancer de dés
 │   ├── data/                # Chargement données JSON
 │   ├── character/           # Package personnages
+│   ├── charactersheet/      # Package génération fiches HTML
 │   ├── adventure/           # Package aventures/campagnes
 │   ├── names/               # Package génération de noms
 │   ├── npc/                 # Package génération de PNJ
@@ -58,7 +62,9 @@ skillsweaver/
 │   ├── monster/             # Package bestiaire
 │   ├── treasure/            # Package trésors
 │   ├── equipment/           # Package catalogue équipement
-│   └── spell/               # Package grimoire des sorts
+│   ├── spell/               # Package grimoire des sorts
+│   ├── map/                 # Package génération prompts cartes
+│   └── world/               # Package données géographiques
 ├── data/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
@@ -66,6 +72,7 @@ skillsweaver/
 │   ├── monsters.json        # Bestiaire BFRPG
 │   ├── treasure.json        # Tables de trésors BFRPG
 │   ├── characters/          # Personnages sauvegardés
+│   ├── maps/                # Prompts et images de cartes
 │   ├── adventures/          # Aventures sauvegardées
 │   │   └── <nom-aventure>/
 │   │       ├── adventure.json         # Métadonnées aventure
@@ -101,6 +108,117 @@ Le journal est organisé en fichiers séparés par session pour optimiser la per
 - Images organisées de manière cohérente
 
 **Migration** : Utilisez `sw-adventure migrate-journal <aventure>` pour convertir un ancien journal.json monolithique vers la nouvelle structure.
+
+### Système de Persistance des PNJ
+
+Les PNJ générés sont automatiquement sauvegardés et gérés via un système à deux niveaux :
+
+#### 1. Fichier par Aventure : `npcs-generated.json`
+
+**Localisation** : `data/adventures/<nom>/npcs-generated.json`
+
+**Structure** :
+```json
+{
+  "sessions": {
+    "session_0": [
+      {
+        "id": "npc_001",
+        "generated_at": "2025-12-24T19:39:02Z",
+        "session_number": 0,
+        "npc": { /* NPC complet */ },
+        "context": "Taverne du Voile Écarlate, informateur",
+        "importance": "mentioned",  // mentioned < interacted < recurring < key
+        "notes": ["Note 1", "Note 2"],
+        "appearances": 1,
+        "promoted_to_world": false,
+        "world_keeper_notes": "Validation world-keeper"
+      }
+    ],
+    "session_1": [...]
+  },
+  "next_id": 2
+}
+```
+
+**Niveaux d'importance** :
+- `mentioned` : Généré mais pas d'interaction
+- `interacted` : Dialogue ou rencontre brève
+- `recurring` : Apparitions multiples
+- `key` : Importance majeure pour l'intrigue
+
+**Capture automatique** : Tous les PNJ générés via `generate_npc` sont automatiquement sauvegardés.
+
+#### 2. Fichier Monde : `data/world/npcs.json`
+
+**PNJ promus** : Seuls les PNJ récurrents et importants sont promus vers `npcs.json` après validation par le world-keeper.
+
+**Workflow de promotion** :
+1. World-keeper review : `/world-review-npcs <adventure>`
+2. Validation et enrichissement : `/world-promote-npc <adventure> <nom>`
+3. Ajout à `data/world/npcs.json` avec contexte complet
+
+#### Tools Disponibles dans sw-dm
+
+**`generate_npc`** : Génère un PNJ et le sauvegarde automatiquement
+```json
+{
+  "race": "human",
+  "gender": "m",
+  "occupation": "skilled",
+  "attitude": "neutral",
+  "context": "Taverne du Voile Écarlate, demande informations"
+}
+```
+
+**`update_npc_importance`** : Met à jour l'importance d'un PNJ
+```json
+{
+  "npc_name": "Grimbold Dreamcatcher",
+  "importance": "interacted",
+  "note": "A révélé information sur Vaskir"
+}
+```
+
+**`get_npc_history`** : Consulte l'historique complet d'un PNJ
+```json
+{
+  "npc_name": "Grimbold Dreamcatcher"
+}
+```
+
+#### Avantages du Système
+
+✅ **Aucune perte** : Tous les PNJ générés sont capturés automatiquement
+✅ **Évolution naturelle** : L'importance augmente au fil des interactions
+✅ **Validation centralisée** : World-keeper garantit la cohérence
+✅ **Scalable** : Fonctionne avec 5 ou 50 PNJ par aventure
+✅ **Séparation claire** : Adventure (brouillon) vs World (canon)
+
+#### Exemple de Workflow Complet
+
+```
+┌─ PENDANT SESSION ─────────────────────────────┐
+│ 1. DM: generate_npc → Grimbold               │
+│ 2. ✓ Auto-saved dans npcs-generated.json    │
+│    (section session_0, importance="mentioned")│
+│                                               │
+│ 3. Plus tard, PJ dialogue avec Grimbold      │
+│ 4. DM: update_npc_importance("Grimbold",     │
+│    importance="interacted", notes="Révélé    │
+│    info sur Vaskir")                         │
+└───────────────────────────────────────────────┘
+
+┌─ POST-SESSION (World-Keeper) ─────────────────┐
+│ 1. /world-keeper /world-review-npcs          │
+│    "la-crypte-des-ombres"                    │
+│ 2. Identifie PNJ avec importance >= interacted│
+│ 3. /world-keeper /world-promote-npc          │
+│    "la-crypte-des-ombres" "Grimbold"         │
+│ 4. Validation, enrichissement, promotion      │
+│ 5. ✓ Ajouté à data/world/npcs.json          │
+└───────────────────────────────────────────────┘
+```
 ```
 
 ## Architecture : Skills vs Agents
@@ -249,6 +367,23 @@ go build -o sw-dm ./cmd/dm
 - Variable d'environnement `ANTHROPIC_API_KEY` configurée
 - Une aventure existante dans `data/adventures/`
 
+**Interface Utilisateur** :
+- ✅ **Édition de ligne complète** : Utilise `readline` pour une expérience professionnelle
+  - Touches fléchées (←, →) pour naviguer dans la ligne
+  - Home/End, Ctrl+A/Ctrl+E pour début/fin de ligne
+  - Backspace/Delete pour supprimer des caractères
+  - Ctrl+W pour supprimer un mot
+- ✅ **Historique des commandes** : Navigation avec ↑/↓
+  - Historique persistant entre sessions (`/tmp/sw-dm-history.txt`)
+  - Ctrl+R pour recherche dans l'historique
+- ✅ **Gestion propre des signaux** :
+  - Ctrl+C avec ligne vide = quitter
+  - Ctrl+D = quitter proprement
+  - Ctrl+L = effacer l'écran
+- ✅ **Aucun caractère de contrôle visible** : Les séquences ANSI sont gérées en interne
+
+**Note** : Voir `docs/readline-integration.md` pour plus de détails sur l'interface utilisateur.
+
 ### CLI sw-character
 
 Créer et gérer des personnages BFRPG :
@@ -271,6 +406,56 @@ go build -o sw-character ./cmd/character
 ### Skill character-generator
 
 La skill `character-generator` permet à Claude de créer des personnages en guidant le joueur étape par étape.
+
+### CLI sw-character-sheet
+
+Générer des fiches de personnages HTML stylisées (Dark Fantasy / Baldur's Gate) :
+
+```bash
+# Compiler
+go build -o sw-character-sheet ./cmd/character-sheet
+
+# Générer une fiche
+./sw-character-sheet generate "Aldric"                                    # Fiche basique
+./sw-character-sheet generate "Aldric" --with-biography                   # Avec biographie AI
+./sw-character-sheet generate "Aldric" --adventure="la-crypte-des-ombres" # Avec inventaire partagé
+
+# Régénérer une fiche (rafraîchir après level up)
+./sw-character-sheet regenerate "Aldric"                                  # Garde la bio en cache
+./sw-character-sheet regenerate "Aldric" --refresh-bio                    # Régénère la bio
+
+# Gérer les biographies
+./sw-character-sheet bio "Aldric"                                         # Affiche la bio JSON
+./sw-character-sheet bio "Aldric" --refresh                               # Régénère la bio
+
+# Aide et options
+./sw-character-sheet help
+./sw-character-sheet templates                                            # Liste templates disponibles
+```
+
+**Caractéristiques** :
+- HTML avec Tailwind CSS (Dark Fantasy style, inspiré Baldur's Gate 3)
+- Biographies enrichies via API Claude (Haiku 3.5) avec fallback sur templates
+- Intégration contexte d'aventure dans les biographies
+- Équipement personnel + inventaire partagé de l'aventure
+- Portrait du personnage (image de référence si disponible)
+- Cache JSON modifiable pour les biographies (`*_bio.json`)
+- Prêt pour l'impression (média print optimisé)
+- Sortie : `data/characters/<nom>.html`
+
+**Biographies AI** :
+- Utilise `ANTHROPIC_API_KEY` si disponible
+- Style narratif immersif basé sur stats, apparence, race/classe
+- Intègre les événements récents de l'aventure
+- Personnalité cohérente avec les caractéristiques
+- Génère origine, passé, motivation, relations et secrets
+
+**Exemple de fiche générée** :
+```bash
+./sw-character-sheet generate "Aldric" --adventure="la-crypte-des-ombres" --with-biography
+# → data/characters/aldric.html
+# → data/characters/aldric_bio.json (cache modifiable)
+```
 
 ### CLI sw-adventure
 
@@ -464,6 +649,57 @@ Les images sont sauvegardées dans `data/adventures/<nom>/images/`
 ### Skill journal-illustrator
 
 La skill `journal-illustrator` permet à Claude d'illustrer automatiquement les journaux d'aventures avec des prompts optimisés par type d'événement et une génération parallèle.
+
+### CLI sw-map
+
+Générer des prompts pour cartes 2D fantasy avec validation world-keeper :
+
+```bash
+# Compiler
+go build -o sw-map ./cmd/map
+
+# Carte de ville
+./sw-map generate city Cordova
+./sw-map generate city Cordova --features="Taverne du Voile Écarlate,Docks"
+
+# Carte régionale
+./sw-map generate region "Côte Occidentale" --scale=large
+
+# Plan de donjon
+./sw-map generate dungeon "La Crypte des Ombres" --level=1
+
+# Carte tactique
+./sw-map generate tactical "Embuscade" --terrain=forêt --scene="Combat en forêt"
+
+# Avec génération d'image
+./sw-map generate city Cordova --generate-image --image-size=landscape_16_9
+
+# Validation de lieu
+./sw-map validate "Cordova"
+./sw-map validate "Port-Nouveau" --kingdom=valdorine --suggest
+
+# Lister les ressources
+./sw-map list kingdoms
+./sw-map list cities --kingdom=valdorine
+./sw-map types
+```
+
+**Caractéristiques**:
+- Validation automatique avec world-keeper data
+- Prompts enrichis par Claude Haiku 3.5
+- Support 4 types de cartes (city, region, dungeon, tactical)
+- Intégration POIs depuis geography.json
+- Styles architecturaux par royaume
+- Cache des prompts pour réutilisation
+- Génération d'images via fal.ai flux-2
+
+**Prérequis**:
+- `ANTHROPIC_API_KEY` pour enrichissement AI
+- `FAL_KEY` pour génération d'images (optionnel)
+
+### Skill map-generator
+
+La skill `map-generator` permet à Claude de générer des prompts enrichis pour cartes 2D fantasy avec validation world-keeper. Elle assure la cohérence des noms de lieux et des styles architecturaux des 4 royaumes.
 
 ### CLI sw-monster
 
@@ -715,10 +951,11 @@ Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
 | Package | Utilisé par | Tests | Makefile |
 |---------|-------------|-------|----------|
 | `adventure` | `sw-adventure` | ✓ | ✓ |
-| `ai` | `sw-adventure` | - | ✓ |
-| `character` | `sw-character` | ✓ | ✓ |
+| `ai` | `sw-adventure`, `sw-character-sheet` | - | ✓ |
+| `character` | `sw-character`, `sw-character-sheet` | ✓ | ✓ |
+| `charactersheet` | `sw-character-sheet` | - | ✓ |
 | `combat` | (orphelin) | ✓ | - |
-| `data` | `sw-character` | ✓ | ✓ |
+| `data` | `sw-character`, `sw-character-sheet` | ✓ | ✓ |
 | `dice` | `sw-dice`, `sw-monster`, `sw-treasure` | ✓ | ✓ |
 | `equipment` | `sw-equipment` | - | ✓ |
 | `image` | `sw-image` | - | ✓ |

@@ -7,6 +7,7 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/npc"
+	"dungeons/internal/npcmanager"
 	"dungeons/internal/treasure"
 )
 
@@ -260,8 +261,8 @@ func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
 	}, nil
 }
 
-// NewGenerateNPCTool creates a tool to generate NPCs.
-func NewGenerateNPCTool(dataDir string) (*SimpleTool, error) {
+// NewGenerateNPCTool creates a tool to generate NPCs with automatic persistence.
+func NewGenerateNPCTool(dataDir string, adv *adventure.Adventure) (*SimpleTool, error) {
 	// Create NPC generator
 	gen, err := npc.NewGenerator(dataDir)
 	if err != nil {
@@ -270,7 +271,7 @@ func NewGenerateNPCTool(dataDir string) (*SimpleTool, error) {
 
 	return &SimpleTool{
 		name:        "generate_npc",
-		description: "Generate a complete NPC with name, appearance, personality, motivation, and secret",
+		description: "Generate a complete NPC with name, appearance, personality, motivation, and secret. Automatically saves to adventure for future reference.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -293,6 +294,10 @@ func NewGenerateNPCTool(dataDir string) (*SimpleTool, error) {
 					"type":        "string",
 					"enum":        []string{"friendly", "neutral", "unfriendly", "hostile"},
 					"description": "NPC attitude (optional, defaults to neutral)",
+				},
+				"context": map[string]interface{}{
+					"type":        "string",
+					"description": "Context of encounter (location, situation). Example: 'Tavern du Voile Écarlate, asking about rumors'",
 				},
 			},
 		},
@@ -321,8 +326,29 @@ func NewGenerateNPCTool(dataDir string) (*SimpleTool, error) {
 				}, nil
 			}
 
+			// Extract context (optional)
+			context := ""
+			if ctx, ok := params["context"].(string); ok {
+				context = ctx
+			}
+
 			// Use ToShortDescription for compact display
 			display := generated.ToShortDescription()
+
+			// Auto-save to adventure's npcs-generated.json
+			npcMgr := npcmanager.NewManager(adv.BasePath())
+			sessionNum, _ := npcMgr.GetCurrentSessionNumber()
+
+			// Note: World-keeper validation will be added in next step
+			worldKeeperNotes := "Pending world-keeper validation"
+
+			record, err := npcMgr.AddNPC(sessionNum, generated, context, worldKeeperNotes)
+			if err != nil {
+				// Log error but don't fail the generation
+				fmt.Printf("Warning: Failed to save NPC to adventure: %v\n", err)
+			} else {
+				display += fmt.Sprintf(" [ID: %s, saved to session_%d]", record.ID, sessionNum)
+			}
 
 			return map[string]interface{}{
 				"success": true,

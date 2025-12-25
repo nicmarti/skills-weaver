@@ -232,6 +232,149 @@ Toi: [Crée nouveaux détails cohérents]
 - Royaume : Territoire contesté (aucun royaume n'a réellement le contrôle)
 ```
 
+### `/world-review-npcs <adventure-name>`
+Liste les PNJ générés qui devraient être considérés pour promotion vers world/npcs.json
+
+**Critères de review** :
+- Importance >= "interacted" (a eu dialogue avec PJ)
+- Non encore promu vers world/npcs.json
+- Apparitions multiples ou rôle significatif
+
+**Workflow** :
+```bash
+# Charger le fichier npcs-generated.json de l'aventure
+Read data/adventures/<adventure-name>/npcs-generated.json
+
+# Filtrer les PNJ avec importance >= interacted
+# Afficher : Nom, Importance, Apparitions, Notes
+```
+
+**Exemple** :
+```
+DM: /world-keeper /world-review-npcs "la-crypte-des-ombres"
+Toi: [Lit data/adventures/la-crypte-des-ombres/npcs-generated.json]
+
+**PNJ à considérer pour promotion :**
+
+1. **Grimbold Dreamcatcher** (npc_001)
+   - Importance: interacted
+   - Apparitions: 3 fois
+   - Contexte: Taverne du Voile Écarlate, informateur
+   - Notes:
+     * Révélé information sur réseau de Vaskir
+     * A accepté de surveiller le port
+     * Fourni indices sur disparition de Kess
+   - Recommandation: ✓ PROMOUVOIR (rôle récurrent établi)
+
+2. **Faerwen Springbloom** (npc_002)
+   - Importance: interacted
+   - Apparitions: 1 fois
+   - Contexte: Prêteur sur gages, Cordova
+   - Notes: Transaction commerciale unique
+   - Recommandation: ⚠️ ATTENDRE (interaction unique, pas récurrent)
+```
+
+### `/world-promote-npc <adventure-name> <npc-name>`
+Promeut un PNJ généré vers le fichier world/npcs.json avec validation et enrichissement
+
+**Validation avant promotion** :
+1. **Cohérence géographique** : Vérifie que la localisation du PNJ existe et est logique
+2. **Affiliations probables** : Suggère les factions/organisations appropriées
+3. **Relations avec PNJ existants** : Identifie les connexions potentielles
+4. **Enrichissement contextuel** : Ajoute informations manquantes
+
+**Workflow** :
+```bash
+# 1. Charger le PNJ depuis npcs-generated.json
+Read data/adventures/<adventure-name>/npcs-generated.json
+
+# 2. Extraire le PNJ par nom
+# 3. Valider cohérence avec world/npcs.json existant
+# 4. Enrichir avec contexte world
+Read data/world/npcs.json
+Read data/world/geography.json
+Read data/world/factions.json
+
+# 5. Ajouter à world/npcs.json
+Write data/world/npcs.json
+
+# 6. Marquer comme promu dans npcs-generated.json
+Write data/adventures/<adventure-name>/npcs-generated.json
+```
+
+**Exemple complet** :
+```
+DM: /world-keeper /world-promote-npc "la-crypte-des-ombres" "Grimbold Dreamcatcher"
+
+Toi: [Charge npcs-generated.json]
+     [Extrait Grimbold Dreamcatcher]
+
+**Validation et enrichissement :**
+
+✓ **Localisation** : Taverne du Voile Écarlate, Cordova (Valdorine) → Cohérent
+✓ **Occupation** : Informateur → Cohérent avec port de Cordova
+
+**Affiliations suggérées** :
+- Probable lien avec Réseau de Vaskir (bas niveau, informateur)
+- Connaît probablement Goruk (même taverne)
+
+**Relations suggérées** :
+- Goruk (demi-orc, tavernier) : Contact régulier
+- Groupe de PJ : Source d'informations fiable (alliance établie)
+- Vaskir : Employé occasionnel (relation dangereuse)
+
+**Enrichissement proposé** :
+```json
+{
+  "name": "Grimbold Dreamcatcher",
+  "race": "humain",
+  "age": "adulte (35-40 ans)",
+  "gender": "masculin",
+  "occupation": "Informateur, guetteur du port",
+  "location": "Taverne du Voile Écarlate, Cordova",
+  "appearance": {
+    "build": "athlétique",
+    "eyes": "gris",
+    "hair": "blanc rasé",
+    "distinctive": "Regard vif, toujours aux aguets"
+  },
+  "personality": "Rusé, poli mais pressé, sait garder secrets",
+  "affiliations": ["Informateur indépendant", "Contact occasionnel de Vaskir"],
+  "relationships": {
+    "Groupe de PJ": "Alliance établie, fourni informations sur Vaskir et Kess",
+    "Goruk": "Se connaissent (même taverne)",
+    "Vaskir": "Employé occasionnel, relation tendue"
+  },
+  "known_activities": [
+    "Surveillance du port de Cordova",
+    "Collecte de rumeurs pour clients payants",
+    "A accepté de surveiller mouvements de Vaskir"
+  ],
+  "voice": "Rapide, murmurée, toujours regarde autour",
+  "status": "Vivant, Cordova, actif",
+  "importance": "Contact récurrent à Cordova, source d'informations"
+}
+```
+
+**Confirmer promotion ?** (oui/non)
+
+DM: oui
+
+Toi: [Ajoute à data/world/npcs.json]
+     [Marque promoted_to_world=true dans npcs-generated.json]
+
+✓ **Grimbold Dreamcatcher promu vers world/npcs.json**
+✓ Enrichi avec affiliations et relations
+✓ Marqué comme promu dans l'aventure
+
+Le PNJ est maintenant part du monde persistant et apparaîtra dans les requêtes `/world-query`.
+```
+
+**IMPORTANT - Critères de promotion** :
+- ✅ Promouvoir : Apparitions multiples, rôle établi, impact narratif
+- ⚠️ Attendre : Interaction unique, rôle mineur, peut disparaître
+- ❌ Ne pas promouvoir : PNJ jetable, mort, un seul échange
+
 ### `/world-create-location <type> <royaume>`
 Crée un nouveau lieu avec nom cohérent et l'enregistre dans geography.json
 

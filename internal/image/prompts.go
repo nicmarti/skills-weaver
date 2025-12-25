@@ -635,6 +635,12 @@ func BuildJournalEntryPromptWithoutCharacters(entry adventure.JournalEntry) *Jou
 		imageSize = "landscape_16_9"
 		prompt = buildSessionPrompt(entry)
 
+	case "story":
+		// Story events are major narrative moments
+		style = StyleIllustrated
+		imageSize = "landscape_16_9"
+		prompt = buildStoryPrompt(entry)
+
 	default:
 		return nil
 	}
@@ -748,6 +754,19 @@ func buildSessionPrompt(entry adventure.JournalEntry) string {
 		"Epic fantasy scene",
 		baseText,
 		mood,
+		StyleSuffixes[StyleIllustrated],
+		BasePromptSuffix,
+	}
+	return strings.Join(parts, ", ")
+}
+
+// buildStoryPrompt creates a prompt for major story events.
+func buildStoryPrompt(entry adventure.JournalEntry) string {
+	baseText := getEntryDescription(entry)
+	parts := []string{
+		"Dramatic fantasy scene",
+		baseText,
+		"pivotal moment, story development, narrative tension",
 		StyleSuffixes[StyleIllustrated],
 		BasePromptSuffix,
 	}

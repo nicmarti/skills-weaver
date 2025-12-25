@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/map"
+	"dungeons/internal/world"
 
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
@@ -17,6 +20,30 @@ import (
 type EnrichmentResult struct {
 	Description   string `json:"description"`
 	DescriptionFr string `json:"description_fr"`
+}
+
+// MapPromptRequest configures map prompt generation.
+type MapPromptRequest struct {
+	MapType      string   // "city", "region", "dungeon", "tactical"
+	LocationName string   // Name of location (for city/region)
+	Kingdom      string   // Kingdom ID (for validation)
+	Scale        string   // "small", "medium", "large"
+	Features     []string // Additional POIs to include
+	Terrain      string   // Terrain type override
+	Style        string   // "illustrated" or "dark_fantasy"
+	DungeonLevel int      // For dungeon maps
+	SceneDesc    string   // For tactical maps
+}
+
+// MapPromptResult holds the enriched map prompt.
+type MapPromptResult struct {
+	Prompt       string   `json:"prompt"`
+	MapType      string   `json:"map_type"`
+	LocationName string   `json:"location_name"`
+	Kingdom      string   `json:"kingdom"`
+	Features     []string `json:"features"`
+	StyleHints   string   `json:"style_hints"`
+	EnrichedAt   string   `json:"enriched_at"`
 }
 
 // Enricher generates descriptions using Claude API.
@@ -63,6 +90,229 @@ func (e *Enricher) EnrichEntry(entry adventure.JournalEntry, ctx *adventure.Enri
 	}
 
 	return &result, nil
+}
+
+// EnrichMapPrompt generates an enriched map prompt with Claude API.
+func (e *Enricher) EnrichMapPrompt(req MapPromptRequest, location *world.Location, kingdom *world.Kingdom) (*MapPromptResult, error) {
+	// Build base prompt using internal/map builders
+	basePrompt, err := e.buildBaseMapPrompt(req, location, kingdom)
+	if err != nil {
+		return nil, fmt.Errorf("building base prompt: %w", err)
+	}
+
+	// Build enrichment prompt with guidelines
+	enrichPrompt := e.buildMapEnrichmentPrompt(req, basePrompt, location, kingdom)
+
+	// Call Claude API
+	response, err := e.callClaude(enrichPrompt)
+	if err != nil {
+		return nil, fmt.Errorf("Claude API call failed: %w", err)
+	}
+
+	// Strip markdown fences if present
+	jsonStr := stripMarkdownFences(response)
+
+	// Parse response - expect just the prompt text or JSON with prompt field
+	var result MapPromptResult
+
+	// Try parsing as JSON first
+	var jsonResponse struct {
+		Prompt string `json:"prompt"`
+	}
+	if err := json.Unmarshal([]byte(jsonStr), &jsonResponse); err == nil && jsonResponse.Prompt != "" {
+		result.Prompt = jsonResponse.Prompt
+	} else {
+		// If not JSON, use the response directly as the prompt
+		result.Prompt = jsonStr
+	}
+
+	// Validate prompt
+	if result.Prompt == "" {
+		return nil, fmt.Errorf("empty prompt returned from Claude API")
+	}
+
+	wordCount := len(strings.Fields(result.Prompt))
+	if wordCount < 80 {
+		return nil, fmt.Errorf("prompt too short (%d words, minimum 80)", wordCount)
+	}
+	if wordCount > 250 {
+		return nil, fmt.Errorf("prompt too long (%d words, maximum 250)", wordCount)
+	}
+
+	// Fill in metadata
+	result.MapType = req.MapType
+	result.LocationName = req.LocationName
+	if kingdom != nil {
+		result.Kingdom = kingdom.ID
+	}
+	result.Features = req.Features
+	result.StyleHints = e.getStyleHints(req, kingdom)
+	result.EnrichedAt = time.Now().Format(time.RFC3339)
+
+	return &result, nil
+}
+
+// buildBaseMapPrompt constructs the base prompt using internal/map builders.
+func (e *Enricher) buildBaseMapPrompt(req MapPromptRequest, location *world.Location, kingdom *world.Kingdom) (string, error) {
+	ctx := &mapgen.MapContext{
+		Location: location,
+		Kingdom:  kingdom,
+		Scale:    req.Scale,
+	}
+
+	opts := mapgen.PromptOptions{
+		Features: req.Features,
+		Terrain:  req.Terrain,
+		Style:    req.Style,
+	}
+
+	switch req.MapType {
+	case "city":
+		if location == nil {
+			return "", fmt.Errorf("location required for city map")
+		}
+		return mapgen.BuildCityMapPrompt(ctx, opts), nil
+
+	case "region":
+		if ctx.Region == nil && location != nil {
+			// If we have a location but no region, we can still generate
+			// Create a minimal region from location data
+			ctx.Region = &world.Region{
+				Name:        location.Name + " Region",
+				Kingdom:     location.Kingdom,
+				Description: location.Description,
+				Cities:      []world.Location{*location},
+			}
+		}
+		return mapgen.BuildRegionalMapPrompt(ctx, opts), nil
+
+	case "dungeon":
+		if req.LocationName == "" {
+			return "", fmt.Errorf("location name required for dungeon map")
+		}
+		return mapgen.BuildDungeonMapPrompt(req.LocationName, req.DungeonLevel, opts), nil
+
+	case "tactical":
+		terrain := req.Terrain
+		if terrain == "" {
+			terrain = "terrain varié"
+		}
+		return mapgen.BuildTacticalMapPrompt(terrain, req.SceneDesc, opts), nil
+
+	default:
+		return "", fmt.Errorf("unknown map type: %s (valid: city, region, dungeon, tactical)", req.MapType)
+	}
+}
+
+// buildMapEnrichmentPrompt constructs the full enrichment prompt.
+func (e *Enricher) buildMapEnrichmentPrompt(req MapPromptRequest, basePrompt string, location *world.Location, kingdom *world.Kingdom) string {
+	// Load guidelines from file
+	guidelines, err := os.ReadFile("ai/map_prompt_guidelines.md")
+	if err != nil {
+		guidelines = []byte("Error loading guidelines. Use best practices for map prompts.")
+	}
+
+	// Build context information
+	locationInfo := "No specific location"
+	if location != nil {
+		locationInfo = fmt.Sprintf("%s (%s, %s)", location.Name, location.Type, location.Kingdom)
+		if location.Description != "" {
+			locationInfo += "\nDescription: " + location.Description
+		}
+		if len(location.KeyLocations) > 0 {
+			locationInfo += "\nPOIs: " + strings.Join(location.KeyLocations, ", ")
+		}
+	}
+
+	kingdomInfo := "No kingdom context"
+	if kingdom != nil {
+		kingdomInfo = fmt.Sprintf("%s - Colors: %s", kingdom.Name, strings.Join(kingdom.Colors, ", "))
+		kingdomInfo += "\nSymbol: " + kingdom.Symbol
+		if len(kingdom.Values) > 0 {
+			kingdomInfo += "\nValues: " + strings.Join(kingdom.Values, ", ")
+		}
+	}
+
+	return fmt.Sprintf(`You are enriching a fantasy map prompt for image generation using fal.ai flux-2.
+
+MAP TYPE: %s
+LOCATION: %s
+KINGDOM: %s
+SCALE: %s
+STYLE: %s
+
+BASE PROMPT (to be enriched):
+%s
+
+GUIDELINES (full documentation):
+%s
+
+TASK:
+Enrich the base prompt to create a detailed, vivid French description (100-200 words) suitable for generating a 2D fantasy map image. Follow the template structures and best practices from the guidelines.
+
+REQUIREMENTS:
+1. Output in French only
+2. Length: 100-200 words (sweet spot: 150 words)
+3. Include all elements from base prompt
+4. Add specific visual details (colors, architecture, layout)
+5. Maintain geographic precision (cardinal directions)
+6. Use proper French typography (spaces before : and ;)
+7. Make layout organic and natural (not monotone)
+8. Integrate POIs naturally into the description
+9. Match kingdom architectural style
+10. Include scale/size information
+
+OUTPUT FORMAT:
+Return ONLY the enriched French prompt as plain text (no JSON, no markdown).
+The prompt should be a single flowing paragraph with proper punctuation.`,
+		req.MapType,
+		locationInfo,
+		kingdomInfo,
+		req.Scale,
+		req.Style,
+		basePrompt,
+		string(guidelines),
+	)
+}
+
+// getStyleHints returns style hints based on request and kingdom.
+func (e *Enricher) getStyleHints(req MapPromptRequest, kingdom *world.Kingdom) string {
+	hints := []string{}
+
+	// Map type hints
+	switch req.MapType {
+	case "city":
+		hints = append(hints, "aerial view, organic layout, detailed districts")
+	case "region":
+		hints = append(hints, "bird's eye view, cartographic style, medieval fantasy map")
+	case "dungeon":
+		hints = append(hints, "top-down floor plan, grid overlay, D&D classic style")
+	case "tactical":
+		hints = append(hints, "combat grid, tactical elements, miniature-friendly")
+	}
+
+	// Kingdom style hints
+	if kingdom != nil {
+		switch strings.ToLower(kingdom.ID) {
+		case "valdorine":
+			hints = append(hints, "maritime Italian style, blue/gold colors")
+		case "karvath":
+			hints = append(hints, "militaristic Germanic style, red/black colors")
+		case "lumenciel":
+			hints = append(hints, "religious Latin style, white/gold colors")
+		case "astrene":
+			hints = append(hints, "melancholic Nordic style, gray/silver colors")
+		}
+	}
+
+	// General style hints
+	if req.Style == "dark_fantasy" {
+		hints = append(hints, "dark atmosphere, dramatic lighting")
+	} else {
+		hints = append(hints, "illustrated style, vibrant colors")
+	}
+
+	return strings.Join(hints, ", ")
 }
 
 // stripMarkdownFences removes markdown code fences from JSON responses.

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aldric - Fiche de Personnage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    .card-gradient {
+      background: linear-gradient(to bottom, rgba(42,42,42,0.95) 0%, rgba(31,31,31,0.95) 100%);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      border: 2px solid #555555;
+    }
+
+    .gold-accent {
+      color: #d4af37;
+    }
+
+    .stat-glow {
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    .hp-red {
+      color: #ff4444;
+      text-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+    }
+
+    .ac-blue {
+      color: #4a90e2;
+      text-shadow: 0 0 8px rgba(74, 144, 226, 0.6);
+    }
+
+    @media print {
+      body { background: white; }
+      .card-gradient { background: white; border: 1px solid #333; }
+    }
+  </style>
+</head>
+<body class="p-8">
+
+  
+
+  
+  <div class="card-gradient rounded-xl p-8 mb-6">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center space-x-6">
+        
+        <img src="aldric_reference.png"
+             alt="Aldric"
+             class="w-32 h-32 rounded-full border-4 border-yellow-600 shadow-2xl" />
+        
+
+        <div>
+          <h1 class="text-5xl font-bold text-white stat-glow mb-2">Aldric</h1>
+          <p class="text-xl gold-accent tracking-wide uppercase">Humain Guerrier</p>
+          <p class="text-gray-400 mt-1">Niveau 1</p>
+          <div class="mt-3 inline-block bg-yellow-600 px-4 py-1 rounded-md">
+            <span class="text-sm font-bold text-black">XP: 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-right">
+        <div class="bg-gray-800 px-4 py-2 rounded-lg mb-2">
+          <span class="text-gray-400 text-sm">OR</span>
+          <span class="text-yellow-500 font-bold text-lg ml-2">4193 po</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="grid grid-cols-6 gap-4 mb-6">
+    
+    <div class="card-gradient rounded-lg p-4 text-center">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2">FOR</h3>
+      <p class="text-4xl font-bold text-white mb-1">11</p>
+      <div class="inline-block bg-yellow-600 px-3 py-1 rounded">
+        <span class="text-sm font-bold text-black">&#43;0</span>
+      </div>
+    </div>
+    
+    <div class="card-gradient rounded-lg p-4 text-center">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2">DEX</h3>
+      <p class="text-4xl font-bold text-white mb-1">17</p>
+      <div class="inline-block bg-yellow-600 px-3 py-1 rounded">
+        <span class="text-sm font-bold text-black">&#43;2</span>
+      </div>
+    </div>
+    
+    <div class="card-gradient rounded-lg p-4 text-center">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2">CON</h3>
+      <p class="text-4xl font-bold text-white mb-1">11</p>
+      <div class="inline-block bg-yellow-600 px-3 py-1 rounded">
+        <span class="text-sm font-bold text-black">&#43;0</span>
+      </div>
+    </div>
+    
+    <div class="card-gradient rounded-lg p-4 text-center">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2">INT</h3>
+      <p class="text-4xl font-bold text-white mb-1">13</p>
+      <div class="inline-block bg-yellow-600 px-3 py-1 rounded">
+        <span class="text-sm font-bold text-black">&#43;1</span>
+      </div>
+    </div>
+    
+    <div class="card-gradient rounded-lg p-4 text-center">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2">SAG</h3>
+      <p class="text-4xl font-bold text-white mb-1">12</p>
+      <div class="inline-block bg-yellow-600 px-3 py-1 rounded">
+        <span class="text-sm font-bold text-black">&#43;0</span>
+      </div>
+    </div>
+    
+    <div class="card-gradient rounded-lg p-4 text-center">
+      <h3 class="text-xs text-gray-400 uppercase tracking-wider mb-2">CHA</h3>
+      <p class="text-4xl font-bold text-white mb-1">10</p>
+      <div class="inline-block bg-yellow-600 px-3 py-1 rounded">
+        <span class="text-sm font-bold text-black">&#43;0</span>
+      </div>
+    </div>
+    
+  </div>
+
+  
+  <div class="grid grid-cols-2 gap-6 mb-6">
+    <div class="card-gradient rounded-lg p-6 border-red-900">
+      <h3 class="text-sm text-gray-400 uppercase tracking-wider mb-3">Points de Vie</h3>
+      <p class="text-5xl font-bold hp-red">8 / 8</p>
+    </div>
+
+    <div class="card-gradient rounded-lg p-6 border-blue-900">
+      <h3 class="text-sm text-gray-400 uppercase tracking-wider mb-3">Classe d'Armure</h3>
+      <p class="text-5xl font-bold ac-blue">13</p>
+    </div>
+  </div>
+
+  
+  <div class="card-gradient rounded-xl p-8 mb-6">
+    <h2 class="text-2xl font-bold gold-accent mb-4 uppercase tracking-wide">Équipement</h2>
+    <hr class="border-gray-700 mb-6" />
+
+    
+      
+
+      
+      <div>
+        <h3 class="text-lg text-gray-300 mb-3">Inventaire Partagé</h3>
+        <p class="text-yellow-500 mb-3">Or du groupe: 4193 po</p>
+        
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <span class="text-gray-200">Potion de Soin (1d6&#43;1 PV)</span>
+          <span class="text-gray-500 text-sm">×4</span>
+        </div>
+        
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <span class="text-gray-200">Potion de Soin Majeure (2d6&#43;2 PV)</span>
+          <span class="text-gray-500 text-sm">×1</span>
+        </div>
+        
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <span class="text-gray-200">Antidote</span>
+          <span class="text-gray-500 text-sm">×1</span>
+        </div>
+        
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <span class="text-gray-200">Eau Bénite Consacrée (2d6 vs morts-vivants)</span>
+          <span class="text-gray-500 text-sm">×2</span>
+        </div>
+        
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <span class="text-gray-200">Parchemin du Rituel de Dissipation</span>
+          <span class="text-gray-500 text-sm">×1</span>
+        </div>
+        
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <span class="text-gray-200">Clé de la Bibliothèque de Sombregarde</span>
+          <span class="text-gray-500 text-sm">×1</span>
+        </div>
+        
+      </div>
+      
+    
+  </div>
+
+  
+  <div class="card-gradient rounded-xl p-8 mb-6">
+    <h2 class="text-2xl font-bold gold-accent mb-4 uppercase tracking-wide">Biographie</h2>
+    <hr class="border-gray-700 mb-6" />
+
+    <div class="space-y-4 text-gray-300">
+      <div>
+        <h3 class="text-sm gold-accent uppercase mb-1">Origine</h3>
+        <p>Né dans les faubourgs battus par les vents de Port-Sombre, Aldric a grandi entre les quais de bois usés et les tavernes enfumées où les marins déversent leurs histoires. Fils d&#39;un forgeron et d&#39;une ancienne écuyère, son sang mêlait déjà l&#39;acier et la résilience avant même qu&#39;il ne sache manier une lame.</p>
+      </div>
+
+      <div>
+        <h3 class="text-sm gold-accent uppercase mb-1">Passé</h3>
+        <p>Après avoir servi comme garde mercenaire dans les caravanes marchandes traversant les royaumes du nord, Aldric a développé un sens aigu de la survie et de la négociation. Sa dextérité naturelle lui a permis de survivre là où d&#39;autres auraient échoué, gagnant le respect des routiers et des capitaines.</p>
+      </div>
+
+      <div>
+        <h3 class="text-sm gold-accent uppercase mb-1">Motivation</h3>
+        <p>Découvrir la vérité cachée derrière les missions de Malachai et se racheter d&#39;un passé trouble.</p>
+      </div>
+
+      
+      <div>
+        <h3 class="text-sm gold-accent uppercase mb-1">Personnalité</h3>
+        <p>Sa démarche est celle d&#39;un prédateur blessé : agile mais prudent, avec une intelligence stratégique qui dépasse sa carrure de guerrier. La cicatrice traversant son œil gauche raconte des histoires de combats et de survie, témoignant d&#39;une résilience qui dépasse les blessures physiques.</p>
+      </div>
+      
+
+      
+      <div>
+        <h3 class="text-sm gold-accent uppercase mb-2">Relations</h3>
+        
+        <div class="pl-4 border-l-2 border-gray-700 mb-2">
+          <p class="font-semibold">Capitaine Meren le Noir <span class="text-xs text-gray-500">(person)</span></p>
+          <p class="text-sm text-gray-400">Un mentor maritime qui l&#39;a sauvé d&#39;une mort certaine lors d&#39;une traversée périlleuse</p>
+        </div>
+        
+      </div>
+      
+
+      
+      <div>
+        <h3 class="text-sm gold-accent uppercase mb-2">Secrets</h3>
+        
+        <p class="text-sm text-gray-400 italic">• A trahi un ancien commanditaire lors d&#39;un contrat qui a mal tourné</p>
+        
+        <p class="text-sm text-gray-400 italic">• Possède un médaillon cryptique hérité de sa mère, dont le sens lui échappe encore</p>
+        
+      </div>
+      
+    </div>
+  </div>
+  
+
+  
+  <div class="text-center text-gray-600 text-sm mt-8 pb-4">
+    <p>Fiche générée le 24 December 2025 à 15:54 • SkillsWeaver v1.0</p>
+  </div>
+
+</body>
+</html>

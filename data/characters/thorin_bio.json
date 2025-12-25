@@ -1,0 +1,21 @@
+{
+  "character_name": "Thorin",
+  "origin": "Né dans les profondeurs des montagnes de Granit-Noir, Thorin a grandi dans un clan de forgerons-prêtres, où la spiritualité se mêlait intimement à l'art du métal. Sa famille, gardienne des traditions ancestrales, l'a élevé dans le respect des rituels sacrés et des anciennes sagesses naines.",
+  "background": "Formé comme clerc-guérisseur au sanctuaire de la Montagne Sacrée, il a passé des décennies à soigner les blessés et à préserver les connaissances médicales de son peuple. Sa quête de compréhension spirituelle l'a poussé à quitter les tunnels confortables de sa communauté.",
+  "motivation": "Restaurer l'honneur perdu de son clan et découvrir la vérité cachée derrière d'anciennes prophéties.",
+  "personality": "Sa sagesse tranquille et sa présence apaisante contrastent avec la rudesse habituelle des nains. Thorin observe méticuleusement chaque situation, privilégiant la méditation et la guérison à la confrontation directe, mais demeurant inébranlable face au danger.",
+  "bonds": [
+    {
+      "type": "person",
+      "name": "Maître Karzak",
+      "description": "Son mentor spirituel, désormais disparu, qui lui a révélé une mission secrète avant de mourir.",
+      "sentiment": "complicated"
+    }
+  ],
+  "secrets": [
+    "Il porte des perles de prière transmises par son grand-père, qui contiennent un message crypté",
+    "Un ancien serment le lie à protéger un artéfact dont il ignore la nature exacte"
+  ],
+  "generated_at": "2025-12-24T15:45:53.35153+01:00",
+  "adventure_context": "la-crypte-des-ombres"
+}

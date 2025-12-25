@@ -1,0 +1,21 @@
+{
+  "character_name": "Gareth",
+  "origin": "Né dans les brumes glacées de Lumenciel, Gareth grandit dans l'ombre d'une famille de diplomates déchus. Son père, disgracié après un scandale politique, l'éleva avec une rigueur intellectuelle qui contrastait avec leur statut social dégradé. Les longues nuits d'études et de stratégie forgèrent son esprit autant que son ambition.",
+  "background": "Formé initialement comme scribe dans les chancelleries royales, Gareth découvrit rapidement que ses talents dépassaient la simple transcription administrative. Sa perspicacité et sa mobilité lui permirent de devenir un messager et négociateur indépendant, naviguant entre les intrigues des grandes maisons avec une prudence calculée.",
+  "motivation": "Restaurer l'honneur de sa famille et percer les secrets qui ont conduit à sa disgrâce.",
+  "personality": "Intelligent et agile, Gareth compense sa fragilité physique par une vivacité mentale redoutable. Son visage pâle aux traits acérés dissimule une stratégie toujours en mouvement, plus prompt à contourner un obstacle qu'à le confronter directement.",
+  "bonds": [
+    {
+      "type": "person",
+      "name": "Malachai",
+      "description": "Un contact mystérieux qui semble détenir des informations cruciales sur le passé de sa famille.",
+      "sentiment": "complicated"
+    }
+  ],
+  "secrets": [
+    "Un parchemin familial secret contenant des révélations potentiellement explosives",
+    "Une dette non résolue envers un clan de marchands de Lumenciel"
+  ],
+  "generated_at": "2025-12-24T15:46:01.954033+01:00",
+  "adventure_context": "la-crypte-des-ombres"
+}

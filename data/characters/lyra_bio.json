@@ -1,0 +1,21 @@
+{
+  "character_name": "Lyra",
+  "origin": "Née dans les forêts brumeuses de l'Éclaircie Cristalline, Lyra grandit au sein d'un clan elfique où la magie n'était pas un art mais un souffle de vie. Sa mère, gardienne des rituels ancestraux, lui transmit très tôt une connexion singulière avec les énergies subtiles qui dansent entre les mondes.",
+  "background": "Formée à l'Académie des Arcanes Sylvestres, Lyra quitta prématurément son cursus après un conflit mystérieux avec un archimage. Depuis, elle erre entre les royaumes, acceptant des missions qui lui permettent d'explorer les mystères magiques tout en restant à l'écart des traditions académiques.",
+  "motivation": "Comprendre les secrets magiques anciens et restaurer l'honneur perdu de sa lignée.",
+  "personality": "Sa nature agile et diplomatique se reflète dans sa capacité à naviguer aussi bien dans les intrigues sociales que dans les sortilèges complexes. Lyra possède une curiosité intellectuelle dévorante, compensant son manque d'expérience par une intelligence vive et une intuition magique remarquable.",
+  "bonds": [
+    {
+      "type": "person",
+      "name": "Archimage Sylandria",
+      "description": "Sa mentor désormais exilée qui l'a formée et trahie",
+      "sentiment": "complicated"
+    }
+  ],
+  "secrets": [
+    "Elle cache un parchemin magique volé de l'académie",
+    "Un sortilège ancien la lie secrètement à sa lignée maternelle"
+  ],
+  "generated_at": "2025-12-24T15:45:43.767712+01:00",
+  "adventure_context": "la-crypte-des-ombres"
+}

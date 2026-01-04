@@ -1041,5 +1041,38 @@ git commit -m "docs: update rules-keeper with BFRPG combat rules"
 
 ## Ressources
 
+### Règles Officielles BFRPG (Locales)
+
+Les règles complètes de **Basic Fantasy RPG Release 142** sont disponibles au format markdown dans `data/rules/` :
+
+| Fichier | Contenu | Taille | Pages PDF |
+|---------|---------|--------|-----------|
+| `README.md` | Index et guide d'utilisation | 2 KB | - |
+| `01-character-creation.md` | Races, classes, caractéristiques, création | 44 KB | 3-14 |
+| `02-combat.md` | Initiative, attaque, AC, sauvegardes, renvoi morts-vivants | 53 KB | 50-62 |
+| `03-magic.md` | Listes sorts, incantation, descriptions | 120 KB | 15-42 |
+| `04-adventure.md` | Mouvement, encombrement, exploration | 34 KB | 42-50 |
+| `05-monsters.md` | Créatures, DV, attaques, capacités spéciales | 162 KB | 62-120 |
+| `06-treasure.md` | Tables trésors, objets magiques | 57 KB | 163-180 |
+| `07-gm-info.md` | Règles optionnelles, création aventure | 91 KB | 180-203 |
+
+**Source originale** : `docs/Basic-Fantasy-RPG-Rules-r142.pdf` (106 MB, 208 pages)
+
+**Accès** : L'agent `rules-keeper` peut consulter ces fichiers via `Read`, `Grep` et `Glob`.
+
+**Exemples d'utilisation** :
+```bash
+# Rechercher une règle spécifique
+grep -i "initiative" data/rules/02-combat.md
+
+# Lire une section complète
+cat data/rules/01-character-creation.md
+
+# Rechercher dans tous les fichiers
+grep -r "poison" data/rules/
+```
+
+### Liens Externes
+
 - [Basic Fantasy RPG](https://www.basicfantasy.org/) - Règles complètes (gratuit)
 - [SRD BFRPG](https://www.basicfantasy.org/srd/) - System Reference Document

@@ -1,0 +1,2625 @@
+# Magic & Spells
+
+> **Source**: Basic Fantasy RPG Core Rules Release 142
+> **Section**: Part 3: Spells (page 15-42)
+
+---
+
+
+## Page 15
+
+BASIC FANTASY RPG PLAYER CHARACTERS
+Weapons
+Weapon Price Size Weight Dmg.
+Axes
+Hand Axe 4 gp S 5 1d6
+Battle Axe 7 gp M 7 1d8
+Great Axe 14 gp L 15 1d10
+Bows
+Shortbow 25 gp M 2
+Shortbow Arrow 1 sp * 1d6
+Silver† Shortbow Arrow 2 gp * 1d6
+Longbow 60 gp L 3
+Longbow Arrow 2 sp * 1d8
+Silver† Longbow Arrow 4 gp * 1d8
+Light Crossbow 30 gp M 7
+Light Quarrel 2 sp * 1d6
+Silver† Light Quarrel 5 gp * 1d6
+Heavy Crossbow 50 gp L 14
+Heavy Quarrel 4 sp * 1d8
+Silver† Heavy Quarrel 10 gp * 1d8
+Daggers
+Dagger 2 gp S 1 1d4
+Silver† Dagger 25 gp S 1 1d4
+Swords
+Shortsword 6 gp S 3 1d6
+Longsword/Scimitar 10 gp M 4 1d8
+Two-Handed Sword 18 gp L 10 1d10
+Hammers and Maces
+Warhammer 4 gp S 6 1d6
+Mace 6 gp M 10 1d8
+Maul 10 gp L 16 1d10
+Other Weapons
+Club/Cudgel/Walking Staff 2 sp M 1 1d4
+Quarterstaff 2 gp L 4 1d6
+Pole Arm 9 gp L 15 1d10
+Sling 1 gp S *
+Bullet 1 sp * 1d4
+Stone n/a * 1d3
+Spear 5 gp M 5
+Thrown (one handed) 1d6
+Melee (one handed) 1d6
+Melee (two handed) 1d8
+* These items weigh little individually. Ten of these items 
+weigh one pound.
+† Silver tip or blade, for use against lycanthropes.
+Weapon Size
+Humans  and  Elves  must  wield  Large  weapons  with 
+both hands, but may use Small or Medium weapons in  
+one hand.  Halflings may not use Large weapons at all,  
+and  must  use  Medium  weapons  with  both  hands. 
+Dwarves, due to their stocky, powerful builds, are able  
+to use Medium weapons one-handed and some Large  
+weapons in two hands, but Large weapons more than  
+four  feet  in  length  are  prohibited  (specifically,  two-
+handed  swords,  polearms,  and  longbows).   Some  
+weapons must be used with both hands by design (such 
+as bows and crossbows) but the maximum size limits  
+still apply.
+The GM  should apply similar limitations  to weapon-
+armed  monsters;  for instance,  goblins  are  about  the 
+same size as Halflings, and thus are similarly limited.
+Missile Weapon Ranges
+Weapon
+Short 
+(+1)
+Medium 
+(0)
+Long
+(-2)
+Longbow 70 140 210
+Shortbow 50 100 150
+Heavy Crossbow 80 160 240
+Light Crossbow 60 120 180
+Dagger 10 20 30
+Hand Axe 10 20 30
+Oil or Holy Water 10 30 50
+Sling 30 60 90
+Spear 10 20 30
+Warhammer 10 20 30
+Missile  weapon  ranges  are  given  in  feet.   In  the  
+wilderness, substitute yards for feet.  If the target is as  
+close  as  or  closer  than  the  Short  range  figure,  the 
+attacker receives a +1 attack bonus.  If the target is  
+further away than the Medium range figure, but not  
+beyond the Long range figure, the attacker receives a  
+-2 attack penalty.
+Armor and Shields
+Armor Type Price Weight AC
+No Armor 0 gp 0 11
+Leather Armor 20 gp 15 13
+Chain Mail 60 gp 40 15
+Plate Mail 300 gp 50 17
+Shield 7 gp 5 +1
+Beasts of Burden
+Note:  Statistics for the animals below are on page 63.
+Item Price
+Horse, Draft 120 gp
+Horse, War 200 gp
+Horse, Riding 75 gp
+Pony* 40 gp
+Pony, War* 80 gp
+* Due to their small stature, Dwarves and Halflings generally 
+ride ponies rather than horses.
+11
+
+## Page 16
+
+PLAYER CHARACTERS BASIC FANTASY RPG
+Explanation of Equipment
+A Backpack will hold a maximum 40 pounds or 3 cubic  
+feet of goods.  Some items may be lashed to the outside,  
+and thus count toward the weight limit but not the volume  
+limit.   A  Halfling's  backpack  holds  at  most  30  pounds 
+and/or 1½ cubic feet, but costs the same as a full-sized  
+item.
+A  Candle will shed light over a 5' radius, with dim light  
+extending 5' further.  A normal candle will burn about 3  
+turns per inch of height.
+Chalk is useful for "blazing a trail" through a dungeon or  
+ruin.
+Holy Water is explained in the Encounter section.
+Iron Spikes are useful for spiking doors closed (or spiking  
+them  open)  and  may  be  used  as  crude  pitons  in  
+appropriate situations.
+A Lantern will provide light covering a 30' radius; dim light 
+will extend about 20' further.  A lantern will consume a  
+flask of oil in 18+1d6 turns.  A Hooded Lantern allows the 
+light to be hidden or revealed as the user pleases; in all  
+other ways it performs as an ordinary lantern.  A Bullseye 
+Lantern projects a cone of light 30' long and 30' wide at  
+the widest point, with dim light extending an additional 20'  
+beyond  that  point.   This  type  of  lantern  is  generally 
+hooded.
+A Map or Scroll Case is a tubular oiled leather case used  
+to carry maps, scrolls, or other paper items.  The case will  
+have  a  water-resistant  (but  not  waterproof)  cap  which 
+slides over the end, and a loop to allow the case to be  
+hung from a belt or bandolier.  A standard scroll case can  
+hold up to 10 sheets of paper, or a single scroll of up to  
+seven spells.
+A  Mirror is useful in a dungeon environment for many  
+reasons;  for  instance,  it  is  the  only  way  to  look  at  a 
+Medusa without being turned to stone.  Mirrors are also  
+useful  for  looking  around  corners,  and  can  be  used 
+outdoors to send signals using reflected sunlight.
+A  Quiver is an open container used to hold arrows.  A  
+Bolt Case is a similar sort of container for crossbow bolts.  
+In either case, the standard capacity is 20 missiles.  The  
+length of a quiver or bolt case must match the length of  
+the ammunition for it to be useful; therefore, there are  
+longbow  and  shortbow  quivers  and  light  and  heavy 
+crossbow bolt cases.  The price is the same for all types.
+Dry Rations may consist of dry bread, hard cheese, dried  
+fruit, nuts, beans, jerky, or any other food which will not  
+"go bad" in less than about a month (if not longer).  Dry  
+rations are generally sold in quantities sufficient for one  
+character for a week, and are packaged in waxed or oiled  
+cloth to protect them.
+Hemp Rope  is ½ inch in diameter and has a breaking  
+strength of 1,600 pounds.  Safe working load for a rope is  
+normally one-quarter of the breaking strength.  One or  
+more knots in a rope cut the breaking strength in half.  
+This does not affect the safe working load, because knots  
+are figured into the listed one-quarter ratio.
+Silk  Rope is  about  3/8  inch  in  diameter  and  has  a 
+breaking  strength  of  1,600  pounds,  although  it  weighs 
+considerably less than hemp rope.  The notes regarding  
+rope strength given for hemp rope, above, apply here also.
+A Large Sack will hold at most 40 pounds or 4 cubic feet  
+of goods.
+A Small Sack will hold at most 20 pounds or 2 cubic feet  
+of goods.
+A pair of  Saddlebags will hold at most 10 pounds or 1  
+cubic foot of goods (divided evenly between both bags).
+Thieves' Picks and Tools are required for the use of Thief 
+abilities such as opening locks and removing traps.  These  
+abilities may not be usable without appropriate tools, or  
+may  be  used  at  a  penalty  at  the  option  of  the  Game 
+Master.
+A Tinderbox is generally purchased with a flint and steel; 
+the flint, a piece of hard rock, is struck vigorously against a  
+C-shaped  piece  of  high-carbon  steel.   When  done  
+correctly, hot sparks will fly from the flint and steel into the  
+tinder, hopefully starting a fire.  The best tinder is a dried  
+piece of prepared tinder fungus, carried in the tinderbox to  
+keep it dry; char cloth, hemp rope, or even very dry grass  
+can substitute if prepared tinder fungus is not available.  
+The time required to start a fire should be determined by  
+the GM according to the prevailing conditions; under ideal  
+conditions, starting a fire with a flint, steel and tinder takes  
+about a turn.
+A  Torch sheds  light  over  a  30'  radius,  with  dim  light 
+extending about 20' further, and burns for 1d4+4 turns.  
+Of  course,  a  torch  is  also  useful  for  setting  flammable 
+materials (such as cobwebs or oil) alight.
+A  Whetstone is  used  to  sharpen  and  maintain  edged 
+weapons such as swords, daggers, and axes.
+Wineskin/Waterskin is a container for drinking water or  
+wine; though generally water is taken into a dungeon or  
+wilderness  environment.   The  standard  waterskin  holds 
+one  quart  of  liquid,  which  is  the  minimum  amount 
+required  by  a  normal  character  in  a  single  day.   If  
+adventuring  in  the  desert  or  other  hot,  dry  areas,  a 
+character may need as much as ten times this amount.  
+Note that the given 2 pound weight is for a full skin; an  
+empty skin has negligible weight.
+12
+
+## Page 17
+
+BASIC FANTASY RPG PLAYER CHARACTERS
+Vehicles
+The following tables give details of various land and sea vehicles.  Game Masters should feel free to create their  
+own vehicles, in which case the table can be used for guidance.  Some of the statistics given below are explained in  
+detail later.
+Land Transportation
+Vehicle Length x width* Weight Cargo Movement Hardness / HP Cost (gp)
+Chariot 15' x 6' 300 750 lbs 60' (10') 10 / 10 400
+Coach 30' x 8' 1,000 2,000 lbs 40' (15') 6 / 12 1,500
+Wagon 35' x 8' 2,000 4,000 lbs 20' (15') 6 / 16 500
+* Includes hitched horses or mules.
+Water Transportation
+Vehicle Length x Width Cargo Crew Movement Miles/Day Hardness / HP Cost (gp)
+Canoe 15' x 4' ½  ton 1 40' (5') 30 4 / 4 50
+Caravel 55' x 15' 75 tons 10 20' (20') 42 8 / 75 10,000
+Carrack 60' x 20' 135 tons 20 30' (30') 48 10 / 120 20,000
+Galley, Small 100' x 15' 210 tons 90 20' (20') 36 / 24 8 / 75 15,000
+Galley, Large 120' x 20' 375 tons 160 30' (25') 42 / 24 10 / 120 30,000
+Longship 110' x 15' 10 tons 70 30' (25') 42 / 24 9 / 110 25,000
+Raft/Barge per 10' x 10' 1 ton 2 40' (10') 18 6 / 12 100
+Riverboat 50' x 20' 50 tons 10 20' (20') 30 8 / 30 3,500
+Rowboat 15' x 6' 1 ton 1 30' (10') 24 6 / 8 60
+Sailboat 40' x 8' 5 tons 1 40' (15') 36 7 / 20 2,000
+Notes Regarding Vehicles
+The Crew figure given reflects the minimum number of  
+sailors  and/or  rowers  needed  to  operate  the  ship. 
+Officers are not counted among these numbers, and of  
+course  it  is always a good idea  to hire  extra  sailors  
+and/or rowers to ensure that any casualties will not slow 
+down the ship.
+Cargo for wagons is given in pounds, while for ships it  
+is given in tons.  If the ship sails night and day, each  
+passenger requires living space equivalent to one ton of  
+cargo;  in  addition,  provisions  for  one  man  for  one 
+month occupy 1/10 of a ton of space.
+Movement is given separately here in yards (see Time 
+and Scale  on page  42 for an explanation) as well as  
+miles per day.  The encounter movement of ships is not 
+directly related to the long-distance travel rate, since the  
+crew must work hard to make the ship move quickly in  
+combat, and this level of effort cannot be maintained  
+day and night.
+The parenthesized figure represents  Maneuverability; 
+as explained in the Encounter section on page 51.
+See Attacking a Vehicle on page 60 of the Encounter 
+section, for details on the Hardness and HP statistics.
+A chariot requires a single horse, generally a warhorse,  
+to pull it.  Both coaches and wagons require at least a  
+pair of draft horses to pull them.
+A  caravel is a highly maneuverable sailing ship with  
+two or three masts.  Though superficially similar to the  
+larger carrack, caravels are capable of sailing up rivers,  
+a task for which the larger ship is ill suited.
+A carrack is a large, ocean-going sailing ship with three  
+or four masts.
+Galleys are  equipped  with  both  sails  and  oars;  the 
+second listed movement rate for galleys is the rowing  
+speed.  A small galley will have around 20 rows of oars,  
+with each oar pulled by two men (for a total of 80  
+rowers) while a large galley will have around 35 rows of  
+oars (for a total of 140 rowers).  Galleys are generally  
+much more maneuverable than sailing ships such as the 
+carrack or caravel, and may be outfitted with rams.
+The  longship commonly used by northern raiders is  
+very similar to the large galley.  However, where more  
+civilized  nations  have  specialist  rowers,  sailors,  and 
+marines, the crew of a longship is more generalized;  
+most crewmen will be qualified for all of these tasks.
+13
+
+## Page 18
+
+PLAYER CHARACTERS BASIC FANTASY RPG
+Siege Engines
+These are weapons used to attack strongholds, or sometimes ships.  Their cost may be up to twice as high in a  
+remote location.  A siege engine that throws missiles (a ballista, onager, or trebuchet) must have a trained artillerist  
+to fire it; this is the character who makes the attack rolls for the weapon.  Missile-throwing engines have attack  
+penalties, detailed below.  Note:  siege engines are not generally usable against individuals or monsters; the GM  
+may make exceptions for very large monsters like giants or dragons.  Review the rules in the Stronghold section 
+on page 199 for details regarding attacking fortified buildings such as castles, towers, fortresses, and so on.
+Weapon Cost
+Rate
+of Fire
+Attack
+Penalty Damage
+Short Range
+(+1)
+Medium Range
+(+0)
+Long Range
+(-2)
+Ballista 100 gp 1/4 -3 2d8 50' 100' 150'
+Battering Ram 200 gp 1/3 +0 2d8 N/A N/A N/A
+Onager 300 gp 1/6 -6 2d12 100' 200' 300'
+Screw 200 gp N/A N/A 1d8 N/A N/A N/A
+Sow 100 gp N/A N/A N/A N/A N/A N/A
+Trebuchet 400 gp 1/10 -8 3d10 N/A 300' 400'
+Ballista:  This is effectively a very large crossbow that  
+may fire a spear-like bolt or a large stone.  It is usually  
+mounted  on  a  tripod  or  wagon,  but  may  also  be 
+mounted on a ship.  When firing bolts, a ballista cannot  
+damage brick or stone.  A ballista requires a crew of  
+three to operate.
+Battering Ram:   These are usually operated under a  
+sow.  They require a crew of eight or more.
+Screw: This device may be used to attack a stronghold,  
+by means of boring through the walls.  A crew of at  
+least eight is required to operate it.  It is only used at the 
+base of a wall, and it is usually operated under a sow.
+Sow:  This  is  a  kind  of  portable  roof,  used  for  
+protection while performing slower attacks on a fortified  
+building.   Those  under  a  sow  will  be  harder to hit, 
+receiving at least a +6 bonus to Armor Class against  
+ranged attacks while taking cover under it.  The sow  
+itself has a hardness of 9 and 50 hit points.
+Onager:  This weapon throws a stone with a fairly flat  
+trajectory.  Operating an onager requires a crew of four.
+Trebuchet:  This mighty weapon uses a counterweight  
+to fling a stone on a high, arcing path.  It cannot fire at  
+targets within 200 yards.  If it is aimed at a target that is  
+more than 20 feet higher than the weapon, there is an  
+additional –2 attack penalty.  A trebuchet requires a  
+crew of eight to operate.
+14
+
+
+## Page 19
+
+BASIC FANTASY RPG SPELLS
+PART 3:  SPELLS
+The number of spells of each level which a Cleric or  
+Magic-User  may  cast  per  day  is  shown  on  the  
+appropriate table in the Characters section starting on  
+page  3.  Each morning spellcasters prepare spells to  
+replace  those  they  have  used.   Clerics  pray,  while 
+Magic-Users  must  study  their  spellbooks.   Spells  
+prepared but not used persist from day to day; only  
+those actually cast must be replaced.  A spellcaster may  
+choose to dismiss a prepared spell (without casting it) in  
+order to prepare a different spell of that level.
+Spellcasters must have at least one hand free, and be  
+able to speak, in order to cast spells; thus, binding and  
+gagging a spellcaster is an effective means of preventing  
+them from casting spells.  In combat, casting a spell  
+usually takes the same time as making an attack.  If a  
+spellcaster is attacked (even if not hit) or must make a  
+saving  throw  (whether  successful  or  not)  on  the  
+Initiative number on which they are casting a spell, the  
+spell is spoiled and lost.  As a specific exception, two  
+spell casters releasing their spells at each other on the  
+same  Initiative  number  will  both  succeed  in  their  
+casting; one caster may disrupt another with a spell only 
+if  they  have a  better Initiative,  and choose  to delay 
+casting the spell until right before the other caster.
+Some spells are reversible; such spells are shown with  
+an asterisk after the name.
+Cleric Spells
+Clerics  receive  their  spells  through  faith  and  prayer. 
+Each day, generally in the morning, a Cleric must pray  
+for at least three turns in order to prepare spells.  Of  
+course, the Cleric may be expected to pray more than  
+this in order to remain in their deity's good graces.
+Because they gain their spells through prayer, a Cleric  
+may prepare any spell of any level they are able to cast.  
+In some cases the Cleric's deity may limit the availability  
+of certain spells; for instance, a deity devoted to healing  
+may refuse to grant reversed healing spells.
+First Level Clerical Spells
+1 Cure Light Wounds*
+2 Detect Evil*
+3 Detect Magic
+4 Light*
+5 Protection from Evil*
+6 Purify Food and Water
+7 Remove Fear*
+8 Resist Cold
+Second Level Clerical Spells
+1 Bless*
+2 Charm Animal
+3 Find Traps
+4 Hold Person
+5 Resist Fire
+6 Silence 15' radius
+7 Speak with Animals
+8 Spiritual Hammer
+Third Level Clerical Spells
+1 Continual Light*
+2 Cure Blindness*
+3 Cure Disease*
+4 Growth of Animals
+5 Locate Object
+6 Remove Curse*
+7 Speak with Dead
+8 Striking
+Fourth Level Clerical Spells
+1 Animate Dead
+2 Create Water
+3 Cure Serious Wounds*
+4 Dispel Magic
+5 Neutralize Poison*
+6 Protection from Evil 10' radius*
+7 Speak with Plants
+8 Sticks to Snakes
+Fifth Level Clerical Spells
+1 Commune
+2 Create Food
+3 Dispel Evil
+4 Insect Plague
+5 Quest*
+6 Raise Dead*
+7 True Seeing
+8 Wall of Fire
+Sixth Level Clerical Spells
+1 Animate Objects
+2 Blade Barrier
+3 Find the Path
+4 Heal*
+5 Regenerate
+6 Restoration
+7 Speak with Monsters
+8 Word of Recall
+15
+
+## Page 20
+
+SPELLS BASIC FANTASY RPG
+Magic-User Spells
+Magic-Users  cast  spells  through  the  exercise  of  
+knowledge and will.  They prepare spells by study of  
+their  spellbooks;  each  Magic-User  has  their  own  
+spellbook containing the magical formulae for each spell 
+the Magic-User has learned.  Spellbooks are written in a 
+magical script that can only be read by the one who  
+wrote it, or through the use of the spell read magic.  All 
+Magic-Users begin play knowing read magic, and it is  
+so  ingrained  that  it  can  be  prepared  without  a  
+spellbook.
+A Magic-User may only prepare spells after resting (i.e.  
+a good night's sleep), and needs one  turn per each  
+three  spell  levels  to  do  so  (rounding  fractions  up). 
+Spells prepared but not used on a previous day are not  
+lost.  For example, a 3 rd level Magic-User preparing all  
+three of their available spells (two 1 st level and one 2 nd 
+level) is preparing a total of 4 levels of spells, and thus  
+needs 2 turns (4 divided by 3 and rounded up).
+Rules for the acquisition of new spells are found in the  
+Game Master's section on page 187.
+First Level Magic-User Spells
+1 Charm Person
+2 Detect Magic
+3 Floating Disc
+4 Hold Portal
+5 Light*
+6 Magic Missile
+7 Magic Mouth
+8 Protection from Evil*
+9 Read Languages
+10 Shield
+11 Sleep
+12 Ventriloquism
+Second Level Magic-User Spells
+1 Continual Light*
+2 Detect Evil*
+3 Detect Invisible
+4 Invisibility
+5 Knock
+6 Levitate
+7 Locate Object
+8 Mind Reading
+9 Mirror Image
+10 Phantasmal Force
+11 Web
+12 Wizard Lock
+Third Level Magic-User Spells
+1 Clairvoyance
+2 Darkvision
+3 Dispel Magic
+4 Fireball
+5 Fly
+6 Haste*
+7 Hold Person
+8 Invisibility 10‘ radius
+9 Lightning Bolt
+10 Protection from Evil 10’ radius*
+11 Protection from Normal Missiles
+12 Water Breathing
+Fourth Level Magic-User Spells
+1 Charm Monster
+2 Confusion
+3 Dimension Door
+4 Growth of Plants*
+5 Hallucinatory Terrain
+6 Ice Storm
+7 Massmorph
+8 Polymorph Other
+9 Polymorph Self
+10 Remove Curse*
+11 Wall of Fire
+12 Wizard Eye
+Fifth Level Magic-User Spells
+1 Animate Dead
+2 Cloudkill
+3 Conjure Elemental
+4 Feeblemind*
+5 Hold Monster
+6 Magic Jar
+7 Passwall
+8 Telekinesis
+9 Teleport
+10 Wall of Stone
+Sixth Level Magic-User Spells
+1 Anti-Magic Shell
+2 Death Spell
+3 Disintegrate
+4 Flesh to Stone*
+5 Geas*
+6 Invisible Stalker
+7 Lower Water
+8 Projected Image
+9 Reincarnate
+10 Wall of Iron
+16
+
+## Page 21
+
+BASIC FANTASY RPG SPELLS
+All Spells, in Alphabetical Order
+Animate Dead Range: 30'
+Cleric 4, Magic-User 5 Duration: special
+The casting of this spell causes the mortal remains of  
+one or more deceased creatures to arise as animated  
+skeletons or zombies.  Such  undead monsters persist  
+until slain, and obey the verbal commands of the caster.
+A single casting of this spell may animate a number of  
+hit dice of undead equal to twice the caster's level of  
+ability, and no more.  Animated skeletons have hit dice  
+equal  to  the  number  the  creature  had  in  life;  for 
+skeletons  of  members  of  player  character  races,  this 
+means one hit die, regardless of the character level of  
+the deceased.  Zombies have one more hit die than the  
+creature had in life.
+The sort of monsters created depend on the condition  
+of the remains.  A reasonably intact corpse may only  
+arise as a zombie, while similarly intact skeletal remains  
+may  only  be  animated  as  a  skeleton.   The  caster 
+chooses which remains are animated when casting the  
+spell, in any case where there are more bodies than the  
+caster can animate.
+No character may normally control  more hit dice of  
+undead  than  4  times  their  level,  regardless  of  how 
+many times this spell is cast.
+Animate Objects Range: 100'+10'/level
+Cleric 6 Duration: 1 round/level
+This spell allows the caster to animate objects that are  
+normally inanimate, such that they may move and even 
+appear to be alive.  Objects to be animated may not be  
+in the possession (worn or carried) of any creature, and  
+must be non-magical in nature.  The caster can animate 
+one object per level, up to a maximum of 25 lbs. per  
+caster level (i.e. 300 lbs. at 12 th level, 325 lbs. at 13 th 
+level, and so on).
+Such objects are normally used to attack the enemies of 
+the caster, and the GM must rule on their effectiveness  
+in combat.  In general, animated objects attack using  
+the  same  attack  bonus  as  the  caster.   Small  or  
+lightweight objects do no more than 1d4 damage per  
+hit, while larger and/or heavier objects do 1d6 or 1d8  
+(at the GM's discretion).  As a special case, weapons  
+which are animated do damage using the normal die  
+roll  for  the  type,  but  only  up  to  a  maximum  1d8. 
+Animated objects have a movement rate of 10', and  
+generally  must  move  in  contact  with  the  ground  
+(walking,  hopping,  slithering,  or  bouncing,  however 
+seems most appropriate to the GM).
+Anti-Magic Shell Range: 10' radius
+Magic-User 6 Duration: 1 turn/level
+Within  a  10'  radius  around  the  caster,  all  magic  is 
+negated  for  the  full  duration  of  the  spell.   Magical 
+attacks will not affect the caster, magic items and spells  
+within the radius are suppressed, and the caster cannot  
+perform further magic until the spell has expired.
+Blade Barrier Range: 90'
+Cleric 6 Duration: 1 round/level
+This spell creates a barrier of flying, spinning, flashing  
+blades.  The caster may choose a barrier up to 20' high  
+which extends up to 20' long per level of caster, or a  
+ring-shaped barrier up to 20' high with a radius of up to  
+5' per each two full caster levels (so 30' at level 12 or  
+13, 35' at level 14 or 15, and so on).
+Should any creature pass through the wall, it suffers  
+1d6 points of damage per caster level, with a maximum  
+damage  of  15d6.   A  successful  save  vs.  Death  Ray 
+reduces damage by half.
+The caster may choose to conjure the wall in an area  
+where creatures are already located; if this is done, all  
+such creatures are harmed as if they passed through the 
+wall, but a successful save vs. Death Ray in this case  
+indicates that the creature has avoided all damage by  
+jumping to one side or the other of the wall as chosen  
+by the creature.
+Any  ranged  attacks  passing  through  a  blade  barrier 
+suffer a penalty of -4 on the attack roll.
+Bless* Range: 50' radius
+Cleric 2 Duration: 1 minute/level
+This spell gives the caster and their allies within a 50'  
+radius a bonus of +1 on all attack rolls, morale checks  
+(for  monsters  or  NPCs  allied  with  the  caster),  and 
+saving throws vs. any kind of magical fear.  Casters of  
+the 7 th or higher level grant a bonus of +2 to attacks  
+and saves vs. fear, but the morale bonus remains +1.
+The  reverse  of  bless  is  called  bane.   The  caster's  
+enemies  within  a  50'  radius  become  fearful  and  
+uncertain, causing them to suffer a penalty of -1 on  
+attack rolls, morale checks, and saving throws vs. any  
+kind of magical fear.  Casters of the 7 th or higher level  
+apply a penalty of -2 to attacks and saves vs. fear, but 
+the morale penalty remains -1.
+17
+
+## Page 22
+
+SPELLS BASIC FANTASY RPG
+Charm Animal Range: 60'
+Cleric 2 Duration: level+1d4 rounds
+This  spell  allows  the  caster  to  charm  one  or  more 
+animals, in much the same fashion as charm person, at 
+a rate of 1 hit die per caster level.  The caster may  
+decide which individual animals out of a mixed group  
+are  to be  affected  first;  excess hit  dice  of  effect  are 
+ignored.  No saving throw is allowed, either for normal  
+or giant-sized animals, but creatures of more fantastic  
+nature (as determined by the GM) are allowed a save  
+vs.  Spells  to  resist.  When  the  duration  expires,  the 
+animals will resume normal activity immediately.
+This spell does not grant the caster any special means  
+of  communication  with  the  affected  animals;  if  
+combined with speak with animals, this spell becomes 
+significantly more useful.
+Charm Monster Range: 30'
+Magic-User 4 Duration: special
+This spell has an effect similar to charm person, but it  
+is able  to affect living creatures of  any  size  or type.  
+Undead monsters are unaffected, as are constructs such 
+as  golems  and  any  creature  which  is  functionally  
+mindless (such as any kind of jelly).  This spell can  
+affect 3d6 hit dice of creatures of 3 or fewer hit dice, or  
+one creature of more than 3 hit dice.  Saving throws are 
+made just as for charm person.
+Charm Person Range: 30'
+Magic-User 1 Duration: special
+This spell causes a humanoid (including all character  
+races as well as creatures such as orcs, goblins, gnolls,  
+and so on) of 4 hit dice or less to perceive the caster as  
+a close friend, love interest, or at the very least as its  
+trusted ally.  Normal characters (PC or NPC) may be  
+affected regardless of level of ability.
+A save vs. Spells will negate the effect.  If hostilities  
+have already commenced or the target otherwise feels  
+threatened by the caster, it receives a bonus of +5 on its 
+saving throw.
+The caster does not directly control the target; rather,  
+orders must be given verbally, in writing, or by means  
+of gestures.  Obviously, verbal orders will only work if  
+the target and caster share a spoken language, and the  
+same limitation applies to written orders.  Also note that  
+the  exact  perception  of  the  caster  by  the  affected 
+individual is not under the control of the caster; the GM  
+should decide how the subject of this spell perceives its  
+relationship to the caster.
+Commands that go against the target's basic nature or  
+ask it to attack its own allies or friends grant it a fresh  
+saving throw with a bonus of +5 on the roll.  Even if the 
+target fails this save it may still choose to do something  
+else when commanded to perform an unwanted action.  
+Of  course,  if  the  caster  is  attacked,  the  charmed 
+creature will act to protect its "friend" (though that could 
+mean attacking its own allies, which might cause the  
+target to instead attempt to carry off the caster to a  
+"safe" place).
+The target receives a new saving throw each day if it  
+has an Intelligence of 13 or greater, every week if its  
+Intelligence is 9-12, or every month if its Intelligence is  
+8  or  less;  the  GM  must  rule  on  the  equivalent  
+intelligence of humanoid monsters.
+Clairvoyance Range: 60'
+Magic-User 3 Duration: 12 turns
+This spell enables the caster to see into another area  
+through the eyes of a living creature in that area.  The  
+caster  must  specify  the  direction  and  approximate 
+distance, up to a maximum of 60' away.  If there is no  
+appropriate creature in that area, the spell fails.  No  
+saving  throw  is  allowed,  and  the  target  creature  is 
+unaware  that  it  is  being  so  used.   The  caster  may 
+choose another subject creature after at least a turn has  
+passed, enabling multiple locations to be viewed.  If the  
+subject  creature moves out  of  range,  contact is lost,  
+though the caster may be able to choose another target  
+in this case.
+18
+
+
+## Page 23
+
+BASIC FANTASY RPG SPELLS
+Cloudkill Range: 100'+10'/level
+Magic-User 5 Duration:  6 rounds/level
+This  spell  creates  a  20'x20'x20'  cloud  of  poison  gas 
+which  moves  at  a  rate  of  10'  per  round  under  the 
+control of the caster (so long as they concentrate on it).  
+The gas kills outright any living creatures of 3 or fewer  
+hit  dice  or levels it comes in contact  with; creatures  
+having 4 or more hit dice or levels must save vs. Poison  
+or die.  The cloud persists for the entire duration even if  
+the caster ceases to concentrate upon it.
+Commune Range: self
+Cleric 5 Duration: 1 round/level
+This spell puts the caster in contact with his patron deity 
+or  an extraplanar  servant  thereof,  who  answers  one 
+yes-or-no question per caster level.  The ritual to cast  
+this spell takes 1 turn to complete.  The being contacted 
+may or may not be omniscient, and further, though the  
+being is technically allied with the caster, it may still not  
+answer questions clearly or completely.  These details  
+are left to the GM's discretion.
+Confusion Range: 280'+10'/ level
+Magic-User 4 Duration: 2 rounds+1/level
+This spell causes up to 3d6 living creatures within a 30'  
+radius to become unable to think clearly, their actions  
+thus becoming unpredictable.  A saving throw vs. Spells 
+is allowed to resist the effect.  Roll on the following  
+table on each subject’s Initiative number each round to  
+see what the subject does.
+d10 Behavior
+1 Act normally.
+2 Move toward the caster, and attack if possible.
+3-5 Take no action except possibly to babble.
+6-7 Move swiftly away from the caster.
+8-10 Attack the nearest creature, regardless of 
+whether it is a friend or foe.
+If the target cannot perform the action indicated, the  
+GM should move down the table (going back to the top  
+if the table runs out) until an action is found that the  
+target can perform.  If a confused creature is attacked, it 
+returns the attack on its next initiative number (later in  
+this round or in the next round if it has already acted)  
+regardless of what is rolled on the table.
+Conjure Elemental Range: 240'
+Magic-User 5 Duration: special
+A portal  to one  of  the  Elemental  Planes is opened,  
+allowing the Magic-User to summon an elemental from  
+that  plane.   Review  the  Elemental entry  in  the  
+Monsters section  on  page  88 for  further  details  
+regarding  the  types available  and  their statistics.   At 
+most one elemental of each type may be summoned by 
+the caster in a given day.  Once the elemental appears,  
+it serves the conjurer indefinitely, provided the caster  
+concentrates on  nothing but  controlling  the creature;  
+spell  casting,  combat,  or  movement  over  half  the 
+normal  rate  results  in  loss  of  concentration.   The  
+conjurer, while in control of an elemental, can dismiss it  
+to its native plane at will (doing so on their Initiative if in  
+combat).  If the Magic-User loses concentration, control  
+of  the  summoned  Elemental  is  lost  and  cannot  be 
+regained.   The  creature  then  seeks  to  attack  the  
+conjurer and all others in its path.  Only dispel magic 
+or dispel evil will banish the elemental once control has 
+been lost.  An elemental may, of course, choose to  
+return to its home plane on its own; such creatures will  
+not choose to remain on the material plane for long.
+Continual Light* Range: 360'
+Cleric 3, Magic-User 2 Duration: 1 year/level
+This spell creates a spherical region of light, as bright as  
+full  daylight  up  to  a  30'  radius,  with  light  of  lesser 
+intensity to a radius of 60'.  Continual light can be cast  
+on an object, into the air, or at a creature, just as with  
+the light spell, up to a maximum range of 360' from the 
+caster.  The spell remains in effect for one year per level 
+of the caster.
+As with light, this spell can be used to blind a creature  
+if cast on its visual organs. Creatures targeted by this  
+spell are allowed a save vs. Death Ray; if the save is  
+made, the spell is cast into the air just behind the target  
+creature.   A penalty  of  -4  is applied to the  blinded  
+creature's attack rolls if the saving throw fails.
+The  reversed  spell,  continual  darkness,  causes  
+complete  absence  of  light  in  the  area  of  effect,  
+overpowering normal light sources.  Continual darkness 
+may be used to blind in the same way as continual  
+light.
+Create Food Range: 10'
+Cleric 5 Duration: permanent
+This spell creates food sufficient to feed up to 3 men or  
+one  horse  per  caster  level  for  one  day.   This  food 
+remains edible for just a day, but this can be extended  
+by a day by casting purify food and water  on it (and  
+this can be done repeatedly, keeping the food good  
+indefinitely).  Food created by this spell is nourishing  
+and satisfying, but is rather bland.
+19
+
+## Page 24
+
+SPELLS BASIC FANTASY RPG
+Create Water Range: 10'
+Cleric 4 Duration: permanent
+This spell creates one gallon of clean water per caster  
+level.  One or more vessels to contain the water must  
+be available at the time of casting.  Note: Water weighs  
+about 8 pounds per gallon, and one cubic foot of water  
+is roughly 8 gallons.
+Cure Blindness* Range: touch
+Cleric 3 Duration: instantaneous
+With this spell the caster can cure a creature suffering  
+blindness  (whether  caused  by  injury  or  by  magic, 
+including  light or  continual light ).  Blindness caused  
+by a curse cannot be cured by this spell.
+Reversed, this spell becomes  cause blindness , which  
+causes a living creature touched to become blind.  A  
+successful  melee  attack  roll  is  required  to touch  the 
+victim,  and  no  Saving  Throw  is  allowed.   Blinded 
+creatures  suffer  the  penalties  described  in  Deafness 
+and Blindness on page 59.
+Cure Disease* Range: touch
+Cleric 3 Duration: instantaneous
+Cure disease cures all diseases and kills all parasites  
+afflicting the target creature.  A magical or otherwise  
+special  disease  (as  defined  by  the  GM)  may  be  
+unaffected by this spell, or may require a caster of a  
+certain  minimum  level  to  cure  it.   Also  note,  just 
+because  a  disease  or  parasite  is  removed  does  not 
+mean that the victim cannot be infected anew should  
+that affliction be encountered again.
+The reverse form of this spell, cause disease, causes a  
+living creature touched by the caster to suffer from a  
+debilitating and potentially deadly disease for the next  
+1d10 days.  A successful melee attack roll is required to  
+touch the victim, and no Saving Throw is allowed.  The  
+target suffers a -2 penalty to attack rolls, Armor Class  
+and  Saving  Throws.   While  the  victim  is  sick  they 
+cannot  benefit  from  natural  healing  of  damage  or 
+Constitution point losses, nor prepare spells or move at  
+running speed.  At the end of each day in which an  
+infected character performed any form of exertion (for  
+example  by  fighting,  traveling,  working,  or  doing  
+magical  research),  the  character  must  roll  a  saving 
+throw vs. Spells or suffer 1d6 points of damage.  Once  
+the spell duration has elapsed the affected character, if  
+still  alive,  is free  of  the  illness and can start  healing 
+damage  and recovering  lost  Constitution  points,  and 
+can again prepare spells. 
+Cure Light Wounds* Range: touch
+Cleric 1 Duration: instantaneous
+With  this  spell  the  caster  heals  1d6+1  hit  points  of 
+damage by laying their hand upon the injured creature.
+The reverse  form of  this spell,  cause light wounds , 
+causes 1d6+1 damage to the creature affected by it.  A  
+successful attack roll is required in this case, and the  
+spell is wasted if the attack roll fails.
+Undead  are  affected by  this  spell  and  its  reverse  in 
+opposite  fashion;  they  are  injured  by  cure  light 
+wounds and healed by cause light wounds.
+Cure Serious Wounds*
+Cleric 4 Range: touch
+Duration: instantaneous
+This spell works exactly like  cure light wounds,  save 
+that it heals 2d6 points of damage, plus 1 point per  
+caster level.  The reverse, cause serious wounds , also 
+works exactly like  cause light wounds , except that it  
+inflicts 2d6 points of damage, +1 point per caster level.
+Darkvision Range: touch
+Magic-User 3 Duration: 1 hour/level
+The subject receives Darkvision with a range of 60' for  
+the duration of the spell.  (See page 43 for details.)
+20
+
+
+## Page 25
+
+BASIC FANTASY RPG SPELLS
+Death Spell Range: 240'
+Magic-User 6 Duration: instantaneous
+This spell will kill 3d12 hit dice or levels of creatures in a 
+30' radius sphere centered wherever the caster wishes  
+(within the range limit).  Excess levels of effectiveness  
+are lost.  Each creature affected is allowed to save vs.  
+Death Ray; those that fail the save die immediately.  
+Creatures of 8 or more hit dice or levels are immune to  
+the spell, as are undead monsters,  golems,  and any  
+other "creature" that is not truly alive.
+Detect Evil* Range: 60'
+Cleric 1, Magic-User 2 Duration: 1 round/level
+This spell allows the caster to detect evil; specifically,  
+the  caster  can  detect  creatures  with  evil  intentions, 
+magic  items  with  evil  enchantments,  and  possibly  
+extraplanar creatures of evil nature.  Normal characters,  
+even "bad" characters, cannot be detected by this spell,  
+as only overwhelming  evil is detectable.  The caster  
+sees the "evil" creatures or objects with a definite glow  
+around them, but the glow cannot be seen by anyone  
+else.
+The exact definition of evil is left for the GM to decide.  
+Note that items such as ordinary traps or poisons are  
+not "evil," and thus not detectable by this spell.
+Reversed, this spell becomes detect good, which works 
+just as described above with respect to detecting "good"  
+enchantments, angelic creatures, and so on.
+Detect Invisible Range: 60'
+Magic-User 2 Duration: 1 turn/level
+By means of this spell the caster is able to see invisible  
+characters, creatures or objects within the given range,  
+seeing them as bright transparent outlines or shapes.
+Detect Magic Range: 60'
+Cleric 1, Magic-User 1 Duration: 2 turns
+The caster of this spell is able to detect enchanted or  
+enspelled objects or creatures within the given range by  
+sight, seeing them surrounded by a pale glowing light.  
+Only the caster sees the glow.  Invisible creatures or  
+objects  are  not  detected  by  this  spell,  but  the  
+emanations of the invisibility magic will be seen as an  
+amorphous  glowing  fog,  possibly  allowing  the  caster 
+(only)  to  attack  the  invisible  creature  at  an  attack 
+penalty of only -2.
+Dimension Door Range: 10'
+Magic-User 4 Duration: instantaneous
+The caster of  this spell or any single target creature  
+within  range  is transported  instantly,  to any  location 
+within 200 feet plus 20 feet per caster level.  The caster  
+may  give  distance  and  direction  or  may  choose  to 
+visualize  the  target  location,  and  the  target  will  be 
+transported unerringly to that place.  An unwilling target 
+may  save  vs.  Spells  to  avoid  being  transported.  
+Anything  worn  or  carried  by  the  caster  or  target 
+creature  will  be  transported  also,  including  another 
+character or creature if the transportee can lift it.  If the  
+target  area  is  within  a  solid  object,  the  spell  fails 
+automatically.
+Disintegrate Range: 60'
+Magic-User 6 Duration: instantaneous
+This spell projects a green laser-like beam of light from  
+the caster's pointing fingertip.  Any single creature or  
+object (up to a 10x10x10 foot cube of material) will be  
+completely disintegrated.  The target is allowed a save  
+vs.  Spells  to  resist.   This  spell  can  target  just  one 
+creature per casting, so if the target makes its save the  
+spell is wasted.
+Equipment worn or carried by a disintegrated creature  
+is not affected, and will naturally fall to the floor as if  
+dropped.
+Dispel Evil Range: touch
+Cleric 5 Duration: 1 round/level
+This  powerful  spell  aids  the  caster  in  dealing  with 
+creatures from the nether planes, hereafter called "evil  
+creatures."
+First, the caster's Armor Class is improved by 4 points  
+when attacked by evil creatures; this effect lasts until the 
+spell ends, whether by  expiration of  the duration or  
+through the employment of one of the following effects.
+With a successful attack roll the caster can drive an evil  
+creature back to the nether planes; the caster must of  
+course  be  engaged  with  the  creature  (i.e.  in  melee 
+range).  The creature may make a save vs. Spells to  
+resist.  Any successful attack roll by the caster for this  
+purpose  ends  the  spells  effects,  whether  or  not  the 
+creature saves.
+Alternately, by touching the affected creature, item, or  
+area, the caster can immediately dispel any one spell or  
+similar magical effect cast by the evil creature.  There is  
+no roll for this effect, except if the target is an unwilling  
+creature  in  which  case  an  attack  roll  is  needed  to 
+actually  touch  it.   The  only  spells  which  cannot  be 
+21
+
+## Page 26
+
+SPELLS BASIC FANTASY RPG
+ended this way are those which are immune to dispel 
+magic.   Successfully  performing  the  touch  ends  the 
+spell, regardless of whether or not any evil magic is  
+actually ended.
+Dispel Magic Range: 120'
+Cleric 4, Magic-User 3 Duration: instantaneous
+This spell can be used to end ongoing spells or similar  
+magical effects cast on a creature or object, or to end  
+such effects within a cubic area 20' on a side.  The  
+caster  must  choose  whether  to  dispel  magic  on  a 
+creature or object, or to affect an area.
+If dispel magic is targeted at a creature, all spell effects  
+(including ongoing potion effects) may be canceled.  If  
+cast upon an area, all such effects within the area may  
+be canceled.  Any spell or effect having a caster level  
+equal to or less than the dispel magic caster's level is  
+ended automatically.   Those  created by  higher level  
+casters might not be canceled; there is a 5% chance the  
+dispel  magic  will  fail  for  each  level  the  spell  effect 
+exceeds the  caster  level.   For  example,  a  10th level  
+caster dispelling magic created by a 14 th level caster has 
+a 20% chance of failure.
+Some  spells  cannot  be  ended  by  dispel  magic;  this 
+specifically includes any curse, including those created  
+by bestow curse (the reverse of remove curse) as well 
+as by cursed items.
+Feeblemind* Range: 180'
+Magic-User 5 Duration: permanent
+This spell allows the caster to inflict a terrible curse on a  
+living creature, reducing both Intelligence and Charisma 
+to  just  1  point  each.   A  saving  throw  vs.  Spells  is 
+allowed to resist this effect, but if the target creature is a  
+spellcaster a penalty of -4 is applied to the saving throw.
+Once  feebleminded,  the  victim  of  this  spell  can  no 
+longer cast spells, speak or understand any language, or 
+indeed communicate at all as their mind can no longer  
+understand  even  such  simple  things  as  pointing  or 
+beckoning.   The  victim  still  knows  their  friends  and 
+allies and will follow them and try to help or protect  
+them.
+This effect can be removed with a  heal spell, or with  
+the reversed form of this spell restoremind.
+Find Traps Range: 30'
+Cleric 2 Duration: 3 turns
+This spell permits the caster to detect a variety of traps,  
+both mechanical and magical.  When the caster moves  
+within 30’ of a trap, they will see it glow with a faint  
+greenish-blue aura.  The caster is not, however, able to  
+detect  certain  natural  hazards  such  as  quicksand,  a 
+sinkhole, or unsafe walls of natural rock.  The spell also  
+does not bestow the caster with the knowledge needed  
+to disarm the trap, nor any details about its type or  
+nature.
+Find the Path Range: touch
+Cleric 6 Duration: 1 turn/level
+This spell grants the caster, or another subject the caster 
+touches, the ability to find the best and shortest route to 
+a destination selected by the caster.  The caster must  
+have some knowledge about the location; any location  
+the caster has ever visited can be so located, as well as  
+locations described to the caster.  Even knowing the  
+name of a location (if it has a name) is enough for this  
+spell to function.
+This spell works as well indoors or even underground  
+as it does in the outdoors.  However,  find the path  
+works with respect to locations, not objects or creatures. 
+It can only lead someone to a destination that is on the  
+same plane of existence as the caster when cast; this  
+can be very limiting if the caster (and subject if any) is in 
+a closed or pocket universe of some kind.
+The subject can sense the approximate direction of the  
+destination, but also knows the best path to get there,  
+sensing  each  turning  and  knowing  which  paths  or 
+corridors  to  follow  when  choices  appear  (but  not 
+sooner,  unfortunately).   The  spell  even  overcomes  
+things such as secret doors, which the subject will sense  
+and know how to open, and grants the knowledge of  
+passwords or codes at the correct moments.
+Note that the spell will always choose the best path.  
+For example, if the shortest way requires the use of a  
+key  which  the  subject  does  not  have,  the  spell  will 
+choose a different, probably longer way if possible.  If  
+this is not possible, the subject will be led to the locked  
+door and will understand that they must find a way to  
+pass through on their own.
+The  spell  ends  when  the  subject  arrives  at  the  
+destination  or  when  the  duration  expires,  whichever 
+comes first.  If the duration expires before arrival, the  
+subject may still remember the approximate direction to 
+the destination but will no longer know the way.
+22
+
+## Page 27
+
+BASIC FANTASY RPG SPELLS
+Fireball Range: 100'+10'/level
+Magic-User 3 Duration: instantaneous
+Casting this spell causes a tiny glowing ember about the  
+size of a pea to fly forth from the caster's pointing finger, 
+by which the direction of flight is indicated.  The ember  
+flies as fast as an arrow and explodes into flames filling  
+a 20' radius sphere when it reaches a distance chosen  
+by the caster (up to its maximum range), or sooner if it  
+impacts any solid or liquid surface.  Those within the  
+area  of  the  flames suffer 1d6  points  of  damage  per 
+caster level, with a saving throw vs. Spells allowed for  
+half damage.
+No roll is normally required when casting this spell, but  
+if the caster wishes to project the ember through a slit or 
+other  small  opening  they  must  roll  a  missile  attack 
+(without range adjustments) to hit it; failure indicates  
+the fireball hits an adjacent surface and detonates there.
+Combustible objects or substances within the area of  
+effect will generally catch fire and possibly be destroyed  
+(as determined by the GM).  Metals with low melting  
+points such as gold, silver, lead, copper, or bronze may  
+be softened briefly and thus deformed, but the flames  
+do not persist long enough to actually melt the metal  
+items unless they are very small (such as a thin gold  
+neck chain for example).
+While the fireball exerts little if any force or pressure  
+when exploding, it may still destroy weak or flammable  
+barriers; if such a thing happens (in the determination  
+of  the  GM,  of  course),  the  fireball  completes  its  
+expansion in the space beyond the destroyed barrier.
+Flesh to Stone* Range: 30'/level
+Magic-User 6 Duration: permanent
+This spell causes a living creature , along with all gear it  
+wears or carries, to be petrified.  This is the same effect  
+caused by the gaze of a medusa or the  touch of a  
+cockatrice.  A saving throw vs. Petrification is allowed to 
+resist the spell.
+The petrified victim becomes dormant; its mind cannot  
+be contacted in any way, and it is neither properly alive  
+nor dead.  Damage inflicted on its statue-like form will  
+apply  to its fleshy form if  it  is ever restored;  simply  
+breaking off an arm or leg is probably enough to result  
+in death due to blood loss.  The GM should determine  
+the effects of any such injury.
+The reverse spell, stone to flesh, acts as a counterspell  
+for flesh to stone , restoring the creature just as it was  
+when it  was petrified.  It  does nothing  if  applied to  
+ordinary stone which is not the result of flesh to stone  
+or a similar petrification effect.
+Floating Disc Range: 0
+Magic-User 1 Duration: 5 turns +1/level
+The casting of this spell causes an invisible platform of  
+magical force to appear.  It is about the size of a shield,  
+about 3 feet in diameter and an inch deep at its center.  
+It can support a maximum of 500 pounds of weight.  
+(Note that water weighs about 8 pounds per gallon.)
+The disc floats level to the ground, at about the height  
+of the caster's waist.  It remains still when within 10' of  
+the caster, and follows at the caster's movement rate if  
+they  move  away  from  it.   The  floating  disc  can  be 
+pushed as needed to position it but will be dispelled if  
+somehow moved more than 10 feet from the caster.  
+When the spell duration expires, the disc disappears  
+from existence and drops whatever was supported to  
+the surface beneath.
+The disc must be loaded so that the items placed upon  
+it are properly supported, or they will (of course) fall off. 
+For example, the disc can support just over 62 gallons  
+of water, but the water must be in a barrel or other  
+reasonable container that can be placed upon the disc.  
+Similarly, a pile of loose coins will tend to slip and slide  
+about, and some will fall off with every step the caster  
+takes; but a large sack full of coins, properly tied, will  
+remain stable.
+Fly Range: touch
+Magic-User 3 Duration: 1 turn/level
+The subject of this spell can fly at a speed equal to their  
+normal  ground  movement  rate  (as  adjusted  by  
+encumbrance).  The subject can ascend at half their  
+movement rate and descend at twice normal movement 
+rate, with the same maneuverability as the subject has  
+when moving on the ground.  Flying under the effect of  
+this spell requires no more concentration than walking,  
+so the subject can attack or cast spells normally.  The  
+subject of a fly spell can neither charge nor run, nor  
+carry more weight than their normal maximum load.
+If  the  spell  duration  expires while  the  subject  is  still 
+airborne, the magic fails slowly such that the subject  
+descends  at  a  rate  of  120  feet  per round  for  1d10 
+rounds.  If the subject reaches the ground in that time  
+they land safely; if not, the subject falls the rest of the  
+distance and suffers normal falling damage.  However,  
+if this spell is ended by dispel magic or similar outside  
+forces, the subject falls immediately.  For any such fall,  
+see  Falling  Damage  on  page  59 for  details  of  the 
+consequences.
+23
+
+## Page 28
+
+SPELLS BASIC FANTASY RPG
+Geas* Range: 5' per level
+Magic-User 6 Duration: special
+By  means  of  this  spell  the  caster  compels  a  living 
+creature to perform some specific action or services, or  
+alternately to avoid performing some action.  The target  
+creature  must  be  able  to  hear  and  understand  the 
+caster,  or  it  cannot  be  affected.   This  spell  will  
+automatically fail if used to compel a creature to engage  
+in some obviously self-destructive action.
+A saving throw vs. Spells will allow an unwilling target  
+to resist a geas when it is first cast.  However, the target  
+may choose to accept the geas, typically as part of a  
+bargain  with  the  caster  for  some  service.   Once  
+subjected  to  this  spell  the  subject  must  obey  the 
+instructions given by the caster indefinitely, though if  
+the geas is to perform some action the spell effectively  
+ends when that action has been completed.
+For every 24 hours that the subject chooses not to obey 
+the geas (or is prevented from obeying it), it suffers a  
+penalty  of  -2  to  each  of  its  ability  scores,  up  to  a 
+maximum  penalty  of  -8.   No  ability  score  can  be 
+reduced to less than 3 by this effect.  If the subject  
+resumes  obeying  the  geas,  all  such  penalties  are  
+removed after 24 hours.
+If the task assigned to the subject of this spell is open-
+ended or otherwise unable to be completed, the subject 
+is still compelled to try to perform the task, but the spell  
+will end in no more than one day per caster level.
+Very  clever  creatures  may  be  able  to  subvert  the 
+instructions given; the GM must decide on the results of  
+any such attempts.
+This spell (and all effects thereof) can be ended by a  
+remove curse spell from a caster of a higher level than  
+the caster of the geas, or by a wish, or by the reverse  
+of this spell.  Dispel magic does not affect a geas spell.
+Growth of Animals Range: 60'+10'/level
+Cleric 3 Duration: 1 turn/level
+This spell causes an animal to grow to double its normal 
+size and eight times its normal weight.  The affected  
+creature will do double normal damage with all physical  
+attacks, and its existing natural Armor Class increases  
+by 2.  The animal's carrying capacity is also doubled.  
+Unfriendly  animals may  save vs.  Spells to resist  this  
+spell; normally, domesticated animals will not attempt  
+to  resist  it,  though  they  may  become  confused  or 
+panicky afterward (at the GM's discretion).
+This spell does not give the caster control of the animal.  
+Gear worn or carried by the animal are also enlarged  
+but not altered in any other way.  If removed from the  
+creature such items resume normal size instantly.  Any  
+magical properties of enlarged items are not changed.
+Growth of Plants* Range: 120'
+Magic-User 4 Duration: permanent
+This spell causes normal vegetation of any sort within  
+range to become thick and overgrown.  The area of  
+effect is determined by the caster, but cannot exceed  
+1,000 square feet (a 10'x100' area or equivalent) per 5  
+caster levels.  The plants become densely entangled,  
+and characters or creatures wishing to move through  
+must hack or force their way through it.  All movement  
+within the affected area is reduced to no more than 5’  
+per round for less than giant sized creatures; giant sized  
+creatures are reduced to half normal movement rate.
+This spell cannot take effect in an area that does not  
+already  have  some  plants  present.   Any  sort  of  
+animated plant creature affected by this spell is allowed  
+a saving throw vs. Spells to resist, but if this save fails it  
+is affected as with growth of animals above.
+The  reverse  form,  shrink  plants,  may  be  used  to 
+render overgrown areas passable.  The area of effect is  
+identical  to  the  normal  version.   Animated  plant  
+creatures are normally unaffected by this spell, but if  
+such creatures have already been enlarged by growth 
+of plants this spell will reverse the effect.  In the latter  
+case, a saving throw vs. Spells is allowed to resist.
+Both forms of this spell are permanent until countered,  
+either by the reverse of the spell or by dispel magic.
+Hallucinatory Terrain
+Magic-User 4 Range: 400'+40'/level
+Duration: 12 turns/level
+This spell makes one 10 yard cube per level of outdoor  
+terrain  appear  to  be  a  different  type  (i.e.  field  into 
+forest, grassland into desert,  or the like).   This spell  
+requires a full turn to cast.
+The  affected  terrain  looks,  sounds,  and  smells  like 
+another type of normal terrain.  The magic does not  
+affect creatures nor any sort of fabricated item; such  
+things retain their appearance and visibility.  A save vs.  
+Spells is allowed to see through the illusion, but only if  
+the  creatures or  characters  viewing  the  area  actively 
+attempt to do so.
+24
+
+## Page 29
+
+BASIC FANTASY RPG SPELLS
+Haste* Range: 30'+10'/level
+Magic-User 3 Duration: 1 round/level
+This spell accelerates the actions of 1 creature per caster 
+level.  The affected creatures move and act twice as fast  
+as normal, having double their normal movement rates  
+and making twice the normal attacks per round, for the  
+duration of the spell.  Spellcasting is not accelerated,  
+nor is the use of magic items such as wands, which may 
+still be used just once per round.   Multiple haste or  
+speed  effects  don’t  combine;  only  apply  the  most 
+powerful or longest lasting effect.
+In combat, the subject of this spell performs a full round 
+of actions (movement followed by attacking) on their  
+normal Initiative; after all combatants have acted, the  
+subject  may  perform  another  round  of  actions  as 
+before.  If two or more combatants are under the effect  
+of  this  spell,  use  the  same  Initiative  numbers  to  
+determine the order of their actions in each of their  
+"extra" rounds.
+Reversed,  haste becomes  slow;  affected  creatures 
+move at half speed, attacking half as often (generally,  
+every other round) and making half a normal move  
+each round.   Naturally, target creatures may save vs.  
+Spells to avoid the effect.  Haste and slow counter and 
+dispel each other.
+Heal* Range: touch
+Cleric 6 Duration: permanent
+This  spell  enables  the  caster  to  almost  totally  cure 
+wounds, diseases, and other afflictions of a single living  
+creature.   With  a  touch  the  caster  cures  blindness, 
+deafness,  confusion,  disease,  feeblemind,  choking, 
+nausea, and poison.  All but 1d4 hit points are restored  
+to the subject, if it has any injuries.  Ability points losses  
+are fully restored, if and only if those losses would be  
+recoverable  without  this  spell;  permanent  losses  to 
+ability scores are not recovered.  Energy drain is also  
+not affected by this spell.
+The reversed spell, harm, injures the creature touched  
+so horribly that it is left with only 1d4 hit points.  The  
+caster must succeed at a normal attack roll in this case;  
+failure  means  the  spell  is wasted.   Note  that,  if  the 
+victim has fewer hit points remaining than the number  
+rolled, they will take at least one point of damage (and  
+this is the only case in which harm may kill a creature).
+Heal and harm normally only affect living creatures.  If  
+applied to an undead creature, the effects are reversed  
+such that heal becomes harm and vice versa.
+Hold Monster Range: 180'
+Magic-User 5 Duration: 2d8 turns
+This  spell  functions  like  hold  person,  except  that  it 
+affects any living creature that fails its save vs. Spells.
+Hold Person Range: 180'
+Cleric 2, Magic-User 3 Duration: 2d8 turns
+This spell will render any living (not undead) humanoid  
+creature  (as  defined  in  charm  person)  paralyzed. 
+Creatures larger than ogres will not be affected by this  
+spell.  Targets of the spell are conscious and able to  
+breathe, but cannot move, act, or speak in any way.  A  
+successful save vs. Spells is allowed to resist the effect.  
+The spell may be cast at a single person, who makes  
+their save at -2, or at a group, in which case 1d4 of the  
+creatures in the group may be affected.
+A paralyzed swimmer can’t swim and may drown.  A  
+character who has somehow gained wings and is then  
+paralyzed while airborne will not be able to move its  
+wings to fly and will thus fall.
+Hold Portal Range: 100'+10'/level
+Magic-User 1 Duration: 1 round/level
+This  spell  secures  a  portal  such  as  a  door,  gate, 
+window,  or  shutter  made  of  normal  non-magical  
+building  materials;  the  portal  behaves  as  if  securely 
+locked for the duration of the spell.  The door may be  
+opened early only by means of knock or a successful  
+casting of  dispel magic , or by literally destroying the  
+door  (which  may  well  require  more  time  than  the 
+duration of this spell allows).
+25
+
+
+## Page 30
+
+SPELLS BASIC FANTASY RPG
+Ice Storm Range: 300'+30'/level
+Magic-User 4 Duration: 1 round
+This spell causes a powerful storm of sleet and hail to  
+fall  in a  20' radius  around  the  target  spot  for a full 
+round.   This effect causes 5d6 points of  damage  to  
+every creature within the area, with a save vs. Spells  
+allowed to reduce damage by half.  The ice storm fills a  
+vertical  volume of 40', so creatures higher than that  
+distance  above  the  target  spot  are  unaffected.   Any 
+creature naturally resistant to cold takes half damage (or 
+one-quarter damage if it makes its save).
+Visibility within the storm is very poor, such that most  
+creatures will attack with a penalty of -2 on the attack  
+roll.  Walking movement is reduced to half speed, and  
+running is not possible within the storm; anyone who  
+tries will  fall  down  and be  forced to remain on  the  
+ground  until  the  spell  ends.   Flying  is  likewise  
+impossible, and any flying creature within the area will  
+be driven to the ground.  A penalty of -20% is applied  
+to any Listen rolls made by those in the storm's area.
+When the spell ends, the hail and ice deposited by the  
+storm disappears as if it had never existed.
+Insect Plague Range: 300'+30'/level
+Cleric 5 Duration: 1 round/level
+This spell  summons  one  swarm  of  locusts per three 
+caster levels, with a maximum of 6 swarms.  See Insect 
+Swarm on page  114 for the effects of a swarm.  As  
+explained there, a normal swarm of insects occupies a  
+contiguous  area  equal  to  three  10  foot  cubes;  all 
+swarms summoned by this spell must be contiguous  
+with each other such that they effectively form a single  
+huge swarm, though the caster may stretch them out in  
+a line, form them into a block, or indeed arrange them  
+in some serpentine form if desired.
+The summoned swarms persist for the duration above,  
+or  until  they  are  slain,  whichever  comes  first.   The 
+caster may summon them in areas where creatures are  
+already  located.   Once  summoned,  the  swarms  are 
+stationary until they disappear or are slain, and they  
+attack any creatures who are within their area.
+Invisibility Range: touch
+Magic-User 2 Duration: special
+This spell causes the creature touched (who may be the  
+caster)  to  become  invisible,  undetectable  by  normal 
+vision  or  Darkvision.   Invisible  creatures  may  be  
+detected by those with non-visual sensory abilities.
+All items worn or carried by the target when the spell is  
+cast become invisible as well.  If the target lays down an  
+invisible item, it instantly becomes visible again; on the  
+other  hand,  items  picked  up  do  not  automatically 
+become  invisible.   If  the  target  places a visible  item 
+entirely inside its invisible clothing, backpack, pouch, or  
+other container so that if the target were visible the item  
+could not be seen, it will become invisible just as if it  
+were held when the spell was cast.
+Note  that  casting  this spell  upon  another  makes the 
+target invisible to the caster as well as everyone else.  A  
+party  of  invisible  characters  will  likely  experience  
+problems with running into or tripping over each other.
+The spell lasts at most 24 hours if not ended sooner.  It  
+ends instantly if the target attacks an opponent or casts  
+any spell.  Other actions do not normally end the spell.  
+The target may end the spell at will.
+Objects that shed light may be made invisible but the  
+light itself will remain visible, and the source of that light  
+(and the character carrying it) can thus be discovered.  
+Rain,  dust,  paint,  and  any  other  visible  substance 
+thrown  or  applied  to  an  invisible  creature  will  also 
+render it detectable.
+Invisibility 10' Radius
+Magic-User 3 Range: touch
+Duration: 1 turn/level
+The target of this spell becomes invisible just as with  
+invisibility, but in addition all other creatures within 10  
+feet of the target at the time of casting (referred to as  
+members of the group) also become invisible.  Unlike  
+with normal invisibility, all members can see each other  
+and themselves normally.
+If any member negates the effect by attacking or casting  
+a spell, it becomes visible but all other members remain  
+invisible.   However,  if  the  original  subject  takes  an 
+action that negates the invisibility, it ends for the entire  
+group.  If a member negates its own invisibility, that  
+member will no longer be able to see the still-invisible  
+group members.  Moving further than 10 feet from the  
+target also causes a group member to become visible;  
+returning to the area does not reinstate the invisibility.
+Invisible Stalker Range: 0
+Magic-User 6 Duration: special
+The  caster  summons  an  invisible  stalker  to  do  their 
+bidding.  The spell persists until  dispel evil is cast on  
+the creature, it is slain, or the task is fulfilled.  The GM is 
+advised to review the monster entry for the invisible  
+stalker (found on page 115) when this spell is used, as  
+they may not always perform reliably.
+26
+
+## Page 31
+
+BASIC FANTASY RPG SPELLS
+Knock Range: 30'
+Magic-User 2 Duration: special
+This spell can undo a single means of securing a door,  
+chest, or shackle.  It negates hold portal, dispelling it; a 
+wizard lock  spell is deactivated for 1 turn but is not  
+dispelled.  A lock can be opened, a stuck door forced, a 
+door barred or bolted can be unbarred or unbolted.  
+These effects do not automatically restore themselves,  
+except  for  the  wizard  lock.   Knock  cannot  raise  a 
+portcullis or open any other portal which requires a  
+mechanism to open (such as a winch for example).
+Each casting undoes a single method of securing the  
+door or item, so that for example a door which is both  
+locked and stuck can be unlocked but will still be stuck;  
+a second casting of knock will open such a door.
+Levitate Range: touch
+Magic-User 2 Duration: 1 turn/level
+When this spell is cast, the caster or any one creature or 
+object they touch begins to levitate.  Levitation allows  
+the caster to cause the subject to rise or fall at a rate of  
+as much as 20 feet per round.
+If a target creature is unwilling, the caster must roll a  
+successful attack roll in order to touch the target, and  
+even if this roll succeeds the target is allowed a save vs.  
+Spells to resist the magic.  Likewise, if the target is an  
+object being held by an unwilling creature, a similar  
+attack  roll  and  saving  throw  will  be  required.  
+Unattended  objects  are  automatically  affected  when 
+touched.
+The caster controls the levitating subject mentally.  If  
+the caster ceases to control the subject, it remains at its  
+current altitude until the spell ends, at which point it  
+falls.
+Levitation does not provide any means of horizontal  
+movement, but neither is the levitated subject fixed in  
+place.  It can be moved by pushing or by towing with a  
+rope, for example.  A creature being levitated can pull  
+itself along a cliff face or across a ceiling, or pull itself  
+with a rope fixed to a solid object.  Movement of this  
+sort  is  usually  at  half  normal  walking  speed.   The 
+subject cannot, however, change its own altitude.
+If  a  levitating  creature  attempts  to  attack  with  most 
+weapons it will find that it is unstable.  The first such  
+attack is made at a penalty of -1 on the attack roll, and  
+this penalty worsens by an additional -1 each round to  
+a maximum penalty of -5.  Should the creature refrain  
+from making an attack for a full round, it is reduced to  
+the -1 penalty level on the next round.  This does not  
+usually affect spellcasting while levitated, however.
+Light* Range: 120'
+Cleric 1, Magic-User 1 Duration: 6 turns + 1/level
+This  spell  creates  a  light  equal  to  torchlight  which 
+illuminates  a  30'  radius  area  well  (with  dim  light 
+extending  for  an  additional  20')  around  the  target 
+location or object.  This effect is stationary when cast in  
+an area, but it can be cast on a movable object or even  
+onto a character or creature.
+Reversed, light becomes darkness, creating an area of  
+darkness just as described above.  This darkness blocks  
+out  Darkvision  and  negates  mundane  light  sources. 
+Wherever both spells overlap they cancel out, leaving  
+only normal illumination in the overlapping area.
+A light spell may be cast to dispel the darkness spell of  
+an equal or lower level caster (and vice versa), leaving  
+neither spell active; likewise, a darkness spell can cancel  
+the light spell of an equal or lower level caster.
+Either version of this spell may be used to blind an  
+opponent by means of casting it on the target's ocular  
+organs.  The target is allowed a saving throw vs. Death  
+Ray to avoid the effect, and if the save is made the spell  
+does not take effect at all.  A  light or  darkness spell  
+cast to blind does not have the given area of effect (that  
+is, no light or darkness is shed around the victim).
+27
+
+
+## Page 32
+
+SPELLS BASIC FANTASY RPG
+Lightning Bolt Range: 100'+10'/level
+Magic-User 3 Duration: instantaneous
+Casting this spell causes a bright thin spark about the  
+thickness  of  a  string  to  fly  forth  from  the  caster's 
+pointing finger, which indicates the direction.  The spark 
+stretches as fast as an arrow's flight until it reaches the  
+caster's chosen distance (but not more than the range  
+given above) or strikes a solid or liquid surface, at which 
+point  it  explodes  into  a  full-fledged  bolt  of  lightning 
+extending another 60 feet further.  The lightning bolt  
+passes through an area 5 feet wide, arcing and jumping, 
+so that while it is not actually 5 feet wide, for game  
+purposes it is treated as if it were.
+Those within the area of the lightning bolt suffer 1d6  
+points of damage per caster level, with a saving throw  
+vs. Spells allowed for half damage.
+If  a  lightning  bolt  is  targeted  at  a  body  of  water  it 
+explodes at the point of impact, as described above, but 
+within the water volume struck it expands like a fireball 
+to a maximum radius of 20 feet instead of performing  
+as  it  does  in  the  air.   If  a  lightning  bolt  is  cast  
+underwater it explodes in the same way, but at the tip  
+of the caster's outstretched finger.
+The lightning bolt sets fire to combustibles and damages 
+objects in its path.  It can damage metals with a low  
+melting point; metals such as gold, silver, lead, copper,  
+or bronze may be softened briefly and thus deformed,  
+but  the  lightning  does  not  persist  long  enough  to 
+actually melt the metal items unless they are very small  
+(such as a thin gold neck chain for example).
+If the damage caused to an interposing barrier shatters  
+or breaks through it, the bolt may continue beyond the  
+barrier if the spell’s range permits; otherwise, it may  
+reflect from the barrier back toward the caster, or in a  
+random direction at the GM's option.  Creatures already 
+affected by  the  lightning  bolt  do  not  take  additional 
+damage if struck by the reflection of the same bolt.
+Locate Object Range: 360'
+Cleric 3, Magic-User 2 Duration: 1 round/level
+This spell grants the caster knowledge of the location of  
+an object.  The caster must know the object well or be  
+able to clearly imagine it.  (Viewing an accurate drawing 
+or painting will suffice for the latter option.)  A general  
+item can be located; if more than one such item is in  
+range, the spell will lead the caster to the nearest one.
+Unique  or unusual  items can only  be  located if  the  
+caster  has  first-hand knowledge  (not  merely  through 
+divination such as clairvoyance or a crystal ball).  The 
+spell cannot be used to locate creatures of any sort.  A  
+layer of lead or gold no thicker than foil surrounding the 
+item will prevent it from being located.
+Lower Water Range: 20'/level
+Magic-User 6 Duration: 1 turn/level
+Using this spell the caster lowers the level of the water  
+in a river, a lake, or even the sea by up to 2 feet per  
+caster level for the given duration, but to no less than 1  
+inch deep. The spell affects an area with radius of at  
+most 10 feet per level centered on the caster's chosen  
+location (within the range given).
+There will be a steep slope up to the surface of any area 
+of un-lowered water that falls outside the spell's radius.  
+Ships which were already in the area of effect as well as  
+any that dare to enter it will be unable to climb the  
+slope and thus unable to leave the area (if not outright  
+beached by the spell in the first place).
+This spell has the effect of slow (the reverse of haste) 
+when cast upon water elementals and other creatures  
+formed from water; a  save vs. Spells is allowed, with  
+success negating the effect.  It cannot be cast upon any  
+other kind of creatures.
+Magic Jar Range: 60'
+Magic-User 5 Duration: special
+This spell allows the caster to attempt to possess the  
+body of another living creature.  The caster begins by  
+placing their spirit into a gem, jewel, or large crystal of  
+some sort within the spell range, called the  magic jar. 
+The  caster  needs  to  know  where  the  magic  jar  is 
+located, but does not have to be able to see it.  While  
+the  caster's  spirit  is  outside  their  body,  that  body 
+appears to all intents and purposes to be dead, but  
+does not undergo decay as a normal dead body would.
+Each round after entering the magic jar the caster's spirit 
+can  attempt  to take  control  of  the  body  of  a  living 
+creature within the spell range; the target is allowed a  
+save vs. Spells to resist.  If the saving throw fails, the  
+spirit of the target (now called the host) is trapped in the 
+magic jar and the caster's spirit takes possession of the  
+host's body.  Possession of a creature by means of this  
+spell is blocked by  protection from evil  or a similar  
+ward.
+If the attempt to possess a victim fails, the caster's spirit  
+remains in the magic  jar, and that target creature  is  
+immune to further attempts for the duration of the spell. 
+The caster may make an attempt to possess another  
+target on the following round, if desired.
+If  on  the  other  hand  the  possession  attempt  is  
+successful, the caster may remain in control of the host's 
+28
+
+## Page 33
+
+BASIC FANTASY RPG SPELLS
+body for as long as desired.  The caster's spirit may  
+return to the magic jar at any time when it is within spell 
+range, restoring the host's spirit to its own body.  The  
+caster may not return to the same host's body again for  
+the remainder of the duration of this spell, but may  
+attempt to possess it again on a subsequent casting.
+Whenever the caster's spirit is in the magic jar, it may  
+choose to return to its own body if it is within spell  
+range.  If the body is not in range, the caster's spirit may 
+become trapped if no vulnerable creatures are in range.
+Whenever the caster's spirit returns to their own body,  
+the spell ends.  There is a 50% chance that the magic  
+jar will shatter when the spell ends (if the spell did not  
+end because it was broken), becoming worthless and  
+unusable.
+When the caster's spirit possesses a host, the caster has  
+access  to  the  physical  abilities  of  the  host's  body, 
+including  Strength, Dexterity, and Constitution,  while  
+still  retaining  their  own  Intelligence,  Wisdom,  and  
+Charisma.   The caster has access only to their own  
+knowledge,  class  and  level,  attack  bonus,  saving  
+throws,  spell  casting  ability,  and  any  other  purely 
+mental capabilities.
+The  caster  does  not  gain  access  to  supernatural  or 
+otherwise extraordinary powers of the host, and may  
+not be able to perform physical actions that the caster  
+has never done before (such as flying, if a winged body  
+has been possessed).  The caster does have access to  
+the host's sensory capabilities, such as Darkvision, the  
+enhanced sense of smell of a dog, and so on.
+If the caster's spirit is in the magic jar, and the jar is  
+broken (whether by dispel magic or physical damage), 
+the caster's spirit will return to its own body if it is in  
+spell range; if not, the caster's spirit departs (i.e. the  
+caster dies).  In either case, the spell ends.
+If the caster's spirit is driven from the host body by  
+dispel evil , and the magic jar is in range of the host  
+body, the caster's spirit returns to the jar and the host's  
+spirit returns to its body.  The caster will not be able to  
+possess the same host again for the remaining duration  
+of the spell.  If the magic jar is not in range of the host  
+body, the caster's spirit departs, the host's spirit is freed  
+from the jar and also departs, and the host's body dies.
+If  the host's spirit  is in the  magic  jar,  and the  jar is  
+broken  while  in  spell  range  of  the  host  body, the  
+caster's spirit departs, the host's spirit returns to its body, 
+and the spell ends.  If the jar is broken while out of  
+range of the host's body, the host's spirit departs, the  
+caster's spirit is stranded in the host body.  Note here  
+that the spell has not ended.  Dispel evil  can still be  
+used to drive the caster's spirit from the body, which  
+departs as noted, ending the spell.  A stranded caster  
+may  use  another  casting  of  this  spell  (with  another 
+magic jar, of course) to return to their own body, which  
+of course kills the host's body.
+Magic Missile Range: 100'+10'/level
+Magic-User 1 Duration: instantaneous
+This spell causes a magical arrow of energy to fly from  
+the caster's finger and unerringly hit its target, inflicting  
+1d6+1 points of damage.  The target must be at least  
+partially visible to the caster, and no saving throw is  
+normally allowed.  It's not possible to target a specific  
+part of the target.  Inanimate objects are not affected by  
+this spell.
+For every three caster levels beyond 1 st, an additional  
+missile is fired: two at 4 th level, three at 7 th, four at 10 th, 
+and the maximum of five missiles at 13th level or higher. 
+When multiple missiles are fired in this way, the caster  
+can target one or several creatures as desired, as long  
+as all are visible to the caster at the same time.  All such  
+targets must be designated before any damage is rolled.
+Magic Mouth Range: 30'
+Magic-User 1 Duration: special
+This spell places a simple form of programmed illusion  
+on a non-living object within range.  When triggered,  
+the spell causes the illusion of a mouth to appear on the 
+object  and  a  message  to  be  said  aloud.   The  
+enchantment  can remain  in  place  indefinitely,  but  is 
+expended when triggered (i.e. the message is normally  
+delivered only once).
+The message recounted may be up to three words per  
+caster level in length.  The caster may insert pauses in  
+the message, but the entire message must be delivered  
+in a time period of no more than a turn.  The voice of  
+the  spell  can  be  made  to  speak  at  any  volume  
+attainable by a normal human.  It will sound enough  
+like the caster's own voice to be recognized by a close  
+associate of the caster, but not identical.
+The illusionary mouth moves as if actually speaking the  
+message  being  delivered,  and  remains  visible  during 
+pauses.  If placed on an artistic depiction of a creature  
+with a mouth (such as a painting or statue), the spell  
+can be made to appear to animate the mouth of the  
+object.
+This spell cannot be used to activate magic items which  
+have  command  words,  nor  to  activate  any  other  
+magical effects.
+29
+
+## Page 34
+
+SPELLS BASIC FANTASY RPG
+The caster must choose the conditions under which this  
+spell  is  triggered.   The  conditions  may  be  as  
+complicated or simple as desired, but must depend only 
+on sight and hearing; the spell has no other sensory  
+capabilities.   The  spell  also  has  no  particular  
+intelligence, and can be fooled by disguises or illusions.  
+The spell does have the capability to effectively see in  
+normal  darkness,  but  not  in  any  sort  of  magical  
+darkness, and it cannot detect invisible creatures nor  
+see  through  doors,  walls,  or  even  opaque  curtains. 
+Likewise,  stealth  or  magical  silence  are  effective  in 
+preventing audible triggers.  Finally, the spell cannot  
+detect a character's class, level, ability scores, or any  
+other feature not obvious to a normal NPC.
+Triggers have an effective sensory range of 10 feet per  
+caster level; sounds, sights, or actions outside that range 
+will never trigger the spell.
+Massmorph Range: 100'+10'/level
+Magic-User 4 Duration: 1 hour/level
+With this spell the caster causes 1d4+1 man-sized (or  
+smaller) creatures per four caster levels to appear as if  
+they are natural effects of the terrain (for example, trees  
+in  a  forest,  stalagmites  in  a  cave,  coral  underwater, 
+boulders in a cavern, etc.).  All creatures to be affected  
+must be within a 120' radius of the caster at the time  
+the spell is cast.  Only those creatures the caster wishes  
+to hide are affected, and then only if they are willing to  
+be concealed.  The caster may choose to be included  
+among the affected creatures.
+Those affected are thus concealed from other creatures  
+passing through the area for so long as they remain still.  
+If an affected creature chooses to move or attack, the  
+illusion  is dispelled  for  that  creature,  but  those  who 
+remain still continue to be hidden.  The caster may end  
+the spell early if they wish by speaking a single word.  
+The illusion can also be ended by dispel magic.
+Mind Reading Range: 60'
+Magic-User 2 Duration: 1 turn/level
+This spell, sometimes incorrectly called  ESP, permits  
+the  caster  to  hear  (and  possibly  see,  if  the  target 
+visualizes anything) the surface thoughts of one or more 
+living creatures within range.  The caster must designate 
+a  direction  or  select  a  visible  target,  and  then  
+concentrate for a turn in order to "hear" the thoughts.  
+Each turn the caster may choose to "listen" in a different 
+direction.  The caster may stop listening, then resume  
+again later, so long as the duration has not expired.  
+The target creature is not normally aware of being spied 
+upon in this way, though any creature already under  
+the effect of this spell or any similar form of telepathy  
+will instantly know and be able to sense the direction of  
+the caster.
+Rock more than 2 inches thick or even a very thin  
+covering of lead or gold will block the spell.  All undead  
+creatures are  immune  to this effect,  as are  mindless  
+creatures and constructs such as golems.
+Mirror Image Range: self
+Magic-User 2 Duration: 1 turn/level
+This spell allows the caster to create multiple illusory  
+duplicates (called  figments) which  seem  to swirl  and 
+move around and through each other as well as the  
+caster more or less constantly, making it impossible for  
+most creatures to determine which is the real one.  A  
+total of 1d4 images plus one image per three caster  
+levels (maximum eight images total) are created.
+The figments mimic the caster's actions, going through  
+the  motions  of  casting  spells,  drinking  potions,  
+levitating, and so on, just as the caster does.  Figments  
+always look exactly like the caster.
+Any opponent who attacks or casts spells directly on the 
+caster will always hit a figment instead.  Attacking a  
+figment destroys it,  whether or not  the attack  roll is  
+successful,  as does any  attack  spell  directed at  one. 
+Area-effect spells are not cast directly on the caster, and  
+thus appear to affect all figments exactly as they affect  
+the caster; for instance, if the caster is subjected to a  
+fireball, all figments will appear to be injured just as the  
+caster was.
+Neutralize Poison* Range: touch
+Cleric 4 Duration: instantaneous
+This  spell  neutralizes  any  poison  or  venom  in  the 
+creature or object touched.  A creature suffering from  
+poison or venom suffers no further effects from it.
+If cast upon a creature slain by poison in the last 10  
+rounds, the creature is revived with 1 hit point.  If cast  
+upon  a  poisonous  object  (weapon,  trap,  etc.)  the 
+poison is rendered permanently ineffective.
+Reversed, this spell becomes poison.  The caster must  
+make a successful attack roll; if the attack is a success,  
+the target must save vs. Poison or die.  The caster's  
+touch remains poisonous for 1 round per caster level,  
+or  until  discharged  (i.e.  only  one  creature  can  be 
+affected by the reversed spell).
+30
+
+## Page 35
+
+BASIC FANTASY RPG SPELLS
+Passwall Range: 30'
+Magic-User 5 Duration: 3 turns
+Passwall  creates  a  temporary  breach  or  passageway 
+through walls of wood, plaster, or stone; metal walls  
+cannot be affected by this spell.  This breach is up to 10 
+feet deep plus an additional 10 feet per three caster  
+levels above 9th (20 feet at 12 th, 30 feet at 15 th, 40 feet 
+at 18th).  If the wall’s thickness is more than the depth of 
+the  passage  created,  then  a  single  passwall  simply 
+makes a niche or short tunnel.  Several passwall spells  
+can then form a continuing passage to breach very thick 
+walls.  When passwall ends (due to duration,  dispel 
+magic, or caster's choice), creatures within the passage  
+are ejected out the nearest exit.
+Phantasmal Force Range: 180'
+Magic-User 2 Duration: concentration
+With  this  spell  the  caster  visualizes  and  projects  the 
+illusion  of  an  object,  creature  (or  small  group  of 
+creatures), or other effect.  The caster can project an  
+illusion  up  to a  maximum  size  of  20'x20'x20'.   The 
+illusion is purely visual, with no other sensory features.  
+The image is not static, but can be animated as the  
+caster desires so long as all images remain within the  
+area of effect.  The illusion persists so long as the caster  
+concentrates upon it.
+If used to create the illusion of one or more creatures,  
+they will have an Armor Class of 11 and will disappear  
+if hit in combat.  Damage done by monsters, spells, etc.  
+simulated  by  this  spell  is  not  real;  those  "killed"  or 
+otherwise apparently disabled will wake up uninjured  
+(at least by this spell) after 2d8 rounds.  The illusory  
+damage done will be equal to the normal damage for  
+any attack form simulated.
+Projecting images of more creatures than the caster's  
+level grants viewers with at least average Intelligence an  
+immediate save vs. Spells to recognize the creatures as  
+illusions; those making the save will be unaffected by  
+any actions taken by the illusions from that point on.  A  
+similar save may be granted by the GM any time they  
+feel the illusion is likely to be seen through, especially if  
+the player describes an illusion which seems improbable 
+or otherwise poorly conceived.
+Polymorph Other Range: 30'
+Magic-User 4 Duration: permanent
+This spell allows the caster to change one living creature 
+which is not incorporeal or gaseous into another form  
+of living creature.  The assumed form can’t have more  
+hit  dice  than  caster’s  level,  or  be  incorporeal  or  
+gaseous.   Unlike  polymorph  self,  the  transformed 
+target also gains the behavioral and mental traits, any  
+physical  attacks,  special,  supernatural  or  spell-like  
+abilities of the new form, in addition to the physical  
+capabilities and statistics of such.  If the new form is  
+substantially  less  intelligent,  the  target  may  not  
+remember its former life.
+The target creature will have the same number of hit  
+points it previously had, regardless of the hit dice of the  
+form assumed.  A creature with the ability to transform  
+or change shape such as a doppleganger is changed,  
+but can assume a different form after a single round.
+Equipment worn or carried will be dropped if the new  
+form is unable to wear or carry the items.  If any such  
+items would be constricting or physically harmful to the  
+new form, the transformation slows and alters such that  
+they  are  dropped  without  damage  to  the  items  nor 
+harm to the target creature.  If the GM determines that  
+any items cannot be removed in this way, they must  
+decide on the exact results.
+Unwilling targets which successfully save vs. Paralysis  
+are not affected.  The spell is permanent until dispelled  
+or the creature is slain, at which time the target resumes  
+its original form.
+Polymorph Self Range: self
+Magic-User 4 Duration: 1 hour/level
+This spell allows the caster to change into a different  
+form of living creature.  The form assumed may not  
+have more hit dice than the caster has levels, nor be  
+incorporeal or gaseous.
+The caster assumes the physical nature of the assumed  
+form  while  retaining  their  mental  and  spiritual  
+characteristics.   They  gain  the  Armor  Class  and  all 
+physical attacks possessed by the form but do not gain  
+any special, supernatural or spell-like abilities.  Dragon  
+breath  is  a  special  ability,  for  instance,  so  were  the 
+caster to assume the form of a dragon they could use  
+the dragon's normal claw, bite, and tail swipe attacks,  
+but not the dragon's breath.
+If the form assumed is capable of speaking and making  
+appropriate gestures (as determined by the GM) the  
+caster may use their own spells in the assumed form.
+Equipment worn or carried will be dropped if the new  
+form is unable to wear or carry the items.  If any such  
+item would be constricting or physically harmful to the  
+new form, the transformation slows and alters such that  
+the item is dropped without damage to the items nor  
+harm to the target creature.  If the GM decides that any  
+such item cannot be removed in this way, the spell fails.
+31
+
+## Page 36
+
+SPELLS BASIC FANTASY RPG
+The caster can remain transformed up to one hour per  
+level of ability, or may choose to end the spell before  
+that point if they wish.
+Projected Image Range: 240'
+Magic-User 6 Duration: 6 turns
+This spell creates a quasi-real, illusory version of the  
+caster.  This illusion looks, sounds, and smells like the  
+caster, in addition to mimicking gestures and actions  
+(including speech, which is projected from the caster to  
+the illusory image as if by a form of  ventriloquism). 
+Any  further  spells  cast  seem  to  originate  from  the 
+illusion, not the actual caster.
+A line of sight between the caster and their illusory self  
+must be maintained or the spell ends.  Any effect or  
+action that breaks the line of sight dispels the image, as  
+does the illusionary caster being struck in combat.  Note 
+that this spell grants no special sensory powers to the  
+caster; for example, if the illusory self is positioned so as 
+to be able to see something the caster can't directly see,  
+the caster does not see it.  Also, all spell ranges are still  
+figured from the caster's actual position, not the illusory  
+self's position.
+Protection from Evil*
+Cleric 1, Magic-User 1 Range: touch
+Duration: 1 turn/level
+This spell protects the caster or a creature touched by  
+the caster (the "subject") from evil; specifically, the spell  
+wards  against  summoned  creatures,  creatures  with  
+significantly evil intentions, and extraplanar creatures of  
+evil nature.  A magical barrier with a radius of just 1  
+foot is created around the subject.  The barrier moves  
+with the subject, and provides three specific forms of  
+magical  protection  against  attacks  or  other  effects  
+attempted by the affected creatures against the subject.
+First, the subject receives a bonus of +2 to their Armor  
+Class, and a similar bonus of +2 on all saving throws.
+Second, the barrier blocks all attempts to  charm  or 
+otherwise control the subject, or to possess the subject  
+(such as with  magic jar ).  Such attempts simply fail  
+during the duration of this spell.  Note however that a  
+creature  who  receives  this  protection  after being  
+possessed is not cured of the possession.
+Third, any and all summoned creatures and extraplanar 
+creatures of evil nature are unable to physically touch  
+the  subject.   Attacks  by  such  creatures  using  their 
+natural weapons simply fail.  This effect is canceled if  
+the subject performs any form of physical attack (even  
+with a ranged weapon) on any affected creature, but  
+the other features of the spell continue in force.
+Reversed, this spell becomes protection from good.  It 
+functions  in  all  ways  as  described  above,  save  that 
+"good" creatures are kept away, rather than "evil" ones.
+Protection from Evil 10' Radius*
+Cleric 4, Magic-User 3 Range: touch
+Duration: 1 turn/level
+This spell functions exactly as protection from evil, but 
+with a 10' radius rather than a 1' radius.  All within the  
+radius receive the protection; those who leave and then  
+re-enter, or who enter after the spell is cast, receive the  
+protection as well.
+Reversed, this spell becomes protection from good 10' 
+radius, and functions exactly as the reversed form of  
+protection from evil , except that it covers a 10' radius  
+around the target rather than the normal 1' radius.
+Protection from Normal Missiles
+Magic-User 3 Range: self
+Duration: 1 turn/level
+The  caster  is  completely  protected from  small  sized, 
+non-magical missile attacks.  Therefore, magic arrows,  
+hurled boulders, or other such are not blocked, but any  
+number of normal arrows, sling bullets, crossbow bolts,  
+thrown  daggers,  etc.  will  be  fended  off.   Note  that 
+normal  missiles  projected  by  magic  bows  count  as 
+magical missiles for the purposes of this spell.
+Purify Food and Water
+Cleric 1 Range: 10'
+Duration: instantaneous
+With this spell the caster makes contaminated food or  
+water  pure  and  safe  to  eat  or  drink.   Poison  is  
+neutralized and spoilage is reversed by this spell.  The  
+spell does not protect against future decay, however,  
+nor  does  it  affect  magic  potions  (including,  
+unfortunately, Potions of Poison ).  Unholy water, if it  
+exists in your campaign, is ruined by the casting of this  
+spell.  The spell affects about 2 pounds of food and/or  
+drink per caster level; note that a quart of water or  
+similar drink weighs just over 2 pounds.
+32
+
+## Page 37
+
+BASIC FANTASY RPG SPELLS
+Quest* Range: 5'/level
+Cleric 5 Duration: special
+By  means  of  this  spell  the  caster  compels  a  living 
+creature to perform some specific action or services, or  
+alternately to avoid performing some action.  The target  
+creature  must  be  able  to  hear  and  understand  the 
+caster,  or  it  cannot  be  affected.   This  spell  will  
+automatically fail if used to compel a creature to engage  
+in some obviously self-destructive action.
+A saving throw vs. Spells will allow an unwilling target  
+to resist a quest when it is first cast.  However, the  
+target may choose to accept the quest, typically as part  
+of a bargain with the caster to perform some service.  
+Once subjected to this spell, the subject must obey the  
+instructions given by the caster indefinitely, though if  
+the quest is to perform some action the spell effectively  
+ends when that action has been completed.
+For every 24 hours that an affected creature chooses  
+not to obey the quest (or is prevented from obeying it),  
+it suffers 3d6 points of damage.  This damage is limited,  
+in that it will not kill the target; if the damage is enough  
+to do  so,  roll  1d4  for  the  number  of  hit  points  the 
+affected creature retains (similar to the spell harm, the 
+reverse of heal).
+If the task assigned to the subject of this spell is open-
+ended or otherwise unable to be completed, the subject 
+is still compelled to try to perform the task, but the spell  
+will end in no more than one day per caster level.
+Very  clever  creatures  may  be  able  to  subvert  the 
+instructions given; the GM must decide on the results of  
+any such attempts.
+A quest (and all effects thereof) can be ended by a  
+remove curse  spell from a caster two or more levels  
+higher than the caster of the quest, or by a wish, or by 
+the reverse of this spell.  Dispel magic does not affect a 
+quest spell.
+Raise Dead* Range: touch
+Cleric 5 Duration: instantaneous
+This  spell  restores  life  to  a  deceased  humanoid  (as 
+defined in charm person).  The caster can only raise a  
+being that has not been dead for more days than the  
+caster has levels.  The spirit of the target of this spell  
+must be willing to return.  If the target's spirit is trapped  
+or contained in any way, the spell will fail.  It will also  
+fail if the target died of old age, as the body simply has  
+no life left in it.  Similarly, undead creatures are not  
+affected by this spell as they can no longer be returned  
+to life in any normal sense.
+The body of the target must be adequately intact to  
+support life, but all wounds no matter how major are  
+healed.  Body parts missing when the target is raised  
+are still missing afterward.  Normal poison and normal  
+disease are cured in the process of raising the subject,  
+but magical diseases and curses are not undone.
+Creatures brought back from the dead always suffer  
+some loss or penalty from the ordeal.  Characters lose  
+one level of ability permanently (i.e. it does not accrue  
+a negative level, but rather loses an actual level, being  
+reduced to the minimum number of experience points  
+required for the previous level).  First level characters  
+are reduced to Normal Man status; if the character was  
+already a Normal Man they lose a point of Constitution. 
+These  losses  are  permanent,  though  of  course  the 
+character  may  gain  levels  in  the  normal  fashion.  
+(Characters reduced to Normal Man status must gain  
+1,000 XP to return to 1st level).
+Monstrous humanoids (orcs, goblins, and the like) lose  
+one hit die, or are reduced to ½ hit dice if the monster  
+has  just  one  to  start  with.   Such  humanoids  who 
+already have ½ hit dice are reduced to a single hit point.  
+These losses are generally permanent, though the GM  
+may  allow  such  creatures  in  service  to  a  player  
+character to recover by gaining 1,000 XP per hit die the  
+creature would be returning to (so a lizard man who has 
+been reduced to 1 hit die must earn 2,000 XP to return  
+to its original 2 hit dice); treat such a creature as being a  
+retainer for this purpose.
+Upon being raised, the target has 1 hit point per level or 
+hit die (using its current reduced figure, of course), with  
+a minimum of 1 hit point.  A character who died with  
+spells prepared has none prepared upon being raised.
+The reverse of this spell,  slay living , will kill instantly  
+the creature touched (which may be of any sort, not  
+just a humanoid) unless a save vs. Spells is made.  If  
+the saving throw is successful, 2d6 points of damage is  
+dealt to the victim instead.  An attack roll is required to  
+apply this spell in combat.
+33
+
+
+## Page 38
+
+SPELLS BASIC FANTASY RPG
+Read Languages Range: 0
+Magic-User 1 Duration: special
+This spell grants the caster the ability to read almost any 
+written language.  It may be cast in one of three modes:
+In the first mode, the spell allows the caster to read any  
+number of written works in a variety of languages.  This  
+mode lasts for 1 turn per caster level.
+In the second mode, the spell allows the caster to read  
+any one book or tome; this mode lasts 3 hours per  
+caster level.
+In the third mode, the spell allows the caster to read  
+any  one  non-magical  scroll  or  other  single-sheet  
+document; this mode is permanent.
+This spell does not work on any sort of magical text,  
+such  as spell  scrolls or  spellbooks;  see  read magic , 
+below, for the correct spell to use in such cases.
+The spell grants the ability to read the texts, but does  
+not  in  any  way  hasten  the  reading  nor  grant  
+understanding of concepts the caster doesn't otherwise  
+have the ability to understand.  Also, for this spell to  
+function, there must be at least one living creature that  
+can read the given language somewhere on the same  
+plane.   The  knowledge  is  not  copied  from  that  
+creature's  mind;  rather,  it  is  the  existence  of  the  
+knowledge that enables the spell to function.
+Read Magic Range: 0
+Magic-User 1 Duration: permanent
+When cast upon any magical text, such as a spellbook  
+or magic-user spell scroll, this spell enables the caster to  
+read that text.  Casting this spell on a cursed text will  
+generally trigger the curse.  All Magic-Users begin play  
+knowing this spell, and it can be prepared even if the  
+Magic-User loses access to their spellbook.
+Regenerate Range: touch
+Cleric 6 Duration: permanent
+This is the most powerful of healing spells, able to cause 
+lost or destroyed body parts, even internal organs, of a  
+living creature to grow back and heal.  Severed body  
+parts can be put back in place and will reattach fully in  
+a round (or one round per body part if multiple parts  
+are to be reattached), but regrowing any number of lost  
+body parts requires a full turn.  In addition, the spell  
+heals 3d8 points of damage just as if it were a normal  
+cure wounds spell.
+Reincarnate Range: touch
+Magic-User 6 Duration: instantaneous
+By  touching  the  body  of  a  deceased  humanoid  (as 
+defined in charm person), the caster brings them back  
+in  an  entirely  new  body.   The  whole  body  is  not 
+needed; in fact, even the smallest fragment of body is  
+sufficient, so long as that fragment was part of the body  
+at the time of the target's death.
+The caster can only reincarnate a being that has not  
+been dead for more than a week.  The spirit of the  
+target  of  this spell  must be willing  to return.   If  the 
+target's spirit is trapped or contained in any way, the  
+spell will fail.
+Roll on the following table to determine the new form  
+of the target creature:
+d% New Form
+01 Bugbear
+02-15 Dwarf
+16-29 Elf
+30 Gnoll
+31-39 Gnome
+40-46 Goblin
+47-60 Halfling
+61-88 Human
+89-91 Kobold
+92-93 Lizard Man
+94-98 Orc
+99-00 Choice*
+If  "choice"  is  rolled  for  a  player  character  being  
+reincarnated, the player is allowed to choose the new  
+form from among those on the table above.  If an NPC  
+is being reincarnated, the GM may choose or roll again.
+When the spell is cast, a new body forms in a nearby  
+location selected by the caster.  The body forms over a  
+period of 6 turns (i.e. an hour), first as a misty outline,  
+then becoming more solid moment by moment until it  
+takes its first breath and awakens.  The new form is a  
+young adult, unless the target was younger than that  
+when they died, in which case the new body is the  
+same age as the deceased body.
+The target creature's new body has obviously suffered  
+none of the harm that may have befallen the old one,  
+and is completely healthy (at least, to start with).  
+The target remembers their previous life, and retains  
+the same class (if possible for the new form) as well as  
+its  Intelligence,  Wisdom,  and  Charisma.   Strength,  
+Dexterity, and Constitution scores should be rerolled.  
+(If the character's ability scores are outside the allowable 
+range for the new form, they should be adjusted up or  
+down by the GM as needed.)  The target loses one  
+34
+
+## Page 39
+
+BASIC FANTASY RPG SPELLS
+level (or hit die); this is a real reduction, not a negative  
+level, and is not subject to magical  restoration.  The  
+target's hit points should be rerolled completely, as this  
+is an entirely new body.  If the target was 1st level,  
+instead of  a  hit  point  reduction  its new  Constitution 
+score is reduced by 2.
+Characters turned into non-character humanoids (such  
+as  an  elf  who  returns  as  a  kobold)  will  require  
+adjudication by the GM; if the restored target is a player  
+character, the GM is counseled to give as much leeway  
+to the player as possible with the character's new form.  
+Conversely,  non-character humanoids  who  return  as 
+characters  will  need  all  ability  scores  rolled;  such  
+characters will usually be fighters with a level equal to  
+the target's previous hit dice minus 1, or as Normal Men 
+if the target's previous hit dice were 1 or less.
+Undead creatures are not affected by this spell; such  
+creatures  can  no  longer  be  returned  to  life  in  any 
+normal sense.
+Remove Curse* Range: 30'
+Cleric 3, Magic-User 4 Duration: instantaneous
+This spell removes any and all ordinary curses afflicting  
+a creature.  It does not generally remove the curse from  
+a magic item such as a sword or suit of armor, but a  
+character afflicted by a cursed item of this type will be  
+freed of it long enough to discard the item (a turn, at  
+least).
+Some special curses are more difficult to remove, and  
+may require a caster of a certain minimum level.  A  
+very few curses created by godlike beings cannot be  
+removed by this spell at all.
+The  reverse  of  this  spell,  bestow  curse,  allows  the 
+caster to place a curse on the subject.  A save vs. Spells  
+is allowed to resist.  The caster must choose one of the  
+following three effects:
+• –4 decrease to an ability score (minimum 1).
+• –4 penalty on attack rolls and saves.
+• Each  round  of combat, the target  has a 50%  
+chance to act normally; otherwise, it takes no  
+action.
+The  caster  may  also  invent  their  own  curse,  but  it 
+should  be  no  more  powerful  than  those  described 
+above.  The curse thus bestowed cannot be dispelled,  
+but it can be removed with a remove curse spell.
+Remove Fear* Range: touch (120')
+Cleric 1 Duration: instantaneous
+(2 turns)
+This spell will calm the creature touched.  If the target  
+creature is currently subject to any sort of magical fear,  
+it is allowed a new save vs. Spells to resist that fear, at a  
+bonus of +1 per level of the caster.
+The reverse of this spell, cause fear, causes one target  
+creature within 120' to become frightened; if the target  
+fails to save vs. Spells, it flees for 2 turns.  Creatures  
+with 6 or more hit dice are immune to this effect.
+Resist Cold Range: touch
+Cleric 1 Duration: 1 round/level
+This spell makes the caster, or any living creature the  
+caster  touches,  completely  immune  to  normal  cold. 
+The  spell  also  gives  protection  against  magical  or 
+otherwise superior cold such as the breath of an Ice  
+Dragon or the  ice storm  spell.  Specifically, the spell  
+gives the protected creature a bonus of +3 on all saving  
+throws against such effects, and reduces any damage  
+suffered by half (so that for example a successful save  
+vs. the Ice Dragon's breath would reduce damage to  
+just one-fourth normal, and even if the saving throw  
+fails the protected creature only takes half damage).
+Resist Fire Range: touch
+Cleric 2 Duration: 1 round/level
+This spell makes the caster, or any living creature the  
+caster touches, completely immune to normal heat or  
+fire.  The spell also gives protection against magical or  
+otherwise superior heat or fire such as the breath of a  
+Mountain Dragon or the fireball spell.  Specifically, the  
+spell gives the protected creature a bonus of +3 on all  
+saving  throws  against  such  effects,  and  reduces  any 
+damage  suffered  by  half  (so  that  for  example  a  
+successful  save  vs.  the  fireball  spell  would  reduce 
+damage  to  just  one-fourth  normal,  and  even  if  the 
+saving throw fails the protected creature only takes half  
+damage).
+Restoration Range: touch
+Cleric 6 Duration: permanent
+Each casting of the spell removes a single negative level  
+from a creature who has suffered energy drain.  At 16th  
+level, two negative levels may be removed.  See the  
+rules for Energy Drain (in the  Encounter section on  
+page 58) for more details.
+Alternately, this spell can be used to restore drained  
+ability score points.  If applied to a character who has  
+35
+
+## Page 40
+
+SPELLS BASIC FANTASY RPG
+temporarily lost ability points, it will restore up to 2d4  
+lost points to any one drained ability immediately.  If  
+applied to a character who has suffered permanent loss  
+of ability points, 1 point can be restored.
+This spell cannot restore any levels lost permanently,  
+such as those lost due to death as described for the  
+spells raise dead and reincarnate.
+Shield Range: self
+Magic-User 1 Duration: 5 rounds+1/level
+This spell creates an invisible shield made of magical  
+force which floats in front of the caster, protecting them  
+from various attacks.  The spell totally blocks  magic 
+missile attacks directed at the caster, and improves the  
+caster's Armor Class by +3 vs. melee attacks and +6 vs.  
+missile  weapons.   The  Armor  Class  benefits  do  not 
+apply to attacks originating from behind the caster, but  
+magic missiles are warded off from all directions.
+Silence 15' Radius Range: 360'
+Cleric 2 Duration: 2 rounds/level
+This spell creates a spherical area with a 15 foot radius  
+where no sound will pass.  No one within the affected  
+area  can  make  nor  hear  any  sound.   Neither  does 
+sound  issue  from  the  affected  area;  those  outside 
+cannot  hear  those  inside.   This  effect  blocks  verbal 
+communication, of course, as well as spell casting.
+This effect can be cast in a fixed area, upon an item  
+(making it portable), or upon a creature.  An unwilling 
+target receives a save vs. Spells to negate the spell.  If  
+an item in another creature’s possession is targeted, that 
+creature also receives a save vs. Spells to negate.
+This spell can be used to protect against any kind of  
+attack or magic where the victims must be able to hear  
+the attacker, for such attacks cannot pass into or out of  
+the affected area.
+Sleep Range: 90'
+Magic-User 1 Duration: 5 rounds/level
+This spell puts several creatures of 3 or fewer hit dice,  
+or a single 4 hit die creature, into a magical slumber.  
+Creatures of 5 or more hit dice are not affected.  The  
+caster chooses a point of origin for the spell (within the  
+given range, of course), and those creatures within 30'  
+of the chosen point may be affected.  Each creature in  
+the area of effect is allowed a save vs. Spells to resist.
+Victims  of  this  spell  can  always  be  hit  if  attacked. 
+Injuring such a creature will cause it to awaken, and it  
+may begin fighting back or defending itself on the very  
+next round.  Slapping or shaking such a creature will  
+awaken it in 1d4 rounds, but normal noises will not.
+Sleep does not affect unconscious creatures, constructs,  
+or undead creatures.
+When  the  duration  elapses,  the  sleeping  creatures 
+normally wake up immediately; however, if they are  
+made very comfortable and the surroundings are quiet,  
+the affected creatures may continue sleeping normally  
+at the GM's option.
+Speak with Animals Range: special
+Cleric 2 Duration: 1 turn/4 levels
+This spell allows the caster to speak to and understand  
+any  single  animal  (normal  or  giant  sized,  but  not 
+magical or monstrous) that is in sight of the caster and  
+able  to  hear  them.   The  caster  may  change  which 
+animal they are speaking with at will, once per round.  
+The spell doesn’t alter the animal’s reaction or attitude  
+towards the caster; a standard reaction roll should be  
+made to determine this.  The GM should ensure that  
+the animal's manner of speaking reflects its intelligence  
+and nature.
+Speak with Dead Range: 10'
+Cleric 3 Duration: 3 rounds/level
+With  this  spell  the  caster  causes  the  corpse  of  an 
+intelligent creature to become animated and to answer  
+the caster's questions.  It does not matter how long the  
+corpse has been dead, but it must be essentially intact  
+with  at  least  a  complete  mouth  in  order  to  answer 
+questions.
+The corpse will answer at most one question per two  
+caster levels, but if the duration expires any remaining  
+questions are lost.  The corpse only knows what it knew 
+when it was alive; this includes the languages it knew in  
+life.  Thus, the caster must share a language with the  
+deceased in order to get any questions answered at all.
+The  answers  given  are  drawn  from  knowledge  
+"imprinted" on the corpse during life; the caster does  
+not in any case actually communicate with the spirit of  
+the deceased creature.  The corpse cannot retain any  
+information given to it, and does not even remember  
+any previous instances of communication via this spell.
+The  answers  given  may  not  be  useful  for  various 
+reasons.  If the corpse knew the caster when it was  
+alive,  or  if  the  caster  is  a  member  of  a  group  the 
+deceased disliked, it may choose to lie or mislead the  
+caster.   If  the  caster  asks the corpse  questions  of  a 
+personal nature, or questions that indicate the caster  
+may be working against whatever interests the corpse  
+36
+
+## Page 41
+
+BASIC FANTASY RPG SPELLS
+had in life, it will almost certainly seek to mislead the  
+caster.
+If the corpse has been roused by this spell within the  
+last seven days, the spell will fail.  Undead creatures  
+(including the remains of defeated undead creatures)  
+cannot be affected by this spell.
+Speak with Monsters
+Cleric 6 Range: special
+Duration: 1 turn/5 levels
+This spell allows the caster to speak to and understand  
+any single living monster that is in sight of the caster  
+and able to hear them.  The caster may change which  
+monster they are speaking with at will, once per round.  
+Others able to understand the language spoken by the  
+target monster (if any) will be able to understand the  
+caster.  The spell doesn’t alter the monster’s reaction or  
+attitude towards the caster.  Mindless monsters, plant  
+creatures and undead are unaffected by this spell.
+Speak with Plants Range: 20'
+Cleric 4 Duration: 1 turn
+This spell allows the caster to speak to and understand  
+any single plant (either normal plant or animate plant  
+creature).   The  GM  should  remember  that  normal 
+plants have a limited sense of their surroundings, and  
+most never move from the place where they sprouted.  
+The spell doesn’t alter the plant’s reaction or attitude  
+towards  the  caster;  however,  normal  plants  will  
+generally communicate freely with the caster, as they  
+have nothing else of importance to do.  Plant creatures  
+will tend to be slightly more intelligent, and a reaction  
+roll should be used to determine how such creatures  
+respond to the caster's words.
+Spiritual Hammer Range: 30'
+Cleric 2 Duration: 1 round/level
+This spell causes a warhammer made of magical force  
+to appear, attacking any foe chosen by the Cleric within 
+range once per round.  The weapon moves about as if  
+wielded by a person of about the caster's stature, but no 
+such  person  is  present.   It  deals  1d6  hit  points  of 
+damage  per  strike,  +1  point  per  three  caster  levels 
+(maximum of +5).  It uses the caster’s normal attack  
+bonus,  striking  as  a  magical  weapon,  and  thus  can 
+inflict damage upon creatures that are only hit by magic  
+weapons.   If  the  Cleric  loses  sight  of  the  weapon, 
+causes it to move out of the spell range, or ceases to  
+direct  it,  the  hammer  disappears.   The  weapon  is 
+immune to any normal attack, but can be destroyed by  
+disintegrate, dispel magic, or a rod of cancellation.
+Sticks to Snakes Range: 120'
+Cleric 4 Duration: 6 turns
+This spell transforms normal wooden sticks into 1d4 hit  
+dice worth of normal (not giant) snakes per every four  
+caster  levels.   (Types  of  snakes  are  detailed  in  the 
+Monsters section, starting on page  145.)  The snakes  
+follow  the  commands  of  the  caster.   When  slain,  
+dispelled, or the spell expires, the snakes return to their  
+original stick form.  Magical "sticks" such as enchanted  
+staves cannot be affected.
+Striking Range: touch
+Cleric 3 Duration: 1 round/level
+This spell bestows upon one weapon the ability to deal  
+1d6 points of additional damage.  This extra damage is  
+applied on each successful attack for the duration of the 
+spell.  It provides no attack bonus,  but if cast on a  
+normal weapon, the spell allows monsters only hit by  
+magical weapons to be affected; only the 1d6 points of  
+magical damage applies to such a monster, however.
+Telekinesis Range: self
+Magic-User 5 Duration: 3 turns
+This  spell  permits  the  caster  to  move  objects  or  
+creatures by concentration alone; the caster can move  
+such things weighing up to 50 pounds per caster level  
+at a rate of up to 20 feet per round.  Creatures targeted  
+by this spell are allowed a saving throw vs. Death Ray  
+to resist, whether it is the creature itself being affected  
+or an object in its possession.
+In order to use this power the caster must maintain  
+concentration, moving no more than normal movement 
+(no running), making no attacks and casting no further  
+spells.  If concentration is lost (whether intentionally or  
+not), the power may be used again on the next round  
+but  the  target  of  the  effect is allowed a new saving  
+throw.
+37
+
+
+## Page 42
+
+SPELLS BASIC FANTASY RPG
+Teleport Range: self
+Magic-User 5 Duration: instantaneous
+The  caster  of  this  spell  is  instantly  transported  to 
+another  location  up  to 100  miles away  per  level  of 
+ability.  The spell transports the caster only within their  
+current  plane  of  existence.   Other  creatures  
+(passengers)  and  inanimate  objects  (cargo)  may  be 
+transported along with the caster, up to a maximum of  
+300 pounds  plus 100 pounds per level above 10th.  
+The caster must be in contact with all objects and/or  
+creatures to be transported (although creatures to be  
+transported may be in contact with one another, with at  
+least one of those creatures in contact with the caster).  
+Unwilling  creatures  are  allowed  a  saving  throw  vs. 
+Spells to resist the spell, and the caster may need to  
+make  an  attack  roll  to  make  contact  with  such  a 
+creature.   Likewise,  a  successful  save  vs.  Spells will 
+prevent  items  in  a  creature's  possession  from  being 
+teleported.
+The spell is directed by the mind of the caster, who  
+must visualize the destination area; failure to visualize it  
+properly can cause the spell to fail in a variety of ways,  
+and destinations heavily saturated with magical energy  
+(as defined by the Game Master) will cause the spell to  
+fail automatically.
+To  determine  the  results  of  this  spell,  choose  the 
+appropriate column on the table below, then roll d%.
+Knows
+Well
+Knows
+Somewhat
+Saw
+Once Spell Result
+01 01-02 01-03 Disaster
+02 03-07 04-13 Wrong Place
+03 08-13 14-25 Fell Short
+04-00 14-00 26-00 Success!
+Knows Well  applies when the caster has visited the  
+destination  frequently  and/or  spent  a  substantial  
+amount of time there; generally, the caster should have  
+spent at least 7 days (not necessarily in a row) at the  
+destination  within  the  last  year  to  qualify  for  this 
+category.  Any place where the caster lived for more  
+than a month in the last ten years, or more than a year  
+in their life, also qualifies.
+Knows Somewhat  applies when the caster has spent  
+substantial time in the destination area, but not enough  
+to qualify for Knows Well.  Alternately, the caster may  
+have made an in-depth study of the area, looking at  
+accurate drawings, maps, and floorplans or spending  
+hours listening to descriptions from one or more people  
+who Know Well the destination.
+Saw Once applies when the caster has visited a place  
+for as much as a day, but no more, or when the caster  
+has  attempted  the  study  required  for  the  second  
+definition of Knows Somewhat but has failed to acquire  
+enough information (in the GM's opinion).
+If the caster attempts to travel to a location that  
+does not exist, or perhaps once existed but has been  
+destroyed or otherwise changed so much that the caster 
+would not recognize it, roll 2d20 instead d% for the  
+result of the casting.  In this case, if Success! is rolled  
+the  spell  simply  fails  and  no  one  is  transported  
+anywhere.
+Success! means  exactly  what  it  says.   The  caster,  
+passengers, and cargo arrive safely exactly where the  
+caster intended.
+Fell Short  indicates that the caster, passengers, and  
+cargo arrive safely 1d8x10% of the way to the intended  
+destination.  Note that arriving "safely" does not mean  
+that the destination is safe, but only the trip.
+Wrong Place  means that the caster, passengers, and  
+cargo arrive at some place that resembles the intended  
+destination.  This means that the caster appears in the  
+closest similar place within range, as decided by the  
+GM.  If no such area exists within the spell’s range, the  
+spell simply fails instead.
+Disaster indicates  that  the  caster,  passengers,  and  
+cargo  have  encountered  dimensional  turbulence  and 
+have  crashed,  becoming  separated  (if  passengers  
+and/or cargo accompanied the caster) and being injured 
+in  the  process.   Each  creature  including  the  caster 
+suffers 1d12 points of damage, and then rolls again on  
+the same column using 2d20 instead of d%.  If another  
+Disaster is rolled for any creature, apply another 1d12  
+points of damage and roll once more.  Cargo objects  
+are not normally damaged but the result must be rolled  
+for each such item to determine where it has appeared;  
+in  this  case,  if  Disaster  is  rolled  the  cargo  item  
+disappears forever.
+True Seeing Range: touch
+Cleric 5 Duration: 1 round/level
+This spell confers on the target the ability to see all  
+things as they actually are. The subject sees through  
+normal and magical darkness, notices secret doors, sees 
+the exact  locations of  displaced creatures or objects,  
+sees through normal or magical disguises, sees invisible  
+creatures  or  objects  normally,  sees  through  illusions, 
+and sees the  true  form  of  transformed,  changed,  or 
+transmuted things.  The range of true seeing conferred  
+is 120 feet.
+True seeing, however, does not penetrate solid objects.  
+It in no way confers X-ray vision or its equivalent.  It  
+does not negate concealment, including that caused by  
+38

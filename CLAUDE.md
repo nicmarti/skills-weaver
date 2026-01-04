@@ -368,6 +368,26 @@ go build -o sw-dm ./cmd/dm
 - `update_npc_importance` : Mettre à jour l'importance d'un PNJ
 - `get_npc_history` : Consulter l'historique d'un PNJ
 
+**Consultation des Personnages** :
+- `get_party_info` : Vue d'ensemble du groupe (PV, CA, niveau, stat principale)
+- `get_character_info` : Fiche détaillée d'un personnage (caractéristiques, modificateurs, équipement, apparence)
+
+**Consultation Équipement et Sorts** :
+- `get_equipment` : Consulter armes, armures, équipement (dégâts, CA, coût, propriétés)
+- `get_spell` : Consulter sorts par classe/niveau (portée, durée, effets, forme inversée)
+
+**Génération de Rencontres** :
+- `generate_encounter` : Générer rencontre équilibrée par table ou niveau de groupe
+- `roll_monster_hp` : Créer instances de monstres avec PV aléatoires pour combat
+
+**Gestion Inventaire** :
+- `add_item` : Ajouter objet à l'inventaire partagé (avec log automatique)
+- `remove_item` : Retirer objet de l'inventaire (consommation, vente)
+
+**Génération de Noms** :
+- `generate_name` : Noms de personnages par race/genre ou type PNJ
+- `generate_location_name` : Noms de lieux par royaume et type
+
 **IMPORTANT** : L'agent dungeon-master DOIT appeler `start_session` au début de chaque partie et `end_session` à la fin. Sans cela, tous les événements seront enregistrés dans `journal-session-0.json` au lieu d'être correctement organisés par session.
 
 **Architecture** :
@@ -380,6 +400,12 @@ go build -o sw-dm ./cmd/dm
 - `internal/dmtools/` : Wrappers des tools pour l'agent
   - `simple_tools.go` : Tools basiques (log_event, add_gold, etc.)
   - `session_tools.go` : Gestion de session (start/end/get_info)
+  - `character_tools.go` : Consultation personnages (get_party_info, get_character_info)
+  - `equipment_tools.go` : Consultation équipement (get_equipment)
+  - `spell_tools.go` : Consultation sorts (get_spell)
+  - `encounter_tools.go` : Génération rencontres (generate_encounter, roll_monster_hp)
+  - `inventory_tools.go` : Gestion inventaire (add_item, remove_item)
+  - `name_tools.go` : Génération noms (generate_name, generate_location_name)
   - `dice_tool.go`, `monster_tool.go`, `npc_management_tools.go`, etc.
 - `cmd/dm/main.go` : Application REPL
 
@@ -1001,6 +1027,58 @@ Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
    # Vérifier que les modifications du package déclenchent la recompilation
    touch internal/<package>/<file>.go
    make <binary-name>
+   ```
+
+### Ajout de nouveaux tools pour sw-dm
+
+**IMPORTANT** : Quand une nouvelle fonctionnalité est ajoutée au projet (skill, CLI), elle doit également être exposée comme tool dans sw-dm pour que l'agent DM puisse l'utiliser pendant les sessions de jeu.
+
+1. **Créer le tool** dans `internal/dmtools/<category>_tools.go`
+   ```go
+   func NewMonToolTool(dep *package.Type) *SimpleTool {
+       return &SimpleTool{
+           name:        "mon_tool",
+           description: "Description pour Claude...",
+           schema: map[string]interface{}{
+               "type": "object",
+               "properties": map[string]interface{}{...},
+           },
+           execute: func(params map[string]interface{}) (interface{}, error) {
+               // Appeler le package internal/...
+               return map[string]interface{}{"success": true, ...}, nil
+           },
+       }
+   }
+   ```
+
+2. **Enregistrer le tool** dans `internal/agent/register_tools.go`
+   ```go
+   // Créer l'instance du package si nécessaire
+   myPackage, err := package.New(dataDir)
+   if err != nil {
+       return fmt.Errorf("failed to create package: %w", err)
+   }
+   registry.Register(dmtools.NewMonToolTool(myPackage))
+   ```
+
+3. **Ajouter le mapping CLI** dans `internal/agent/cli_mapper.go`
+   ```go
+   case "mon_tool":
+       return mapMonTool(params)
+   // ...
+   func mapMonTool(params map[string]interface{}) string {
+       return fmt.Sprintf("./sw-xxx ...")
+   }
+   ```
+
+4. **Documenter le tool** :
+   - `.claude/agents/dungeon-master.md` : Ajouter dans la table "Tools API"
+   - `CLAUDE.md` : Ajouter dans la section "Tools disponibles pour l'agent"
+
+5. **Tester** :
+   ```bash
+   go build -o sw-dm ./cmd/dm
+   go test ./...
    ```
 
 ### Packages actuellement dans `internal/`

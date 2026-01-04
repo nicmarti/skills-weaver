@@ -5,6 +5,11 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/dmtools"
+	"dungeons/internal/equipment"
+	"dungeons/internal/locations"
+	"dungeons/internal/monster"
+	"dungeons/internal/names"
+	"dungeons/internal/spell"
 )
 
 // registerAllTools registers all available tools in the registry.
@@ -53,6 +58,10 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewListForeshadowsTool(adv))
 	registry.Register(dmtools.NewGetStaleForeshadowsTool(adv))
 
+	// Register character info tools
+	registry.Register(dmtools.NewGetPartyInfoTool(adv))
+	registry.Register(dmtools.NewGetCharacterInfoTool(adv))
+
 	// Register image generation tool
 	imageTool, err := dmtools.NewGenerateImageTool(adv.BasePath())
 	if err != nil {
@@ -70,6 +79,46 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	} else {
 		registry.Register(mapTool)
 	}
+
+	// Register equipment lookup tool
+	equipmentCatalog, err := equipment.NewCatalog(dataDir)
+	if err != nil {
+		return fmt.Errorf("failed to create equipment catalog: %w", err)
+	}
+	registry.Register(dmtools.NewGetEquipmentTool(equipmentCatalog))
+
+	// Register spell lookup tool
+	spellBook, err := spell.NewSpellBook(dataDir)
+	if err != nil {
+		return fmt.Errorf("failed to create spell book: %w", err)
+	}
+	registry.Register(dmtools.NewGetSpellTool(spellBook))
+
+	// Register encounter tools (uses existing bestiary)
+	bestiary, err := monster.NewBestiary(dataDir)
+	if err != nil {
+		return fmt.Errorf("failed to create bestiary for encounters: %w", err)
+	}
+	registry.Register(dmtools.NewGenerateEncounterTool(bestiary))
+	registry.Register(dmtools.NewRollMonsterHPTool(bestiary))
+
+	// Register inventory management tools
+	registry.Register(dmtools.NewAddItemTool(adv))
+	registry.Register(dmtools.NewRemoveItemTool(adv))
+
+	// Register name generation tools
+	nameGenerator, err := names.NewGenerator(dataDir)
+	if err != nil {
+		return fmt.Errorf("failed to create name generator: %w", err)
+	}
+	registry.Register(dmtools.NewGenerateNameTool(nameGenerator))
+
+	// Register location name generation tool
+	locationGenerator, err := locations.NewGenerator(dataDir)
+	if err != nil {
+		return fmt.Errorf("failed to create location generator: %w", err)
+	}
+	registry.Register(dmtools.NewGenerateLocationNameTool(locationGenerator))
 
 	return nil
 }

@@ -25,11 +25,24 @@ func NewStartSessionTool(adv *adventure.Adventure) *SimpleTool {
 				}, nil
 			}
 
+			display := fmt.Sprintf("✓ Session %d démarrée", session.ID)
+
+			// Check for stale foreshadows (automatic reminder)
+			staleForeshadows, err := adv.GetStaleForeshadows(3)
+			if err == nil && len(staleForeshadows) > 0 {
+				display += fmt.Sprintf("\n\n⚠️  RAPPEL: %d foreshadow(s) en attente depuis plus de 3 sessions:", len(staleForeshadows))
+				for i, f := range staleForeshadows {
+					age := session.ID - f.PlantedSession
+					display += fmt.Sprintf("\n  %d. [%s] %s (%d sessions ago, %s)", i+1, f.ID, f.Description, age, f.Importance)
+				}
+				display += "\n\n💡 Utilisez list_foreshadows ou get_stale_foreshadows pour plus de détails."
+			}
+
 			return map[string]interface{}{
 				"success":    true,
 				"session_id": session.ID,
 				"started_at": session.StartedAt.Format("2006-01-02 15:04:05"),
-				"display":    fmt.Sprintf("Session %d démarrée", session.ID),
+				"display":    display,
 			}, nil
 		},
 	}

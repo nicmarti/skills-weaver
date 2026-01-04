@@ -47,6 +47,12 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewUpdateNPCImportanceTool(adv))
 	registry.Register(dmtools.NewGetNPCHistoryTool(adv))
 
+	// Register foreshadowing tools
+	registry.Register(dmtools.NewPlantForeshadowTool(adv))
+	registry.Register(dmtools.NewResolveForeshadowTool(adv))
+	registry.Register(dmtools.NewListForeshadowsTool(adv))
+	registry.Register(dmtools.NewGetStaleForeshadowsTool(adv))
+
 	// Register image generation tool
 	imageTool, err := dmtools.NewGenerateImageTool(adv.BasePath())
 	if err != nil {

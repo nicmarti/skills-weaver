@@ -271,10 +271,14 @@ func NewGenerateNPCTool(dataDir string, adv *adventure.Adventure) (*SimpleTool, 
 
 	return &SimpleTool{
 		name:        "generate_npc",
-		description: "Generate a complete NPC with name, appearance, personality, motivation, and secret. Automatically saves to adventure for future reference.",
+		description: "Generate a complete NPC with name, appearance, personality, motivation, and secret. Automatically saves to adventure for future reference. Use 'name' parameter to create an NPC with a specific name (useful for officializing existing narrative NPCs).",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
+				"name": map[string]interface{}{
+					"type":        "string",
+					"description": "NPC name (optional). If specified, uses this name instead of generating a random one. Useful for officializing NPCs already mentioned in narrative.",
+				},
 				"race": map[string]interface{}{
 					"type":        "string",
 					"enum":        []string{"human", "elf", "dwarf", "halfling"},
@@ -303,6 +307,9 @@ func NewGenerateNPCTool(dataDir string, adv *adventure.Adventure) (*SimpleTool, 
 		execute: func(params map[string]interface{}) (interface{}, error) {
 			// Build options from parameters
 			var opts []npc.Option
+			if name, ok := params["name"].(string); ok && name != "" {
+				opts = append(opts, npc.WithName(name))
+			}
 			if race, ok := params["race"].(string); ok && race != "" {
 				opts = append(opts, npc.WithRace(race))
 			}

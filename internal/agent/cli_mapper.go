@@ -85,6 +85,9 @@ func mapGenerateNPC(params map[string]interface{}) string {
 	var parts []string
 	parts = append(parts, "./sw-npc generate")
 
+	if name, ok := params["name"].(string); ok && name != "" {
+		parts = append(parts, fmt.Sprintf("--name=\"%s\"", name))
+	}
 	if race, ok := params["race"].(string); ok && race != "" {
 		parts = append(parts, fmt.Sprintf("--race=%s", race))
 	}

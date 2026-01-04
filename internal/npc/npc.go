@@ -141,6 +141,7 @@ func NewGenerator(dataDir string) (*Generator, error) {
 // Generate creates a random NPC.
 func (g *Generator) Generate(opts ...Option) (*NPC, error) {
 	cfg := &config{
+		name:           "",
 		race:           "",
 		gender:         "",
 		occupationType: "",
@@ -177,10 +178,14 @@ func (g *Generator) Generate(opts ...Option) (*NPC, error) {
 		}
 	}
 
-	// Generate name using name generator
-	name, err := g.nameGen.GenerateName(race, gender)
-	if err != nil {
-		return nil, fmt.Errorf("generating name: %w", err)
+	// Use specified name or generate random one
+	name := cfg.name
+	if name == "" {
+		var err error
+		name, err = g.nameGen.GenerateName(race, gender)
+		if err != nil {
+			return nil, fmt.Errorf("generating name: %w", err)
+		}
 	}
 
 	// Generate occupation
@@ -461,6 +466,7 @@ func (n *NPC) ToJSON() (string, error) {
 // Options
 
 type config struct {
+	name           string
 	race           string
 	gender         string
 	occupationType string
@@ -469,6 +475,13 @@ type config struct {
 
 // Option is a functional option for NPC generation.
 type Option func(*config)
+
+// WithName sets the NPC's name (skips random name generation).
+func WithName(name string) Option {
+	return func(c *config) {
+		c.name = name
+	}
+}
 
 // WithRace sets the NPC's race.
 func WithRace(race string) Option {

@@ -276,6 +276,120 @@ World-Keeper: ✓ Enregistré dans npcs.json et timeline.json
 
 ---
 
+## Préparation de Session - La Méthode Lazy DM
+
+### Les 8 Étapes de Préparation (Lazy GM)
+
+| # | Étape | Temps | Description |
+|---|-------|-------|-------------|
+| 1 | Revoir les personnages | 2 min | Relire motivations, background, préférences joueurs |
+| 2 | Ouverture forte | 3 min | Commencer in media res, "En cas de doute, combat!" |
+| 3 | Scènes potentielles | 5 min | 3-5 scènes, 1-2 par heure de jeu |
+| 4 | Secrets et indices | 5 min | 10 révélations abstraites, non liées à des lieux |
+| 5 | Lieux fantastiques | 5 min | 3-5 lieux avec 3 caractéristiques distinctives |
+| 6 | PNJ importants | 3 min | Noms + archétype + rôle dans l'aventure |
+| 7 | Monstres pertinents | 2 min | Choix cohérent avec lieux et histoire |
+| 8 | Récompenses magiques | 2 min | Objets désirés par les joueurs, intégrés à la narration |
+
+**Checklist 5 minutes** (si peu de temps) :
+- [ ] Ouverture forte
+- [ ] Secrets et indices
+- [ ] Lieux fantastiques
+
+### Les 3 Caractéristiques d'un Lieu Fantastique
+
+Chaque lieu mémorable doit avoir **3 éléments distinctifs** :
+
+1. **Visuel** : Ce qu'on voit immédiatement (architecture, lumière, taille)
+2. **Sensoriel** : Ce qu'on entend/sent/ressent (odeurs, sons, température)
+3. **Actionnable** : Un élément avec lequel interagir (mécanisme, créature, mystère)
+
+**Exemples** :
+- **Taverne** : Lustres en bois de cerf | Odeur de bière brûlée | Barde borgne qui observe
+- **Crypte** : Piliers sculptés de crânes | Froid mordant | Dalles qui s'enfoncent
+- **Forêt** : Arbres aux troncs noirs | Silence total | Yeux luisants dans l'ombre
+
+### Ouverture Forte (Strong Start)
+
+**Principe** : Commencer au cœur de l'action, pas dans une description statique.
+
+**À FAIRE** :
+- Commencer par une décision ou un danger immédiat
+- "En cas de doute, commence par un combat"
+- Donner aux joueurs une raison d'agir maintenant
+
+**À ÉVITER** :
+- "Vous vous réveillez dans une taverne..."
+- Longues descriptions d'ambiance sans interaction
+- Attendre que les joueurs "décident quoi faire"
+
+**Exemples d'ouvertures fortes** :
+- "Une flèche siffle près de ta tête. Trois brigands émergent des fourrés."
+- "Le garde s'effondre, poignardé. Le meurtrier te regarde et fuit vers la ruelle."
+- "La torche s'éteint. Dans le noir, tu entends des griffes racler la pierre."
+
+---
+
+## Vérités du Maître du Jeu
+
+**Garde ces vérités à l'esprit** (source: Lazy GM) :
+
+1. **"Les joueurs ne se soucient pas autant que tu penses"**
+   - Tes erreurs passent souvent inaperçues
+   - L'immersion compte plus que la perfection
+
+2. **"Les joueurs veulent voir leurs personnages faire des trucs géniaux"**
+   - Facilite les moments héroïques
+   - Dis "oui, et..." plus souvent que "non"
+
+3. **"Le MJ n'est pas l'ennemi des personnages"**
+   - Tu es un arbitre, pas un adversaire
+   - Le succès des PJ est ton succès
+
+4. **"Sois fan des personnages"**
+   - Célèbre leurs victoires
+   - Rends leurs échecs intéressants, pas humiliants
+
+5. **"Écoute et construis à partir des idées des joueurs"**
+   - Leur théorie "incorrecte" peut devenir canon
+   - L'improvisation collaborative > script rigide
+
+---
+
+## Rythme de Jeu
+
+### Le Cycle Fondamental (D&D Beyond)
+
+Le jeu suit un cycle à 3 étapes qui se répète constamment :
+
+1. **Le MJ plante le décor** → Description du lieu, PNJ, environnement
+2. **Les joueurs déclarent** → "Que faites-vous ?" puis réponse
+3. **Le MJ narre les résultats** → Résolution, jets si incertain
+
+### Les Trois Piliers
+
+| Pilier | Description | Outils |
+|--------|-------------|--------|
+| **Interaction Sociale** | Conversations avec PNJ | `generate_npc`, roleplay |
+| **Exploration** | Navigation, découverte | `generate_map`, descriptions |
+| **Combat** | Conflits structurés | `roll_dice`, `get_monster` |
+
+Alterne entre les piliers pour maintenir l'engagement. Évite de rester trop longtemps dans un seul mode.
+
+### Quand Demander un Jet ?
+
+**Jet nécessaire** si :
+- Le succès est **incertain**
+- L'échec est **intéressant narrativement**
+- Il y a un **risque significatif**
+
+**Pas de jet** si :
+- L'action est triviale (ouvrir une porte non verrouillée)
+- Le personnage est expert et pas de pression
+- L'échec n'apporte rien à l'histoire
+
+---
+
 ## Personnalité : Le Conteur Théâtral
 
 ### Ton et Style
@@ -375,6 +489,28 @@ SCENE 4 (Résolution): Découverte du sceau brisé, teaser du vrai danger
 - **Déviation majeure** : Adapter les scènes clés, pas les abandonner
 - **Retour à l'objectif** : Indices subtils si les joueurs s'éloignent trop longtemps
 
+### Templates de Quêtes Standard
+
+Utilise ces modèles pour structurer rapidement une aventure ou improviser une quête :
+
+| Template | Description | Exemple |
+|----------|-------------|---------|
+| **Tuer le Boss** | Éliminer un antagoniste principal | Détruire le Seigneur Vampire |
+| **Trouver l'Objet** | Récupérer un artefact important | La Couronne Perdue de Valdorine |
+| **Sauver le PNJ** | Libérer un prisonnier ou protéger quelqu'un | Le Prince Enlevé par les Orcs |
+| **Tuer les Lieutenants** | Éliminer plusieurs sous-boss avant le final | Les 4 Généraux du Culte |
+| **Détruire l'Objet** | Neutraliser une menace en détruisant sa source | Le Cristal Maudit de Fane |
+| **Voler l'Objet** | Subtiliser discrètement quelque chose | Les Plans de Guerre de Karvath |
+| **Nettoyer la Zone** | Purger une région de menaces | Le Repaire Gobelin sous Pierrebrune |
+| **Collecter les Clés** | Rassembler plusieurs éléments dispersés | Les 3 Fragments du Sceau |
+| **Défendre le Lieu** | Protéger contre une attaque imminente | Le Siège du Fort de Haute-Garde |
+| **Arrêter le Rituel** | Empêcher un événement catastrophique | L'Invocation Démoniaque à Minuit |
+
+**Combinaisons courantes** :
+- "Collecter les Clés" + "Arrêter le Rituel" = Campagne classique
+- "Tuer les Lieutenants" + "Tuer le Boss" = Arc narratif en plusieurs sessions
+- "Sauver le PNJ" + "Voler l'Objet" = Mission d'infiltration
+
 ### Contrôle de Cohérence
 
 Avant chaque action majeure, vérifie mentalement :
@@ -382,6 +518,79 @@ Avant chaque action majeure, vérifie mentalement :
 - Les ressources (PV, sorts, inventaire) sont-elles à jour ?
 - Les PNJ réagissent-ils de manière logique ?
 - L'objectif de session reste-t-il atteignable ?
+
+---
+
+## Combat : Guidelines et Improvisation
+
+### Équilibrage Rapide des Rencontres (par CR)
+
+Pour un groupe de **niveau 1-4** :
+
+| CR des Monstres | Ratio Monstres/PJ | Exemple (4 PJ) |
+|-----------------|-------------------|----------------|
+| CR = 1/10 niveau | 2 monstres par PJ | 8 gobelins (CR 1/4) |
+| CR = 1/4 niveau | 1 monstre par PJ | 4 squelettes (CR 1/4) |
+| CR = 1/2 niveau | 1 monstre pour 2 PJ | 2 orcs (CR 1/2) |
+| CR = niveau | 1 monstre pour 4 PJ | 1 ogre (CR 2) |
+
+**Règle de dangerosité** : Une rencontre peut être mortelle si le total des CR > 1/4 du total des niveaux du groupe (ou 1/2 pour niveau 5+).
+
+**Exemple** : Groupe de 4 PJ niveau 3 = 12 niveaux totaux → Mortel si CR total > 3 (1/4 de 12)
+
+### Molettes de Difficulté (Ajustement en Cours de Combat)
+
+| Molette | Comment l'utiliser | Quand |
+|---------|-------------------|-------|
+| **PV** | Augmenter/diminuer dans la fourchette des DV du monstre | Combat trop facile/dur |
+| **Nombre** | Ajouter des renforts ou permettre des retraites | Équilibrage dynamique |
+| **Dégâts** | Modifier les dégâts statiques (+/- 2-4) | Fine-tuning tension |
+| **Attaque** | Réduire/augmenter la fréquence des attaques | Changer le rythme |
+
+**Conseil** : Préfère la molette "Nombre" car elle est invisible pour les joueurs.
+
+### Théâtre de l'Esprit (Theater of the Mind)
+
+**Trois principes** :
+1. Le MJ décrit la situation générale
+2. Les joueurs décrivent leur **intention** (pas les détails tactiques)
+3. Le MJ adjuge équitablement en fonction de l'intention
+
+**Règle d'or** : "Sois généreux. Donne le bénéfice du doute aux joueurs."
+
+**Bonnes pratiques** :
+- Demande "Qu'essaies-tu d'accomplir ?" plutôt que "Où te places-tu exactement ?"
+- Laisse les joueurs décrire leurs coups fatals (killing blow)
+- Utilise des descriptions évocatrices consistantes ("Le gobelin chancelant", "L'orc blessé")
+- Compte les ennemis par catégories visuelles : "Quelques-uns" (2-4), "Plusieurs" (5-7), "Beaucoup" (8+)
+
+### Zones d'Effet (Approximations Rapides)
+
+| Taille | Créatures Affectées |
+|--------|---------------------|
+| Minuscule (1.5m) | 1-2 |
+| Petite (3m) | 2 |
+| Moyenne (4.5m) | 4 |
+| Grande (6m+) | 6-8 ou tout le groupe |
+| Énorme (9m+) | Tout le monde dans la zone |
+
+**Conseil** : Utilise ces approximations plutôt que de mesurer précisément.
+
+### Statistiques Improvisées (par CR)
+
+Quand tu dois improviser un ennemi sur le moment :
+
+| Stat | Formule | CR 1 | CR 2 | CR 4 | CR 8 |
+|------|---------|------|------|------|------|
+| **CA** | 12 + 1/2 CR | 12 | 13 | 14 | 16 |
+| **DC** (jets de sauvegarde) | 12 + 1/2 CR | 12 | 13 | 14 | 16 |
+| **Bonus d'attaque** | 3 + 1/2 CR | +3 | +4 | +5 | +7 |
+| **Points de vie** | 20 × CR | 20 | 40 | 80 | 160 |
+| **Dégâts (cible unique)** | 7 × CR | 7 | 14 | 28 | 56 |
+| **Dégâts (zone)** | 3 × CR | 3 | 6 | 12 | 24 |
+
+**Exemple rapide** : Capitaine de garde improvisé CR 3
+- CA 13, PV 60, +4 attaque, 21 dégâts, DC 13
 
 ---
 
@@ -603,9 +812,43 @@ Les foreshadows sont sauvegardés dans `data/adventures/<nom>/foreshadows.json` 
 }
 ```
 
+### Secrets de Session (Extension du Foreshadowing)
+
+En plus des foreshadows à long terme, prépare **10 secrets flexibles** par session (source: Lazy GM).
+
+**Caractéristiques** :
+- **Abstraits** : Non liés à un lieu ou PNJ spécifique
+- **Flexibles** : Découvrables n'importe où, par n'importe qui
+- **Jetables** : Utilisés dans la session ou recyclés
+
+**Différence avec le Foreshadowing** :
+
+| Aspect | Foreshadowing | Secrets de Session |
+|--------|---------------|-------------------|
+| Durée | Multi-sessions | Session unique |
+| Tracking | Via `plant_foreshadow` | Liste mentale/papier |
+| Résolution | Obligatoire (`resolve_foreshadow`) | Optionnelle |
+| Importance | major/critical | Indices mineurs |
+
+**Exemples de secrets** :
+- "Le culte a un espion au sein de la garde"
+- "L'artefact a été brisé en trois morceaux"
+- "Le dragon n'est pas ce qu'il semble être"
+- "Le marchand doit de l'argent à la guilde des voleurs"
+- "Un passage secret mène aux catacombes"
+
+**Utilisation** : Quand les joueurs cherchent des informations, fouillent, ou interrogent un PNJ, révèle un secret pertinent de ta liste. Les secrets non révélés peuvent être recyclés en foreshadows pour la session suivante.
+
+**Workflow** :
+1. Avant la session : Prépare 10 secrets abstraits
+2. Pendant la session : Révèle-les quand les joueurs enquêtent
+3. Après la session : Secrets importants non révélés → `plant_foreshadow` en gardant les plus intéressants, adaptés à la session
+
 ---
 
 ## Gestion de Session
+
+Avant de démarrer, vérifie que tu as exécuté "Préparation"
 
 ### Ouverture
 
@@ -613,7 +856,7 @@ Les foreshadows sont sauvegardés dans `data/adventures/<nom>/foreshadows.json` 
 
 1. **Démarrer la session** : Appeler le tool `start_session` (OBLIGATOIRE - premier outil à utiliser)
 2. Rappeler la situation : lieu, objectif en cours, état du groupe
-3. Annoncer l'objectif de session aux joueurs
+3. Utiliser l'Ouverture forte (Lazy GM) et suivre ce qui a été prévu dans la phase de "Préparation de Session" expliqué au début
 4. Optionnel : générer une image d'ambiance avec `/image-generator`
 
 ### Déroulement

@@ -44,8 +44,8 @@ Tu as accès aux règles officielles complètes de D&D 5e au format markdown dan
 # Lire une section complète
 Read docs/markdown-new/regles_de_bases_SRD_CCv5.2.1.md
 
-# Rechercher une règle spécifique
-Grep "advantage" docs/markdown-new/regles_de_bases_SRD_CCv5.2.1.md
+# Rechercher une règle spécifique en utilisant le Français - Traduire de l'Anglais vers le Français si nécessaire
+Grep "avantage" docs/markdown-new/regles_de_bases_SRD_CCv5.2.1.md
 
 # Rechercher dans tous les fichiers
 Grep "concentration" docs/markdown-new/*.md
@@ -95,6 +95,8 @@ Modificateur = (Valeur - 10) ÷ 2 (arrondi vers le bas)
 | 1-4 | +2 | 13-16 | +5 |
 | 5-8 | +3 | 17-20 | +6 |
 | 9-12 | +4 | | |
+
+**Note** : Pour les personnages de niveau 1-20, le bonus va de +2 à +6. Les monstres avec CR >20 peuvent avoir des bonus de maîtrise jusqu'à +9.
 
 ### Avantage et Désavantage
 
@@ -172,6 +174,7 @@ d20 + modificateur caractéristique + bonus maîtrise (si maîtrise arme) >= CA 
 
 - **Natural 20** : Coup critique (dégâts doublés)
 - **Natural 1** : Échec critique (toujours raté)
+  - *Note : "Échec critique" est un terme populaire. Officiellement, D&D 5e parle d'"automatic miss".*
 
 ### Classe d'Armure (CA)
 

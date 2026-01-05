@@ -1,12 +1,12 @@
 ---
 name: spell-reference
-description: Consulte les sorts BFRPG par classe et niveau. Portée, durée, effets, formes inversées. Utilisez pour vérifier les sorts lancés.
+description: Consulte les sorts D&D 5e par classe et niveau (0-9). Cantrips, écoles, concentration, rituels. Utilisez pour vérifier les sorts lancés.
 allowed-tools: Bash
 ---
 
-# Spell Reference - Grimoire des Sorts BFRPG
+# Spell Reference - Grimoire des Sorts D&D 5e
 
-Skill pour consulter les sorts divins (Clerc) et arcaniques (Magicien). Indispensable pour vérifier les effets des sorts pendant le jeu.
+Skill pour consulter les sorts D&D 5e (257 sorts, 12 classes, 8 écoles de magie). Indispensable pour vérifier les effets des sorts pendant le jeu.
 
 ## Utilisation Rapide
 
@@ -15,13 +15,19 @@ Skill pour consulter les sorts divins (Clerc) et arcaniques (Magicien). Indispen
 go build -o sw-spell ./cmd/spell
 
 # Lister les sorts par classe
-./sw-spell list --class=cleric
+./sw-spell list --class=wizard
+
+# Cantrips d'une classe
+./sw-spell cantrips wizard
 
 # Détails d'un sort
-./sw-spell show magic_missile
+./sw-spell show projectile_magique
 
-# Sorts réversibles
-./sw-spell reversible
+# Sorts de concentration
+./sw-spell concentration
+
+# Slots de sorts
+./sw-spell slots wizard --level=5
 ```
 
 ## Commandes Disponibles
@@ -29,14 +35,59 @@ go build -o sw-spell ./cmd/spell
 ### Lister les Sorts
 
 ```bash
-./sw-spell list                              # Tous les sorts
-./sw-spell list --class=cleric               # Sorts de Clerc
-./sw-spell list --class=magic-user           # Sorts de Magicien
+./sw-spell list                              # Tous les sorts (257)
+./sw-spell list --class=wizard               # Sorts de magicien
 ./sw-spell list --class=cleric --level=1     # Clerc niveau 1
-./sw-spell list --level=2                    # Tous les sorts niveau 2
+./sw-spell list --level=0                    # Cantrips
+./sw-spell list --school=evocation           # École d'évocation
 ./sw-spell list --format=md                  # Fiches détaillées
 ./sw-spell list --format=json                # Format JSON
 ```
+
+### Cantrips (Level 0)
+
+```bash
+./sw-spell cantrips <classe>
+
+# Exemples:
+./sw-spell cantrips wizard        # Cantrips de magicien (13)
+./sw-spell cantrips cleric        # Cantrips de clerc
+./sw-spell cantrips warlock       # Cantrips d'occultiste
+```
+
+### Écoles de Magie
+
+```bash
+./sw-spell schools                # Liste les 8 écoles
+./sw-spell schools --format=detail   # Avec exemples de sorts
+```
+
+**8 Écoles D&D 5e** :
+- **Abjuration** : Protection (Bouclier, Protection contre le mal)
+- **Invocation** : Création/téléportation (Invoquer familier)
+- **Divination** : Connaissance (Détection de la magie)
+- **Enchantement** : Contrôle mental (Charme-personne)
+- **Évocation** : Énergie/dégâts (Projectile magique, Boule de feu)
+- **Illusion** : Tromperie (Image silencieuse)
+- **Nécromancie** : Mort/non-mort (Animation des morts)
+- **Transmutation** : Transformation (Métamorphose)
+
+### Sorts de Concentration
+
+```bash
+./sw-spell concentration          # Liste 69 sorts concentration
+./sw-spell concentration --format=md   # Fiches détaillées
+```
+
+**Règle concentration** : Seul 1 sort de concentration peut être actif à la fois. Brisée si : dégâts (JdS CON DC 10 ou ½ dégâts), incapacité, mort, nouveau sort concentration.
+
+### Sorts Rituels
+
+```bash
+./sw-spell rituals                # Liste 22 sorts rituels
+```
+
+**Règle rituels** : Sorts rituels prennent +10 minutes mais ne consomment pas de slot.
 
 ### Afficher un Sort
 
@@ -44,11 +95,11 @@ go build -o sw-spell ./cmd/spell
 ./sw-spell show <id>
 
 # Exemples:
-./sw-spell show magic_missile        # Projectile magique
-./sw-spell show cure_light_wounds    # Soins légers
-./sw-spell show sleep                # Sommeil
-./sw-spell show --format=json        # Format JSON
-./sw-spell show --format=short       # Une ligne
+./sw-spell show projectile_magique    # Projectile magique
+./sw-spell show soin_des_blessures    # Soins des blessures
+./sw-spell show sommeil               # Sommeil
+./sw-spell show --format=json         # Format JSON
+./sw-spell show --format=short        # Une ligne
 ```
 
 ### Rechercher des Sorts
@@ -59,172 +110,172 @@ go build -o sw-spell ./cmd/spell
 # Exemples:
 ./sw-spell search lumière            # Par nom français
 ./sw-spell search light              # Par nom anglais
-./sw-spell search détection          # Sorts de détection
+./sw-spell search feu                # Sorts de feu
 ```
 
-### Sorts Réversibles
+### Slots de Sorts
 
 ```bash
-./sw-spell reversible                # Liste les sorts avec forme inversée
-./sw-spell reversible --format=md    # Fiches détaillées
+./sw-spell slots <classe> --level=<niveau>
+
+# Exemples:
+./sw-spell slots wizard --level=5    # Magicien niveau 5
+./sw-spell slots paladin --level=3   # Paladin niveau 3
+./sw-spell slots warlock --level=11  # Occultiste niveau 11
 ```
 
-## Types de Sorts
+## Classes de Lanceurs D&D 5e
 
-| Type | Classe | Description |
-|------|--------|-------------|
-| `divine` | Clerc | Sorts obtenus par la prière |
-| `arcane` | Magicien | Sorts appris par étude |
-| `both` | Les deux | Disponibles aux deux classes |
+| Classe | Type | Début | Niveaux max |
+|--------|------|-------|-------------|
+| **Magicien** (wizard) | Full caster | 1 | 9 |
+| **Ensorceleur** (sorcerer) | Full caster | 1 | 9 |
+| **Clerc** (cleric) | Full caster | 1 | 9 |
+| **Druide** (druid) | Full caster | 1 | 9 |
+| **Barde** (bard) | Full caster | 1 | 9 |
+| **Occultiste** (warlock) | Pact caster | 1 | 5 (pact slots) |
+| **Paladin** | Half caster | 2 | 5 |
+| **Rôdeur** (ranger) | Half caster | 2 | 5 |
+| **Guerrier** (fighter) | 1/3 caster | 3 | 4 (Eldritch Knight) |
+| **Roublard** (rogue) | 1/3 caster | 3 | 4 (Arcane Trickster) |
 
-## Sorts de Clerc (Divins)
-
-### Niveau 1 (8 sorts)
-
-| Sort | Portée | Durée | Effet |
-|------|--------|-------|-------|
-| Soins légers* | Contact | Instantané | Soigne 1d6+1 PV |
-| Détection du mal* | 60' | 1 round/niveau | Détecte le mal |
-| Détection de la magie | 60' | 2 tours | Détecte la magie |
-| Lumière* | 120' | 6 tours+1/niveau | Éclaire 30' rayon |
-| Protection contre le mal* | Contact | 1 tour/niveau | +2 CA et JS contre mal |
-| Purification nourriture | 10' | Instantané | Purifie vivres |
-| Délivrance de la peur* | Contact | Instantané | Annule la peur |
-| Résistance au froid | Contact | 1 round/niveau | +3 JS, -50% dégâts froid |
-
-### Niveau 2 (8 sorts)
-
-| Sort | Portée | Durée | Effet |
-|------|--------|-------|-------|
-| Bénédiction* | 50' rayon | 1 min/niveau | +1 attaque, moral, JS |
-| Charme-animal | 60' | niveau+1d4 rounds | Charme animaux |
-| Détection des pièges | 30' | 3 tours | Révèle les pièges |
-| Immobilisation de personne | 180' | 2d8 tours | Paralyse humanoïdes |
-| Résistance au feu | Contact | 1 round/niveau | +3 JS, -50% dégâts feu |
-| Silence 15' de rayon | 360' | 2 rounds/niveau | Zone de silence |
-| Communication avec animaux | Spécial | 1 tour/4 niveaux | Parle aux animaux |
-| Marteau spirituel | 30' | 1 round/niveau | 1d6+1/3 niveaux dégâts |
-
-## Sorts de Magicien (Arcaniques)
-
-### Niveau 1 (13 sorts)
-
-| Sort | Portée | Durée | Effet |
-|------|--------|-------|-------|
-| Charme-personne | 30' | Spécial | Charme humanoïde 4 DV max |
-| Détection de la magie | 60' | 2 tours | Détecte la magie |
-| Disque flottant | 0 | 5 tours+1/niveau | Porte 500 livres |
-| Verrouillage | 100'+10'/niveau | 1 round/niveau | Verrouille porte |
-| Lumière* | 120' | 6 tours+1/niveau | Éclaire 30' rayon |
-| Projectile magique | 100'+10'/niveau | Instantané | 1d6+1 auto-touche |
-| Bouche magique | 30' | Spécial | Message déclenché |
-| Protection contre le mal* | Contact | 1 tour/niveau | +2 CA et JS |
-| Lecture des langues | 0 | Spécial | Lit les langues |
-| Lecture de la magie | 0 | Permanent | Lit textes magiques |
-| Bouclier | Soi | 5 rounds+1/niveau | +3/+6 CA, annule projectile magique |
-| Sommeil | 90' | 5 rounds/niveau | Endort créatures 3 DV max |
-| Ventriloquie | 60' | 1 tour/niveau | Projette sa voix |
-
-### Niveau 2 (12 sorts)
-
-| Sort | Portée | Durée | Effet |
-|------|--------|-------|-------|
-| Lumière éternelle* | 360' | 1 an/niveau | Éclaire comme le jour |
-| Détection du mal* | 60' | 1 round/niveau | Détecte le mal |
-| Détection de l'invisible | 60' | 1 tour/niveau | Voit l'invisible |
-| Invisibilité | Contact | Spécial | Rend invisible |
-| Déblocage | 30' | Spécial | Ouvre portes verrouillées |
-| Lévitation | Contact | 1 tour/niveau | Monte/descend 20'/round |
-| Localisation d'objet | 360' | 1 round/niveau | Trouve un objet connu |
-| Lecture des pensées | 60' | 1 tour/niveau | Lit pensées superficielles |
-| Image miroir | Soi | 1 tour/niveau | 1d4+niveau/3 doubles |
-| Force fantasmagorique | 180' | Concentration | Crée illusion visuelle |
-| Toile d'araignée | 10'/niveau | 2 tours/niveau | Emprisonne créatures |
-| Verrou magique | 20' | Permanent | Verrouille magiquement |
-
-## Sorts Réversibles
-
-Les sorts marqués d'un astérisque (*) ont une forme inversée :
-
-| Sort | Forme inversée |
-|------|----------------|
-| Soins légers | Blessure légère |
-| Détection du mal | Détection du bien |
-| Lumière | Ténèbres |
-| Protection contre le mal | Protection contre le bien |
-| Délivrance de la peur | Cause de la peur |
-| Bénédiction | Fléau |
-| Lumière éternelle | Ténèbres éternelles |
-
-**Règle** : Un sort réversible peut être préparé normalement et utilisé dans l'une ou l'autre forme.
+**Aliases FR/EN acceptés** : magicien/wizard, clerc/cleric, ensorceleur/sorcerer, occultiste/warlock, rôdeur/ranger, guerrier/fighter, roublard/rogue.
 
 ## Format de Sortie
 
 ### Fiche Sort (Markdown)
 
 ```markdown
-## Projectile magique (Magic Missile)
+## Projectile magique
 
-**Type** : Arcanique (Magicien) | **Niveau** : 1
+**Niveau 1** | **École** : Évocation
 
 | Caractéristique | Valeur |
 |-----------------|--------|
-| **Portée** | 100'+10'/niveau |
-| **Durée** | instantaneous |
-| **Dégâts** | 1d6+1 par projectile |
+| **Temps d'incantation** | action |
+| **Portée** | 36 m |
+| **Composantes** | V, S |
+| **Durée** | instantanée |
+| **Classes** | Magicien, Ensorceleur |
+| **Dégâts** | 1d4+1 |
 
 ### Description
 
-Ce sort fait jaillir un projectile d'énergie magique du bout du doigt du lanceur
-pour frapper sa cible, infligeant 1d6+1 points de dégâts. Le projectile frappe
-immanquablement. Pour chaque trois niveaux au-delà du 1er, un projectile
-supplémentaire est tiré.
+Vous créez trois fléchettes lumineuses d'énergie magique...
+
+### Aux niveaux supérieurs
+
+Chaque emplacement de sort de niveau supérieur crée une fléchette supplémentaire.
 ```
 
 ### Format Court
 
 ```
-Projectile magique [N1 Arc] - 100'+10'/niveau, instantaneous
-Soins légers * [N1 Div] - touch, instantaneous
+Projectile magique [N1 Évocation] - 36 m, instantanée
+Lumière [Cantrip Évocation] - contact, 1 heure
+Détection de la magie (C) (R) [N1 Divination] - personnelle, Concentration, jusqu'à 10 minutes
 ```
 
-## Emplacements de Sorts par Niveau
+**(C)** = Concentration | **(R)** = Rituel
 
-### Magicien
+## Slots de Sorts par Niveau
 
-| Niveau perso | 1er | 2e | 3e |
-|--------------|-----|----|----|
-| 1 | 1 | - | - |
-| 2 | 2 | - | - |
-| 3 | 2 | 1 | - |
-| 4 | 2 | 2 | - |
-| 5 | 2 | 2 | 1 |
+### Full Casters (Wizard, Sorcerer, Cleric, Druid, Bard)
 
-### Clerc
+| Niv | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | Cantrips |
+|-----|---|---|---|---|---|---|---|---|---|----------|
+| 1   | 2 | - | - | - | - | - | - | - | - | 3-4 |
+| 2   | 3 | - | - | - | - | - | - | - | - | 3-4 |
+| 3   | 4 | 2 | - | - | - | - | - | - | - | 3-4 |
+| 5   | 4 | 3 | 2 | - | - | - | - | - | - | 4-5 |
+| 9   | 4 | 3 | 3 | 3 | 1 | - | - | - | - | 4-6 |
+| 17  | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | 1 | 5-6 |
+| 20  | 4 | 3 | 3 | 3 | 3 | 2 | 2 | 1 | 1 | 5-6 |
 
-| Niveau perso | 1er | 2e | 3e |
-|--------------|-----|----|----|
-| 1 | - | - | - |
-| 2 | 1 | - | - |
-| 3 | 2 | - | - |
-| 4 | 2 | 1 | - |
-| 5 | 2 | 2 | - |
+### Half Casters (Paladin, Ranger)
 
-## Règles de Lancement
+| Niv | 1 | 2 | 3 | 4 | 5 | Cantrips |
+|-----|---|---|---|---|---|----------|
+| 2   | 2 | - | - | - | - | - |
+| 5   | 4 | 2 | - | - | - | - |
+| 9   | 4 | 3 | 2 | - | - | - |
+| 13  | 4 | 3 | 3 | 1 | - | - |
+| 17  | 4 | 3 | 3 | 3 | 1 | - |
+| 20  | 4 | 3 | 3 | 3 | 2 | - |
 
-1. **Main libre** et **parole** nécessaires
-2. **Durée** : comme une attaque
-3. **Interruption** : si attaqué ou JS requis pendant incantation → sort perdu
-4. **Préparation** : Magicien après repos (1 tour/3 niveaux), Clerc après prière (3 tours)
+### Warlock (Pact Magic)
+
+| Niv | Slot Level | Slots | Cantrips |
+|-----|-----------|-------|----------|
+| 1   | 1 | 1 | 2 |
+| 2   | 1 | 2 | 2 |
+| 3   | 2 | 2 | 2 |
+| 5   | 3 | 2 | 3 |
+| 11  | 5 | 3 | 4 |
+| 17  | 5 | 4 | 4 |
+
+**Note Occultiste** : Tous les slots sont du même niveau. Restaurés au repos court.
+
+## Mécaniques D&D 5e
+
+### Concentration
+
+- **Maximum** : 1 sort de concentration actif à la fois
+- **Brisée si** :
+  - Dégâts : JdS CON DC 10 ou ½ dégâts (le plus élevé)
+  - Incapacité ou mort
+  - Nouveau sort de concentration lancé
+- **69 sorts** avec concentration (vérifier avec `./sw-spell concentration`)
+
+### Rituels
+
+- **+10 minutes** de temps d'incantation
+- **Pas de slot** consommé
+- **22 sorts** rituels (vérifier avec `./sw-spell rituals`)
+- Exemples : Détection de la magie, Identification, Alarme
+
+### Cantrips
+
+- **Illimités** par jour
+- **Scale avec niveau perso** (pas niveau sort)
+- Exemples : Trait de feu 1d10 → 2d10 (niv 5) → 3d10 (niv 11) → 4d10 (niv 17)
+
+### Upcasting
+
+- Lancer sort avec slot **niveau supérieur** pour effet amélioré
+- Exemple : Projectile magique avec slot niveau 3 = 5 fléchettes au lieu de 3
+- Champ `upcast` dans la fiche sort décrit l'effet
+
+### Composantes
+
+- **V** (Verbal) : Parole nécessaire
+- **S** (Somatique) : Main libre nécessaire
+- **M** (Matériel) : Matériau ou focalisateur arcanique/divin
+- Si **M** avec coût spécifique : matériau consommé
+
+### Spell Save DC
+
+**Formule** : `8 + bonus maîtrise + modificateur caractéristique`
+
+Exemple : Magicien niveau 5, INT 16 (+3)
+- Bonus maîtrise : +3
+- DD sauvegarde : 8 + 3 + 3 = **14**
+
+### Spell Attack Bonus
+
+**Formule** : `bonus maîtrise + modificateur caractéristique`
+
+Exemple : Magicien niveau 5, INT 16 (+3)
+- Bonus attaque : 3 + 3 = **+6**
 
 ## Intégration avec Adventure Manager
 
 ```bash
 # Vérifier un sort avant de l'utiliser
-./sw-spell show sleep
+./sw-spell show sommeil
 
-# Logger le sort dans le journal
-./sw-adventure log "Mon Aventure" combat "Lyra lance Sommeil sur 4 gobelins"
+# Logger le sort dans le journal (via sw-dm)
+# L'agent dungeon-master peut appeler get_spell tool
 ```
 
 ## Conseils d'Utilisation
@@ -233,20 +284,26 @@ Soins légers * [N1 Div] - touch, instantaneous
 
 ```bash
 # Vérifier rapidement un sort ennemi
-./sw-spell show hold_person
+./sw-spell show charme_personne
 
-# Trouver des sorts de zone
-./sw-spell search radius
+# Trouver sorts de zone
+./sw-spell search "rayon"
+
+# Vérifier sorts concentration actifs
+./sw-spell concentration
 ```
 
 ### Pour vérifier un personnage
 
 ```bash
-# Sorts disponibles pour un magicien niveau 1
-./sw-spell list --class=magic-user --level=1
+# Sorts disponibles pour magicien niveau 1
+./sw-spell list --class=wizard --level=1
 
-# Sorts de clerc niveau 2
-./sw-spell list --class=cleric --level=2
+# Cantrips de clerc
+./sw-spell cantrips cleric
+
+# Slots disponibles
+./sw-spell slots wizard --level=5
 ```
 
 ## Utilisé par
@@ -255,8 +312,17 @@ Ce skill est utilisé par les agents suivants :
 
 | Agent | Usage |
 |-------|-------|
-| `dungeon-master` | Vérification effets des sorts lancés |
-| `rules-keeper` | Référence des sorts pour arbitrage |
-| `character-creator` | Choix des sorts initiaux |
+| `dungeon-master` | Vérification effets sorts, concentration, slots |
+| `rules-keeper` | Référence sorts pour arbitrage |
+| `character-creator` | Choix sorts initiaux (cantrips + level 1) |
 
 **Type** : Skill autonome, peut être invoqué directement via `/spell-reference`
+
+## Données
+
+- **257 sorts** D&D 5e dans `data/5e/spells.json`
+- **Source** : docs/markdown-new/sorts_et_magie.md (376 KB)
+- **Niveaux** : 0-9 (0 = cantrips, 25 sorts)
+- **Écoles** : 8 (abjuration, conjuration, divination, enchantment, evocation, illusion, necromancy, transmutation)
+- **Concentration** : 69 sorts
+- **Rituels** : 22 sorts

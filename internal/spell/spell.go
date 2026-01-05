@@ -1,227 +1,152 @@
 package spell
 
 import (
-	"encoding/json"
+	"dungeons/internal/data"
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 )
 
-// Spell represents a spell in BFRPG.
-type Spell struct {
-	ID             string   `json:"id"`
-	NameEN         string   `json:"name_en"`
-	NameFR         string   `json:"name_fr"`
-	Level          int      `json:"level"`
-	Type           string   `json:"type"` // "divine", "arcane", "both"
-	Classes        []string `json:"classes,omitempty"`
-	AlsoAvailable  []struct {
-		Class string `json:"class"`
-		Level int    `json:"level"`
-	} `json:"also_available,omitempty"`
-	Reversible      bool   `json:"reversible"`
-	ReverseNameEN   string `json:"reverse_name_en,omitempty"`
-	ReverseNameFR   string `json:"reverse_name_fr,omitempty"`
-	Range           string `json:"range"`
-	RangeReverse    string `json:"range_reverse,omitempty"`
-	Duration        string `json:"duration"`
-	DurationReverse string `json:"duration_reverse,omitempty"`
-	DescriptionEN   string `json:"description_en"`
-	DescriptionFR   string `json:"description_fr"`
-	Save            string `json:"save,omitempty"`
-	Healing         string `json:"healing,omitempty"`
-	Damage          string `json:"damage,omitempty"`
+// Manager manages spell queries and provides convenience methods for D&D 5e spells.
+// It wraps data.GameData to provide spell-specific functionality.
+type Manager struct {
+	gameData *data.GameData
 }
 
-// SpellLists contains spell lists by class and level.
-type SpellLists struct {
-	Divine map[string][]string `json:"divine"`
-	Arcane map[string][]string `json:"arcane"`
+// NewManager creates a new spell manager from GameData.
+func NewManager(gd *data.GameData) *Manager {
+	return &Manager{gameData: gd}
 }
 
-// SpellData holds all spell data from JSON.
-type SpellData struct {
-	Spells     []Spell    `json:"spells"`
-	SpellLists SpellLists `json:"spell_lists"`
-}
-
-// SpellBook manages spell data.
-type SpellBook struct {
-	data    *SpellData
-	dataDir string
-}
-
-// NewSpellBook creates a new spell book from the data directory.
-func NewSpellBook(dataDir string) (*SpellBook, error) {
-	path := filepath.Join(dataDir, "spells.json")
-	data, err := os.ReadFile(path)
+// NewManagerFromDataDir creates a new spell manager by loading GameData from a directory.
+func NewManagerFromDataDir(dataDir string) (*Manager, error) {
+	gd, err := data.Load(dataDir)
 	if err != nil {
-		return nil, fmt.Errorf("reading spells.json: %w", err)
+		return nil, fmt.Errorf("loading game data: %w", err)
 	}
-
-	var spellData SpellData
-	if err := json.Unmarshal(data, &spellData); err != nil {
-		return nil, fmt.Errorf("parsing spells.json: %w", err)
-	}
-
-	return &SpellBook{
-		data:    &spellData,
-		dataDir: dataDir,
-	}, nil
+	return &Manager{gameData: gd}, nil
 }
 
 // GetSpell returns a spell by ID.
-func (sb *SpellBook) GetSpell(id string) (*Spell, error) {
-	id = strings.ToLower(id)
-	for i := range sb.data.Spells {
-		if strings.ToLower(sb.data.Spells[i].ID) == id {
-			return &sb.data.Spells[i], nil
-		}
+func (m *Manager) GetSpell(id string) (*data.Spell5e, error) {
+	spell, ok := m.gameData.GetSpell5e(id)
+	if !ok {
+		return nil, fmt.Errorf("spell not found: %s", id)
 	}
-	return nil, fmt.Errorf("spell not found: %s", id)
+	return spell, nil
 }
 
 // ListAllSpells returns all spells sorted by level then name.
-func (sb *SpellBook) ListAllSpells() []*Spell {
-	results := make([]*Spell, len(sb.data.Spells))
-	for i := range sb.data.Spells {
-		results[i] = &sb.data.Spells[i]
+func (m *Manager) ListAllSpells() []*data.Spell5e {
+	results := make([]*data.Spell5e, 0, len(m.gameData.Spells5e))
+	for _, spell := range m.gameData.Spells5e {
+		results = append(results, spell)
 	}
 	sort.Slice(results, func(i, j int) bool {
 		if results[i].Level != results[j].Level {
 			return results[i].Level < results[j].Level
 		}
-		return results[i].NameFR < results[j].NameFR
+		return results[i].Name < results[j].Name
 	})
 	return results
 }
 
-// ListByClass returns spells for a specific class.
-func (sb *SpellBook) ListByClass(class string) []*Spell {
-	class = strings.ToLower(class)
-	var results []*Spell
-
-	// Normalize class name
-	var spellType string
-	switch class {
-	case "cleric", "clerc":
-		spellType = "divine"
-	case "magic-user", "magicien", "mage", "wizard":
-		spellType = "arcane"
-	default:
-		return results
-	}
-
-	for i := range sb.data.Spells {
-		s := &sb.data.Spells[i]
-		if s.Type == spellType || s.Type == "both" {
-			results = append(results, s)
-		}
-	}
-
+// ListByClass returns spells for a specific class, sorted by level then name.
+func (m *Manager) ListByClass(classID string) []*data.Spell5e {
+	classID = normalizeClassID(classID)
+	results := m.gameData.ListSpellsByClass(classID, -1)
 	sort.Slice(results, func(i, j int) bool {
 		if results[i].Level != results[j].Level {
 			return results[i].Level < results[j].Level
 		}
-		return results[i].NameFR < results[j].NameFR
+		return results[i].Name < results[j].Name
 	})
 	return results
 }
 
 // ListByClassAndLevel returns spells for a class at a specific level.
-func (sb *SpellBook) ListByClassAndLevel(class string, level int) []*Spell {
-	class = strings.ToLower(class)
-	var results []*Spell
-
-	// Get spell list for class and level
-	var spellIDs []string
-	switch class {
-	case "cleric", "clerc":
-		spellIDs = sb.data.SpellLists.Divine[fmt.Sprintf("%d", level)]
-	case "magic-user", "magicien", "mage", "wizard":
-		spellIDs = sb.data.SpellLists.Arcane[fmt.Sprintf("%d", level)]
-	default:
-		return results
-	}
-
-	// Get spells by ID
-	for _, id := range spellIDs {
-		if spell, err := sb.GetSpell(id); err == nil {
-			results = append(results, spell)
-		}
-	}
-
+func (m *Manager) ListByClassAndLevel(classID string, level int) []*data.Spell5e {
+	classID = normalizeClassID(classID)
+	results := m.gameData.ListSpellsByClass(classID, level)
 	sort.Slice(results, func(i, j int) bool {
-		return results[i].NameFR < results[j].NameFR
+		return results[i].Name < results[j].Name
 	})
 	return results
 }
 
 // ListByLevel returns all spells of a specific level.
-func (sb *SpellBook) ListByLevel(level int) []*Spell {
-	var results []*Spell
-	for i := range sb.data.Spells {
-		if sb.data.Spells[i].Level == level {
-			results = append(results, &sb.data.Spells[i])
+func (m *Manager) ListByLevel(level int) []*data.Spell5e {
+	var results []*data.Spell5e
+	for _, spell := range m.gameData.Spells5e {
+		if spell.Level == level {
+			results = append(results, spell)
 		}
 	}
 	sort.Slice(results, func(i, j int) bool {
-		return results[i].NameFR < results[j].NameFR
+		return results[i].Name < results[j].Name
 	})
 	return results
 }
 
-// ListReversible returns all reversible spells.
-func (sb *SpellBook) ListReversible() []*Spell {
-	var results []*Spell
-	for i := range sb.data.Spells {
-		if sb.data.Spells[i].Reversible {
-			results = append(results, &sb.data.Spells[i])
+// ListCantrips returns cantrips (level 0 spells) for a specific class.
+func (m *Manager) ListCantrips(classID string) []*data.Spell5e {
+	classID = normalizeClassID(classID)
+	return m.gameData.ListCantrips(classID)
+}
+
+// ListBySchool returns all spells of a specific school.
+func (m *Manager) ListBySchool(school string) []*data.Spell5e {
+	return m.gameData.ListSpellsBySchool(school)
+}
+
+// ListConcentration returns all spells requiring concentration.
+func (m *Manager) ListConcentration() []*data.Spell5e {
+	var results []*data.Spell5e
+	for _, spell := range m.gameData.Spells5e {
+		if spell.Concentration {
+			results = append(results, spell)
 		}
 	}
 	sort.Slice(results, func(i, j int) bool {
 		if results[i].Level != results[j].Level {
 			return results[i].Level < results[j].Level
 		}
-		return results[i].NameFR < results[j].NameFR
+		return results[i].Name < results[j].Name
+	})
+	return results
+}
+
+// ListRituals returns all ritual spells.
+func (m *Manager) ListRituals() []*data.Spell5e {
+	var results []*data.Spell5e
+	for _, spell := range m.gameData.Spells5e {
+		if spell.Ritual {
+			results = append(results, spell)
+		}
+	}
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].Level != results[j].Level {
+			return results[i].Level < results[j].Level
+		}
+		return results[i].Name < results[j].Name
 	})
 	return results
 }
 
 // SearchSpells searches spells by name (FR or EN) or ID.
-func (sb *SpellBook) SearchSpells(query string) []*Spell {
-	query = strings.ToLower(query)
-	var results []*Spell
-
-	for i := range sb.data.Spells {
-		s := &sb.data.Spells[i]
-		if strings.Contains(strings.ToLower(s.NameFR), query) ||
-			strings.Contains(strings.ToLower(s.NameEN), query) ||
-			strings.Contains(strings.ToLower(s.ID), query) {
-			results = append(results, s)
-		}
-	}
-
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].Level != results[j].Level {
-			return results[i].Level < results[j].Level
-		}
-		return results[i].NameFR < results[j].NameFR
-	})
-	return results
+func (m *Manager) SearchSpells(query string) []*data.Spell5e {
+	return m.gameData.SearchSpells(query)
 }
 
 // GetSpellCount returns the total number of spells.
-func (sb *SpellBook) GetSpellCount() int {
-	return len(sb.data.Spells)
+func (m *Manager) GetSpellCount() int {
+	return len(m.gameData.Spells5e)
 }
 
-// GetAvailableLevels returns levels that have spells.
-func (sb *SpellBook) GetAvailableLevels() []int {
+// GetAvailableLevels returns levels that have spells (0-9).
+func (m *Manager) GetAvailableLevels() []int {
 	levelMap := make(map[int]bool)
-	for _, s := range sb.data.Spells {
+	for _, s := range m.gameData.Spells5e {
 		levelMap[s.Level] = true
 	}
 	levels := make([]int, 0, len(levelMap))
@@ -232,34 +157,67 @@ func (sb *SpellBook) GetAvailableLevels() []int {
 	return levels
 }
 
+// GetAvailableSchools returns all magic schools present in the spells.
+func (m *Manager) GetAvailableSchools() []string {
+	schoolMap := make(map[string]bool)
+	for _, s := range m.gameData.Spells5e {
+		schoolMap[s.School] = true
+	}
+	schools := make([]string, 0, len(schoolMap))
+	for school := range schoolMap {
+		schools = append(schools, school)
+	}
+	sort.Strings(schools)
+	return schools
+}
+
 // ToMarkdown returns a formatted markdown description of a spell.
-func (s *Spell) ToMarkdown() string {
+func ToMarkdown(s *data.Spell5e) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("## %s (%s)\n\n", s.NameFR, s.NameEN))
+	sb.WriteString(fmt.Sprintf("## %s\n\n", s.Name))
 
-	// Type and level
-	typeStr := ""
-	switch s.Type {
-	case "divine":
-		typeStr = "Divin (Clerc)"
-	case "arcane":
-		typeStr = "Arcanique (Magicien)"
-	case "both":
-		typeStr = "Divin et Arcanique"
+	// Level and school
+	levelStr := fmt.Sprintf("Niveau %d", s.Level)
+	if s.Level == 0 {
+		levelStr = "Cantrip"
 	}
-	sb.WriteString(fmt.Sprintf("**Type** : %s | **Niveau** : %d\n\n", typeStr, s.Level))
+	sb.WriteString(fmt.Sprintf("**%s** | **École** : %s\n\n", levelStr, GetSchoolLabel(s.School)))
 
 	// Stats table
 	sb.WriteString("| Caractéristique | Valeur |\n")
 	sb.WriteString("|-----------------|--------|\n")
+	sb.WriteString(fmt.Sprintf("| **Temps d'incantation** | %s |\n", s.CastingTime))
 	sb.WriteString(fmt.Sprintf("| **Portée** | %s |\n", s.Range))
+
+	// Components
+	compStr := strings.Join(s.Components, ", ")
+	if s.Material != "" {
+		compStr += fmt.Sprintf(" (%s)", s.Material)
+	}
+	sb.WriteString(fmt.Sprintf("| **Composantes** | %s |\n", compStr))
+
 	sb.WriteString(fmt.Sprintf("| **Durée** | %s |\n", s.Duration))
+
+	if s.Concentration {
+		sb.WriteString("| **Concentration** | Oui |\n")
+	}
+	if s.Ritual {
+		sb.WriteString("| **Rituel** | Oui |\n")
+	}
+
+	// Classes
+	classesStr := ""
+	for i, class := range s.Classes {
+		if i > 0 {
+			classesStr += ", "
+		}
+		classesStr += GetClassLabel(class)
+	}
+	sb.WriteString(fmt.Sprintf("| **Classes** | %s |\n", classesStr))
+
 	if s.Save != "" {
 		sb.WriteString(fmt.Sprintf("| **Sauvegarde** | %s |\n", s.Save))
-	}
-	if s.Reversible {
-		sb.WriteString(fmt.Sprintf("| **Réversible** | Oui (%s) |\n", s.ReverseNameFR))
 	}
 	if s.Healing != "" {
 		sb.WriteString(fmt.Sprintf("| **Soins** | %s |\n", s.Healing))
@@ -272,60 +230,103 @@ func (s *Spell) ToMarkdown() string {
 	sb.WriteString(s.DescriptionFR)
 	sb.WriteString("\n")
 
+	if s.Upcast != "" {
+		sb.WriteString("\n### Aux niveaux supérieurs\n\n")
+		sb.WriteString(s.Upcast)
+		sb.WriteString("\n")
+	}
+
 	return sb.String()
 }
 
 // ToShortDescription returns a one-line description of a spell.
-func (s *Spell) ToShortDescription() string {
-	reversible := ""
-	if s.Reversible {
-		reversible = " *"
+func ToShortDescription(s *data.Spell5e) string {
+	concentration := ""
+	if s.Concentration {
+		concentration = " (C)"
+	}
+	ritual := ""
+	if s.Ritual {
+		ritual = " (R)"
 	}
 
-	typeStr := ""
-	switch s.Type {
-	case "divine":
-		typeStr = "Div"
-	case "arcane":
-		typeStr = "Arc"
-	case "both":
-		typeStr = "D/A"
+	levelStr := fmt.Sprintf("N%d", s.Level)
+	if s.Level == 0 {
+		levelStr = "Cantrip"
 	}
 
-	return fmt.Sprintf("%s%s [N%d %s] - %s, %s", s.NameFR, reversible, s.Level, typeStr, s.Range, s.Duration)
+	return fmt.Sprintf("%s%s%s [%s %s] - %s, %s",
+		s.Name, concentration, ritual, levelStr, GetSchoolLabel(s.School), s.Range, s.Duration)
 }
 
-// ToJSON returns the spell as JSON string.
-func (s *Spell) ToJSON() (string, error) {
-	data, err := json.MarshalIndent(s, "", "  ")
-	if err != nil {
-		return "", err
+// GetClassLabel returns a human-readable class label in French.
+func GetClassLabel(classID string) string {
+	// Normalize first
+	classID = normalizeClassID(classID)
+
+	labels := map[string]string{
+		"barbarian": "Barbare",
+		"bard":      "Barde",
+		"cleric":    "Clerc",
+		"druid":     "Druide",
+		"fighter":   "Guerrier",
+		"monk":      "Moine",
+		"paladin":   "Paladin",
+		"ranger":    "Rôdeur",
+		"rogue":     "Roublard",
+		"sorcerer":  "Ensorceleur",
+		"warlock":   "Occultiste",
+		"wizard":    "Magicien",
 	}
-	return string(data), nil
+
+	if label, ok := labels[classID]; ok {
+		return label
+	}
+	return classID
 }
 
-// GetClassLabel returns a human-readable class label.
-func GetClassLabel(class string) string {
-	switch strings.ToLower(class) {
-	case "cleric", "clerc":
-		return "Clerc"
-	case "magic-user", "magicien", "mage", "wizard":
-		return "Magicien"
-	default:
-		return class
+// GetSchoolLabel returns a human-readable school label in French.
+func GetSchoolLabel(school string) string {
+	labels := map[string]string{
+		"abjuration":    "Abjuration",
+		"conjuration":   "Invocation",
+		"divination":    "Divination",
+		"enchantment":   "Enchantement",
+		"evocation":     "Évocation",
+		"illusion":      "Illusion",
+		"necromancy":    "Nécromancie",
+		"transmutation": "Transmutation",
 	}
+
+	if label, ok := labels[school]; ok {
+		return label
+	}
+	return school
 }
 
-// GetTypeLabel returns a human-readable type label in French.
-func GetTypeLabel(spellType string) string {
-	switch spellType {
-	case "divine":
-		return "Divin"
-	case "arcane":
-		return "Arcanique"
-	case "both":
-		return "Divin et Arcanique"
-	default:
-		return spellType
+// normalizeClassID normalizes class names to their canonical IDs.
+func normalizeClassID(class string) string {
+	class = strings.ToLower(class)
+
+	// French to English mappings
+	aliases := map[string]string{
+		"clerc":       "cleric",
+		"magicien":    "wizard",
+		"mage":        "wizard",
+		"magic-user":  "wizard",
+		"guerrier":    "fighter",
+		"roublard":    "rogue",
+		"voleur":      "rogue",
+		"ensorceleur": "sorcerer",
+		"occultiste":  "warlock",
+		"rôdeur":      "ranger",
+		"rodeur":      "ranger",
+		"druide":      "druid",
 	}
+
+	if normalized, ok := aliases[class]; ok {
+		return normalized
+	}
+
+	return class
 }

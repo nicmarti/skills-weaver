@@ -60,7 +60,7 @@ $(BINARY_PREFIX)-dm: cmd/dm/main.go internal/agent/*.go internal/dmtools/*.go in
 $(BINARY_PREFIX)-equipment: cmd/equipment/main.go internal/equipment/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/equipment
 
-$(BINARY_PREFIX)-spell: cmd/spell/main.go internal/spell/*.go
+$(BINARY_PREFIX)-spell: cmd/spell/main.go internal/spell/*.go internal/data/*.go internal/character/spell_slots.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/spell
 
 $(BINARY_PREFIX)-rebuild-journal: cmd/rebuild-journal/main.go internal/adventure/*.go

@@ -11,14 +11,15 @@ import (
 
 // Species represents a playable species (race) in D&D 5e.
 type Species struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name"`
-	NameEN        string   `json:"name_en"`
-	Description   string   `json:"description"`
-	Size          string   `json:"size"`           // "Small" or "Medium"
-	Speed         int      `json:"speed"`          // Usually 25 or 30 feet
-	Languages     []string `json:"languages"`      // At least Common + 1-2 others
-	SpecialTraits []string `json:"special_traits"` // Narrative descriptions
+	ID               string         `json:"id"`
+	Name             string         `json:"name"`
+	NameEN           string         `json:"name_en"`
+	Description      string         `json:"description"`
+	Size             string         `json:"size"`             // "Small" or "Medium"
+	Speed            int            `json:"speed"`            // Usually 25 or 30 feet
+	Languages        []string       `json:"languages"`        // At least Common + 1-2 others
+	SpecialTraits    []string       `json:"special_traits"`   // Narrative descriptions
+	AbilityModifiers map[string]int `json:"ability_modifiers"` // +2 DEX, +1 CON, etc.
 }
 
 // Skill represents one of the 18 D&D 5e skills.

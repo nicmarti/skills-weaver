@@ -132,13 +132,34 @@ func (c *Character) GenerateAbilities(method GenerationMethod) []dice.Result {
 // This function is kept for API compatibility but does nothing.
 func (c *Character) ApplyRacialModifiers(gd *data.GameData) error {
 	// Verify species exists
-	_, ok := gd.GetSpecies(c.Species)
+	species, ok := gd.GetSpecies(c.Species)
 	if !ok {
 		return fmt.Errorf("unknown species: %s", c.Species)
 	}
 
-	// D&D 5e 2024: No ability modifiers from species
-	// Ability increases come from backgrounds instead
+	// Apply ability modifiers from species (D&D 5e)
+	// Examples: Elf +2 DEX, Dwarf +2 CON, Mountain Dwarf +2 STR
+	if species.AbilityModifiers != nil {
+		if mod, ok := species.AbilityModifiers["strength"]; ok {
+			c.Abilities.Strength += mod
+		}
+		if mod, ok := species.AbilityModifiers["dexterity"]; ok {
+			c.Abilities.Dexterity += mod
+		}
+		if mod, ok := species.AbilityModifiers["constitution"]; ok {
+			c.Abilities.Constitution += mod
+		}
+		if mod, ok := species.AbilityModifiers["intelligence"]; ok {
+			c.Abilities.Intelligence += mod
+		}
+		if mod, ok := species.AbilityModifiers["wisdom"]; ok {
+			c.Abilities.Wisdom += mod
+		}
+		if mod, ok := species.AbilityModifiers["charisma"]; ok {
+			c.Abilities.Charisma += mod
+		}
+	}
+
 	return nil
 }
 

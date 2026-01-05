@@ -157,7 +157,7 @@ The Dungeon Master has access to these tools during gameplay:
 | `log_event` | Record events in the adventure journal |
 | `add_gold` | Modify the party's gold |
 | `get_inventory` | Check the shared inventory |
-| `generate_treasure` | Generate treasure using BFRPG tables |
+| `generate_treasure` | Generate treasure using D&D 5e tables |
 | `generate_npc` | Create NPCs with personality and motivations |
 | `generate_image` | Generate fantasy-style images from prompts (requires FAL_KEY) |
 
@@ -268,14 +268,14 @@ sw-dm
 
 Markdown files that teach Claude how to use specific tools:
 - `dice-roller` - Roll dice with RPG notation
-- `character-generator` - Create BFRPG characters
+- `character-generator` - Create D&D 5e characters
 - `adventure-manager` - Manage campaigns and sessions
-- `name-generator` - Generate fantasy names by race
+- `name-generator` - Generate fantasy names by species
 - `npc-generator` - Create NPCs with personalities and secrets
 - `image-generator` - Generate fantasy illustrations
 - `journal-illustrator` - Illustrate adventure journals
 - `monster-manual` - Monster stats and encounters
-- `treasure-generator` - Generate treasure using BFRPG tables
+- `treasure-generator` - Generate treasure using D&D 5e tables
 - `equipment-browser` - Browse weapons, armor, and gear
 - `spell-reference` - Spell details by class and level
 

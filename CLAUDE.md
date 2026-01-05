@@ -2,7 +2,7 @@
 
 ## Description
 
-**SkillsWeaver** est un moteur de jeu de rôle interactif basé sur les règles de **Basic Fantasy RPG** (BFRPG), orchestré par Claude Code. Il utilise des skills et des sous-agents pour gérer les différentes mécaniques du jeu.
+**SkillsWeaver** est un moteur de jeu de rôle interactif basé sur les règles de **D&D 5e** (5ème édition), orchestré par Claude Code. Il utilise des skills et des sous-agents pour gérer les différentes mécaniques du jeu.
 
 Le préfixe `sw-` identifie toutes les commandes CLI du projet.
 
@@ -69,8 +69,8 @@ skillsweaver/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
 │   ├── location-names.json  # Dictionnaires de noms de lieux
-│   ├── monsters.json        # Bestiaire BFRPG
-│   ├── treasure.json        # Tables de trésors BFRPG
+│   ├── monsters.json        # Bestiaire D&D 5e
+│   ├── treasure.json        # Tables de trésors D&D 5e
 │   ├── characters/          # Personnages sauvegardés
 │   ├── maps/                # Prompts et images de cartes
 │   ├── adventures/          # Aventures sauvegardées
@@ -359,7 +359,7 @@ go build -o sw-dm ./cmd/dm
 - `get_inventory` : Consulter l'inventaire partagé
 
 **Génération de contenu** :
-- `generate_treasure` : Générer un trésor BFRPG
+- `generate_treasure` : Générer un trésor D&D 5e
 - `generate_npc` : Créer un PNJ complet (auto-sauvegardé)
 - `generate_image` : Générer une illustration fantasy (requiert FAL_KEY)
 - `generate_map` : Générer prompt carte 2D avec validation world-keeper
@@ -469,7 +469,7 @@ Voir `docs/cli-logging-example.md` pour plus d'exemples et de patterns d'utilisa
 
 ### CLI sw-character
 
-Créer et gérer des personnages BFRPG :
+Créer et gérer des personnages D&D 5e :
 
 ```bash
 # Compiler
@@ -542,7 +542,7 @@ go build -o sw-character-sheet ./cmd/character-sheet
 
 ### CLI sw-adventure
 
-Gérer des aventures et campagnes BFRPG :
+Gérer des aventures et campagnes D&D 5e :
 
 ```bash
 # Compiler
@@ -818,7 +818,7 @@ La skill `monster-manual` permet à Claude de consulter les stats des monstres e
 
 ### CLI sw-treasure
 
-Générer des trésors selon les tables BFRPG :
+Générer des trésors selon les tables D&D 5e :
 
 ```bash
 # Compiler
@@ -848,7 +848,7 @@ La skill `treasure-generator` permet à Claude de générer des trésors appropr
 
 ### CLI sw-equipment
 
-Consulter le catalogue d'équipement BFRPG :
+Consulter le catalogue d'équipement D&D 5e :
 
 ```bash
 # Compiler
@@ -882,7 +882,7 @@ La skill `equipment-browser` permet à Claude de consulter les armes, armures et
 
 ### CLI sw-spell
 
-Consulter le grimoire des sorts BFRPG :
+Consulter le grimoire des sorts D&D 5e :
 
 ```bash
 # Compiler
@@ -941,30 +941,39 @@ Les agents sont disponibles dans `.claude/agents/` :
 Guide interactif pour créer des personnages étape par étape. Explique les races, classes, et aide à faire des choix cohérents.
 
 ### rules-keeper
-Référence rapide des règles BFRPG. Répond aux questions sur le combat, la magie, les jets de sauvegarde et arbitre les situations.
+Référence rapide des règles D&D 5e. Répond aux questions sur le combat, la magie, les jets de sauvegarde et arbitre les situations.
 
 ### dungeon-master
 Maître du Jeu complet. Narration immersive, gestion des rencontres, incarnation des PNJ, et tracking automatique via les commandes sw-adventure.
 
-## Règles BFRPG
+## Système de Jeu D&D 5e
 
-### Races Disponibles
+SkillsWeaver utilise les règles de **D&D 5e** (5ème édition) :
 
-| Race | Modificateurs | Classes Autorisées |
-|------|--------------|-------------------|
-| Humain | Aucun | Toutes |
-| Elfe | +1 DEX, -1 CON | Guerrier (6), Magicien (9), Voleur |
-| Nain | +1 CON, -1 CHA | Guerrier (7), Clerc (6), Voleur |
-| Halfelin | +1 DEX, -1 FOR | Guerrier (4), Voleur |
+### Caractéristiques
 
-### Classes Disponibles
+- **9 espèces** : Humain, Drakéide, Elfe, Gnome, Goliath, Halfelin, Nain, Orc, Tieffelin
+- **12 classes** : Barbare, Barde, Clerc, Druide, Ensorceleur, Guerrier, Magicien, Moine, Occultiste, Paladin, Rôdeur, Roublard
+- **Niveaux** : 1 à 20 (pas de restrictions espèce/classe)
+- **18 compétences** formelles
 
-| Classe | Dé de Vie | Armes | Armures |
-|--------|-----------|-------|---------|
-| Guerrier | d8 | Toutes | Toutes |
-| Clerc | d6 | Contondantes | Toutes |
-| Magicien | d4 | Dague, bâton | Aucune |
-| Voleur | d4 | Toutes | Cuir |
+### Mécaniques Principales
+
+- **Modificateurs** : `(Score - 10) ÷ 2`
+- **Bonus de maîtrise** : +2 à +6 selon niveau
+- **Initiative** : d20 + DEX (pas d6)
+- **Avantage/Désavantage** : 2d20 (garde meilleur/pire)
+- **Challenge Rating (CR)** : Difficulté des monstres (0, 1/8, 1/4, 1/2, 1-30)
+
+### Documentation
+
+Les règles complètes D&D 5e sont disponibles dans `docs/markdown-new/` :
+- `regles_de_bases_SRD_CCv5.2.1.md` (règles fondamentales)
+- `personnages.md` (création de personnage)
+- `monstres.md` (bestiaire)
+- `equipements.md` (équipement)
+
+Les agents `rules-keeper` et `dungeon-master` consultent ces fichiers via Read/Grep/Glob.
 
 
 ## Règles d'Utilisation des CLI
@@ -1119,76 +1128,17 @@ git commit -m "docs: update rules-keeper with BFRPG combat rules"
 
 ## Ressources
 
-### Règles Officielles BFRPG (Locales)
+### Règles BFRPG (Archivées)
 
-Les règles complètes de **Basic Fantasy RPG Release 142** sont disponibles au format markdown dans `data/rules/` :
+**Note** : Le projet a migré vers D&D 5e. Les règles BFRPG sont archivées dans `docs/archive/bfrpg/`.
 
-| Fichier | Contenu | Taille | Pages PDF |
-|---------|---------|--------|-----------|
-| `README.md` | Index et guide d'utilisation | 2 KB | - |
-| `01-character-creation.md` | Races, classes, caractéristiques, création | 44 KB | 3-14 |
-| `02-combat.md` | Initiative, attaque, AC, sauvegardes, renvoi morts-vivants | 53 KB | 50-62 |
-| `03-magic.md` | Listes sorts, incantation, descriptions | 120 KB | 15-42 |
-| `04-adventure.md` | Mouvement, encombrement, exploration | 34 KB | 42-50 |
-| `05-monsters.md` | Créatures, DV, attaques, capacités spéciales | 162 KB | 62-120 |
-| `06-treasure.md` | Tables trésors, objets magiques | 57 KB | 163-180 |
-| `07-gm-info.md` | Règles optionnelles, création aventure | 91 KB | 180-203 |
-
-**Source originale** : `docs/Basic-Fantasy-RPG-Rules-r142.pdf` (106 MB, 208 pages)
-
-**Accès** : L'agent `rules-keeper` peut consulter ces fichiers via `Read`, `Grep` et `Glob`.
-
-**Exemples d'utilisation** :
-```bash
-# Rechercher une règle spécifique
-grep -i "initiative" data/rules/02-combat.md
-
-# Lire une section complète
-cat data/rules/01-character-creation.md
-
-# Rechercher dans tous les fichiers
-grep -r "poison" data/rules/
-```
-
-### Règles BFRPG en Français (Markdown)
-
-Les règles complètes en français sont disponibles au format markdown dans `docs/markdown/` :
-
-| Fichier | Contenu | Taille | Pages |
-|---------|---------|--------|-------|
-| `README.md` | Index et guide d'utilisation | 7 KB | - |
-| `regles-de-base.md` | Règles de base du système | 104 KB | 19 |
-| `personnages.md` | Création et gestion des personnages | 327 KB | 85 |
-| `sorts-et-magie.md` | Système de magie et liste complète des sorts | 364 KB | 76 |
-| `equipements.md` | Équipement de base | 41 KB | 10 |
-| `equipements-suite.md` | Équipement supplémentaire | 24 KB | 6 |
-| `monstres.md` | Bestiaire complet | 358 KB | 93 |
-| `outils-magiques.md` | Objets magiques | 255 KB | 52 |
-| `animaux.md` | Animaux ordinaires et montures | 66 KB | 21 |
-| `boite-a-outils-ludique.md` | Outils et conseils pour le MJ | 52 KB | 12 |
-| `glossaire-des-regles.md` | Glossaire des termes de jeu | 79 KB | 16 |
-| `table-des-matieres.md` | Table des matières complète | 30 KB | 3 |
-
-**Source originale** : PDF dans `docs/` (convertis automatiquement via `extract_pdf_to_md.py`)
-
-**Accès** : L'agent `rules-keeper` et le `dungeon-master` peuvent consulter ces fichiers via `Read`, `Grep` et `Glob`.
-
-**Exemples d'utilisation** :
-```bash
-# Rechercher un sort
-grep -i "projectile magique" docs/markdown/sorts-et-magie.md
-
-# Rechercher un monstre
-grep -i "gobelin" docs/markdown/monstres.md
-
-# Lire une section complète
-cat docs/markdown/personnages.md
-
-# Rechercher dans tous les fichiers
-grep -r "poison" docs/markdown/
-```
+Les anciennes règles BFRPG (Basic Fantasy RPG Release 142) restent disponibles pour référence :
+- `data/rules/` : Règles anglaises (markdown)
+- `docs/markdown/` : Règles françaises (markdown)
+- `docs/archive/bfrpg/` : Données JSON archivées
 
 ### Liens Externes
 
-- [Basic Fantasy RPG](https://www.basicfantasy.org/) - Règles complètes (gratuit)
-- [SRD BFRPG](https://www.basicfantasy.org/srd/) - System Reference Document
+- [D&D Beyond](https://www.dndbeyond.com/) - Règles D&D 5e officielles
+- [D&D 5e SRD](https://www.5esrd.com/) - System Reference Document (gratuit)
+- [Basic Fantasy RPG](https://www.basicfantasy.org/) - Ancien système (archivé)

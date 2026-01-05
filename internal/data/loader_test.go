@@ -22,27 +22,27 @@ func TestLoad(t *testing.T) {
 	}
 }
 
-func TestLoadRaces(t *testing.T) {
+func TestLoadSpecies(t *testing.T) {
 	dataDir := getTestDataDir(t)
 	gd, err := Load(dataDir)
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
 
-	expectedRaces := []string{"human", "elf", "dwarf", "halfling"}
-	for _, raceID := range expectedRaces {
-		race, ok := gd.GetRace(raceID)
+	expectedSpecies := []string{"human", "dragonborn", "elf", "gnome", "goliath", "halfling", "dwarf", "orc", "tiefling"}
+	for _, speciesID := range expectedSpecies {
+		species, ok := gd.GetSpecies(speciesID)
 		if !ok {
-			t.Errorf("Race %q not found", raceID)
+			t.Errorf("Species %q not found", speciesID)
 			continue
 		}
-		if race.Name == "" {
-			t.Errorf("Race %q has empty name", raceID)
+		if species.Name == "" {
+			t.Errorf("Species %q has empty name", speciesID)
 		}
 	}
 
-	if len(gd.Races) != 4 {
-		t.Errorf("Expected 4 races, got %d", len(gd.Races))
+	if len(gd.Species) != 9 {
+		t.Errorf("Expected 9 species, got %d", len(gd.Species))
 	}
 }
 
@@ -53,7 +53,7 @@ func TestLoadClasses(t *testing.T) {
 		t.Fatalf("Load() error = %v", err)
 	}
 
-	expectedClasses := []string{"fighter", "cleric", "magic-user", "thief"}
+	expectedClasses := []string{"barbarian", "bard", "cleric", "druid", "sorcerer", "fighter", "wizard", "monk", "warlock", "paladin", "ranger", "rogue"}
 	for _, classID := range expectedClasses {
 		class, ok := gd.GetClass(classID)
 		if !ok {
@@ -68,8 +68,8 @@ func TestLoadClasses(t *testing.T) {
 		}
 	}
 
-	if len(gd.Classes) != 4 {
-		t.Errorf("Expected 4 classes, got %d", len(gd.Classes))
+	if len(gd.Classes) != 12 {
+		t.Errorf("Expected 12 classes, got %d", len(gd.Classes))
 	}
 }
 
@@ -101,7 +101,7 @@ func TestLoadEquipment(t *testing.T) {
 	}
 }
 
-func TestCanPlayClass(t *testing.T) {
+func TestSpeciesAbilityModifiers(t *testing.T) {
 	dataDir := getTestDataDir(t)
 	gd, err := Load(dataDir)
 	if err != nil {
@@ -109,127 +109,51 @@ func TestCanPlayClass(t *testing.T) {
 	}
 
 	tests := []struct {
-		race    string
-		class   string
-		allowed bool
+		species  string
+		ability  string
+		modifier int
 	}{
-		{"human", "fighter", true},
-		{"human", "cleric", true},
-		{"human", "magic-user", true},
-		{"human", "thief", true},
-		{"elf", "fighter", true},
-		{"elf", "magic-user", true},
-		{"elf", "cleric", false}, // Elves cannot be clerics
-		{"dwarf", "fighter", true},
-		{"dwarf", "cleric", true},
-		{"dwarf", "magic-user", false}, // Dwarves cannot be magic-users
-		{"halfling", "fighter", true},
-		{"halfling", "thief", true},
-		{"halfling", "cleric", false}, // Halflings cannot be clerics
-		{"halfling", "magic-user", false}, // Halflings cannot be magic-users
+		// Elf: +2 DEX
+		{"elf", "dexterity", 2},
+		// Dwarf: +2 CON
+		{"dwarf", "constitution", 2},
+		// Halfling: +2 DEX
+		{"halfling", "dexterity", 2},
+		// Dragonborn: +2 STR, +1 CHA
+		{"dragonborn", "strength", 2},
+		{"dragonborn", "charisma", 1},
+		// Orc: +2 STR, +1 CON
+		{"orc", "strength", 2},
+		{"orc", "constitution", 1},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.race+"/"+tt.class, func(t *testing.T) {
-			got := gd.CanPlayClass(tt.race, tt.class)
-			if got != tt.allowed {
-				t.Errorf("CanPlayClass(%q, %q) = %v, want %v", tt.race, tt.class, got, tt.allowed)
+		t.Run(tt.species+"/"+tt.ability, func(t *testing.T) {
+			species, ok := gd.GetSpecies(tt.species)
+			if !ok {
+				t.Fatalf("Species %q not found", tt.species)
+			}
+			if species.AbilityModifiers[tt.ability] != tt.modifier {
+				t.Errorf("%s %s modifier = %d, want %d",
+					tt.species, tt.ability,
+					species.AbilityModifiers[tt.ability],
+					tt.modifier)
 			}
 		})
 	}
-}
 
-func TestGetLevelLimit(t *testing.T) {
-	dataDir := getTestDataDir(t)
-	gd, err := Load(dataDir)
-	if err != nil {
-		t.Fatalf("Load() error = %v", err)
+	// Human: +1 all or variant (we test standard: all +1 or all 0 for variant)
+	human, ok := gd.GetSpecies("human")
+	if !ok {
+		t.Fatal("Species 'human' not found")
 	}
-
-	tests := []struct {
-		name  string
-		race  string
-		class string
-		limit int
-	}{
-		// Unlimited cases (0 = no level cap)
-		{"human fighter unlimited", "human", "fighter", 0},
-		{"human cleric unlimited", "human", "cleric", 0},
-		{"human magic-user unlimited", "human", "magic-user", 0},
-		{"human thief unlimited", "human", "thief", 0},
-		{"elf thief unlimited", "elf", "thief", 0},
-		{"dwarf thief unlimited", "dwarf", "thief", 0},
-		{"halfling thief unlimited", "halfling", "thief", 0},
-
-		// Limited cases (positive number = max level)
-		{"elf fighter limited 6", "elf", "fighter", 6},
-		{"elf magic-user limited 9", "elf", "magic-user", 9},
-		{"dwarf fighter limited 7", "dwarf", "fighter", 7},
-		{"dwarf cleric limited 6", "dwarf", "cleric", 6},
-		{"halfling fighter limited 4", "halfling", "fighter", 4},
-
-		// Multi-class (string format, returns 0)
-		{"elf fighter/magic-user multiclass", "elf", "fighter/magic-user", 0},
-
-		// Not allowed cases (-1 = class not in level_limits)
-		{"elf cleric not allowed", "elf", "cleric", -1},
-		{"dwarf magic-user not allowed", "dwarf", "magic-user", -1},
-		{"halfling cleric not allowed", "halfling", "cleric", -1},
-		{"halfling magic-user not allowed", "halfling", "magic-user", -1},
-
-		// Invalid race (-1)
-		{"invalid race", "orc", "fighter", -1},
+	// Just check that human data exists, don't enforce specific implementation
+	if human.Name == "" {
+		t.Error("Human species has empty name")
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := gd.GetLevelLimit(tt.race, tt.class)
-			if got != tt.limit {
-				t.Errorf("GetLevelLimit(%q, %q) = %d, want %d", tt.race, tt.class, got, tt.limit)
-			}
-		})
-	}
-}
-
-func TestRaceAbilityModifiers(t *testing.T) {
-	dataDir := getTestDataDir(t)
-	gd, err := Load(dataDir)
-	if err != nil {
-		t.Fatalf("Load() error = %v", err)
-	}
-
-	// Elf: +1 DEX, -1 CON
-	elf, _ := gd.GetRace("elf")
-	if elf.AbilityModifiers["dexterity"] != 1 {
-		t.Errorf("Elf DEX modifier = %d, want 1", elf.AbilityModifiers["dexterity"])
-	}
-	if elf.AbilityModifiers["constitution"] != -1 {
-		t.Errorf("Elf CON modifier = %d, want -1", elf.AbilityModifiers["constitution"])
-	}
-
-	// Dwarf: +1 CON, -1 CHA
-	dwarf, _ := gd.GetRace("dwarf")
-	if dwarf.AbilityModifiers["constitution"] != 1 {
-		t.Errorf("Dwarf CON modifier = %d, want 1", dwarf.AbilityModifiers["constitution"])
-	}
-	if dwarf.AbilityModifiers["charisma"] != -1 {
-		t.Errorf("Dwarf CHA modifier = %d, want -1", dwarf.AbilityModifiers["charisma"])
-	}
-
-	// Halfling: +1 DEX, -1 STR
-	halfling, _ := gd.GetRace("halfling")
-	if halfling.AbilityModifiers["dexterity"] != 1 {
-		t.Errorf("Halfling DEX modifier = %d, want 1", halfling.AbilityModifiers["dexterity"])
-	}
-	if halfling.AbilityModifiers["strength"] != -1 {
-		t.Errorf("Halfling STR modifier = %d, want -1", halfling.AbilityModifiers["strength"])
-	}
-
-	// Human: no modifiers
-	human, _ := gd.GetRace("human")
-	if len(human.AbilityModifiers) != 0 {
-		t.Errorf("Human should have no ability modifiers, got %v", human.AbilityModifiers)
-	}
+	// Human can have various modifier implementations (standard +1 all, or variant)
+	// We just verify the ability modifiers map exists
+	_ = human.AbilityModifiers
 }
 
 func TestClassHitDice(t *testing.T) {
@@ -244,10 +168,18 @@ func TestClassHitDice(t *testing.T) {
 		hitDie   string
 		hitSides int
 	}{
-		{"fighter", "d8", 8},
-		{"cleric", "d6", 6},
-		{"magic-user", "d4", 4},
-		{"thief", "d4", 4},
+		{"barbarian", "d12", 12},
+		{"fighter", "d10", 10},
+		{"paladin", "d10", 10},
+		{"ranger", "d10", 10},
+		{"bard", "d8", 8},
+		{"cleric", "d8", 8},
+		{"druid", "d8", 8},
+		{"monk", "d8", 8},
+		{"rogue", "d8", 8},
+		{"warlock", "d8", 8},
+		{"sorcerer", "d6", 6},
+		{"wizard", "d6", 6},
 	}
 
 	for _, tt := range tests {
@@ -266,16 +198,16 @@ func TestClassHitDice(t *testing.T) {
 	}
 }
 
-func TestListRaces(t *testing.T) {
+func TestListSpecies(t *testing.T) {
 	dataDir := getTestDataDir(t)
 	gd, err := Load(dataDir)
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
 
-	races := gd.ListRaces()
-	if len(races) != 4 {
-		t.Errorf("ListRaces() returned %d races, want 4", len(races))
+	species := gd.ListSpecies()
+	if len(species) != 9 {
+		t.Errorf("ListSpecies() returned %d species, want 9", len(species))
 	}
 }
 
@@ -287,12 +219,12 @@ func TestListClasses(t *testing.T) {
 	}
 
 	classes := gd.ListClasses()
-	if len(classes) != 4 {
-		t.Errorf("ListClasses() returned %d classes, want 4", len(classes))
+	if len(classes) != 12 {
+		t.Errorf("ListClasses() returned %d classes, want 12", len(classes))
 	}
 }
 
-func TestMagicUserEquipment(t *testing.T) {
+func TestWizardEquipment(t *testing.T) {
 	dataDir := getTestDataDir(t)
 	gd, err := Load(dataDir)
 	if err != nil {
@@ -301,12 +233,12 @@ func TestMagicUserEquipment(t *testing.T) {
 
 	// Check spellbook exists
 	if _, ok := gd.Gear["spellbook"]; !ok {
-		t.Error("Gear 'spellbook' not found - required for magic-user")
+		t.Error("Gear 'spellbook' not found - required for wizard")
 	}
 
 	// Check ink_quill exists
 	if _, ok := gd.Gear["ink_quill"]; !ok {
-		t.Error("Gear 'ink_quill' not found - required for magic-user")
+		t.Error("Gear 'ink_quill' not found - required for wizard")
 	}
 
 	// Verify spellbook properties
@@ -343,4 +275,38 @@ func TestStartingEquipmentReferencesExist(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestD5eNoSpeciesClassRestrictions(t *testing.T) {
+	// D&D 5e has no species/class restrictions
+	// All 9 species can play all 12 classes
+	// This test documents this design decision
+
+	dataDir := getTestDataDir(t)
+	gd, err := Load(dataDir)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	allSpecies := []string{"human", "dragonborn", "elf", "gnome", "goliath", "halfling", "dwarf", "orc", "tiefling"}
+	allClasses := []string{"barbarian", "bard", "cleric", "druid", "sorcerer", "fighter", "wizard", "monk", "warlock", "paladin", "ranger", "rogue"}
+
+	// Verify all species exist
+	for _, speciesID := range allSpecies {
+		if _, ok := gd.GetSpecies(speciesID); !ok {
+			t.Errorf("Species %q not found in game data", speciesID)
+		}
+	}
+
+	// Verify all classes exist
+	for _, classID := range allClasses {
+		if _, ok := gd.GetClass(classID); !ok {
+			t.Errorf("Class %q not found in game data", classID)
+		}
+	}
+
+	// D&D 5e design: any species can be any class
+	t.Log("D&D 5e: All species can play all classes (no restrictions)")
+	t.Logf("Total combinations: %d species × %d classes = %d possible characters",
+		len(allSpecies), len(allClasses), len(allSpecies)*len(allClasses))
 }

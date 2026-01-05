@@ -12,7 +12,7 @@ import (
 func NewGetPartyInfoTool(adv *adventure.Adventure) *SimpleTool {
 	return &SimpleTool{
 		name:        "get_party_info",
-		description: "Get an overview of the party with combat-relevant stats (HP, AC, level, primary abilities). Use this to quickly check the group's status during combat or when planning.",
+		description: "Get an overview of the party with combat-relevant stats (HP, AC, level, proficiency bonus, speed, primary abilities, skills). Use this to quickly check the group's status during combat or when planning encounters.",
 		schema: map[string]interface{}{
 			"type":       "object",
 			"properties": map[string]interface{}{},
@@ -44,15 +44,20 @@ func NewGetPartyInfoTool(adv *adventure.Adventure) *SimpleTool {
 						// Find primary stat (highest modifier)
 						primaryStat := findPrimaryStat(char)
 
+						// Calculate proficiency bonus (D&D 5e)
+						profBonus := 2 + ((char.Level - 1) / 4)
+
 						member := map[string]interface{}{
-							"name":         char.Name,
-							"race":         char.Species,
-							"class":        char.Class,
-							"level":        char.Level,
-							"hp":           char.HitPoints,
-							"max_hp":       char.MaxHitPoints,
-							"ac":           char.ArmorClass,
-							"primary_stat": primaryStat,
+							"name":              char.Name,
+							"species":           char.Species,
+							"class":             char.Class,
+							"level":             char.Level,
+							"hp":                char.HitPoints,
+							"max_hp":            char.MaxHitPoints,
+							"ac":                char.ArmorClass,
+							"proficiency_bonus": profBonus,
+							"speed":             30, // Default 30 feet for most species
+							"primary_stat":      primaryStat,
 						}
 						members = append(members, member)
 						break
@@ -80,7 +85,7 @@ func NewGetPartyInfoTool(adv *adventure.Adventure) *SimpleTool {
 func NewGetCharacterInfoTool(adv *adventure.Adventure) *SimpleTool {
 	return &SimpleTool{
 		name:        "get_character_info",
-		description: "Get detailed information about a specific character including all abilities, modifiers, equipment, and appearance. Use this when you need to know a character's exact stats for skill checks, combat bonuses, or roleplay details.",
+		description: "Get detailed information about a specific character including abilities, modifiers, proficiency bonus, skills, spell save DC (if caster), equipment, and appearance. Use this for skill checks, combat bonuses, spell casting, or roleplay details.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -183,16 +188,21 @@ func findPrimaryStat(char *character.Character) map[string]interface{} {
 
 // buildCharacterInfo builds a complete character info map.
 func buildCharacterInfo(char *character.Character) map[string]interface{} {
+	// Calculate proficiency bonus (D&D 5e)
+	profBonus := 2 + ((char.Level - 1) / 4)
+
 	info := map[string]interface{}{
-		"name":   char.Name,
-		"race":   char.Species,
-		"class":  char.Class,
-		"level":  char.Level,
-		"xp":     char.XP,
-		"hp":     char.HitPoints,
-		"max_hp": char.MaxHitPoints,
-		"ac":     char.ArmorClass,
-		"gold":   char.Gold,
+		"name":              char.Name,
+		"species":           char.Species,
+		"class":             char.Class,
+		"level":             char.Level,
+		"xp":                char.XP,
+		"hp":                char.HitPoints,
+		"max_hp":            char.MaxHitPoints,
+		"ac":                char.ArmorClass,
+		"gold":              char.Gold,
+		"proficiency_bonus": profBonus,
+		"speed":             30, // Default 30 feet
 		"abilities": map[string]int{
 			"strength":     char.Abilities.Strength,
 			"intelligence": char.Abilities.Intelligence,
@@ -210,6 +220,42 @@ func buildCharacterInfo(char *character.Character) map[string]interface{} {
 			"charisma":     char.Modifiers.Charisma,
 		},
 		"equipment": char.Equipment,
+	}
+
+	// Add D&D 5e specific fields
+	if char.Background != "" {
+		info["background"] = char.Background
+	}
+	if char.Skills != nil && len(char.Skills) > 0 {
+		// Extract proficient skills
+		proficientSkills := []string{}
+		for skill, proficient := range char.Skills {
+			if proficient {
+				proficientSkills = append(proficientSkills, skill)
+			}
+		}
+		if len(proficientSkills) > 0 {
+			info["skills"] = proficientSkills
+		}
+	}
+
+	// Add spell save DC and attack bonus if character has spell slots (is a caster)
+	if char.SpellSlots != nil && len(char.SpellSlots) > 0 {
+		// Determine spellcasting ability based on class
+		// Cleric, Druid, Ranger: WIS
+		// Wizard: INT
+		// Sorcerer, Bard, Paladin, Warlock: CHA
+		spellMod := 0
+		switch char.Class {
+		case "cleric", "druide", "ranger", "rôdeur":
+			spellMod = char.Modifiers.Wisdom
+		case "wizard", "magicien":
+			spellMod = char.Modifiers.Intelligence
+		case "sorcerer", "ensorceleur", "bard", "barde", "paladin", "warlock", "occultiste":
+			spellMod = char.Modifiers.Charisma
+		}
+		info["spell_save_dc"] = 8 + profBonus + spellMod
+		info["spell_attack_bonus"] = profBonus + spellMod
 	}
 
 	// Add spells if applicable

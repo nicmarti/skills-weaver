@@ -80,6 +80,29 @@ type Gear struct {
 	Weight float64 `json:"weight"`
 }
 
+// Spell5e represents a D&D 5e spell.
+type Spell5e struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	NameEN        string   `json:"name_en"`
+	Level         int      `json:"level"`         // 0-9 (0 = cantrip)
+	School        string   `json:"school"`        // "evocation", "abjuration", etc.
+	CastingTime   string   `json:"casting_time"`  // "1 action", "1 bonus action", etc.
+	Range         string   `json:"range"`         // "9 m", "Contact", "Personnelle"
+	Components    []string `json:"components"`    // ["V", "S", "M"]
+	Material      string   `json:"material,omitempty"` // Required if M in components
+	Duration      string   `json:"duration"`      // "Instantanée", "1 heure", etc.
+	Concentration bool     `json:"concentration"` // True if requires concentration
+	Ritual        bool     `json:"ritual"`        // True if can be cast as ritual
+	Classes       []string `json:"classes"`       // Class IDs that can cast
+	DescriptionFR string   `json:"description_fr"`
+	DescriptionEN string   `json:"description_en,omitempty"`
+	Upcast        string   `json:"upcast,omitempty"`  // Effect when cast at higher level
+	Damage        string   `json:"damage,omitempty"`  // e.g., "1d4+1"
+	Healing       string   `json:"healing,omitempty"` // e.g., "1d8"
+	Save          string   `json:"save,omitempty"`    // e.g., "Constitution"
+}
+
 // StartingEquipment represents class-specific starting equipment options.
 type StartingEquipment struct {
 	Required      []string   `json:"required"`
@@ -96,6 +119,7 @@ type GameData struct {
 	Weapons           map[string]*Weapon
 	Armor             map[string]*Armor
 	Gear              map[string]*Gear
+	Spells5e          map[string]*Spell5e
 	StartingEquipment map[string]*StartingEquipment
 }
 
@@ -123,6 +147,11 @@ type equipmentFile struct {
 	Ammunition        []Gear                       `json:"ammunition"`
 }
 
+// spellsFile represents the JSON structure for D&D 5e spells.
+type spellsFile struct {
+	Spells []Spell5e `json:"spells"`
+}
+
 // Load reads all game data from JSON files in the specified directory.
 // If dataDir is empty, it defaults to "./data".
 func Load(dataDir string) (*GameData, error) {
@@ -138,6 +167,7 @@ func Load(dataDir string) (*GameData, error) {
 		Weapons:           make(map[string]*Weapon),
 		Armor:             make(map[string]*Armor),
 		Gear:              make(map[string]*Gear),
+		Spells5e:          make(map[string]*Spell5e),
 		StartingEquipment: make(map[string]*StartingEquipment),
 	}
 
@@ -159,6 +189,11 @@ func Load(dataDir string) (*GameData, error) {
 	// Load equipment
 	if err := gd.loadEquipment(); err != nil {
 		return nil, fmt.Errorf("loading equipment: %w", err)
+	}
+
+	// Load spells (D&D 5e)
+	if err := gd.loadSpells(); err != nil {
+		return nil, fmt.Errorf("loading spells: %w", err)
 	}
 
 	return gd, nil
@@ -441,4 +476,96 @@ func (gd *GameData) itemExists(id string) bool {
 		return true
 	}
 	return false
+}
+
+// loadSpells loads D&D 5e spells from data/5e/spells.json.
+func (gd *GameData) loadSpells() error {
+	data, err := os.ReadFile(filepath.Join(gd.dataDir, "5e", "spells.json"))
+	if err != nil {
+		return err
+	}
+
+	var sf spellsFile
+	if err := json.Unmarshal(data, &sf); err != nil {
+		return err
+	}
+
+	for i := range sf.Spells {
+		spell := &sf.Spells[i]
+		gd.Spells5e[spell.ID] = spell
+	}
+
+	return nil
+}
+
+// GetSpell5e returns a D&D 5e spell by ID.
+func (gd *GameData) GetSpell5e(id string) (*Spell5e, bool) {
+	spell, ok := gd.Spells5e[id]
+	return spell, ok
+}
+
+// ListSpellsByClass returns all spells available to a specific class and spell level.
+// If level is -1, returns all spells for the class regardless of level.
+func (gd *GameData) ListSpellsByClass(classID string, level int) []*Spell5e {
+	spells := make([]*Spell5e, 0)
+	for _, spell := range gd.Spells5e {
+		// Check if this class can cast this spell
+		hasClass := false
+		for _, c := range spell.Classes {
+			if c == classID {
+				hasClass = true
+				break
+			}
+		}
+		if !hasClass {
+			continue
+		}
+
+		// Check level if specified
+		if level >= 0 && spell.Level != level {
+			continue
+		}
+
+		spells = append(spells, spell)
+	}
+	return spells
+}
+
+// ListCantrips returns all cantrips (level 0 spells) for a specific class.
+func (gd *GameData) ListCantrips(classID string) []*Spell5e {
+	return gd.ListSpellsByClass(classID, 0)
+}
+
+// ListSpellsBySchool returns all spells of a specific school of magic.
+func (gd *GameData) ListSpellsBySchool(school string) []*Spell5e {
+	spells := make([]*Spell5e, 0)
+	for _, spell := range gd.Spells5e {
+		if strings.EqualFold(spell.School, school) {
+			spells = append(spells, spell)
+		}
+	}
+	return spells
+}
+
+// SearchSpells searches for spells by name (French or English).
+func (gd *GameData) SearchSpells(query string) []*Spell5e {
+	query = strings.ToLower(query)
+	spells := make([]*Spell5e, 0)
+	for _, spell := range gd.Spells5e {
+		if strings.Contains(strings.ToLower(spell.Name), query) ||
+			strings.Contains(strings.ToLower(spell.NameEN), query) ||
+			strings.Contains(strings.ToLower(spell.ID), query) {
+			spells = append(spells, spell)
+		}
+	}
+	return spells
+}
+
+// ListAllSpells returns all spells.
+func (gd *GameData) ListAllSpells() []*Spell5e {
+	spells := make([]*Spell5e, 0, len(gd.Spells5e))
+	for _, spell := range gd.Spells5e {
+		spells = append(spells, spell)
+	}
+	return spells
 }

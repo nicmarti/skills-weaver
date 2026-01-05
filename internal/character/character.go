@@ -273,7 +273,6 @@ func (c *Character) CalculateArmorClass(gd *data.GameData) {
 
 // InitializeSpellSlots sets up spell slots based on class and level.
 // Returns true if the character is a spellcaster, false otherwise.
-// TODO: Implement full D&D 5e spell slot tables (Phase 7)
 func (c *Character) InitializeSpellSlots(gd *data.GameData) bool {
 	class, ok := gd.GetClass(c.Class)
 	if !ok {
@@ -285,10 +284,29 @@ func (c *Character) InitializeSpellSlots(gd *data.GameData) bool {
 		return false
 	}
 
-	// Initialize empty spell slots for now
-	// Full spell slot tables will be implemented in Phase 7
+	// Get spell slots from tables based on class and level
+	slots := GetSpellSlots(c.Class, c.Level)
+	if slots == nil || len(slots) == 0 {
+		// Not a caster at this level yet (e.g., Paladin level 1)
+		c.SpellSlots = make(map[int]int)
+		c.SpellSlotsUsed = make(map[int]int)
+		return false
+	}
+
+	// Initialize spell slots
 	c.SpellSlots = make(map[int]int)
 	c.SpellSlotsUsed = make(map[int]int)
+
+	for level, count := range slots {
+		c.SpellSlots[level] = count
+		c.SpellSlotsUsed[level] = 0
+	}
+
+	// Calculate spell save DC and spell attack bonus
+	// Formula: 8 + proficiency bonus + spellcasting ability modifier
+	abilityMod := c.GetAbilityModifier(class.SpellcastingAbility)
+	c.SpellSaveDC = 8 + c.ProficiencyBonus + abilityMod
+	c.SpellAttackBonus = c.ProficiencyBonus + abilityMod
 
 	return true
 }
@@ -313,6 +331,82 @@ func (c *Character) GetSpellType(gd *data.GameData) string {
 	default:
 		return ""
 	}
+}
+
+// UseSpellSlot consumes a spell slot of the given level.
+// Returns an error if no slots are available at that level.
+func (c *Character) UseSpellSlot(level int) error {
+	if c.SpellSlots == nil {
+		return fmt.Errorf("character has no spell slots")
+	}
+
+	maxSlots, exists := c.SpellSlots[level]
+	if !exists || maxSlots == 0 {
+		return fmt.Errorf("no spell slots available at level %d", level)
+	}
+
+	if c.SpellSlotsUsed == nil {
+		c.SpellSlotsUsed = make(map[int]int)
+	}
+
+	used := c.SpellSlotsUsed[level]
+	if used >= maxSlots {
+		return fmt.Errorf("all level %d spell slots have been used (%d/%d)", level, used, maxSlots)
+	}
+
+	c.SpellSlotsUsed[level]++
+	return nil
+}
+
+// RestoreSpellSlots restores all spell slots (typically after a long rest).
+// For Warlock, this should be called after short rest as well.
+func (c *Character) RestoreSpellSlots() {
+	if c.SpellSlotsUsed != nil {
+		for level := range c.SpellSlotsUsed {
+			c.SpellSlotsUsed[level] = 0
+		}
+	}
+}
+
+// GetAvailableSlots returns the number of available (unused) spell slots at the given level.
+func (c *Character) GetAvailableSlots(level int) int {
+	if c.SpellSlots == nil {
+		return 0
+	}
+
+	maxSlots, exists := c.SpellSlots[level]
+	if !exists {
+		return 0
+	}
+
+	used := 0
+	if c.SpellSlotsUsed != nil {
+		used = c.SpellSlotsUsed[level]
+	}
+
+	available := maxSlots - used
+	if available < 0 {
+		return 0
+	}
+
+	return available
+}
+
+// CanCastSpell returns true if the character has at least one spell slot available
+// at the given spell level or higher (for upcasting).
+func (c *Character) CanCastSpell(spellLevel int) bool {
+	if c.SpellSlots == nil {
+		return false
+	}
+
+	// Check if any slot at this level or higher is available
+	for level := spellLevel; level <= 9; level++ {
+		if c.GetAvailableSlots(level) > 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Validate checks if the character's species/class combination is valid.

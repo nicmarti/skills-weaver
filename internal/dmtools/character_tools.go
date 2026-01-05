@@ -46,7 +46,7 @@ func NewGetPartyInfoTool(adv *adventure.Adventure) *SimpleTool {
 
 						member := map[string]interface{}{
 							"name":         char.Name,
-							"race":         char.Race,
+							"race":         char.Species,
 							"class":        char.Class,
 							"level":        char.Level,
 							"hp":           char.HitPoints,
@@ -185,7 +185,7 @@ func findPrimaryStat(char *character.Character) map[string]interface{} {
 func buildCharacterInfo(char *character.Character) map[string]interface{} {
 	info := map[string]interface{}{
 		"name":   char.Name,
-		"race":   char.Race,
+		"race":   char.Species,
 		"class":  char.Class,
 		"level":  char.Level,
 		"xp":     char.XP,
@@ -302,7 +302,7 @@ func formatCharacterDisplay(char *character.Character) string {
 
 	// Header
 	sb.WriteString(fmt.Sprintf("# %s\n", char.Name))
-	sb.WriteString(fmt.Sprintf("**%s %s, Niveau %d** (XP: %d)\n\n", capitalize(char.Race), capitalize(char.Class), char.Level, char.XP))
+	sb.WriteString(fmt.Sprintf("**%s %s, Niveau %d** (XP: %d)\n\n", capitalize(char.Species), capitalize(char.Class), char.Level, char.XP))
 
 	// Combat stats
 	sb.WriteString("## Combat\n")

@@ -110,23 +110,10 @@ func handleCreate(args []string) {
 	}
 	fmt.Println()
 
-	// Apply racial modifiers
+	// Validate species (D&D 5e: no ability modifiers from species)
 	if err := c.ApplyRacialModifiers(gd); err != nil {
-		fmt.Fprintf(os.Stderr, "Error applying racial modifiers: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error validating species: %v\n", err)
 		os.Exit(1)
-	}
-
-	raceData, _ := gd.GetRace(race)
-	if len(raceData.AbilityModifiers) > 0 {
-		fmt.Printf("### Modificateurs raciaux (%s)\n\n", raceData.Name)
-		for ability, mod := range raceData.AbilityModifiers {
-			if mod > 0 {
-				fmt.Printf("- %s: +%d\n", ability, mod)
-			} else {
-				fmt.Printf("- %s: %d\n", ability, mod)
-			}
-		}
-		fmt.Println()
 	}
 
 	// Calculate modifiers
@@ -199,12 +186,12 @@ func handleList() {
 	fmt.Println("|-----|------|--------|--------|-----|")
 
 	for _, c := range characters {
-		raceName := c.Race
+		speciesName := c.Species
 		className := c.Class
 
 		if gd != nil {
-			if race, ok := gd.GetRace(c.Race); ok {
-				raceName = race.Name
+			if species, ok := gd.GetSpecies(c.Species); ok {
+				speciesName = species.Name
 			}
 			if class, ok := gd.GetClass(c.Class); ok {
 				className = class.Name
@@ -212,7 +199,7 @@ func handleList() {
 		}
 
 		fmt.Printf("| %s | %s | %s | %d | %d/%d |\n",
-			c.Name, raceName, className, c.Level, c.HitPoints, c.MaxHitPoints)
+			c.Name, speciesName, className, c.Level, c.HitPoints, c.MaxHitPoints)
 	}
 }
 
@@ -684,8 +671,8 @@ COMMANDES:
     help                         Affiche cette aide
 
 OPTIONS POUR CREATE:
-    --race=<race>       Race du personnage (human, elf, dwarf, halfling)
-    --class=<class>     Classe du personnage (fighter, cleric, magic-user, thief)
+    --race=<race>       Espèce du personnage (human, elf, dwarf, dragonborn, etc.)
+    --class=<class>     Classe du personnage (fighter, wizard, cleric, etc.)
     --method=<method>   Méthode de génération (standard=4d6kh3, classic=3d6)
     --max-hp            PV max au niveau 1 (variante pour survie)
 
@@ -707,22 +694,37 @@ OPTIONS POUR APPEARANCE:
     --weapon=<value>        Description de l'arme (longsword, staff with crystal)
     --accessories=<value>   Accessoires (shield, holy symbol, spell book)
 
-RACES DISPONIBLES:
-    human     - Humain (toutes classes, niveau illimité)
-    elf       - Elfe (+1 DEX, -1 CON) : Guerrier 6, Magicien 9, Voleur
-    dwarf     - Nain (+1 CON, -1 CHA) : Guerrier 7, Clerc 6, Voleur
-    halfling  - Halfelin (+1 DEX, -1 FOR) : Guerrier 4, Voleur
+ESPÈCES DISPONIBLES (D&D 5e):
+    human       - Humain
+    dragonborn  - Drakéide
+    dwarf       - Nain
+    elf         - Elfe
+    gnome       - Gnome
+    goliath     - Goliath
+    halfling    - Halfelin
+    orc         - Orc
+    tiefling    - Tieffelin
 
-CLASSES DISPONIBLES:
-    fighter     - Guerrier (d8 PV, toutes armes/armures)
-    cleric      - Clerc (d6 PV, sorts divins, armes contondantes)
-    magic-user  - Magicien (d4 PV, sorts arcaniques)
-    thief       - Voleur (d4 PV, compétences spéciales)
+    Note: En D&D 5e, toutes les espèces peuvent jouer toutes les classes
+
+CLASSES DISPONIBLES (D&D 5e):
+    barbarian   - Barbare (d12 PV, rage)
+    bard        - Barde (d8 PV, sorts + compétences)
+    cleric      - Clerc (d8 PV, sorts divins)
+    druid       - Druide (d8 PV, sorts nature)
+    fighter     - Guerrier (d10 PV, toutes armes/armures)
+    monk        - Moine (d8 PV, arts martiaux)
+    paladin     - Paladin (d10 PV, sorts + serments)
+    ranger      - Rôdeur (d10 PV, sorts + exploration)
+    rogue       - Roublard (d8 PV, attaque sournoise)
+    sorcerer    - Ensorceleur (d6 PV, magie innée)
+    warlock     - Occultiste (d8 PV, pacte)
+    wizard      - Magicien (d6 PV, sorts arcaniques)
 
 EXEMPLES:
     sw-character create "Aldric" --race=human --class=fighter
-    sw-character create "Lyra" --race=elf --class=magic-user --method=classic
-    sw-character create "Gorim" --race=dwarf --class=fighter --max-hp
+    sw-character create "Lyra" --race=elf --class=wizard --method=classic
+    sw-character create "Thorin" --race=dwarf --class=cleric --max-hp
     sw-character list
     sw-character show "Aldric"
     sw-character export "Aldric" --format=json
@@ -730,7 +732,7 @@ EXEMPLES:
     sw-character set-reference "Aldric" path/to/portrait.png
 
 NOTES SUR LES PV:
-    Par défaut, les PV au niveau 1 sont lancés aléatoirement (règle BFRPG standard).
+    Par défaut, les PV au niveau 1 sont lancés aléatoirement (règle D&D 5e standard).
     Avec --max-hp, le personnage reçoit le maximum du dé de vie (variante populaire
     pour améliorer la survie des personnages de bas niveau).`)
 }

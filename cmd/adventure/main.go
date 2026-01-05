@@ -304,7 +304,7 @@ func cmdShowParty(args []string) error {
 
 	for _, c := range characters {
 		fmt.Printf("| %s | %s | %s | %d | %d/%d |\n",
-			c.Name, c.Race, c.Class, c.Level, c.HitPoints, c.MaxHitPoints)
+			c.Name, c.Species, c.Class, c.Level, c.HitPoints, c.MaxHitPoints)
 	}
 
 	if len(party.MarchingOrder) > 0 {
@@ -694,7 +694,7 @@ func cmdStatus(args []string) error {
 		fmt.Printf("**Formation** : %s\n", party.Formation)
 		for _, c := range characters {
 			fmt.Printf("- %s (%s %s N%d) - PV: %d/%d\n",
-				c.Name, c.Race, c.Class, c.Level, c.HitPoints, c.MaxHitPoints)
+				c.Name, c.Species, c.Class, c.Level, c.HitPoints, c.MaxHitPoints)
 		}
 		fmt.Println()
 	}

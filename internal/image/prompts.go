@@ -58,9 +58,9 @@ func BuildCharacterPrompt(char *character.Character, style PromptStyle) string {
 		gender = char.Appearance.Gender + " "
 	}
 
-	raceD := raceDesc[char.Race]
+	raceD := raceDesc[char.Species]
 	if raceD == "" {
-		raceD = char.Race
+		raceD = char.Species
 	}
 	classD := classDesc[char.Class]
 	if classD == "" {
@@ -98,9 +98,9 @@ func buildDetailedCharacterPrompt(char *character.Character, style PromptStyle) 
 
 	// Age and race
 	if app.Age > 0 {
-		parts = append(parts, fmt.Sprintf("%d-year-old %s%s", app.Age, genderPrefix, char.Race))
+		parts = append(parts, fmt.Sprintf("%d-year-old %s%s", app.Age, genderPrefix, char.Species))
 	} else {
-		parts = append(parts, genderPrefix+char.Race)
+		parts = append(parts, genderPrefix+char.Species)
 	}
 
 	// Class
@@ -503,9 +503,9 @@ func buildDetailedCharacterReference(char *character.Character) string {
 
 	// Name and age/class
 	if a.Age > 0 {
-		parts = append(parts, fmt.Sprintf("%s, a %d-year-old %s%s %s", char.Name, a.Age, genderPrefix, char.Race, char.Class))
+		parts = append(parts, fmt.Sprintf("%s, a %d-year-old %s%s %s", char.Name, a.Age, genderPrefix, char.Species, char.Class))
 	} else {
-		parts = append(parts, fmt.Sprintf("%s, a %s%s %s", char.Name, genderPrefix, char.Race, char.Class))
+		parts = append(parts, fmt.Sprintf("%s, a %s%s %s", char.Name, genderPrefix, char.Species, char.Class))
 	}
 
 	// Physical traits

@@ -313,7 +313,7 @@ func formatParty(ctx *AdventureContext) string {
 		// Find character in loaded characters
 		for _, char := range ctx.Characters {
 			if char.Name == charName {
-				parts = append(parts, fmt.Sprintf("%s (%s %s)", char.Name, char.Race, char.Class))
+				parts = append(parts, fmt.Sprintf("%s (%s %s)", char.Name, char.Species, char.Class))
 				break
 			}
 		}

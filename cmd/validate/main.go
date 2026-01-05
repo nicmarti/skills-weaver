@@ -89,10 +89,10 @@ OPTIONS:
   --help, -h    Show this help message
 
 VALIDATIONS:
-  - races.json          : allowed_classes reference valid classes
+  - species.json        : D&D 5e species data
   - equipment.json      : starting_equipment references valid items
   - monsters.json       : treasure_type is valid (A-U or 'none')
-  - names.json          : all races have name entries
+  - names.json          : all species have name entries
   - location-names.json : all kingdoms have required location types
   - spells.json         : spell_lists reference valid spell IDs
   - journal.json        : bilingual descriptions consistency and length
@@ -258,34 +258,34 @@ func validateNames(dataDir string, gd *data.GameData) []data.ValidationError {
 		return errors
 	}
 
-	// Check that all races in races.json have names
-	for raceID := range gd.Races {
-		raceNames, ok := nf[raceID]
+	// Check that all species in species.json have names
+	for speciesID := range gd.Species {
+		speciesNames, ok := nf[speciesID]
 		if !ok {
 			errors = append(errors, data.ValidationError{
 				File:     "names.json",
-				Field:    raceID,
-				Message:  fmt.Sprintf("race '%s' from races.json has no name entries", raceID),
+				Field:    speciesID,
+				Message:  fmt.Sprintf("species '%s' from species.json has no name entries", speciesID),
 				Severity: "warning",
 			})
 			continue
 		}
 
 		// Check for male names
-		if len(raceNames.Male.First) == 0 {
+		if len(speciesNames.Male.First) == 0 {
 			errors = append(errors, data.ValidationError{
 				File:     "names.json",
-				Field:    fmt.Sprintf("%s.male.first", raceID),
+				Field:    fmt.Sprintf("%s.male.first", speciesID),
 				Message:  "missing male first names",
 				Severity: "warning",
 			})
 		}
 
 		// Check for female names
-		if len(raceNames.Female.First) == 0 {
+		if len(speciesNames.Female.First) == 0 {
 			errors = append(errors, data.ValidationError{
 				File:     "names.json",
-				Field:    fmt.Sprintf("%s.female.first", raceID),
+				Field:    fmt.Sprintf("%s.female.first", speciesID),
 				Message:  "missing female first names",
 				Severity: "warning",
 			})

@@ -1,4 +1,4 @@
-// Package character provides character creation and management for BFRPG.
+// Package character provides character creation and management for D&D 5e.
 package character
 
 import (
@@ -25,11 +25,11 @@ type AbilityScores struct {
 	Charisma     int `json:"charisma"`
 }
 
-// Character represents a player character in BFRPG.
+// Character represents a player character in D&D 5e.
 type Character struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
-	Race         string        `json:"race"`
+	Species      string        `json:"species"`      // Replaces "Race" in D&D 5e
 	Class        string        `json:"class"`
 	Level        int           `json:"level"`
 	XP           int           `json:"xp"`
@@ -40,13 +40,27 @@ type Character struct {
 	ArmorClass   int           `json:"armor_class"`
 	Gold         int           `json:"gold"`
 	Equipment    []string      `json:"equipment"`
+
+	// D&D 5e specific fields
+	Background       string          `json:"background,omitempty"`        // Character background
+	ProficiencyBonus int             `json:"proficiency_bonus"`           // +2 to +6 based on level
+	Skills           map[string]bool `json:"skills,omitempty"`            // Proficient skills
+	SavingThrowProfs map[string]bool `json:"saving_throw_profs,omitempty"` // Proficient saving throws
+	Inspiration      bool            `json:"inspiration,omitempty"`       // Inspiration point
+	TempHitPoints    int             `json:"temp_hit_points,omitempty"`   // Temporary HP
+	HitDice          int             `json:"hit_dice,omitempty"`          // Remaining hit dice
+	MaxHitDice       int             `json:"max_hit_dice,omitempty"`      // Maximum hit dice (= level)
+
 	// Spell system fields
-	KnownSpells    []string       `json:"known_spells,omitempty"`    // Spell IDs known by the character
-	PreparedSpells []string       `json:"prepared_spells,omitempty"` // Spell IDs prepared for the day
-	SpellSlots     map[int]int          `json:"spell_slots,omitempty"`     // Available spell slots by level
-	SpellSlotsUsed map[int]int          `json:"spell_slots_used,omitempty"` // Used spell slots by level
-	Appearance     *CharacterAppearance `json:"appearance,omitempty"`       // Visual description for image generation
-	CreatedAt      time.Time            `json:"created_at"`
+	SpellSaveDC      int        `json:"spell_save_dc,omitempty"`       // DC for spell saves
+	SpellAttackBonus int        `json:"spell_attack_bonus,omitempty"`  // Bonus for spell attacks
+	KnownSpells      []string   `json:"known_spells,omitempty"`        // Spell IDs known by the character
+	PreparedSpells   []string   `json:"prepared_spells,omitempty"`     // Spell IDs prepared for the day
+	SpellSlots       map[int]int `json:"spell_slots,omitempty"`        // Available spell slots by level
+	SpellSlotsUsed   map[int]int `json:"spell_slots_used,omitempty"`   // Used spell slots by level
+
+	Appearance *CharacterAppearance `json:"appearance,omitempty"` // Visual description for image generation
+	CreatedAt  time.Time            `json:"created_at"`
 }
 
 // CharacterAppearance stores visual description for image generation.
@@ -78,11 +92,11 @@ const (
 )
 
 // New creates a new character with basic info.
-func New(name, race, class string) *Character {
+func New(name, species, class string) *Character {
 	return &Character{
 		ID:        uuid.New().String(),
 		Name:      name,
-		Race:      race,
+		Species:   species,
 		Class:     class,
 		Level:     1,
 		XP:        0,
@@ -113,69 +127,30 @@ func (c *Character) GenerateAbilities(method GenerationMethod) []dice.Result {
 	return results
 }
 
-// ApplyRacialModifiers applies racial ability modifiers from game data.
+// ApplyRacialModifiers is deprecated in D&D 5e 2024.
+// In D&D 5e 2024, ability score increases come from backgrounds, not species.
+// This function is kept for API compatibility but does nothing.
 func (c *Character) ApplyRacialModifiers(gd *data.GameData) error {
-	race, ok := gd.GetRace(c.Race)
+	// Verify species exists
+	_, ok := gd.GetSpecies(c.Species)
 	if !ok {
-		return fmt.Errorf("unknown race: %s", c.Race)
+		return fmt.Errorf("unknown species: %s", c.Species)
 	}
 
-	for ability, mod := range race.AbilityModifiers {
-		switch ability {
-		case "strength":
-			c.Abilities.Strength += mod
-		case "intelligence":
-			c.Abilities.Intelligence += mod
-		case "wisdom":
-			c.Abilities.Wisdom += mod
-		case "dexterity":
-			c.Abilities.Dexterity += mod
-		case "constitution":
-			c.Abilities.Constitution += mod
-		case "charisma":
-			c.Abilities.Charisma += mod
-		}
-	}
-
-	// Clamp values to 3-18 range
-	c.Abilities.Strength = clamp(c.Abilities.Strength, 3, 18)
-	c.Abilities.Intelligence = clamp(c.Abilities.Intelligence, 3, 18)
-	c.Abilities.Wisdom = clamp(c.Abilities.Wisdom, 3, 18)
-	c.Abilities.Dexterity = clamp(c.Abilities.Dexterity, 3, 18)
-	c.Abilities.Constitution = clamp(c.Abilities.Constitution, 3, 18)
-	c.Abilities.Charisma = clamp(c.Abilities.Charisma, 3, 18)
-
+	// D&D 5e 2024: No ability modifiers from species
+	// Ability increases come from backgrounds instead
 	return nil
 }
 
-// CalculateModifiers computes ability modifiers according to BFRPG rules.
+// CalculateModifiers computes ability modifiers according to D&D 5e rules.
+// Formula: (ability_score - 10) ÷ 2 (rounded down)
 func (c *Character) CalculateModifiers() {
-	c.Modifiers.Strength = abilityModifier(c.Abilities.Strength)
-	c.Modifiers.Intelligence = abilityModifier(c.Abilities.Intelligence)
-	c.Modifiers.Wisdom = abilityModifier(c.Abilities.Wisdom)
-	c.Modifiers.Dexterity = abilityModifier(c.Abilities.Dexterity)
-	c.Modifiers.Constitution = abilityModifier(c.Abilities.Constitution)
-	c.Modifiers.Charisma = abilityModifier(c.Abilities.Charisma)
-}
-
-// abilityModifier returns the BFRPG modifier for an ability score.
-func abilityModifier(score int) int {
-	switch {
-	case score <= 3:
-		return -3
-	case score <= 5:
-		return -2
-	case score <= 8:
-		return -1
-	case score <= 12:
-		return 0
-	case score <= 15:
-		return +1
-	case score <= 17:
-		return +2
-	default:
-		return +3
-	}
+	c.Modifiers.Strength = data.AbilityModifier(c.Abilities.Strength)
+	c.Modifiers.Intelligence = data.AbilityModifier(c.Abilities.Intelligence)
+	c.Modifiers.Wisdom = data.AbilityModifier(c.Abilities.Wisdom)
+	c.Modifiers.Dexterity = data.AbilityModifier(c.Abilities.Dexterity)
+	c.Modifiers.Constitution = data.AbilityModifier(c.Abilities.Constitution)
+	c.Modifiers.Charisma = data.AbilityModifier(c.Abilities.Charisma)
 }
 
 // RollHitPoints calculates hit points for level 1.
@@ -225,7 +200,7 @@ func (c *Character) RollHitPoints(gd *data.GameData, maxHP bool) error {
 	return nil
 }
 
-// RollStartingGold rolls starting gold based on class.
+// RollStartingGold rolls starting gold based on class (D&D 5e starting wealth).
 func (c *Character) RollStartingGold(gd *data.GameData) error {
 	class, ok := gd.GetClass(c.Class)
 	if !ok {
@@ -234,15 +209,23 @@ func (c *Character) RollStartingGold(gd *data.GameData) error {
 
 	roller := dice.New()
 
-	// Parse starting gold expression (e.g., "3d6x10" or "2d6x10")
-	goldExpr := class.StartingGold
-	if goldExpr == "" {
-		goldExpr = "3d6x10"
+	// D&D 5e starting wealth by class (in gp)
+	// Based on PHB starting gold table
+	var goldFormula string
+	switch class.ID {
+	case "barbarian", "fighter", "paladin", "ranger":
+		goldFormula = "5d4" // × 10 = 50-200 gp
+	case "cleric", "druid", "monk", "rogue":
+		goldFormula = "4d4" // × 10 = 40-160 gp
+	case "bard", "warlock":
+		goldFormula = "5d4" // × 10 = 50-200 gp
+	case "sorcerer", "wizard":
+		goldFormula = "3d4" // × 10 = 30-120 gp
+	default:
+		goldFormula = "4d4" // Default
 	}
 
-	// Handle "3d6x10" format
-	goldExpr = strings.Replace(goldExpr, "x10", "", 1)
-	result, err := roller.Roll(goldExpr)
+	result, err := roller.Roll(goldFormula)
 	if err != nil {
 		return fmt.Errorf("rolling starting gold: %w", err)
 	}
@@ -252,11 +235,11 @@ func (c *Character) RollStartingGold(gd *data.GameData) error {
 	return nil
 }
 
-// CalculateArmorClass computes AC (base 11 in BFRPG ascending AC).
+// CalculateArmorClass computes AC (base 10 in D&D 5e).
 func (c *Character) CalculateArmorClass(gd *data.GameData) {
-	// Base AC in BFRPG (ascending) is 11
-	// AC = 11 + DEX modifier + armor bonus + shield bonus
-	baseAC := 11
+	// Base AC in D&D 5e is 10 + DEX modifier
+	// AC = 10 + DEX modifier + armor bonus + shield bonus
+	baseAC := 10
 	c.ArmorClass = baseAC + c.Modifiers.Dexterity
 
 	// Add armor bonuses from equipment
@@ -269,35 +252,22 @@ func (c *Character) CalculateArmorClass(gd *data.GameData) {
 
 // InitializeSpellSlots sets up spell slots based on class and level.
 // Returns true if the character is a spellcaster, false otherwise.
+// TODO: Implement full D&D 5e spell slot tables (Phase 7)
 func (c *Character) InitializeSpellSlots(gd *data.GameData) bool {
 	class, ok := gd.GetClass(c.Class)
 	if !ok {
 		return false
 	}
 
-	// Check if class has spells
-	if class.SpellsPerLevel == nil || len(class.SpellsPerLevel) == 0 {
+	// Check if class is a spellcaster
+	if class.SpellcastingAbility == "" {
 		return false
 	}
 
-	// Get spell slots for current level
-	levelKey := fmt.Sprintf("%d", c.Level)
-	slots, ok := class.SpellsPerLevel[levelKey]
-	if !ok || len(slots) == 0 {
-		// No spells at this level (e.g., Cleric level 1)
-		c.SpellSlots = nil
-		c.SpellSlotsUsed = nil
-		return true // Still a spellcaster, just no slots yet
-	}
-
-	// Initialize spell slots by spell level
+	// Initialize empty spell slots for now
+	// Full spell slot tables will be implemented in Phase 7
 	c.SpellSlots = make(map[int]int)
 	c.SpellSlotsUsed = make(map[int]int)
-
-	for spellLevel, count := range slots {
-		c.SpellSlots[spellLevel+1] = count // spellLevel is 0-indexed, spell levels are 1-indexed
-		c.SpellSlotsUsed[spellLevel+1] = 0
-	}
 
 	return true
 }
@@ -308,48 +278,40 @@ func (c *Character) CanCastSpells(gd *data.GameData) bool {
 	if !ok {
 		return false
 	}
-	return class.SpellsPerLevel != nil && len(class.SpellsPerLevel) > 0
+	return class.SpellcastingAbility != ""
 }
 
 // GetSpellType returns the spell type for the character's class.
-// Returns "arcane" for Magic-User, "divine" for Cleric, or "" for non-casters.
+// Returns "arcane" or "divine" based on D&D 5e class, or "" for non-casters.
 func (c *Character) GetSpellType(gd *data.GameData) string {
 	switch c.Class {
-	case "magic-user":
+	case "wizard", "sorcerer", "warlock", "bard":
 		return "arcane"
-	case "cleric":
+	case "cleric", "druid", "paladin", "ranger":
 		return "divine"
 	default:
 		return ""
 	}
 }
 
-// Validate checks if the character's race/class combination is valid.
+// Validate checks if the character's species/class combination is valid.
+// In D&D 5e, all species can play all classes.
 func (c *Character) Validate(gd *data.GameData) error {
 	if c.Name == "" {
 		return fmt.Errorf("character name is required")
 	}
 
-	race, ok := gd.GetRace(c.Race)
+	species, ok := gd.GetSpecies(c.Species)
 	if !ok {
-		return fmt.Errorf("unknown race: %s", c.Race)
+		return fmt.Errorf("unknown species: %s", c.Species)
 	}
 
 	if _, ok := gd.GetClass(c.Class); !ok {
 		return fmt.Errorf("unknown class: %s", c.Class)
 	}
 
-	// Check if race can play this class
-	allowed := false
-	for _, allowedClass := range race.AllowedClasses {
-		if allowedClass == c.Class {
-			allowed = true
-			break
-		}
-	}
-	if !allowed {
-		return fmt.Errorf("%s cannot be a %s", race.Name, c.Class)
-	}
+	// D&D 5e: All species can play all classes
+	_ = species // Used for validation
 
 	return nil
 }
@@ -383,17 +345,17 @@ func (c *Character) UpdateAppearance(appearance CharacterAppearance) {
 // GetVisualDescription returns human-readable description.
 func (c *Character) GetVisualDescription() string {
 	if c.Appearance == nil {
-		return fmt.Sprintf("%s, %s %s", c.Name, c.Race, c.Class)
+		return fmt.Sprintf("%s, %s %s", c.Name, c.Species, c.Class)
 	}
 
 	a := c.Appearance
 	parts := []string{c.Name}
 
-	// Age and race
+	// Age and species
 	if a.Age > 0 {
-		parts = append(parts, fmt.Sprintf("%d-year-old %s", a.Age, c.Race))
+		parts = append(parts, fmt.Sprintf("%d-year-old %s", a.Age, c.Species))
 	} else {
-		parts = append(parts, c.Race)
+		parts = append(parts, c.Species)
 	}
 
 	parts = append(parts, c.Class)
@@ -421,7 +383,7 @@ func (c *Character) GetVisualDescription() string {
 // GetImagePromptSnippet returns short reference for image prompts.
 func (c *Character) GetImagePromptSnippet() string {
 	if c.Appearance == nil {
-		return fmt.Sprintf("%s the %s %s", c.Name, c.Race, c.Class)
+		return fmt.Sprintf("%s the %s %s", c.Name, c.Species, c.Class)
 	}
 
 	// Short form: "Aldric (human fighter, plate armor, longsword)"
@@ -435,10 +397,10 @@ func (c *Character) GetImagePromptSnippet() string {
 
 	if len(equipment) > 0 {
 		return fmt.Sprintf("%s (%s %s, %s)",
-			c.Name, c.Race, c.Class, strings.Join(equipment, ", "))
+			c.Name, c.Species, c.Class, strings.Join(equipment, ", "))
 	}
 
-	return fmt.Sprintf("%s (%s %s)", c.Name, c.Race, c.Class)
+	return fmt.Sprintf("%s (%s %s)", c.Name, c.Species, c.Class)
 }
 
 // Load reads a character from a JSON file.
@@ -500,20 +462,20 @@ func (c *Character) ToMarkdown(gd *data.GameData) string {
 	var sb strings.Builder
 
 	// Header
-	race, _ := gd.GetRace(c.Race)
+	species, _ := gd.GetSpecies(c.Species)
 	class, _ := gd.GetClass(c.Class)
 
-	raceName := c.Race
+	speciesName := c.Species
 	className := c.Class
-	if race != nil {
-		raceName = race.Name
+	if species != nil {
+		speciesName = species.Name
 	}
 	if class != nil {
 		className = class.Name
 	}
 
 	sb.WriteString(fmt.Sprintf("# %s\n", c.Name))
-	sb.WriteString(fmt.Sprintf("**%s %s, Niveau %d**\n\n", raceName, className, c.Level))
+	sb.WriteString(fmt.Sprintf("**%s %s, Niveau %d**\n\n", speciesName, className, c.Level))
 
 	// Abilities
 	sb.WriteString("## Caractéristiques\n\n")
@@ -530,11 +492,25 @@ func (c *Character) ToMarkdown(gd *data.GameData) string {
 	sb.WriteString("\n## Combat\n\n")
 	sb.WriteString(fmt.Sprintf("- **Points de vie** : %d/%d\n", c.HitPoints, c.MaxHitPoints))
 	sb.WriteString(fmt.Sprintf("- **Classe d'armure** : %d\n", c.ArmorClass))
+	sb.WriteString(fmt.Sprintf("- **Bonus de maîtrise** : +%d\n", c.ProficiencyBonus))
 
-	if class != nil {
-		if ab, ok := class.AttackBonus["1"]; ok {
-			sb.WriteString(fmt.Sprintf("- **Bonus d'attaque** : +%d\n", ab))
+	// Attack bonus = proficiency + primary ability modifier
+	if class != nil && class.PrimaryAbility != "" {
+		var abilityMod int
+		switch class.PrimaryAbility {
+		case "strength":
+			abilityMod = c.Modifiers.Strength
+		case "dexterity":
+			abilityMod = c.Modifiers.Dexterity
+		case "intelligence":
+			abilityMod = c.Modifiers.Intelligence
+		case "wisdom":
+			abilityMod = c.Modifiers.Wisdom
+		case "charisma":
+			abilityMod = c.Modifiers.Charisma
 		}
+		attackBonus := c.ProficiencyBonus + abilityMod
+		sb.WriteString(fmt.Sprintf("- **Bonus d'attaque** : %s\n", formatMod(attackBonus)))
 	}
 
 	// Equipment
@@ -612,6 +588,53 @@ func (c *Character) ToJSON() (string, error) {
 		return "", err
 	}
 	return string(data), nil
+}
+
+// CalculateProficiencyBonus calculates the D&D 5e proficiency bonus based on level.
+func (c *Character) CalculateProficiencyBonus() {
+	c.ProficiencyBonus = data.ProficiencyBonusByLevel(c.Level)
+}
+
+// CalculateSpellSaveDC calculates the spell save DC for a spellcaster.
+// Formula: 8 + proficiency bonus + spellcasting ability modifier
+func (c *Character) CalculateSpellSaveDC(gd *data.GameData) {
+	class, ok := gd.GetClass(c.Class)
+	if !ok || class.SpellcastingAbility == "" {
+		return
+	}
+
+	var abilityMod int
+	switch class.SpellcastingAbility {
+	case "intelligence":
+		abilityMod = c.Modifiers.Intelligence
+	case "wisdom":
+		abilityMod = c.Modifiers.Wisdom
+	case "charisma":
+		abilityMod = c.Modifiers.Charisma
+	}
+
+	c.SpellSaveDC = 8 + c.ProficiencyBonus + abilityMod
+	c.SpellAttackBonus = c.ProficiencyBonus + abilityMod
+}
+
+// GetAbilityModifier returns the modifier for a specific ability.
+func (c *Character) GetAbilityModifier(ability string) int {
+	switch ability {
+	case "strength":
+		return c.Modifiers.Strength
+	case "intelligence":
+		return c.Modifiers.Intelligence
+	case "wisdom":
+		return c.Modifiers.Wisdom
+	case "dexterity":
+		return c.Modifiers.Dexterity
+	case "constitution":
+		return c.Modifiers.Constitution
+	case "charisma":
+		return c.Modifiers.Charisma
+	default:
+		return 0
+	}
 }
 
 // Helper functions

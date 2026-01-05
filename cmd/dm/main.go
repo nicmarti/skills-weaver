@@ -205,7 +205,7 @@ func displayWelcome(ctx *agent.AdventureContext) {
 	for _, charName := range ctx.Party.Characters {
 		for _, char := range ctx.Characters {
 			if char.Name == charName {
-				partyNames = append(partyNames, fmt.Sprintf("%s (%s %s)", char.Name, char.Race, char.Class))
+				partyNames = append(partyNames, fmt.Sprintf("%s (%s %s)", char.Name, char.Species, char.Class))
 				break
 			}
 		}

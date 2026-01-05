@@ -261,10 +261,10 @@ func TestInitiative(t *testing.T) {
 		minVal int
 		maxVal int
 	}{
-		{0, 1, 6},   // 1d6 + 0
-		{2, 3, 8},   // 1d6 + 2
-		{-1, 0, 5},  // 1d6 - 1
-		{3, 4, 9},   // 1d6 + 3
+		{0, 1, 20},   // 1d20 + 0 (D&D 5e)
+		{2, 3, 22},   // 1d20 + 2 (D&D 5e)
+		{-1, 0, 19},  // 1d20 - 1 (D&D 5e)
+		{3, 4, 23},   // 1d20 + 3 (D&D 5e)
 	}
 
 	for _, tt := range tests {
@@ -280,9 +280,9 @@ func TestInitiative(t *testing.T) {
 					t.Errorf("Initiative should roll exactly 1 die, got %d", len(result.Rolls))
 				}
 
-				// Check die is in 1-6 range
-				if result.Rolls[0] < 1 || result.Rolls[0] > 6 {
-					t.Errorf("Initiative die = %d, want 1-6", result.Rolls[0])
+				// Check die is in 1-20 range (D&D 5e)
+				if result.Rolls[0] < 1 || result.Rolls[0] > 20 {
+					t.Errorf("Initiative die = %d, want 1-20", result.Rolls[0])
 				}
 
 				if result.Total < tt.minVal || result.Total > tt.maxVal {

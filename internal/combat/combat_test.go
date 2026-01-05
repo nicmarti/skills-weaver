@@ -125,11 +125,11 @@ func TestRollInitiative(t *testing.T) {
 
 	// Check that initiative was rolled for all combatants
 	for _, combatant := range c.Combatants {
-		// Initiative should be 1d6 + dexMod, so range is:
-		// Aldric: 1+2=3 to 6+2=8
-		// Goblin: 1+0=1 to 6+0=6
+		// Initiative should be 1d20 + dexMod (D&D 5e), so range is:
+		// Aldric: 1+2=3 to 20+2=22
+		// Goblin: 1+0=1 to 20+0=20
 		minInit := 1 + combatant.DexMod
-		maxInit := 6 + combatant.DexMod
+		maxInit := 20 + combatant.DexMod
 		if combatant.Initiative < minInit || combatant.Initiative > maxInit {
 			t.Errorf("%s initiative = %d, want %d-%d",
 				combatant.Name, combatant.Initiative, minInit, maxInit)
@@ -363,9 +363,9 @@ func TestNewRound(t *testing.T) {
 		t.Errorf("CurrentTurn = %d, want 0", c.CurrentTurn)
 	}
 	// Initiative should be re-rolled (may or may not change)
-	// Just verify it's in valid range
-	if aldric.Initiative < 1 || aldric.Initiative > 6 {
-		t.Errorf("Initiative = %d, want 1-6", aldric.Initiative)
+	// Just verify it's in valid range (D&D 5e: 1d20)
+	if aldric.Initiative < 1 || aldric.Initiative > 20 {
+		t.Errorf("Initiative = %d, want 1-20", aldric.Initiative)
 	}
 }
 

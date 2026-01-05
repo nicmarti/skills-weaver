@@ -1,5 +1,5 @@
-// Package combat provides combat management for BFRPG.
-// It handles initiative tracking, turn order, and attack resolution.
+// Package combat provides combat management for D&D 5e.
+// It handles initiative tracking, turn order, attack resolution, and action economy.
 package combat
 
 import (
@@ -23,6 +23,61 @@ type Combatant struct {
 	IsEnemy     bool   `json:"is_enemy"`     // True if monster/enemy
 	IsDelaying  bool   `json:"is_delaying"`  // True if delaying action
 	HasActed    bool   `json:"has_acted"`    // True if acted this round
+
+	// D&D 5e Action Economy
+	ActionUsed      bool `json:"action_used"`       // Action taken this turn
+	BonusActionUsed bool `json:"bonus_action_used"` // Bonus action taken this turn
+	ReactionUsed    bool `json:"reaction_used"`     // Reaction taken this round
+	Movement        int  `json:"movement"`          // Movement remaining (feet)
+	MaxMovement     int  `json:"max_movement"`      // Maximum movement (typically 30)
+}
+
+// ResetActions resets action economy at the start of a combatant's turn (D&D 5e).
+func (c *Combatant) ResetActions() {
+	c.ActionUsed = false
+	c.BonusActionUsed = false
+	c.Movement = c.MaxMovement
+}
+
+// ResetReaction resets reaction at the start of a round (D&D 5e).
+func (c *Combatant) ResetReaction() {
+	c.ReactionUsed = false
+}
+
+// UseAction marks the main action as used. Returns false if already used.
+func (c *Combatant) UseAction() bool {
+	if c.ActionUsed {
+		return false
+	}
+	c.ActionUsed = true
+	return true
+}
+
+// UseBonusAction marks the bonus action as used. Returns false if already used.
+func (c *Combatant) UseBonusAction() bool {
+	if c.BonusActionUsed {
+		return false
+	}
+	c.BonusActionUsed = true
+	return true
+}
+
+// UseReaction marks the reaction as used. Returns false if already used.
+func (c *Combatant) UseReaction() bool {
+	if c.ReactionUsed {
+		return false
+	}
+	c.ReactionUsed = true
+	return true
+}
+
+// UseMovement reduces available movement (in feet). Returns false if insufficient movement.
+func (c *Combatant) UseMovement(feet int) bool {
+	if feet > c.Movement {
+		return false
+	}
+	c.Movement -= feet
+	return true
 }
 
 // Combat tracks an ongoing combat encounter.
@@ -76,6 +131,9 @@ func (c *Combat) AddCombatant(name string, dexMod, ac, hp, attackBonus int, dama
 		IsEnemy:     isEnemy,
 		HasActed:    false,
 		IsDelaying:  false,
+		// D&D 5e action economy defaults
+		MaxMovement: 30, // Standard D&D 5e speed (30 feet)
+		Movement:    30,
 	}
 	c.Combatants = append(c.Combatants, combatant)
 	return combatant
@@ -114,13 +172,16 @@ func (c *Combat) GetCombatant(name string) *Combatant {
 }
 
 // RollInitiative rolls initiative for all combatants and sorts turn order.
-// BFRPG: 1d6 + DEX modifier, higher acts first, ties act simultaneously.
+// D&D 5e: 1d20 + DEX modifier, higher acts first, ties act simultaneously.
 func (c *Combat) RollInitiative() {
 	for _, combatant := range c.Combatants {
 		result := c.roller.Initiative(combatant.DexMod)
 		combatant.Initiative = result.Total
 		combatant.HasActed = false
 		combatant.IsDelaying = false
+		// Reset action economy for first round
+		combatant.ResetActions()
+		combatant.ResetReaction()
 	}
 	c.sortTurnOrder()
 	c.Round = 1
@@ -175,11 +236,16 @@ func (c *Combat) NextTurn() *Combatant {
 	if c.CurrentTurn >= len(order) {
 		return nil // Round over
 	}
-	return order[c.CurrentTurn]
+
+	// Reset actions for the new combatant's turn (D&D 5e)
+	next := order[c.CurrentTurn]
+	next.ResetActions()
+
+	return next
 }
 
 // NewRound starts a new combat round.
-// Re-rolls initiative for all living combatants.
+// Re-rolls initiative for all living combatants (D&D 5e optional rule).
 func (c *Combat) NewRound() {
 	c.Round++
 	c.CurrentTurn = 0
@@ -191,6 +257,8 @@ func (c *Combat) NewRound() {
 			combatant.Initiative = result.Total
 			combatant.HasActed = false
 			combatant.IsDelaying = false
+			// Reset reactions at start of new round (D&D 5e)
+			combatant.ResetReaction()
 		}
 	}
 	c.sortTurnOrder()
@@ -219,8 +287,8 @@ func (c *Combat) ActOnInitiative(name string, targetInit int) bool {
 }
 
 // Attack performs an attack from one combatant to another.
-// BFRPG: d20 + attack bonus >= target AC to hit.
-// Natural 20 always hits, natural 1 always misses.
+// D&D 5e: d20 + attack bonus >= target AC to hit.
+// Natural 20 always hits (critical), natural 1 always misses.
 func (c *Combat) Attack(attackerName, defenderName string) (*AttackResult, error) {
 	attacker := c.GetCombatant(attackerName)
 	if attacker == nil {
@@ -410,9 +478,33 @@ func (c *Combat) Status() string {
 		if combatant.IsEnemy {
 			side = "Enemy"
 		}
-		status += fmt.Sprintf("%s %2d: %-15s (%s) HP:%d/%d AC:%d%s%s\n",
+
+		// Base status line
+		line := fmt.Sprintf("%s %2d: %-15s (%s) HP:%d/%d AC:%d%s%s",
 			marker, combatant.Initiative, combatant.Name, side,
 			combatant.HP, combatant.MaxHP, combatant.AC, deadMarker, delayMarker)
+
+		// Add action economy for current turn (D&D 5e)
+		if i == c.CurrentTurn && combatant.HP > 0 {
+			actions := ""
+			if !combatant.ActionUsed {
+				actions += " A"
+			}
+			if !combatant.BonusActionUsed {
+				actions += " B"
+			}
+			if !combatant.ReactionUsed {
+				actions += " R"
+			}
+			if combatant.Movement > 0 {
+				actions += fmt.Sprintf(" M:%dft", combatant.Movement)
+			}
+			if actions != "" {
+				line += " [" + actions[1:] + "]" // Remove leading space
+			}
+		}
+
+		status += line + "\n"
 	}
 
 	return status

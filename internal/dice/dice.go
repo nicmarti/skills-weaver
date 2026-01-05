@@ -119,14 +119,14 @@ func (r *Roller) RollStatsClassic() []Result {
 	return results
 }
 
-// Initiative rolls 1d6 and adds the dexterity modifier for combat initiative.
-// BFRPG rule: Each combatant rolls 1d6 + DEX modifier. Higher acts first.
-// Equal results act simultaneously.
+// Initiative rolls 1d20 and adds the dexterity modifier for combat initiative.
+// D&D 5e rule: Each combatant rolls 1d20 + DEX modifier. Higher acts first.
+// Ties are resolved by DEX score, then simultaneous.
 func (r *Roller) Initiative(dexMod int) *Result {
-	result, _ := r.Roll("1d6")
+	result, _ := r.Roll("1d20")
 	result.Modifier = dexMod
 	result.Total = result.Rolls[0] + dexMod
-	result.Expression = fmt.Sprintf("Initiative (1d6%+d)", dexMod)
+	result.Expression = fmt.Sprintf("Initiative (1d20%+d)", dexMod)
 	return result
 }
 

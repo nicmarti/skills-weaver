@@ -88,11 +88,11 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewGetEquipmentTool(equipmentCatalog))
 
 	// Register spell lookup tool
-	spellBook, err := spell.NewSpellBook(dataDir)
+	spellManager, err := spell.NewManagerFromDataDir(dataDir)
 	if err != nil {
-		return fmt.Errorf("failed to create spell book: %w", err)
+		return fmt.Errorf("failed to create spell manager: %w", err)
 	}
-	registry.Register(dmtools.NewGetSpellTool(spellBook))
+	registry.Register(dmtools.NewGetSpellTool(spellManager))
 
 	// Register encounter tools (uses existing bestiary)
 	bestiary, err := monster.NewBestiary(dataDir)

@@ -1,0 +1,347 @@
+{
+  "monsters": [
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "name_fr": "Gobelin",
+      "type": "humanoid",
+      "size": "Small",
+      "armor_class": 15,
+      "hit_points_avg": 7,
+      "movement": 30,
+      "abilities": {
+        "strength": 8,
+        "dexterity": 14,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 8,
+        "charisma": 8
+      },
+      "challenge_rating": "1/4",
+      "proficiency_bonus": 2,
+      "xp": 50,
+      "attacks": [
+        {
+          "name": "Scimitar",
+          "name_fr": "Cimeterre",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "slashing"
+        },
+        {
+          "name": "Shortbow",
+          "name_fr": "Arc court",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "special": ["Nimble Escape"],
+      "treasure_type": "R",
+      "description_fr": "Petits humanoïdes malicieux, les gobelins sont couards mais dangereux en nombre. Leur agilité compense leur faiblesse physique."
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "name_fr": "Orc",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 13,
+      "hit_points_avg": 15,
+      "movement": 30,
+      "abilities": {
+        "strength": 16,
+        "dexterity": 12,
+        "constitution": 16,
+        "intelligence": 7,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "challenge_rating": "1/2",
+      "proficiency_bonus": 2,
+      "xp": 100,
+      "attacks": [
+        {
+          "name": "Greataxe",
+          "name_fr": "Hache d'armes",
+          "bonus": 5,
+          "damage": "1d12+3",
+          "damage_avg": 9,
+          "damage_type": "slashing"
+        },
+        {
+          "name": "Javelin",
+          "name_fr": "Javelot",
+          "bonus": 5,
+          "damage": "1d6+3",
+          "damage_avg": 6,
+          "damage_type": "piercing"
+        }
+      ],
+      "special": ["Aggressive"],
+      "treasure_type": "D",
+      "description_fr": "Guerriers brutaux et féroces, les orcs vivent pour le combat. Leur agressivité et leur force en font des adversaires redoutables."
+    },
+    {
+      "id": "ogre",
+      "name": "Ogre",
+      "name_fr": "Ogre",
+      "type": "giant",
+      "size": "Large",
+      "armor_class": 11,
+      "hit_points_avg": 59,
+      "movement": 40,
+      "abilities": {
+        "strength": 19,
+        "dexterity": 8,
+        "constitution": 16,
+        "intelligence": 5,
+        "wisdom": 7,
+        "charisma": 7
+      },
+      "challenge_rating": "2",
+      "proficiency_bonus": 2,
+      "xp": 450,
+      "attacks": [
+        {
+          "name": "Greatclub",
+          "name_fr": "Massue",
+          "bonus": 6,
+          "damage": "2d8+4",
+          "damage_avg": 13,
+          "damage_type": "bludgeoning"
+        },
+        {
+          "name": "Javelin",
+          "name_fr": "Javelot",
+          "bonus": 6,
+          "damage": "2d6+4",
+          "damage_avg": 11,
+          "damage_type": "piercing"
+        }
+      ],
+      "special": [],
+      "treasure_type": "C",
+      "description_fr": "Géants stupides mais puissants, les ogres sont aussi voraces qu'agressifs. Leur force brute est leur principal atout."
+    },
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "name_fr": "Squelette",
+      "type": "undead",
+      "size": "Medium",
+      "armor_class": 13,
+      "hit_points_avg": 13,
+      "movement": 30,
+      "abilities": {
+        "strength": 10,
+        "dexterity": 14,
+        "constitution": 15,
+        "intelligence": 6,
+        "wisdom": 8,
+        "charisma": 5
+      },
+      "challenge_rating": "1/4",
+      "proficiency_bonus": 2,
+      "xp": 50,
+      "attacks": [
+        {
+          "name": "Shortsword",
+          "name_fr": "Épée courte",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        },
+        {
+          "name": "Shortbow",
+          "name_fr": "Arc court",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "special": ["Immunité: poison", "Vulnérabilité: contondant"],
+      "treasure_type": "none",
+      "description_fr": "Morts-vivants animés par magie noire, les squelettes sont des serviteurs fidèles qui obéissent aveuglément."
+    },
+    {
+      "id": "zombie",
+      "name": "Zombie",
+      "name_fr": "Zombie",
+      "type": "undead",
+      "size": "Medium",
+      "armor_class": 8,
+      "hit_points_avg": 22,
+      "movement": 20,
+      "abilities": {
+        "strength": 13,
+        "dexterity": 6,
+        "constitution": 16,
+        "intelligence": 3,
+        "wisdom": 6,
+        "charisma": 5
+      },
+      "challenge_rating": "1/4",
+      "proficiency_bonus": 2,
+      "xp": 50,
+      "attacks": [
+        {
+          "name": "Slam",
+          "name_fr": "Coup",
+          "bonus": 3,
+          "damage": "1d6+1",
+          "damage_avg": 4,
+          "damage_type": "bludgeoning"
+        }
+      ],
+      "special": ["Immunité: poison", "Undead Fortitude"],
+      "treasure_type": "none",
+      "description_fr": "Cadavres ambulants lents mais tenaces, les zombies ne s'arrêtent que lorsqu'ils sont complètement détruits."
+    },
+    {
+      "id": "wolf",
+      "name": "Wolf",
+      "name_fr": "Loup",
+      "type": "beast",
+      "size": "Medium",
+      "armor_class": 13,
+      "hit_points_avg": 11,
+      "movement": 40,
+      "abilities": {
+        "strength": 12,
+        "dexterity": 15,
+        "constitution": 12,
+        "intelligence": 3,
+        "wisdom": 12,
+        "charisma": 6
+      },
+      "challenge_rating": "1/4",
+      "proficiency_bonus": 2,
+      "xp": 50,
+      "attacks": [
+        {
+          "name": "Bite",
+          "name_fr": "Morsure",
+          "bonus": 4,
+          "damage": "2d4+2",
+          "damage_avg": 7,
+          "damage_type": "piercing",
+          "special": "knock prone on hit (DC 11 STR save)"
+        }
+      ],
+      "special": ["Pack Tactics", "Keen Hearing and Smell"],
+      "treasure_type": "none",
+      "description_fr": "Prédateurs intelligents, les loups chassent en meute. Leur tactique de harcèlement est redoutable."
+    },
+    {
+      "id": "dire_wolf",
+      "name": "Dire Wolf",
+      "name_fr": "Loup sanguinaire",
+      "type": "beast",
+      "size": "Large",
+      "armor_class": 14,
+      "hit_points_avg": 37,
+      "movement": 50,
+      "abilities": {
+        "strength": 17,
+        "dexterity": 15,
+        "constitution": 15,
+        "intelligence": 3,
+        "wisdom": 12,
+        "charisma": 7
+      },
+      "challenge_rating": "1",
+      "proficiency_bonus": 2,
+      "xp": 200,
+      "attacks": [
+        {
+          "name": "Bite",
+          "name_fr": "Morsure",
+          "bonus": 5,
+          "damage": "2d6+3",
+          "damage_avg": 10,
+          "damage_type": "piercing",
+          "special": "knock prone on hit (DC 13 STR save)"
+        }
+      ],
+      "special": ["Pack Tactics", "Keen Hearing and Smell"],
+      "treasure_type": "none",
+      "description_fr": "Version géante et féroce du loup, le loup sanguinaire est un prédateur alpha capable de terrasser un cheval."
+    },
+    {
+      "id": "giant_spider",
+      "name": "Giant Spider",
+      "name_fr": "Araignée géante",
+      "type": "beast",
+      "size": "Large",
+      "armor_class": 14,
+      "hit_points_avg": 26,
+      "movement": 30,
+      "abilities": {
+        "strength": 14,
+        "dexterity": 16,
+        "constitution": 12,
+        "intelligence": 2,
+        "wisdom": 11,
+        "charisma": 4
+      },
+      "challenge_rating": "1",
+      "proficiency_bonus": 2,
+      "xp": 200,
+      "attacks": [
+        {
+          "name": "Bite",
+          "name_fr": "Morsure",
+          "bonus": 5,
+          "damage": "1d8+3",
+          "damage_avg": 7,
+          "damage_type": "piercing",
+          "special": "poison (2d8 damage, DC 11 CON save)"
+        }
+      ],
+      "special": ["Spider Climb", "Web Sense", "Web Walker"],
+      "treasure_type": "none",
+      "description_fr": "Arachnide de la taille d'un cheval, l'araignée géante est un chasseur patient qui attend ses proies dans ses toiles."
+    }
+  ],
+  "encounter_tables": {
+    "dungeon_level_1": {
+      "description": "Rencontre de donjon niveau 1 (D&D 5e)",
+      "monsters": [
+        {"id": "goblin", "number": "2d4", "weight": 40},
+        {"id": "skeleton", "number": "1d6", "weight": 30},
+        {"id": "zombie", "number": "1d4", "weight": 20},
+        {"id": "wolf", "number": "1d4", "weight": 10}
+      ]
+    },
+    "dungeon_level_2": {
+      "description": "Rencontre de donjon niveau 2-3 (D&D 5e)",
+      "monsters": [
+        {"id": "orc", "number": "1d6", "weight": 35},
+        {"id": "goblin", "number": "3d6", "weight": 25},
+        {"id": "dire_wolf", "number": "1d2", "weight": 15},
+        {"id": "giant_spider", "number": "1d3", "weight": 15},
+        {"id": "ogre", "number": "1", "weight": 10}
+      ]
+    },
+    "undead": {
+      "description": "Rencontre de morts-vivants",
+      "monsters": [
+        {"id": "skeleton", "number": "2d6", "weight": 50},
+        {"id": "zombie", "number": "1d6", "weight": 50}
+      ]
+    },
+    "wilderness": {
+      "description": "Rencontre en nature sauvage",
+      "monsters": [
+        {"id": "wolf", "number": "2d4", "weight": 50},
+        {"id": "dire_wolf", "number": "1d2", "weight": 30},
+        {"id": "goblin", "number": "2d6", "weight": 20}
+      ]
+    }
+  }
+}

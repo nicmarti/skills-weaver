@@ -343,7 +343,7 @@ func cmdSchools(m *spell.Manager, args []string) error {
 
 	schools := m.GetAvailableSchools()
 
-	fmt.Println("## Écoles de Magie D&D 5e\n")
+	fmt.Print("## Écoles de Magie D&D 5e\n\n")
 
 	for _, school := range schools {
 		spells := m.ListBySchool(school)
@@ -381,7 +381,7 @@ func cmdConcentration(m *spell.Manager, args []string) error {
 	}
 
 	fmt.Printf("## Sorts de Concentration (%d sorts)\n\n", len(spells))
-	fmt.Println("Note: Seul 1 sort de concentration peut être actif à la fois.\n")
+	fmt.Print("Note: Seul 1 sort de concentration peut être actif à la fois.\n\n")
 
 	switch format {
 	case "json":
@@ -430,7 +430,7 @@ func cmdRituals(m *spell.Manager, args []string) error {
 	}
 
 	fmt.Printf("## Sorts Rituels (%d sorts)\n\n", len(spells))
-	fmt.Println("Note: Sorts rituels prennent +10 minutes mais ne consomment pas de slot.\n")
+	fmt.Print("Note: Sorts rituels prennent +10 minutes mais ne consomment pas de slot.\n\n")
 
 	switch format {
 	case "json":

@@ -1141,12 +1141,16 @@ Joueur: "Pour le combat, il y a quoi comme obstacles autour de nous ?"
 #### Workflow Automatique
 
 ```
-1. Joueur exprime confusion géographique
+1. Joueur exprime confusion géographique ou demande description visuelle
 2. Claude détecte le besoin de clarification visuelle
-3. Claude invoque generate_map avec paramètres appropriés
-4. Le prompt enrichi est généré et présenté
-5. Optionnel: L'image est générée si generate_image=true
+3. Claude invoque generate_map avec paramètres appropriés ET generate_image=true
+4. Le prompt enrichi est généré
+5. L'image est générée automatiquement via fal.ai flux-2
+6. DM décrit les lieux en se basant sur l'image générée
 ```
+
+**IMPORTANT** : Toujours utiliser `generate_image: true` quand on invoque `generate_map`.
+Le but est de montrer une image au joueur, pas juste de générer un prompt JSON.
 
 #### Paramètres Disponibles
 
@@ -1160,7 +1164,7 @@ Joueur: "Pour le combat, il y a quoi comme obstacles autour de nous ?"
   "level": 1,  // Pour dungeons
   "terrain": "forêt",  // Pour tactical
   "scene": "Combat contre bandits",  // Pour tactical
-  "generate_image": false  // true pour créer l'image réelle
+  "generate_image": true  // TOUJOURS true pour montrer une image au joueur
 }
 ```
 
@@ -1181,7 +1185,8 @@ generate_map({
   "name": "Cordova",
   "features": ["Villa de Valorian", "Docks Marchands", "Taverne du Voile Écarlate"],
   "scale": "medium",
-  "style": "illustrated"
+  "style": "illustrated",
+  "generate_image": true
 })
 
 Retour: Prompt enrichi décrivant une carte aérienne de Cordova avec tous les POIs
@@ -1207,7 +1212,8 @@ generate_map({
   "name": "La Crypte des Ombres",
   "level": 1,
   "features": ["Salle du trône", "Crypte centrale", "Couloirs piégés"],
-  "style": "dark_fantasy"
+  "style": "dark_fantasy",
+  "generate_image": true
 })
 
 Retour: Plan top-down avec grille 1.5m, salles numérotées, pièges marqués
@@ -1257,7 +1263,8 @@ generate_map({
   "name": "Côte Occidentale",
   "scale": "large",
   "features": ["Route commerciale principale", "Frontières"],
-  "style": "illustrated"
+  "style": "illustrated",
+  "generate_image": true
 })
 
 Retour: Carte bird's eye view montrant Cordova, routes, autres settlements, distances
@@ -1278,24 +1285,21 @@ Le tool `generate_map` valide automatiquement les lieux contre geography.json :
 
 **Pas besoin de consulter world-keeper manuellement** - le tool le fait automatiquement !
 
-#### Génération d'Images (Optionnel)
+#### Génération d'Images (OBLIGATOIRE)
 
-Pour les moments clés (combats importants, arrivée dans une nouvelle ville), ajouter `generate_image: true` :
+**IMPORTANT** : Toujours utiliser `generate_image: true` quand tu invoques `generate_map`.
+
+Le but de `generate_map` est de montrer une **image visuelle** au joueur pour clarifier la situation, pas de générer un prompt JSON sans image. Sans `generate_image: true`, le joueur ne verra qu'un texte technique inutile.
 
 ```json
 {
   "map_type": "city",
   "name": "Cordova",
-  "generate_image": true  // Crée l'image réelle via fal.ai flux-2
+  "generate_image": true  // OBLIGATOIRE - génère l'image via fal.ai flux-2
 }
 ```
 
-**Quand générer l'image** :
-- ✅ Premier combat tactique important de la session
-- ✅ Arrivée dans une ville majeure jamais visitée
-- ✅ Donjon complexe avec plusieurs niveaux
-- ❌ Cartes de référence rapides
-- ❌ Clarifications mineures pendant le jeu
+**Rappel** : TOUS les exemples ci-dessus utilisent `generate_image: true`. Fais de même.
 
 #### Cache et Performance
 

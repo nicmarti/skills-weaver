@@ -1,0 +1,19 @@
+{
+  "prompt": "Plan de donjon en vue du dessus montrant le trajet entre Port-Sombre et Aurore-Sainte, Niveau 1. Salles de différentes tailles et formes : grande salle d'entrée (12m x 15m) à Port-Sombre, crypte centrale (10m x 10m), chapelle sacrée (8m x 10m) menant vers Aurore-Sainte, chambres de garde (5m x 6m), salles de stockage (4m x 7m). Couloirs étroits (2m de large) et passages sinueux reliant les différentes zones. Portes en bois renforcé clairement indiquées, portes secrètes marquées par des lignes pointillées. Pièges marqués par symboles : fosses dissimulées (X), lames pendulaires (!), dalles piégées (triangle). Escaliers vers autres niveaux au nord-est et sud-ouest. Architecture de pierre médiévale robuste ; piliers massifs dans les grandes salles, torches fixées aux murs tous les 5m, alcôves murales. Éléments spéciaux : entrée Port-Sombre (Valdorine) avec style maritime, Havre-d'Argent (Valdorine) avec détails architecturaux bleus et or, Valbourg (Frontière) avec fortifications, Aurore-Sainte (Lumenciel) avec éléments sacrés blancs et or. Grille au sol avec carrés de 1,5m pour placement des figurines. Échelle indiquée en mètres. Style plan de D\u0026D classique, noir et blanc avec ombrage gris pour profondeur et dimension spatiale.",
+  "map_type": "dungeon",
+  "location_name": "Trajet Port-Sombre à Aurore-Sainte",
+  "kingdom": "",
+  "features": [
+    "Port-Sombre (Valdorine)",
+    "Havre-d'Argent (Valdorine)",
+    "Valbourg (Frontière)",
+    "Aurore-Sainte (Lumenciel)",
+    "Routes maritimes",
+    "Route terrestre nord-est",
+    "Océan Occidental",
+    "Montagnes côtières",
+    "Forêts de transition"
+  ],
+  "style_hints": "top-down floor plan, grid overlay, D\u0026D classic style, illustrated style, vibrant colors",
+  "enriched_at": "2025-12-25T19:18:44+01:00"
+}

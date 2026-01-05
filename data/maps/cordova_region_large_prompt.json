@@ -1,0 +1,19 @@
+{
+  "prompt": "Cette carte montre la région de Cordova en vue aérienne, style carte géographique médiévale fantasy. Territoire du Royaume de Valdorine avec ses couleurs caractéristiques bleu marine, or et pourpre. Cordova, capitale portuaire scintillante, domine le centre de la région avec son commerce actif et sa tolérance envers la contrebande. Terrain varié : côte accidentée au sud avec falaises majestueuses, plaines fertiles à l'ouest, collines boisées au nord, forêts denses à l'est. Villes principales : Cordova (grand port commercial), avec plusieurs villages satellites. Routes commerciales terrestres reliant les établissements, chemins secondaires sinueux traversant forêts et plaines, route maritime le long de la côte. Points d'intérêt majeurs : Taverne du Voile Écarlate (bâtiment rouge vif près des docks), Auberge du Crâne d'Or (édifice doré au cœur marchand), Manoir de la Soie (résidence luxueuse de Valorian le Doré en périphérie), Chantier Naval (installations portuaires du Capitaine Meren le Noir), Docks Marchands (quais animés). Frontières du royaume Valdorine clairement marquées. Échelle : environ 200 km. Avec légende cartographique, symboles géographiques (montagnes triangulaires, rivières bleues, forêts vertes), rose des vents, style parchemin vieilli valdorin avec touches d'or.",
+  "map_type": "region",
+  "location_name": "Cordova",
+  "kingdom": "valdorine",
+  "features": [
+    "Port-Sombre",
+    "Havre-d'Argent",
+    "Valbourg",
+    "Aurore-Sainte",
+    "Routes maritimes",
+    "Routes terrestres",
+    "Frontière Valdorine-Lumenciel",
+    "Océan",
+    "Forêts côtières"
+  ],
+  "style_hints": "bird's eye view, cartographic style, medieval fantasy map, maritime Italian style, blue/gold colors, illustrated style, vibrant colors",
+  "enriched_at": "2025-12-25T19:18:30+01:00"
+}

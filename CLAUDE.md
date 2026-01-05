@@ -1150,6 +1150,44 @@ cat data/rules/01-character-creation.md
 grep -r "poison" data/rules/
 ```
 
+### Règles BFRPG en Français (Markdown)
+
+Les règles complètes en français sont disponibles au format markdown dans `docs/markdown/` :
+
+| Fichier | Contenu | Taille | Pages |
+|---------|---------|--------|-------|
+| `README.md` | Index et guide d'utilisation | 7 KB | - |
+| `regles-de-base.md` | Règles de base du système | 104 KB | 19 |
+| `personnages.md` | Création et gestion des personnages | 327 KB | 85 |
+| `sorts-et-magie.md` | Système de magie et liste complète des sorts | 364 KB | 76 |
+| `equipements.md` | Équipement de base | 41 KB | 10 |
+| `equipements-suite.md` | Équipement supplémentaire | 24 KB | 6 |
+| `monstres.md` | Bestiaire complet | 358 KB | 93 |
+| `outils-magiques.md` | Objets magiques | 255 KB | 52 |
+| `animaux.md` | Animaux ordinaires et montures | 66 KB | 21 |
+| `boite-a-outils-ludique.md` | Outils et conseils pour le MJ | 52 KB | 12 |
+| `glossaire-des-regles.md` | Glossaire des termes de jeu | 79 KB | 16 |
+| `table-des-matieres.md` | Table des matières complète | 30 KB | 3 |
+
+**Source originale** : PDF dans `docs/` (convertis automatiquement via `extract_pdf_to_md.py`)
+
+**Accès** : L'agent `rules-keeper` et le `dungeon-master` peuvent consulter ces fichiers via `Read`, `Grep` et `Glob`.
+
+**Exemples d'utilisation** :
+```bash
+# Rechercher un sort
+grep -i "projectile magique" docs/markdown/sorts-et-magie.md
+
+# Rechercher un monstre
+grep -i "gobelin" docs/markdown/monstres.md
+
+# Lire une section complète
+cat docs/markdown/personnages.md
+
+# Rechercher dans tous les fichiers
+grep -r "poison" docs/markdown/
+```
+
 ### Liens Externes
 
 - [Basic Fantasy RPG](https://www.basicfantasy.org/) - Règles complètes (gratuit)

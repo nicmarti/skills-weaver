@@ -3,7 +3,7 @@
 ![SkillsWeaver Logo](logo.png)
 
 **SkillsWeaver** is an interactive tabletop RPG engine powered by [Claude Code](https://claude.ai/claude-code) created by Nicolas Martignole.
-The engine is based on [Basic Fantasy RPG](https://www.basicfantasy.org/) rules. It combines AI orchestration with Go CLI tools to create a complete role-playing experience.
+The engine is based on [Dungeon&Dragon v5.2 French version](https://media.dndbeyond.com/compendium-images/srd/5.2/FR_SRD_CC_v5.2.1.pdf) rules. It combines AI orchestration with Go CLI tools to create a complete role-playing experience.
 
 
 ## See it live on YouTube
@@ -12,7 +12,7 @@ You can watch a sample game session on [my YouTube channel](https://youtu.be/K5C
 
 ## How to Play
 
-**To play a game session, use `sw-dm`** - the autonomous Dungeon Master application:
+**To play a game session:**
 
 ```bash
 # Build the tools
@@ -39,20 +39,20 @@ SkillsWeaver demonstrates how to build a complex, multi-tool AI application usin
 
 - **Autonomous Dungeon Master** (`sw-dm`) - Interactive REPL with full agent loop and tool use
 - **Dice rolling** with standard RPG notation (2d6+3, 4d6kh3, advantage/disadvantage)
-- **Character generation** following BFRPG rules (4 races, 4 classes)
+- **Character generation** following Dungeon&Dragon v5.2 rules
 - **Adventure management** with session tracking and automatic journaling
 - **NPC generation** with personalities, motivations, and secrets
 - **AI image generation** for characters, scenes, and monsters via fal.ai
-- **Monster manual** with 33 classic fantasy creatures
-- **Treasure generation** using official BFRPG tables
+- **Monster manual** based on official D&D manual
+- **Treasure generation** 
 - **Journal illustration** - automatically generate images for adventure logs
 
 ## Prerequisites
 
-### 1. Claude Code
+### 1. Claude Code (optional)
 
-Install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude. We recommend to use the native version.
-A key is not required to play as the game can use the Haiku model. 
+You can install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude if you want to test skills or each Agents.
+Else, use directly the go cli with a valid ANTHROPIC API key.
 
 ### 2. Go
 
@@ -354,7 +354,7 @@ After enriching your journal, automatically generate images for key moments:
 # Generate images (parallel, fast)
 ./sw-image journal "my-adventure"
 
-# Use a higher quality model
+# Use a higher quality model with a valid fal.ai key 
 ./sw-image journal "my-adventure" --model=banana
 
 # Only combat scenes
@@ -446,9 +446,12 @@ As long as you:
 - **Share alike** — distribute your contributions under the same license
 
 SkillsWeaver builds upon:
-- **Basic Fantasy RPG** - © Chris Gonnerman and contributors (Open Game License)
 - **Claude Code** - © Anthropic
 - **fal.ai** - Image generation API
+
+This work includes material taken from the Lazy GM's Resource Document by Michael E. Shea of SlyFlourish.com, available under a Creative Commons Attribution 4.0 International License.
+
+This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
 See the [LICENSE](LICENSE) file for full legal details.
 
@@ -457,8 +460,4 @@ See the [LICENSE](LICENSE) file for full legal details.
 This engine and the original idea is from **Nicolas MARTIGNOLE**, Principal Engineer at Back Market and Devoxx France's creator/organizer.
 
 You can reach Nicolas by email: [nicolas.martignole@devoxx.fr](mailto:nicolas.martignole@devoxx.fr)
-
-
-
-
 

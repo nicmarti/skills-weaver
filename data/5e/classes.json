@@ -1,0 +1,244 @@
+{
+  "classes": [
+    {
+      "id": "barbarian",
+      "name": "Barbare",
+      "name_en": "Barbarian",
+      "hit_die": "d12",
+      "hit_die_sides": 12,
+      "primary_ability": "strength",
+      "saving_throw_proficiencies": ["strength", "constitution"],
+      "skill_proficiencies": ["athletics", "animal_handling", "intimidation", "nature", "perception", "survival"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "",
+      "starting_equipment": "Hache à deux mains, 4 hachettes, paquetage d'explorateur"
+    },
+    {
+      "id": "bard",
+      "name": "Barde",
+      "name_en": "Bard",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "primary_ability": "charisma",
+      "saving_throw_proficiencies": ["dexterity", "charisma"],
+      "skill_proficiencies": ["acrobatics", "animal_handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation", "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight_of_hand", "stealth", "survival"],
+      "skill_choice_count": 3,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "charisma",
+      "starting_equipment": "Épée longue, arc long, paquetage d'artiste"
+    },
+    {
+      "id": "cleric",
+      "name": "Clerc",
+      "name_en": "Cleric",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "primary_ability": "wisdom",
+      "saving_throw_proficiencies": ["wisdom", "charisma"],
+      "skill_proficiencies": ["history", "insight", "medicine", "persuasion", "religion"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "wisdom",
+      "starting_equipment": "Masse d'armes, armure d'écailles, bouclier, symbole sacré"
+    },
+    {
+      "id": "druid",
+      "name": "Druide",
+      "name_en": "Druid",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "primary_ability": "wisdom",
+      "saving_throw_proficiencies": ["intelligence", "wisdom"],
+      "skill_proficiencies": ["arcana", "animal_handling", "insight", "medicine", "nature", "perception", "religion", "survival"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "wisdom",
+      "starting_equipment": "Bâton de combat, armure de cuir, bouclier, symbole druidique"
+    },
+    {
+      "id": "fighter",
+      "name": "Guerrier",
+      "name_en": "Fighter",
+      "hit_die": "d10",
+      "hit_die_sides": 10,
+      "primary_ability": "strength",
+      "saving_throw_proficiencies": ["strength", "constitution"],
+      "skill_proficiencies": ["acrobatics", "athletics", "animal_handling", "history", "insight", "intimidation", "perception", "survival"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "",
+      "starting_equipment": "Cotte de mailles, épée longue, bouclier"
+    },
+    {
+      "id": "monk",
+      "name": "Moine",
+      "name_en": "Monk",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "primary_ability": "dexterity",
+      "saving_throw_proficiencies": ["strength", "dexterity"],
+      "skill_proficiencies": ["acrobatics", "athletics", "animal_handling", "history", "insight", "religion", "stealth"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "",
+      "starting_equipment": "Bâton, 10 fléchettes"
+    },
+    {
+      "id": "paladin",
+      "name": "Paladin",
+      "name_en": "Paladin",
+      "hit_die": "d10",
+      "hit_die_sides": 10,
+      "primary_ability": "strength",
+      "saving_throw_proficiencies": ["wisdom", "charisma"],
+      "skill_proficiencies": ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "charisma",
+      "starting_equipment": "Cotte de mailles, épée longue, bouclier, symbole sacré"
+    },
+    {
+      "id": "ranger",
+      "name": "Rôdeur",
+      "name_en": "Ranger",
+      "hit_die": "d10",
+      "hit_die_sides": 10,
+      "primary_ability": "dexterity",
+      "saving_throw_proficiencies": ["strength", "dexterity"],
+      "skill_proficiencies": ["athletics", "animal_handling", "insight", "investigation", "nature", "perception", "stealth", "survival"],
+      "skill_choice_count": 3,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "wisdom",
+      "starting_equipment": "Armure de cuir clouté, épée longue, arc long"
+    },
+    {
+      "id": "rogue",
+      "name": "Roublard",
+      "name_en": "Rogue",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "primary_ability": "dexterity",
+      "saving_throw_proficiencies": ["dexterity", "intelligence"],
+      "skill_proficiencies": ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "performance", "persuasion", "sleight_of_hand", "stealth"],
+      "skill_choice_count": 4,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "",
+      "starting_equipment": "Armure de cuir, épée courte, arc court, outils de voleur"
+    },
+    {
+      "id": "sorcerer",
+      "name": "Ensorceleur",
+      "name_en": "Sorcerer",
+      "hit_die": "d6",
+      "hit_die_sides": 6,
+      "primary_ability": "charisma",
+      "saving_throw_proficiencies": ["constitution", "charisma"],
+      "skill_proficiencies": ["arcana", "deception", "insight", "intimidation", "persuasion", "religion"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "charisma",
+      "starting_equipment": "Dague, sacoche à composantes, arc léger"
+    },
+    {
+      "id": "warlock",
+      "name": "Occultiste",
+      "name_en": "Warlock",
+      "hit_die": "d8",
+      "hit_die_sides": 8,
+      "primary_ability": "charisma",
+      "saving_throw_proficiencies": ["wisdom", "charisma"],
+      "skill_proficiencies": ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "charisma",
+      "starting_equipment": "Armure de cuir, dague, sacoche à composantes"
+    },
+    {
+      "id": "wizard",
+      "name": "Magicien",
+      "name_en": "Wizard",
+      "hit_die": "d6",
+      "hit_die_sides": 6,
+      "primary_ability": "intelligence",
+      "saving_throw_proficiencies": ["intelligence", "wisdom"],
+      "skill_proficiencies": ["arcana", "history", "insight", "investigation", "medicine", "religion"],
+      "skill_choice_count": 2,
+      "proficiency_bonus": {
+        "1": 2, "2": 2, "3": 2, "4": 2,
+        "5": 3, "6": 3, "7": 3, "8": 3,
+        "9": 4, "10": 4, "11": 4, "12": 4,
+        "13": 5, "14": 5, "15": 5, "16": 5,
+        "17": 6, "18": 6, "19": 6, "20": 6
+      },
+      "spellcasting_ability": "intelligence",
+      "starting_equipment": "Bâton, grimoire, sacoche à composantes"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "species": [
+    {
+      "id": "human",
+      "name": "Humain",
+      "name_en": "Human",
+      "size": "Medium",
+      "speed": 30,
+      "languages": ["common"],
+      "special_traits": ["Ingéniosité : Inspiration (utilisable bonus prof fois par repos long)", "Polyvalence : Don supplémentaire au niveau 1", "Compétence : +1 compétence au choix"],
+      "description": "Les humains sont les plus adaptables et ambitieux parmi les peuples courants."
+    },
+    {
+      "id": "dragonborn",
+      "name": "Drakéide",
+      "name_en": "Dragonborn",
+      "size": "Medium",
+      "speed": 30,
+      "languages": ["common", "draconic"],
+      "special_traits": ["Ascendance draconique", "Souffle : Cône 4,50m ou Ligne 9m, 1d10 dégâts", "Résistance aux dégâts : Type selon ancêtre dragon", "Vision dans le noir : 18m", "Vol draconique : Niveau 5+"],
+      "description": "Descendants de dragons, les drakéides combinent la fierté draconique avec l'âme d'un guerrier."
+    },
+    {
+      "id": "dwarf",
+      "name": "Nain",
+      "name_en": "Dwarf",
+      "size": "Medium",
+      "speed": 25,
+      "languages": ["common", "dwarvish"],
+      "special_traits": ["Résistance naine : Avantage vs poison, résistance dégâts poison", "Vision dans le noir : 36m", "Maîtrise naine : 2 outils au choix", "Formation naine : Hache, marteau de guerre"],
+      "description": "Robustes et endurants, les nains sont connus pour leur expertise en forge et leur résistance."
+    },
+    {
+      "id": "elf",
+      "name": "Elfe",
+      "name_en": "Elf",
+      "size": "Medium",
+      "speed": 30,
+      "languages": ["common", "elvish"],
+      "special_traits": ["Ascendance féerique : Avantage vs Charmé", "Lignage elfique : Haut-elfe, Elfe des bois ou Drow", "Perception aiguisée : Perception", "Vision dans le noir : 18m", "Transe : 4h repos = 8h sommeil"],
+      "description": "Gracieux et sages, les elfes vivent en harmonie avec les forces naturelles et magiques du monde."
+    },
+    {
+      "id": "gnome",
+      "name": "Gnome",
+      "name_en": "Gnome",
+      "size": "Small",
+      "speed": 25,
+      "languages": ["common", "gnomish"],
+      "special_traits": ["Ruse gnome : Avantage JdS INT/SAG/CHA vs magie", "Vision dans le noir : 18m", "Sous-espèce : Gnome des forêts ou Gnome des roches"],
+      "description": "Petits mais ingénieux, les gnomes sont des inventeurs et explorateurs enthousiastes."
+    },
+    {
+      "id": "goliath",
+      "name": "Goliath",
+      "name_en": "Goliath",
+      "size": "Medium",
+      "speed": 30,
+      "languages": ["common", "giant"],
+      "special_traits": ["Taille imposante : Compétence ou taille augmentée", "Endurance de pierre : 1d12 + CON PV temporaires (bonus prof/repos long)", "Athlétisme puissant : Athlétisme", "Acclimatation : Résistance froid, altitude"],
+      "description": "Géants parmi les humanoïdes, les goliaths sont des nomades des hautes montagnes."
+    },
+    {
+      "id": "halfling",
+      "name": "Halfelin",
+      "name_en": "Halfling",
+      "size": "Small",
+      "speed": 25,
+      "languages": ["common", "halfling"],
+      "special_traits": ["Brave : Avantage vs Effrayé", "Chance halfeline : Relancer 1 naturel 1/jour", "Naturellement furtif : Discrétion", "Sous-espèce : Pied-léger ou Robuste"],
+      "description": "Petits mais courageux, les halfelins sont des gens chaleureux qui apprécient le confort et la communauté."
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "name_en": "Orc",
+      "size": "Medium",
+      "speed": 30,
+      "languages": ["common", "orc"],
+      "special_traits": ["Adrénaline : Dash bonus action (bonus prof/repos long)", "Vision dans le noir : 36m", "Endurance implacable : Tomber à 1 PV au lieu de 0 (1/repos long)", "Intimidation"],
+      "description": "Puissants et fiers, les orcs excellent au combat et valorisent la force personnelle."
+    },
+    {
+      "id": "tiefling",
+      "name": "Tieffelin",
+      "name_en": "Tiefling",
+      "size": "Medium",
+      "speed": 30,
+      "languages": ["common", "infernal"],
+      "special_traits": ["Héritage infernal : Sort mineurs + sorts niveau 3/5", "Vision dans le noir : 18m", "Résistance infernale : Résistance feu", "Lignées : Abyssale, Chtonienne ou Infernale"],
+      "description": "Portant l'héritage infernal dans leur sang, les tieffelins font face aux préjugés avec force et détermination."
+    }
+  ]
+}

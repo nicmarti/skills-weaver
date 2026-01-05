@@ -1,0 +1,130 @@
+{
+  "skills": [
+    {
+      "id": "acrobatics",
+      "name": "Acrobaties",
+      "name_en": "Acrobatics",
+      "ability": "dexterity",
+      "description": "Tests d'équilibre, sauts périlleux, figures acrobatiques."
+    },
+    {
+      "id": "animal_handling",
+      "name": "Dressage",
+      "name_en": "Animal Handling",
+      "ability": "wisdom",
+      "description": "Calmer des animaux, monter une créature, prévoir son comportement."
+    },
+    {
+      "id": "arcana",
+      "name": "Arcanes",
+      "name_en": "Arcana",
+      "ability": "intelligence",
+      "description": "Connaissances sur les sorts, objets magiques, plans d'existence."
+    },
+    {
+      "id": "athletics",
+      "name": "Athlétisme",
+      "name_en": "Athletics",
+      "ability": "strength",
+      "description": "Escalader, sauter, nager, lutter."
+    },
+    {
+      "id": "deception",
+      "name": "Tromperie",
+      "name_en": "Deception",
+      "ability": "charisma",
+      "description": "Mentir de manière convaincante, dissimuler ses véritables intentions."
+    },
+    {
+      "id": "history",
+      "name": "Histoire",
+      "name_en": "History",
+      "ability": "intelligence",
+      "description": "Connaissances historiques, légendes, civilisations anciennes."
+    },
+    {
+      "id": "insight",
+      "name": "Intuition",
+      "name_en": "Insight",
+      "ability": "wisdom",
+      "description": "Déceler les intentions, lire le langage corporel, détecter les mensonges."
+    },
+    {
+      "id": "intimidation",
+      "name": "Intimidation",
+      "name_en": "Intimidation",
+      "ability": "charisma",
+      "description": "Influencer par des menaces, la force ou la violence."
+    },
+    {
+      "id": "investigation",
+      "name": "Investigation",
+      "name_en": "Investigation",
+      "ability": "intelligence",
+      "description": "Rechercher des indices, déductions logiques, résolution d'énigmes."
+    },
+    {
+      "id": "medicine",
+      "name": "Médecine",
+      "name_en": "Medicine",
+      "ability": "wisdom",
+      "description": "Stabiliser les mourants, diagnostiquer les maladies, prodiguer des soins."
+    },
+    {
+      "id": "nature",
+      "name": "Nature",
+      "name_en": "Nature",
+      "ability": "intelligence",
+      "description": "Connaissances sur le terrain, les plantes, les animaux, la météo."
+    },
+    {
+      "id": "perception",
+      "name": "Perception",
+      "name_en": "Perception",
+      "ability": "wisdom",
+      "description": "Repérer, entendre ou détecter quelque chose avec les sens."
+    },
+    {
+      "id": "performance",
+      "name": "Représentation",
+      "name_en": "Performance",
+      "ability": "charisma",
+      "description": "Divertir par la musique, la danse, le théâtre, le conte."
+    },
+    {
+      "id": "persuasion",
+      "name": "Persuasion",
+      "name_en": "Persuasion",
+      "ability": "charisma",
+      "description": "Influencer avec tact, grâce sociale ou bonne foi."
+    },
+    {
+      "id": "religion",
+      "name": "Religion",
+      "name_en": "Religion",
+      "ability": "intelligence",
+      "description": "Connaissances sur les dieux, rites, hiérarchies religieuses, symboles sacrés."
+    },
+    {
+      "id": "sleight_of_hand",
+      "name": "Escamotage",
+      "name_en": "Sleight of Hand",
+      "ability": "dexterity",
+      "description": "Tours de passe-passe, pickpocket, cacher des objets."
+    },
+    {
+      "id": "stealth",
+      "name": "Discrétion",
+      "name_en": "Stealth",
+      "ability": "dexterity",
+      "description": "Se cacher, se déplacer silencieusement, échapper à la détection."
+    },
+    {
+      "id": "survival",
+      "name": "Survie",
+      "name_en": "Survival",
+      "ability": "wisdom",
+      "description": "Suivre des pistes, chasser, prévoir la météo, éviter les dangers naturels."
+    }
+  ]
+}

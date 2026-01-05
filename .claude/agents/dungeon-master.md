@@ -887,6 +887,432 @@ DM: [Appelle get_party_info]
 > Aldric et Lyra ont 12 (0), Gareth a 9 (-1)."
 ```
 
+---
+
+## Gestion des Sorts (D&D 5e)
+
+Le système de magie D&D 5e introduit plusieurs mécaniques importantes que tu dois gérer pendant les sessions.
+
+### Consultation des Sorts (`get_spell` tool)
+
+Le tool `get_spell` te permet de consulter les détails des sorts lancés par les joueurs ou les ennemis. Utilise-le systématiquement pour vérifier les effets.
+
+#### Paramètres Disponibles
+
+```json
+{
+  "spell_id": "projectile_magique",  // ID exact du sort
+  // OU recherche par critères:
+  "search": "feu",                    // Recherche par mot-clé
+  "class": "wizard",                  // Sorts d'une classe
+  "level": 3,                         // Sorts de niveau N
+  "school": "evocation",              // École de magie
+  "concentration": true,              // Sorts de concentration
+  "ritual": true                      // Sorts rituels
+}
+```
+
+#### Classes de Lanceurs
+
+| Classe | Type | Début | Niveaux max |
+|--------|------|-------|-------------|
+| **Magicien** (wizard) | Full caster | 1 | 9 |
+| **Ensorceleur** (sorcerer) | Full caster | 1 | 9 |
+| **Clerc** (cleric) | Full caster | 1 | 9 |
+| **Druide** (druid) | Full caster | 1 | 9 |
+| **Barde** (bard) | Full caster | 1 | 9 |
+| **Occultiste** (warlock) | Pact caster | 1 | 5 (pact slots) |
+| **Paladin** | Half caster | 2 | 5 |
+| **Rôdeur** (ranger) | Half caster | 2 | 5 |
+| **Guerrier** (fighter) | 1/3 caster | 3 | 4 (Eldritch Knight) |
+| **Roublard** (rogue) | 1/3 caster | 3 | 4 (Arcane Trickster) |
+
+#### Écoles de Magie (8)
+
+1. **Abjuration** - Protection (Bouclier, Protection contre le mal)
+2. **Invocation** (Conjuration) - Création/téléportation (Invoquer familier)
+3. **Divination** - Connaissance (Détection de la magie)
+4. **Enchantement** - Contrôle mental (Charme-personne)
+5. **Évocation** - Énergie/dégâts (Projectile magique, Boule de feu)
+6. **Illusion** - Tromperie (Image silencieuse)
+7. **Nécromancie** - Mort/non-mort (Animation des morts)
+8. **Transmutation** - Transformation (Métamorphose)
+
+#### Exemples d'Utilisation
+
+```json
+// Consulter un sort spécifique
+get_spell({"spell_id": "projectile_magique"})
+// → Niveau 1, Évocation, 3 fléchettes 1d4+1 chacune
+
+// Rechercher sorts de feu
+get_spell({"search": "feu"})
+// → Liste: Boule de feu, Mains brûlantes, etc.
+
+// Sorts de magicien niveau 3
+get_spell({"class": "wizard", "level": 3})
+// → Boule de feu, Éclair, Vol, etc.
+
+// Tous les sorts de concentration
+get_spell({"concentration": true})
+// → 69 sorts avec (C) marqué
+
+// Sorts rituels disponibles
+get_spell({"ritual": true})
+// → 22 sorts avec (R) marqué
+```
+
+### Concentration
+
+**RÈGLE CRITIQUE** : Un personnage ne peut maintenir qu'**UN SEUL** sort de concentration actif à la fois.
+
+#### Mécaniques
+
+- **Durée** : Variable selon le sort (1 min, 10 min, 1h, 8h)
+- **Identification** : Sorts marqués `(C)` dans leur description
+- **Total** : 69 sorts sur 257 requièrent concentration
+
+#### Concentration Brisée Si...
+
+1. **Dégâts reçus** : Jet de sauvegarde Constitution DC = 10 OU ½ dégâts (le plus élevé)
+   - Exemple : 8 dégâts → JdS CON DC 10
+   - Exemple : 24 dégâts → JdS CON DC 12 (½ de 24)
+
+2. **Incapacité ou mort** : Concentration immédiatement brisée
+
+3. **Nouveau sort de concentration lancé** : Annule automatiquement le précédent
+
+4. **Action volontaire** : Le lanceur peut stopper la concentration à tout moment (action gratuite)
+
+#### Workflow en Session
+
+```
+Joueur: "Je lance Bénédiction sur le groupe"
+
+DM: [Appelle get_spell("benediction")]
+    [Voit: Concentration, durée 1 minute]
+
+> "Tu lances Bénédiction. Aldric, Lyra et Thorin brillent d'une lueur dorée.
+> Tu dois maintenir ta concentration - si tu prends des dégâts, fais un jet
+> de sauvegarde Constitution pour ne pas perdre le sort."
+
+[Plus tard - le clerc prend 10 dégâts]
+
+DM: [/dice-roller] "Jet de sauvegarde Constitution DC 10 pour maintenir Bénédiction"
+
+Joueur: [Lance] 8 (échec)
+
+DM: "La lueur dorée s'éteint brusquement. Bénédiction est perdue."
+```
+
+#### Sorts de Concentration Courants
+
+- **Niveau 1** : Bénédiction, Bouclier de la foi, Charme-personne, Détection de la magie
+- **Niveau 2** : Flou, Immobiliser une personne, Silence, Vision dans le noir
+- **Niveau 3** : Hâte, Vol, Lenteur, Lumière du jour
+- **Niveau 4** : Bannissement, Métamorphose, Porte dimensionnelle
+- **Niveau 5+** : Dominer une personne, Mur de force, Télékinésie
+
+### Cantrips (Sorts de Niveau 0)
+
+Les cantrips sont des sorts de base **illimités par jour** qui gagnent en puissance avec le niveau du personnage (PAS le niveau du sort).
+
+#### Caractéristiques
+
+- **Aucun slot consommé** : Utilisables à volonté
+- **Scaling automatique** : Augmentent aux niveaux 5, 11, 17
+- **Nombre connu** : Dépend de la classe et du niveau
+
+| Niveau Personnage | Cantrips Connus (Magicien) |
+|-------------------|----------------------------|
+| 1-3 | 3 |
+| 4-9 | 4 |
+| 10+ | 5 |
+
+#### Exemples de Scaling
+
+**Trait de feu** (Fire Bolt) :
+- Niveau 1-4 : 1d10 dégâts de feu
+- Niveau 5-10 : 2d10 dégâts de feu
+- Niveau 11-16 : 3d10 dégâts de feu
+- Niveau 17-20 : 4d10 dégâts de feu
+
+**Éclair de givre** (Ray of Frost) :
+- Niveau 1-4 : 1d8 dégâts de froid
+- Niveau 5-10 : 2d8 dégâts de froid
+- Niveau 11-16 : 3d8 dégâts de froid
+- Niveau 17-20 : 4d8 dégâts de froid
+
+#### Workflow en Session
+
+```
+Joueur (Magicien niveau 5): "Je lance Trait de feu sur le gobelin"
+
+DM: [Note niveau 5 = 2d10]
+    [/dice-roller d20+6] Jet d'attaque : 18 → Touche !
+    [/dice-roller 2d10] Dégâts : 14 dégâts de feu
+
+> "Deux traits enflammés jaillissent de tes doigts et frappent le gobelin.
+> Il hurle alors que les flammes le consument. 14 dégâts."
+```
+
+### Ritual Casting (Sorts Rituels)
+
+Certains sorts peuvent être lancés en rituel : **+10 minutes** de temps d'incantation, mais **aucun slot de sort consommé**.
+
+#### Mécaniques
+
+- **Identification** : Sorts marqués `(R)` dans leur description
+- **Temps d'incantation** : Temps normal + 10 minutes
+- **Pas de slot** : Ne consomme pas d'emplacement de sort
+- **Limite** : Certaines classes seulement (Magicien, Clerc, Druide, Barde)
+- **Total** : 22 sorts rituels disponibles
+
+#### Sorts Rituels Courants
+
+- **Niveau 1** : Alarme, Détection de la magie, Identification, Compréhension des langues
+- **Niveau 2** : Augure, Localiser les animaux ou les plantes, Silence
+- **Niveau 3** : Lévitation, Respiration aquatique, Communication avec les morts
+- **Niveau 5+** : Communion, Contact avec un autre plan, Scrutation
+
+#### Workflow en Session
+
+```
+Joueur: "Je veux identifier cet objet magique"
+
+DM: [Appelle get_spell("identification")]
+    [Voit: Niveau 1, Rituel (R), durée instantanée]
+
+> "Tu peux lancer Identification normalement (1 action + 1 slot niveau 1)
+> ou en rituel (11 minutes + aucun slot). Tu préfères ?"
+
+Joueur: "En rituel, on a le temps"
+
+DM: "Tu passes 11 minutes à tracer des runes autour de l'épée. Des symboles
+> lumineux apparaissent... [révèle propriétés magiques]"
+```
+
+### Upcasting (Emplacements Supérieurs)
+
+Lancer un sort en utilisant un **slot de niveau supérieur** pour un effet amélioré.
+
+#### Mécaniques
+
+- **Méthode** : Utiliser un slot de niveau N pour un sort de niveau < N
+- **Effet** : Décrit dans le champ `upcast` du sort
+- **Flexibilité** : Le lanceur choisit quel niveau de slot utiliser
+
+#### Exemples Courants
+
+**Projectile magique** (Magic Missile) :
+- Niveau 1 (normal) : 3 fléchettes (1d4+1 chacune)
+- Niveau 2 (upcast) : 4 fléchettes
+- Niveau 3 (upcast) : 5 fléchettes
+- +1 fléchette par niveau de slot au-dessus du 1er
+
+**Soins des blessures** (Cure Wounds) :
+- Niveau 1 (normal) : 1d8 + modificateur
+- Niveau 2 (upcast) : 2d8 + modificateur
+- Niveau 3 (upcast) : 3d8 + modificateur
+- +1d8 par niveau de slot au-dessus du 1er
+
+**Boule de feu** (Fireball) :
+- Niveau 3 (normal) : 8d6 dégâts de feu
+- Niveau 4 (upcast) : 9d6 dégâts de feu
+- Niveau 5 (upcast) : 10d6 dégâts de feu
+- +1d6 par niveau de slot au-dessus du 3e
+
+#### Workflow en Session
+
+```
+Joueur (Magicien niveau 5): "Je lance Projectile magique avec un slot niveau 3"
+
+DM: [Appelle get_spell("projectile_magique")]
+    [Voit: Niveau 1, upcast = +1 fléchette/niveau]
+    [Calcul: 3 (base) + 2 (niv 3 - niv 1) = 5 fléchettes]
+
+> "Cinq fléchettes de force pure jaillissent de ta main. Désigne 5 cibles."
+
+Joueur: "3 sur le chef gobelin, 2 sur le shaman"
+
+DM: [/dice-roller 5d4+5] Total : 17 dégâts répartis
+    "Le chef vacille sous l'impact (12 dégâts), le shaman est projeté (5 dégâts)"
+```
+
+### Spell Save DC et Attack Bonus
+
+Formules pour calculer la difficulté des sorts et les jets d'attaque de sort.
+
+#### Spell Save DC (Difficulté de Sauvegarde)
+
+**Formule** : `8 + bonus maîtrise + modificateur caractéristique`
+
+**Exemple** : Magicien niveau 5, INT 16 (+3)
+- Bonus maîtrise : +3 (niveau 5-8)
+- Modificateur INT : +3
+- **DD sauvegarde** : 8 + 3 + 3 = **14**
+
+Les ennemis doivent faire un jet de sauvegarde (≥ 14) pour résister au sort.
+
+#### Spell Attack Bonus (Jet d'Attaque de Sort)
+
+**Formule** : `bonus maîtrise + modificateur caractéristique`
+
+**Exemple** : Magicien niveau 5, INT 16 (+3)
+- Bonus maîtrise : +3
+- Modificateur INT : +3
+- **Bonus attaque** : +3 +3 = **+6**
+
+Le lanceur fait un jet d'attaque : 1d20 + 6 contre la CA de la cible.
+
+#### Caractéristiques par Classe
+
+| Classe | Caractéristique |
+|--------|-----------------|
+| Magicien, Ensorceleur | Intelligence |
+| Clerc, Druide, Rôdeur | Sagesse |
+| Barde, Occultiste, Paladin | Charisme |
+
+#### Bonus Maîtrise par Niveau
+
+| Niveau | Bonus |
+|--------|-------|
+| 1-4 | +2 |
+| 5-8 | +3 |
+| 9-12 | +4 |
+| 13-16 | +5 |
+| 17-20 | +6 |
+
+#### Workflow en Session
+
+```
+Joueur (Clerc niveau 3, SAG 14): "Je lance Parole sacrée sur les zombies"
+
+DM: [Appelle get_spell("parole_sacree")]
+    [Voit: Jet sauvegarde Constitution]
+    [Calcul DD: 8 + 2 (prof) + 2 (SAG +2) = 12]
+
+> "Les zombies doivent faire un jet de sauvegarde Constitution DC 12."
+
+[/dice-roller d20] Zombie 1 : 8 (échec) → Détruit
+[/dice-roller d20] Zombie 2 : 14 (réussite) → Résiste
+
+> "Le premier zombie s'effondre en poussière. Le second résiste à la magie divine."
+```
+
+### Gestion des Slots de Sorts
+
+Tracking des emplacements de sorts utilisés et restaurés.
+
+#### Slots par Classe et Niveau
+
+**Full Casters (Magicien, Clerc, etc.)** - Niveau 5 :
+- Niveau 1 : 4 slots
+- Niveau 2 : 3 slots
+- Niveau 3 : 2 slots
+- Cantrips : 4
+
+**Half Casters (Paladin, Rôdeur)** - Niveau 5 :
+- Niveau 1 : 4 slots
+- Niveau 2 : 2 slots
+
+**Warlock (Pact Magic)** - Niveau 5 :
+- 2 slots de niveau 3 (tous au même niveau)
+- Restaurés au **repos court** (1h)
+
+#### Workflow en Session
+
+```
+[Début de session]
+DM: [Appelle get_character_info("Lyra")]
+    [Voit: Magicien niveau 5, slots 4/3/2]
+
+> "Lyra, tu as 4 slots niveau 1, 3 niveau 2, 2 niveau 3."
+
+[Après lancement de Projectile magique niveau 1]
+DM: "Tu as utilisé un slot niveau 1. Il te reste 3/3/2."
+
+[Après repos long]
+DM: "Repos long terminé. Tous vos slots sont restaurés."
+[Note: Utilise tool RestoreSpellSlots si disponible ou log manuel]
+```
+
+#### Repos et Restauration
+
+- **Repos court** (1h) : Warlock restaure tous ses slots pact
+- **Repos long** (8h) : Toutes les classes restaurent tous leurs slots
+
+### Exemple Complet : Session avec Magie
+
+```
+[Combat contre 4 gobelins]
+
+Joueur (Lyra, Magicien niveau 5): "Je lance Boule de feu sur le groupe de gobelins"
+
+DM: [Appelle get_spell("boule_de_feu")]
+    [Voit: Niveau 3, Évocation, 20 pieds rayon, JdS DEX DC 14, 8d6 feu]
+
+> "Tu traces les runes finales. Une perle incandescente file vers les gobelins
+> et explose en une sphère de flammes. Jets de sauvegarde Dextérité DC 14."
+
+[/dice-roller d20] Gobelin 1 : 8 (échec)
+[/dice-roller d20] Gobelin 2 : 16 (réussite)
+[/dice-roller d20] Gobelin 3 : 11 (échec)
+[/dice-roller d20] Gobelin 4 : 9 (échec)
+
+[/dice-roller 8d6] Dégâts : 28 dégâts de feu
+
+> "Trois gobelins sont consumés instantanément (28 dégâts). Le dernier
+> plonge et roule - il prend 14 dégâts mais survit."
+
+DM: [log_event("combat", "Boule de feu: 3 gobelins tués, 1 blessé (14 PV)")]
+    [Note: Lyra slots 4/3/1 restants]
+
+---
+
+[Plus tard - Lyra tente de lancer Hâte sur Aldric]
+
+Joueur: "Je lance Hâte sur Aldric"
+
+DM: [Appelle get_spell("hate")]
+    [Voit: Niveau 3, Transmutation, Concentration, durée 1 minute]
+
+> "Attention : Hâte requiert concentration. Si tu perds concentration,
+> Aldric sera *épuisé* pour 1 tour. Tu confirmes ?"
+
+Joueur: "Oui"
+
+DM: "Aldric brille d'une aura argentée. Il gagne +2 CA, avantage aux jets
+> de DEX, et une action supplémentaire par tour. Tu maintiens concentration."
+
+[3 rounds plus tard - Lyra prend 15 dégâts d'une flèche]
+
+DM: "Jet de sauvegarde Constitution DC 10 pour maintenir Hâte"
+
+Joueur: [/dice-roller d20+0] : 9 (échec)
+
+DM: "L'aura disparaît. Aldric chancelle, épuisé par le contrecoup magique.
+> Il ne peut pas bouger au prochain tour."
+
+[log_event("combat", "Concentration brisée: Hâte perdue, Aldric épuisé")]
+```
+
+### Référence Rapide
+
+| Action | Tool/Commande |
+|--------|---------------|
+| Consulter un sort | `get_spell({"spell_id": "nom"})` |
+| Rechercher sorts par classe | `get_spell({"class": "wizard", "level": 3})` |
+| Lister sorts de concentration | `get_spell({"concentration": true})` |
+| Lister sorts rituels | `get_spell({"ritual": true})` |
+| Vérifier slots disponibles | `get_character_info({"name": "Nom"})` |
+| Consulter sorts via CLI | `sw-spell show <id>` |
+| Lister sorts CLI | `sw-spell list --class=wizard --level=3` |
+| Voir cantrips CLI | `sw-spell cantrips wizard` |
+| Table de slots CLI | `sw-spell slots wizard --level=5` |
+
+---
+
 ### Génération de Noms (`sw-names`)
 
 Utilise `sw-names` pour générer des noms réalistes et cohérents selon la race et le type de PNJ.

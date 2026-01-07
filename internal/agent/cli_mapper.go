@@ -54,6 +54,11 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapGenerateName(params)
 	case "generate_location_name":
 		return mapGenerateLocationName(params)
+	case "invoke_agent":
+		// No CLI equivalent - internal agent-to-agent communication
+		return ""
+	case "invoke_skill":
+		return mapInvokeSkill(params)
 	default:
 		return ""
 	}
@@ -376,4 +381,13 @@ func mapGenerateLocationName(params map[string]interface{}) string {
 		parts = append(parts, fmt.Sprintf("--count=%.0f", count))
 	}
 	return strings.Join(parts, " ")
+}
+
+func mapInvokeSkill(params map[string]interface{}) string {
+	// invoke_skill already contains the exact CLI command
+	command, ok := params["command"].(string)
+	if !ok {
+		return ""
+	}
+	return command
 }

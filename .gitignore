@@ -75,3 +75,6 @@ data/characters/*/
 # Keep directory structure with .empty files
 !data/adventures/.empty
 !data/characters/.empty
+
+# Character JSON files (user data)
+data/characters/*.json

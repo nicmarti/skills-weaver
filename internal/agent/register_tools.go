@@ -9,11 +9,12 @@ import (
 	"dungeons/internal/locations"
 	"dungeons/internal/monster"
 	"dungeons/internal/names"
+	"dungeons/internal/skills"
 	"dungeons/internal/spell"
 )
 
 // registerAllTools registers all available tools in the registry.
-func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure) error {
+func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure, agentManager *AgentManager) error {
 	// Register dice roller
 	registry.Register(dmtools.NewDiceRollerTool())
 
@@ -119,6 +120,20 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 		return fmt.Errorf("failed to create location generator: %w", err)
 	}
 	registry.Register(dmtools.NewGenerateLocationNameTool(locationGenerator))
+
+	// Register agent invocation tool (requires agentManager to be passed)
+	if agentManager != nil {
+		registry.Register(dmtools.NewInvokeAgentTool(agentManager))
+	}
+
+	// Register skill invocation tool
+	skillRegistry, err := skills.NewRegistry()
+	if err != nil {
+		// Log warning but don't fail - skills are optional enhancements
+		fmt.Printf("Warning: Skills not available: %v\n", err)
+	} else {
+		registry.Register(dmtools.NewInvokeSkillTool(skillRegistry))
+	}
 
 	return nil
 }

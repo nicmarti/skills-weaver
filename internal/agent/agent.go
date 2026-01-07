@@ -21,6 +21,8 @@ type Agent struct {
 	adventureCtx    *AdventureContext
 	outputHandler   OutputHandler
 	logger          *Logger
+	personaLoader   *PersonaLoader
+	agentManager    *AgentManager
 }
 
 // New creates a new agent with the given configuration.
@@ -39,15 +41,8 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		option.WithAPIKey(apiKey),
 	)
 
-	// Initialize tool registry with adventure context
-	toolRegistry := NewToolRegistry(adventureCtx)
-
-	// Register all tools - pass Adventure object for real persistence
-	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure); err != nil {
-		return nil, fmt.Errorf("failed to register tools: %w", err)
-	}
-
-	conversationCtx := NewConversationContext()
+	// Initialize persona loader
+	personaLoader := NewPersonaLoader()
 
 	// Initialize logger
 	logger, err := NewLogger(adventureCtx.BasePath())
@@ -56,7 +51,20 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		fmt.Printf("Warning: Could not create logger: %v\n", err)
 	}
 
-	return &Agent{
+	// Initialize agent manager
+	agentManager := NewAgentManager(apiKey, adventureCtx, logger, outputHandler, personaLoader)
+
+	// Initialize tool registry with adventure context
+	toolRegistry := NewToolRegistry(adventureCtx)
+
+	// Register all tools - pass Adventure object and agentManager for real persistence
+	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure, agentManager); err != nil {
+		return nil, fmt.Errorf("failed to register tools: %w", err)
+	}
+
+	conversationCtx := NewConversationContext()
+
+	agent := &Agent{
 		client:          client,
 		model:           anthropic.ModelClaudeHaiku4_5,
 		toolRegistry:    toolRegistry,
@@ -64,7 +72,18 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		adventureCtx:    adventureCtx,
 		outputHandler:   outputHandler,
 		logger:          logger,
-	}, nil
+		personaLoader:   personaLoader,
+		agentManager:    agentManager,
+	}
+
+	// Load agent states from previous sessions
+	statesPath := fmt.Sprintf("%s/agent-states.json", adventureCtx.BasePath())
+	if err := agentManager.LoadAgentStates(statesPath); err != nil {
+		// Non-fatal: log warning and continue with fresh state
+		fmt.Printf("Warning: Could not load agent states: %v\n", err)
+	}
+
+	return agent, nil
 }
 
 // ProcessUserMessage processes a user message and returns the agent's response.
@@ -78,7 +97,10 @@ func (a *Agent) ProcessUserMessage(message string) error {
 	a.conversationCtx.AddUserMessage(message)
 
 	// Build system prompt with DM persona and adventure context
-	systemPrompt := a.buildSystemPrompt()
+	systemPrompt, err := a.buildSystemPrompt()
+	if err != nil {
+		return fmt.Errorf("failed to build system prompt: %w", err)
+	}
 
 	// Prepare messages for API call
 	messages := a.conversationCtx.GetMessages()
@@ -106,6 +128,10 @@ func (a *Agent) ProcessUserMessage(message string) error {
 			// Add assistant response to conversation history
 			a.conversationCtx.AddAssistantMessage(assistantContent)
 			a.outputHandler.OnComplete()
+
+			// Save agent states after processing message
+			a.saveAgentStates()
+
 			return nil
 		}
 
@@ -126,11 +152,11 @@ func (a *Agent) ProcessUserMessage(message string) error {
 }
 
 // buildSystemPrompt constructs the system prompt with DM persona and adventure context.
-func (a *Agent) buildSystemPrompt() string {
-	// Load DM persona from file
-	dmPersona, err := os.ReadFile(".claude/agents/dungeon-master.md")
+func (a *Agent) buildSystemPrompt() (string, error) {
+	// Load DM persona using PersonaLoader (searches core_agents/agents/, then .claude/agents/)
+	dmPersona, err := a.personaLoader.Load("dungeon-master")
 	if err != nil {
-		dmPersona = []byte("Tu es le Maître du Donjon pour des parties de Basic Fantasy RPG.")
+		return "", fmt.Errorf("failed to load dungeon-master persona: %w", err)
 	}
 
 	// Build adventure context
@@ -141,42 +167,11 @@ func (a *Agent) buildSystemPrompt() string {
 %s
 
 **Groupe de PJ (contrôlés par le joueur)** : %s
-
-**RAPPEL CRITIQUE** :
-- "Que faites-vous ?" s'adresse au joueur pour ses PJ uniquement
-- Les PNJ (tous les autres personnages) sont contrôlés par TOI
-- Ne propose JAMAIS d'options numérotées (1, 2, 3...)
-- Ne demande JAMAIS ce que fait un PNJ au joueur
-
 **Or** : %d po
 **Lieu actuel** : %s
 
 **Journal récent** (5 dernières entrées) :
 %s
-
-## Tools Disponibles
-
-Tu as accès aux tools suivants pour gérer la partie :
-
-- **roll_dice** : Lance des dés avec notation RPG (d20, 2d6+3, 4d6kh3)
-- **get_monster** : Consulte les stats d'un monstre par son ID
-- **log_event** : Enregistre un événement dans le journal de l'aventure
-- **add_gold** : Modifie l'or du groupe
-- **get_inventory** : Consulte l'inventaire partagé
-- **generate_treasure** : Génère un trésor selon les tables BFRPG
-- **generate_npc** : Crée un PNJ complet avec traits et personnalité
-- **generate_image** : Génère une image de style fantasy à partir d'un prompt détaillé
-
-## Instructions Importantes
-
-- Utilise **log_event** pour enregistrer les événements significatifs
-- Mets à jour l'or et l'inventaire quand approprié
-- Lance les dés pour tous les jets de hasard
-- Utilise **generate_image** pour créer des illustrations de scènes importantes
-- Reste dans le rôle du Maître du Jeu
-- Narre au présent, en français
-- Sois concis mais immersif
-- Termine TOUJOURS par "Que faites-vous ?" sans proposer d'options
 `,
 		a.adventureCtx.Adventure.Name,
 		a.adventureCtx.Adventure.Description,
@@ -186,15 +181,23 @@ Tu as accès aux tools suivants pour gérer la partie :
 		formatRecentJournal(a.adventureCtx),
 	)
 
-	return string(dmPersona) + "\n\n" + adventureInfo
+	return dmPersona + "\n\n" + adventureInfo, nil
 }
 
 // callAnthropicAPI calls the Anthropic API with streaming and returns tool uses if any.
 func (a *Agent) callAnthropicAPI(systemPrompt string, messages []anthropic.MessageParam, tools []anthropic.ToolUnionParam) ([]ToolUse, string, error) {
+	// Log system prompt to file (only on first call)
+	if len(a.conversationCtx.GetMessages()) == 1 {
+		if err := os.WriteFile("system-prompt.log", []byte(systemPrompt), 0644); err != nil {
+			// Non-fatal: just log to stderr
+			fmt.Fprintf(os.Stderr, "Warning: Could not write system prompt to log: %v\n", err)
+		}
+	}
+
 	// Create streaming message
 	stream := a.client.Messages.NewStreaming(context.Background(), anthropic.MessageNewParams{
 		Model:     a.model,
-		MaxTokens: 8192,
+		MaxTokens: 16384, // Haiku 4.5
 		System: []anthropic.TextBlockParam{
 			{
 				Type: "text",
@@ -381,4 +384,21 @@ func formatToolResult(result interface{}) string {
 
 	// Fallback: return generic success
 	return `{"success": true}`
+}
+
+// saveAgentStates saves the current agent states to disk.
+// This is called after each user message to persist nested agent conversation history.
+func (a *Agent) saveAgentStates() {
+	if a.agentManager == nil {
+		return
+	}
+
+	statesPath := fmt.Sprintf("%s/agent-states.json", a.adventureCtx.BasePath())
+	if err := a.agentManager.SaveAgentStates(statesPath); err != nil {
+		// Non-fatal: log error but don't crash
+		fmt.Printf("Warning: Could not save agent states: %v\n", err)
+		if a.logger != nil {
+			a.logger.LogError("save_agent_states", err)
+		}
+	}
 }

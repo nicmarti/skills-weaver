@@ -16,12 +16,18 @@ type ConversationContext struct {
 	maxTokens     int
 }
 
-// NewConversationContext creates a new conversation context.
+// NewConversationContext creates a new conversation context with default token limit (50K).
 func NewConversationContext() *ConversationContext {
+	return NewConversationContextWithLimit(50000)
+}
+
+// NewConversationContextWithLimit creates a new conversation context with a custom token limit.
+// This is useful for nested agents which have lower token limits (e.g., 20K).
+func NewConversationContextWithLimit(maxTokens int) *ConversationContext {
 	return &ConversationContext{
 		messages:      []anthropic.MessageParam{},
 		tokenEstimate: 0,
-		maxTokens:     50000, // Keep history under 50K tokens
+		maxTokens:     maxTokens,
 	}
 }
 

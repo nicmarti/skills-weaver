@@ -122,3 +122,105 @@ func TestStreamingRenderer_IncompleteMarkdown(t *testing.T) {
 		t.Errorf("Expected 'italic' after completing markdown, got: %s", combined)
 	}
 }
+
+func TestNormalizeIndentation(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "excessive spaces before list item",
+			input:    "              - Ruelle latérale",
+			expected: "  - Ruelle latérale",
+		},
+		{
+			name:     "moderate spaces before list item",
+			input:    "     - Angle de la place",
+			expected: "  - Angle de la place",
+		},
+		{
+			name:     "normal list item",
+			input:    "  - Café en face",
+			expected: "  - Café en face",
+		},
+		{
+			name:     "list item with asterisk",
+			input:    "        * Point important",
+			expected: "  * Point important",
+		},
+		{
+			name:     "header with spaces",
+			input:    "   ### Section Title",
+			expected: "### Section Title",
+		},
+		{
+			name:     "regular text with spaces",
+			input:    "     Points d'observation disponibles :",
+			expected: "Points d'observation disponibles :",
+		},
+		{
+			name:     "text with tabs",
+			input:    "\t\t  Texte avec tabs",
+			expected: "Texte avec tabs",
+		},
+		{
+			name:     "empty line",
+			input:    "   ",
+			expected: "   ",
+		},
+		{
+			name:     "no spaces",
+			input:    "Normal text",
+			expected: "Normal text",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := normalizeIndentation(tt.input)
+			if result != tt.expected {
+				t.Errorf("normalizeIndentation(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestStreamingRenderer_NormalizesWhitespace(t *testing.T) {
+	r := NewStreamingMarkdownRenderer()
+
+	// Simulate DM output with excessive indentation
+	chunks := []string{
+		"Points d'observation disponibles :\n",
+		"  - Façade principale\n",
+		"              - Ruelle latérale\n",  // 14 spaces!
+		"           - Café en face\n",        // 11 spaces!
+		"     - Angle de la place\n",         // 5 spaces
+	}
+
+	var output strings.Builder
+	for _, chunk := range chunks {
+		output.WriteString(r.AddChunk(chunk))
+	}
+
+	result := output.String()
+
+	// All list items should have consistent 2-space indent
+	// We can't easily test the exact output due to ANSI codes,
+	// but we can verify the text is present
+	if !strings.Contains(result, "Points d'observation disponibles") {
+		t.Error("Expected header text to be present")
+	}
+	if !strings.Contains(result, "Façade principale") {
+		t.Error("Expected list item 1 to be present")
+	}
+	if !strings.Contains(result, "Ruelle latérale") {
+		t.Error("Expected list item 2 to be present")
+	}
+	if !strings.Contains(result, "Café en face") {
+		t.Error("Expected list item 3 to be present")
+	}
+	if !strings.Contains(result, "Angle de la place") {
+		t.Error("Expected list item 4 to be present")
+	}
+}

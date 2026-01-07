@@ -78,3 +78,6 @@ data/characters/*/
 
 # Character JSON files (user data)
 data/characters/*.json
+
+# do not save maps
+!data/maps/.empty

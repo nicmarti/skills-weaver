@@ -31,25 +31,16 @@ func BuildCityMapPrompt(ctx *MapContext, opts PromptOptions) string {
 	parts := []string{}
 
 	// 1. Perspective and map type
-	parts = append(parts, "Cette carte montre la ville")
+	parts = append(parts, fmt.Sprintf("Cette carte de jeux de rôle en vue aérienne dans un style médiéval fantastique type Dungeons & Dragons, montre la ville de %s", loc.Name))
 
-	// 2. Add city name and type
+	// 2. Add city name and ty
 	cityType := strings.ToLower(loc.Type)
-	if strings.Contains(cityType, "port") {
-		parts = append(parts, fmt.Sprintf("portuaire de %s", loc.Name))
-	} else if strings.Contains(cityType, "forteresse") {
-		parts = append(parts, fmt.Sprintf("fortifiée de %s", loc.Name))
-	} else {
-		parts = append(parts, fmt.Sprintf("de %s", loc.Name))
-	}
-
-	// 3. Add perspective
-	parts = append(parts, "en vue aérienne")
+	parts = append(parts, fmt.Sprintf("Ville de type: %s", cityType))
 
 	// 4. Add kingdom architectural style
 	if kingdom != nil {
 		styleDesc := getKingdomArchitecturalStyle(kingdom.ID)
-		parts = append(parts, fmt.Sprintf("Style architectural %s", styleDesc))
+		parts = append(parts, fmt.Sprintf("Style architectural de la ville : %s", styleDesc))
 
 		// Add colors
 		if len(kingdom.Colors) > 0 {
@@ -68,15 +59,6 @@ func BuildCityMapPrompt(ctx *MapContext, opts PromptOptions) string {
 		parts = append(parts, fmt.Sprintf("Terrain : %s", opts.Terrain))
 	}
 
-	// 7. Add districts/quarters (general description)
-	if strings.Contains(cityType, "port") {
-		parts = append(parts, "Quartiers : port commercial, district marchand, quartier résidentiel")
-	} else if strings.Contains(cityType, "forteresse") {
-		parts = append(parts, "Quartiers : casernes militaires, quartier administratif, quartier civil")
-	} else {
-		parts = append(parts, "Quartiers : centre-ville, quartier marchand, quartiers résidentiels")
-	}
-
 	// 8. Add POIs
 	pois := collectPOIs(loc, opts.Features)
 	if len(pois) > 0 {
@@ -90,10 +72,13 @@ func BuildCityMapPrompt(ctx *MapContext, opts PromptOptions) string {
 	}
 
 	// 10. Add realism instruction
-	parts = append(parts, "Ajoute différents éléments réalistes d'une carte")
 	parts = append(parts, "La ville doit avoir une forme naturelle et non monotone")
-	parts = append(parts, "Niveau détaillé")
-	parts = append(parts, "Chemins cohérents")
+	parts = append(parts, "Niveau détaillé et varié adapté à la taille d'une ville de ", loc.Population)
+	parts = append(parts, "Chemins et routes sont cohérents")
+
+	// 11. Medieval fantasy constraints - NO modern elements
+	parts = append(parts, "IMPORTANT : Contexte médiéval fantastique uniquement type jeu de roles")
+	parts = append(parts, "Architecture médiévale : maisons à colombages, tours de pierre, murailles, toits pentus en tuiles ou ardoise, place de marché, tavernes, eglise, bazar")
 
 	return strings.Join(parts, ". ") + "."
 }
@@ -106,7 +91,7 @@ func BuildRegionalMapPrompt(ctx *MapContext, opts PromptOptions) string {
 	parts := []string{}
 
 	// 1. Perspective
-	parts = append(parts, "Cette carte montre la région")
+	parts = append(parts, "Cette carte dans un style médiéval fantastique type Dungeons & Dragons montre la région")
 	if region != nil {
 		parts = append(parts, fmt.Sprintf("de %s", region.Name))
 	}
@@ -163,8 +148,8 @@ func BuildRegionalMapPrompt(ctx *MapContext, opts PromptOptions) string {
 
 	// 9. Cartographic elements
 	parts = append(parts, "Avec légende cartographique")
-	parts = append(parts, "Symboles géographiques (montagnes, rivières, forêts)"  )
-	parts = append(parts, "Style carte médiévale fantasy")
+	parts = append(parts, "Symboles géographiques (montagnes, rivières, forêts)")
+	parts = append(parts, "Style carte de jeux vidéos de donjons et dragons, médieval fantastique")
 
 	return strings.Join(parts, ". ") + "."
 }
@@ -174,7 +159,7 @@ func BuildDungeonMapPrompt(name string, dungeonLevel int, opts PromptOptions) st
 	parts := []string{}
 
 	// 1. Map type and perspective
-	parts = append(parts, fmt.Sprintf("Plan de donjon en vue du dessus : %s", name))
+	parts = append(parts, fmt.Sprintf("Plan de donjon médiéval fantastique style Dungeons & Dragons, en vue du dessus : %s", name))
 
 	// 2. Level specification
 	if dungeonLevel > 0 {
@@ -217,7 +202,7 @@ func BuildTacticalMapPrompt(terrain string, sceneDescription string, opts Prompt
 	parts := []string{}
 
 	// 1. Map type
-	parts = append(parts, "Carte tactique de combat en vue du dessus")
+	parts = append(parts, "Carte tactique de combat médiéval fantastique style Dungeons & Dragons en vue du dessus")
 
 	// 2. Scene context
 	if sceneDescription != "" {
@@ -265,10 +250,10 @@ func BuildTacticalMapPrompt(terrain string, sceneDescription string, opts Prompt
 
 func getKingdomArchitecturalStyle(kingdomID string) string {
 	styles := map[string]string{
-		"valdorine":  "valdorin maritime avec influences italiennes",
-		"karvath":    "karvath militaire avec fortifications germaniques",
-		"lumenciel":  "lumenciel religieux avec architecture sacrée latine",
-		"astrene":    "astrène mélancolique avec influences nordiques",
+		"valdorine": "valdorin maritime avec influences italiennes",
+		"karvath":   "karvath militaire avec fortifications germaniques",
+		"lumenciel": "lumenciel religieux avec architecture sacrée latine",
+		"astrene":   "astrène mélancolique avec influences nordiques",
 	}
 
 	if style, ok := styles[strings.ToLower(kingdomID)]; ok {
@@ -293,20 +278,60 @@ func collectPOIs(loc *world.Location, extraFeatures []string) []string {
 }
 
 func getInfrastructure(cityType string) string {
-	infra := map[string]string{
-		"port majeur":          "Infrastructure : docks, entrepôts, chantier naval, phare",
-		"port industriel":      "Infrastructure : chantiers navals, forges, entrepôts industriels",
-		"port financier":       "Infrastructure : banques, coffres royaux, maisons de commerce",
-		"forteresse capitale":  "Infrastructure : murailles épaisses, tours de garde, casernes, arsenal",
-		"forteresse frontalière": "Infrastructure : remparts, tours de guet, camp militaire",
-		"capitale":             "Infrastructure : palais royal, cathédrale, murailles, places publiques",
-		"ville sainte":         "Infrastructure : cathédrale majeure, monastères, hospices",
+	// Priority-ordered list: more specific patterns first
+	// This ensures "capitale impériale" matches before "capitale"
+	infraPatterns := []struct {
+		pattern string
+		desc    string
+	}{
+		// Ports et villes maritimes (specific first)
+		{"port décati", "Infrastructure : quais en ruine, entrepôts abandonnés, navires échoués, vieux phare fissuré, docks effondrés"},
+		{"port industriel", "Infrastructure : chantiers navals médiévaux, forges, entrepôts de pierre, navires en construction, ateliers de corderie, scieries"},
+		{"port majeur", "Infrastructure : docks médiévaux avec caraques et galères à quai, entrepôts de pierre, chantier naval à voiles, phare de pierre"},
+		{"portuaire", "Infrastructure : grand port avec caraques et galères, docks médiévaux en bois et pierre, entrepôts, phare de pierre, maisons de commerce, chantier naval, quais marchands"},
+
+		// Forteresses et villes militaires
+		{"forteresse religieuse", "Infrastructure : murailles de pierre, tours de guet, prisons fortifiées, chapelle inquisitoriale, salles de jugement"},
+		{"forteresse frontalière", "Infrastructure : remparts massifs, tours de guet, camp militaire, écuries, forge d'armes"},
+		{"forteresse capitale", "Infrastructure : murailles épaisses, tours de garde, casernes, arsenal, palais fortifié, douves"},
+
+		// Villes financières et commerciales
+		{"financière", "Infrastructure : banques fortifiées, coffres royaux, maisons de commerce à colombages, places d'échange, bureaux de change"},
+		{"mercantile", "Infrastructure : grands marchés couverts, entrepôts, halles aux draps, quartier des guildes, auberges pour marchands"},
+
+		// Villes industrielles
+		{"cité industrielle", "Infrastructure : nombreuses forges et fonderies, ateliers métallurgiques, entrepôts de charbon et minerai, quartiers ouvriers, fumées des forges"},
+		{"industriel", "Infrastructure : ateliers de production, forges, entrepôts, canaux de transport, quartiers ouvriers"},
+
+		// Capitales et villes importantes (specific first)
+		{"capitale théocratique", "Infrastructure : cathédrales monumentales, palais des archevêques, monastères, séminaires, bibliothèques théologiques, hospices"},
+		{"capitale impériale", "Infrastructure : palais impérial majestueux, université, grande bibliothèque, archives royales, jardins impériaux, places monumentales"},
+		{"capitale de royaume", "Infrastructure : palais royal, cathédrale, murailles, places publiques, quartier noble, marché central"},
+		{"capitale", "Infrastructure : palais royal, cathédrale, murailles, places publiques"},
+
+		// Villes religieuses
+		{"cité monastique", "Infrastructure : monastères, séminaires, scriptorium, bibliothèque théologique, chapelles, cloîtres, jardins contemplatifs"},
+		{"monastique", "Infrastructure : monastères, chapelles, scriptorium, cellules de moines, jardin d'herbes médicinales"},
+		{"théocratique", "Infrastructure : cathédrales, palais épiscopal, monastères, lieux de pèlerinage, hospices"},
+		{"religieuse", "Infrastructure : églises, monastères, hospices, lieux de prière, cimetières"},
+		{"ville sainte", "Infrastructure : cathédrale majeure, monastères, hospices, lieux de pèlerinage"},
+
+		// Villages et petites communautés
+		{"village", "Infrastructure : petite église de pierre, place centrale avec puits, taverne, forge, moulin, maisons de bois et torchis, champs alentours"},
+
+		// Villes en déclin ou abandonnées (specific first)
+		{"ville fantôme", "Infrastructure : bâtiments délabrés, maisons abandonnées, commerces fermés, rues vides, fontaines taries, murailles fissurées"},
+		{"ruines anciennes", "Infrastructure : structures cyclopéennes en ruine, colonnes brisées, fondations mystérieuses, arches effondrées, vestiges pré-humains"},
+		{"décati", "Infrastructure : structures en ruine, bâtiments abandonnés, routes défoncées, ponts effondrés"},
+		{"ruines", "Infrastructure : murs effondrés, bâtiments en ruine, débris de pierre, végétation envahissante"},
 	}
 
 	cityType = strings.ToLower(cityType)
-	for key, value := range infra {
-		if strings.Contains(cityType, key) {
-			return value
+
+	// Check patterns in order (most specific first)
+	for _, p := range infraPatterns {
+		if strings.Contains(cityType, p.pattern) {
+			return p.desc
 		}
 	}
 
@@ -364,6 +389,12 @@ func getTacticalTerrainFeatures(terrain string) []string {
 			"Plantes aquatiques",
 		},
 		"dungeon": {
+			"Crypte",
+			"Grilles et prisons",
+			"Caveau",
+			"Toiles d'araignées",
+			"Vieux mobiliers sales et abimés",
+			"Poussière et débris",
 			"Murs de pierre",
 			"Piliers",
 			"Portes et couloirs",

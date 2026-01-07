@@ -60,3 +60,18 @@ docs/*.pdf
 /sw-character-sheet
 /sw-map
 /data/adventures/la-crypte-des-ombres/sw-dm.log
+
+# Test-generated persona files
+internal/agent/core_agents/
+
+# Debug and planning files
+system-prompt.log
+ai/REFACTO.md
+
+# Runtime data (user-generated content)
+data/adventures/*/
+data/characters/*/
+
+# Keep directory structure with .empty files
+!data/adventures/.empty
+!data/characters/.empty

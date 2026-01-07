@@ -11,6 +11,29 @@ import (
 	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
+// ClientFactory is a function type that creates an Anthropic client.
+// This allows for dependency injection of mock clients in tests.
+type ClientFactory func(apiKey string) anthropicClient
+
+// anthropicClient is an interface that matches the Anthropic client's Messages service.
+type anthropicClient interface {
+	GetMessages() messagesService
+}
+
+// messagesService is an interface for the Messages.New method.
+type messagesService interface {
+	New(ctx context.Context, params anthropic.MessageNewParams, opts ...option.RequestOption) (*anthropic.Message, error)
+}
+
+// realAnthropicClient wraps the real Anthropic SDK client.
+type realAnthropicClient struct {
+	client anthropic.Client
+}
+
+func (r *realAnthropicClient) GetMessages() messagesService {
+	return &r.client.Messages
+}
+
 // AgentManager manages multiple nested agent instances with stateful conversation contexts.
 type AgentManager struct {
 	nestedAgents  map[string]*NestedAgentState
@@ -20,6 +43,7 @@ type AgentManager struct {
 	outputHandler OutputHandler
 	personaLoader *PersonaLoader
 	maxDepth      int // Maximum nesting depth (always 1 for now)
+	clientFactory ClientFactory // Factory for creating Anthropic clients (allows mocking)
 }
 
 // NestedAgentState represents a nested agent with its own conversation context.
@@ -31,7 +55,7 @@ type NestedAgentState struct {
 	conversationCtx *ConversationContext
 	lastInvoked     time.Time
 	invocationCount int
-	client          *anthropic.Client
+	client          anthropicClient // Changed to interface for testability
 	tokenLimit      int
 	metrics         *AgentMetrics
 }
@@ -47,6 +71,12 @@ type AgentMetrics struct {
 	ModelUsed          string        `json:"model_used"`
 	LastCallTokens     int64         `json:"last_call_tokens"`
 	LastCallDuration   time.Duration `json:"last_call_duration"`
+}
+
+// defaultClientFactory creates a real Anthropic client.
+func defaultClientFactory(apiKey string) anthropicClient {
+	client := anthropic.NewClient(option.WithAPIKey(apiKey))
+	return &realAnthropicClient{client: client}
 }
 
 // NewAgentManager creates a new AgentManager for managing nested agents.
@@ -65,6 +95,29 @@ func NewAgentManager(
 		outputHandler: outputHandler,
 		personaLoader: personaLoader,
 		maxDepth:      1, // Nested agents cannot invoke other agents
+		clientFactory: defaultClientFactory, // Use real client by default
+	}
+}
+
+// NewAgentManagerWithClientFactory creates an AgentManager with a custom client factory.
+// This is primarily used for testing with mock clients.
+func NewAgentManagerWithClientFactory(
+	apiKey string,
+	adventureCtx *AdventureContext,
+	logger *Logger,
+	outputHandler OutputHandler,
+	personaLoader *PersonaLoader,
+	clientFactory ClientFactory,
+) *AgentManager {
+	return &AgentManager{
+		nestedAgents:  make(map[string]*NestedAgentState),
+		anthropicKey:  apiKey,
+		adventureCtx:  adventureCtx,
+		logger:        logger,
+		outputHandler: outputHandler,
+		personaLoader: personaLoader,
+		maxDepth:      1,
+		clientFactory: clientFactory,
 	}
 }
 
@@ -125,7 +178,7 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	// Call Anthropic API with NO TOOLS for nested agents
 	// Nested agents are read-only consultants - they cannot modify game state or invoke skills
 	// This enforces tool restrictions: nested agents have zero tool access for safety
-	response, err := nestedAgent.client.Messages.New(ctx, anthropic.MessageNewParams{
+	response, err := nestedAgent.client.GetMessages().New(ctx, anthropic.MessageNewParams{
 		Model:     anthropic.ModelClaudeHaiku4_5, // Use Haiku for faster responses
 		MaxTokens: 4096,
 		System: []anthropic.TextBlockParam{
@@ -220,8 +273,8 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		return nil, fmt.Errorf("failed to load persona: %w", err)
 	}
 
-	// Create Anthropic client
-	client := anthropic.NewClient(option.WithAPIKey(am.anthropicKey))
+	// Create Anthropic client using factory (allows mocking in tests)
+	client := am.clientFactory(am.anthropicKey)
 
 	// Create conversation context with reduced token limit for nested agents
 	const nestedAgentTokenLimit = 20000 // Lower than main agent's 50K
@@ -236,7 +289,7 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		conversationCtx: conversationCtx,
 		lastInvoked:     time.Now(),
 		invocationCount: 0,
-		client:          &client,
+		client:          client,
 		tokenLimit:      nestedAgentTokenLimit,
 		metrics: &AgentMetrics{
 			ModelUsed: "claude-haiku-4-5", // Nested agents always use Haiku

@@ -10,22 +10,26 @@ import (
 	"dungeons/internal/character"
 )
 
-// TestIntegration_AgentInvocationFlow tests the complete agent invocation flow.
+// TestIntegration_AgentInvocationFlow tests the complete agent invocation flow with mock client.
 func TestIntegration_AgentInvocationFlow(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping integration test: ANTHROPIC_API_KEY not set")
-	}
-
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	// Create agent manager
+	// Create mock client
+	mockClient := NewMockAnthropicClient()
+	mockService := mockClient.GetMockMessagesService()
+	mockService.SetResponse("What is the armor class formula?", "Armor Class (AC) is 10 + Dexterity modifier + armor bonus.")
+	mockService.SetResponse("What about saving throws?", "Saving throws are d20 + ability modifier + proficiency bonus if proficient.")
+
+	// Create agent manager with mock client
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+	clientFactory := func(apiKey string) anthropicClient {
+		return mockClient
+	}
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 	// Create test personas
 	createTestPersonas(t, am)
@@ -73,21 +77,21 @@ func TestIntegration_AgentInvocationFlow(t *testing.T) {
 	}
 }
 
-// TestIntegration_MultipleAgents tests invoking different agents.
+// TestIntegration_MultipleAgents tests invoking different agents with mock client.
 func TestIntegration_MultipleAgents(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping integration test: ANTHROPIC_API_KEY not set")
-	}
-
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
+	// Create mock client with generic responses
+	mockClient := NewMockAnthropicClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+	clientFactory := func(apiKey string) anthropicClient {
+		return mockClient
+	}
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 	createTestPersonas(t, am)
 
@@ -112,24 +116,25 @@ func TestIntegration_MultipleAgents(t *testing.T) {
 	}
 }
 
-// TestIntegration_StatePersistenceAcrossSessions tests saving and loading agent states.
+// TestIntegration_StatePersistenceAcrossSessions tests saving and loading agent states with mock client.
 func TestIntegration_StatePersistenceAcrossSessions(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping integration test: ANTHROPIC_API_KEY not set")
-	}
-
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 	statesPath := filepath.Join(tmpDir, "agent-states.json")
+
+	// Create shared mock client
+	mockClient := NewMockAnthropicClient()
+	clientFactory := func(apiKey string) anthropicClient {
+		return mockClient
+	}
 
 	// Session 1: Create agent and invoke it
 	{
 		personaLoader := NewPersonaLoader()
 		logger, _ := NewLogger(tmpDir)
-		am1 := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+		am1 := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 		createTestPersonas(t, am1)
 
@@ -154,7 +159,7 @@ func TestIntegration_StatePersistenceAcrossSessions(t *testing.T) {
 	{
 		personaLoader := NewPersonaLoader()
 		logger, _ := NewLogger(tmpDir)
-		am2 := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+		am2 := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 		createTestPersonas(t, am2)
 
@@ -267,21 +272,20 @@ func TestIntegration_InvalidAgentHandling(t *testing.T) {
 	}
 }
 
-// TestIntegration_AgentStatistics tests statistics collection.
+// TestIntegration_AgentStatistics tests statistics collection with mock client.
 func TestIntegration_AgentStatistics(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping integration test: ANTHROPIC_API_KEY not set")
-	}
-
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
+	mockClient := NewMockAnthropicClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+	clientFactory := func(apiKey string) anthropicClient {
+		return mockClient
+	}
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 	createTestPersonas(t, am)
 
@@ -326,21 +330,20 @@ func TestIntegration_AgentStatistics(t *testing.T) {
 	}
 }
 
-// TestIntegration_AgentClearing tests clearing individual and all agents.
+// TestIntegration_AgentClearing tests clearing individual and all agents with mock client.
 func TestIntegration_AgentClearing(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping integration test: ANTHROPIC_API_KEY not set")
-	}
-
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
+	mockClient := NewMockAnthropicClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+	clientFactory := func(apiKey string) anthropicClient {
+		return mockClient
+	}
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 	createTestPersonas(t, am)
 
@@ -375,21 +378,20 @@ func TestIntegration_AgentClearing(t *testing.T) {
 	}
 }
 
-// TestIntegration_LoggingOfInvocations tests that agent invocations are logged.
+// TestIntegration_LoggingOfInvocations tests that agent invocations are logged with mock client.
 func TestIntegration_LoggingOfInvocations(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping integration test: ANTHROPIC_API_KEY not set")
-	}
-
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
+	mockClient := NewMockAnthropicClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+	clientFactory := func(apiKey string) anthropicClient {
+		return mockClient
+	}
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
 
 	createTestPersonas(t, am)
 
@@ -473,5 +475,60 @@ func createTestAdventureContext(t *testing.T, basePath string) *AdventureContext
 		},
 		Characters:    []*character.Character{},
 		RecentJournal: []adventure.JournalEntry{},
+	}
+}
+
+// TestIntegration_RealAPI_Optional is an optional test that verifies real Anthropic API integration.
+// This test only runs when ANTHROPIC_API_KEY is set and can be slow.
+// Use it to verify that the real API integration still works correctly.
+func TestIntegration_RealAPI_Optional(t *testing.T) {
+	if os.Getenv("ANTHROPIC_API_KEY") == "" {
+		t.Skip("Skipping real API test: ANTHROPIC_API_KEY not set (this is optional)")
+	}
+
+	// Only run this test if explicitly requested
+	if os.Getenv("RUN_REAL_API_TESTS") == "" {
+		t.Skip("Skipping real API test: RUN_REAL_API_TESTS not set (set to 1 to enable)")
+	}
+
+	tmpDir, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	apiKey := os.Getenv("ANTHROPIC_API_KEY")
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+
+	// Create agent manager with real API client
+	personaLoader := NewPersonaLoader()
+	logger, _ := NewLogger(tmpDir)
+	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+
+	// Create test personas
+	createTestPersonas(t, am)
+
+	// Test real API call
+	response, err := am.InvokeAgent("rules-keeper", "What is the armor class formula in D&D 5e?", "", 1)
+	if err != nil {
+		t.Fatalf("Real API call failed: %v", err)
+	}
+
+	if response == "" {
+		t.Error("Expected non-empty response from real API")
+	}
+
+	t.Logf("Real API response: %s", response)
+
+	// Verify agent was created and tracked
+	state, exists := am.GetNestedAgentState("rules-keeper")
+	if !exists {
+		t.Fatal("Expected rules-keeper to be tracked after real API invocation")
+	}
+
+	if state.invocationCount != 1 {
+		t.Errorf("Expected invocation count 1, got: %d", state.invocationCount)
+	}
+
+	// Verify metrics were tracked
+	if state.metrics.TotalTokensUsed <= 0 {
+		t.Error("Expected positive token usage from real API")
 	}
 }

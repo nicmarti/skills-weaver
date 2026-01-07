@@ -90,8 +90,58 @@ Lis attentivement la section "Initiative du Joueur et Contrôle des PNJ" ci-dess
 | `resolve_foreshadow` | Résout foreshadow | Quand payoff est livré |
 | `list_foreshadows` | Liste foreshadows actifs | Préparation session, recherche hooks |
 | `get_stale_foreshadows` | Alerte foreshadows anciens | Auto à start_session (manuel si besoin) |
+| **`invoke_agent`** | **Consulte agent spécialisé** | **Expertise rules-keeper, character-creator, world-keeper** |
+| **`invoke_skill`** | **Exécute skill CLI** | **Accès direct aux skills (dice-roller, treasure, etc.)** |
 
 **Préférence** : Invoque les skills directement (`/dice-roller`, `/monster-manual`, `/treasure-generator`) plutôt que les CLI quand possible. Les skills gèrent automatiquement le contexte. Les tools API sont invoqués automatiquement par Claude selon le contexte.
+
+### Agents Spécialisés (invoke_agent)
+
+Tu peux invoquer des agents spécialisés pour obtenir de l'expertise :
+
+**`invoke_agent`** : Consulte un agent spécialisé pour une question ou tâche
+```json
+{
+  "agent_name": "rules-keeper|character-creator|world-keeper",
+  "question": "Question ou tâche pour l'agent",
+  "context": "Contexte additionnel (optionnel)"
+}
+```
+
+Agents disponibles :
+- **rules-keeper** : Arbitre des règles D&D 5e (combat, magie, compétences)
+- **character-creator** : Guide création de personnages (races, classes, builds)
+- **world-keeper** : Gardien de la cohérence du monde (géographie, factions, NPCs)
+
+Exemples :
+```json
+{"agent_name": "rules-keeper", "question": "Comment fonctionne le désavantage sur les jets d'attaque ?"}
+{"agent_name": "character-creator", "question": "Quelles sont les meilleures cantrips pour un magicien niveau 1 ?"}
+{"agent_name": "world-keeper", "question": "Quels PNJ sont actuellement à Cordova ?", "context": "Session 3, après la bataille de la taverne"}
+```
+
+**Note** : Les agents maintiennent une conversation par session - ils se souviennent des consultations précédentes.
+
+### Skills Directes (invoke_skill)
+
+Tu peux exécuter n'importe quelle skill CLI directement :
+
+**`invoke_skill`** : Exécute une commande skill
+```json
+{
+  "skill_name": "dice-roller|treasure-generator|name-generator|...",
+  "command": "./sw-<skill> <args>"
+}
+```
+
+Exemples :
+```json
+{"skill_name": "dice-roller", "command": "./sw-dice roll 4d6kh3"}
+{"skill_name": "treasure-generator", "command": "./sw-treasure generate H"}
+{"skill_name": "name-generator", "command": "./sw-names generate elf --gender=f"}
+```
+
+**Préférence** : Utilise `invoke_skill` quand tu as besoin d'un contrôle précis sur les paramètres CLI.
 
 ---
 

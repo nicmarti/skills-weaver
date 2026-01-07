@@ -33,6 +33,177 @@ The `sw-dm` application provides an immersive, interactive RPG experience with:
 
 > **Note:** While Claude Code can also orchestrate gameplay using the agents and skills in this repository, `sw-dm` provides a more streamlined and immersive experience for actual game sessions.
 
+## How to Create a New Adventure and Characters
+
+Before you can play with `sw-dm`, you need to create an adventure and characters. You can use **Claude Code** to guide you through this process interactively.
+
+### Prerequisites
+
+```bash
+# Build the tools first
+make build
+
+# Start Claude Code
+claude
+```
+
+### Option 1: Interactive Guided Creation (Recommended)
+
+Let Claude Code guide you through the entire process step by step:
+
+**Step 1: Ask Claude Code to create characters**
+
+In Claude Code, simply say:
+
+```
+"I want to create a new adventure. Help me create characters first."
+```
+
+Claude Code will:
+1. Launch the `character-creator` agent
+2. Guide you through choosing species, class, and abilities
+3. Generate stats using 4d6 keep highest 3 (or standard array)
+4. Apply species modifiers automatically
+5. Help you select skills, combat style, and background
+6. Save the character automatically
+
+**Example conversation:**
+
+```
+You: "I want to create a new adventure. I need characters first."
+
+Claude: "Let me help you create characters. How many do you want to create?
+         For a balanced party, I recommend 3-4 characters:
+         - 1 Tank/Fighter
+         - 1 Ranged/Rogue
+         - 1 Support/Healer"
+
+You: "Create a human male fighter, 39 years old, veteran soldier"
+
+Claude: [Launches character-creator agent]
+        "Excellent choice! Let's create Marcus Sanggo.
+         Rolling stats with 4d6 keep highest 3...
+         [Shows stats]
+         For a Fighter, I suggest: STR 16, DEX 14, CON 15...
+         [Guides through choices]"
+
+[Process repeats for each character]
+```
+
+**Step 2: Create the adventure**
+
+Once you have 2-4 characters, tell Claude Code:
+
+```
+"Now create an adventure called 'The Magic Sextant of Cordova'"
+```
+
+Claude Code will:
+1. Create the adventure with `sw-adventure create`
+2. Add all your characters to the party automatically
+3. Initialize inventory, journal, and session tracking
+4. Show you the adventure status
+
+**Step 3: Start playing**
+
+```bash
+./sw-dm
+# Select your adventure from the menu
+# The game begins!
+```
+
+### Option 2: Manual CLI Creation (Advanced)
+
+If you prefer direct control, use the CLI tools:
+
+**Create characters:**
+
+```bash
+# Create a fighter
+./sw-character create "Marcus Sanggo" \
+  --species=human \
+  --class=fighter \
+  --str=16 --dex=14 --con=15 --int=11 --wis=13 --cha=12
+
+# Create a rogue
+./sw-character create "Lyra" \
+  --species=elf \
+  --class=rogue \
+  --str=10 --dex=18 --con=14 --int=12 --wis=16 --cha=10
+
+# Create a bard
+./sw-character create "Caelian Aurelmoor" \
+  --species=human \
+  --class=bard \
+  --str=9 --dex=14 --con=13 --int=12 --wis=11 --cha=15
+```
+
+**Create adventure and add characters:**
+
+```bash
+# Create the adventure
+./sw-adventure create "my-adventure"
+
+# Add characters to the party
+./sw-adventure add-character "my-adventure" "Marcus Sanggo"
+./sw-adventure add-character "my-adventure" "Lyra"
+./sw-adventure add-character "my-adventure" "Caelian Aurelmoor"
+
+# Verify setup
+./sw-adventure status "my-adventure"
+```
+
+**Start playing:**
+
+```bash
+./sw-dm
+# Select your adventure and play!
+```
+
+### Character Creation Tips
+
+**Balanced Party Composition:**
+- **Tank/DPS:** Fighter, Barbarian, Paladin (high STR/CON, heavy armor)
+- **Ranged/Scout:** Rogue, Ranger (high DEX, stealth, ranged attacks)
+- **Support/Healer:** Bard, Cleric (CHA/WIS, healing spells, buffs)
+- **Caster:** Wizard, Sorcerer, Warlock (INT/CHA, powerful spells)
+
+**Stat Priorities by Class:**
+- **Fighter/Barbarian:** STR > CON > DEX
+- **Rogue/Ranger:** DEX > WIS/INT > CON
+- **Bard/Cleric:** CHA/WIS > CON > DEX
+- **Wizard/Sorcerer:** INT/CHA > CON > DEX
+
+**Using the World Context:**
+
+The project includes a rich world with 4 kingdoms (`data/world/factions.json`):
+- **Valdorine:** Maritime merchant kingdom (Cordova capital)
+- **Karvath:** Military empire (honor, discipline)
+- **Lumenciel:** Religious theocracy (conversion, influence)
+- **Astrène:** Declining scholarly kingdom (culture, magic)
+
+You can create characters tied to these kingdoms for richer roleplay!
+
+### What Gets Created
+
+After setup, your file structure will look like:
+
+```
+data/
+├── characters/
+│   ├── marcus-sanggo.json
+│   ├── lyra.json
+│   └── caelian-aurelmoor.json
+└── adventures/
+    └── my-adventure/
+        ├── adventure.json       # Adventure metadata
+        ├── party.json           # Your 3 characters
+        ├── inventory.json       # Shared inventory
+        ├── sessions.json        # Session history
+        ├── journal-meta.json    # Journal metadata
+        └── journal-session-0.json # Pre-session journal
+```
+
 ## What is this repository?
 
 SkillsWeaver demonstrates how to build a complex, multi-tool AI application using Claude Code's skills and agents system. It includes:

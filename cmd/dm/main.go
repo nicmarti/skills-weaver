@@ -43,7 +43,7 @@ func main() {
 
 	if len(adventures) == 0 {
 		fmt.Println(ui.ErrorStyle.Render("No adventures found in " + adventuresDir))
-		fmt.Println(ui.MenuItemStyle.Render("Create an adventure first using: ./sw-adventure create \"<name>\" \"<description>\""))
+		fmt.Println(ui.MenuItemStyle.Render("Create an adventure first - See the README.md file to create your first character and an adventure."))
 		os.Exit(1)
 	}
 
@@ -56,7 +56,6 @@ func main() {
 
 	// Clear screen and show banner
 	ui.ClearScreen()
-	ui.ShowBanner("Claude Haiku 4.5")
 
 	// Load adventure context
 	fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("Chargement de l'aventure '%s'...\n", selectedAdventure)))
@@ -287,7 +286,7 @@ func (to *TerminalOutput) OnToolStart(toolName, toolID string) {
 	if flushed := to.renderer.Flush(); flushed != "" {
 		fmt.Print(flushed)
 	}
-	msg := fmt.Sprintf("\n[🎲 %s...]\n", toolName)
+	msg := fmt.Sprintf("\n[🎲 %s...]", toolName)
 	fmt.Print(ui.ToolStyle.Render(msg))
 }
 
@@ -297,12 +296,12 @@ func (to *TerminalOutput) OnToolComplete(toolName string, result interface{}) {
 	// Extract display message if available
 	if m, ok := result.(map[string]interface{}); ok {
 		if display, ok := m["display"].(string); ok {
-			msg = fmt.Sprintf("[✓ %s]", display)
+			msg = fmt.Sprintf("\r[✓ %s]", display)
 		} else {
-			msg = fmt.Sprintf("[✓ %s complete]", toolName)
+			msg = fmt.Sprintf("\r[✓ %s complete]", toolName)
 		}
 	} else {
-		msg = fmt.Sprintf("[✓ %s complete]", toolName)
+		msg = fmt.Sprintf("\r[✓ %s complete]", toolName)
 	}
 	fmt.Print(ui.ToolStyle.Render(msg))
 	fmt.Println() // Ensure newline after tool result
@@ -326,4 +325,20 @@ func (to *TerminalOutput) OnComplete() {
 	}
 	// Reset renderer state for next message
 	to.renderer.Reset()
+}
+
+// OnAgentInvocationStart is called when invoking a nested agent.
+func (to *TerminalOutput) OnAgentInvocationStart(agentName string) {
+	// Flush any pending renderer content before showing agent message
+	if flushed := to.renderer.Flush(); flushed != "" {
+		fmt.Print(flushed)
+	}
+	// Show brief notification
+	fmt.Printf("\n%s\n", ui.SubtitleStyle.Render(fmt.Sprintf("[Consulting %s...]", agentName)))
+}
+
+// OnAgentInvocationComplete is called when a nested agent invocation completes.
+func (to *TerminalOutput) OnAgentInvocationComplete(agentName string, duration time.Duration) {
+	// Show completion notification
+	fmt.Printf("%s\n\n", ui.SubtitleStyle.Render(fmt.Sprintf("[%s responded in %.1fs]", agentName, duration.Seconds())))
 }

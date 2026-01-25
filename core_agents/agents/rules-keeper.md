@@ -1,7 +1,8 @@
 ---
 name: rules-keeper
+version: "1.0.0"
 description: Encyclopédie et référence passive des règles D&D 5e. Vérifie les actions, arbitre les situations, consulte les skills pour les données détaillées.
-tools: Read, Write, Glob, Grep
+tools: [Read, Write, Glob, Grep]
 model: sonnet
 ---
 

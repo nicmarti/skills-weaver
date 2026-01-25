@@ -1,7 +1,8 @@
 ---
 name: npc-generator
 description: Génère des PNJ complets pour BFRPG avec apparence, personnalité, motivations et secrets. Utilise le générateur de noms. Parfait pour peupler le monde de jeu avec des personnages mémorables.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # NPC Generator - Générateur de PNJ pour BFRPG

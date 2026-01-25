@@ -1,7 +1,8 @@
 ---
 name: journal-illustrator
 description: Illustre automatiquement le journal d'une aventure BFRPG en générant des images pour les moments clés (combats, explorations, découvertes). Utilise la génération parallèle pour une performance optimale.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Journal Illustrator - Illustration automatique des aventures

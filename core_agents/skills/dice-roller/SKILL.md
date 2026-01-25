@@ -1,7 +1,8 @@
 ---
 name: dice-roller
 description: Lance des dés pour jeux de rôle (D&D 5e). Supporte d4, d6, d8, d10, d12, d20, d100. Notation standard comme 2d6+3, 4d6kh3 (keep highest). Avantage et désavantage. Utilisez pour tout jet de dé en session de JdR.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Dice Roller - Lanceur de Dés

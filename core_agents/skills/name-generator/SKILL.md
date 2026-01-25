@@ -1,7 +1,8 @@
 ---
 name: name-generator
 description: Génère des noms de personnages fantasy selon la race et le sexe. Supporte nains, elfes, halfelins, humains et PNJ (tavernier, marchand, garde, noble, mage, méchant). Utilisez pour nommer joueurs et PNJ.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Name Generator - Générateur de Noms Fantasy

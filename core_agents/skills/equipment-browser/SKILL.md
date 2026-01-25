@@ -1,7 +1,8 @@
 ---
 name: equipment-browser
 description: Consulte les armes, armures et équipement BFRPG. Dégâts, CA, coût, propriétés. Utilisez pour vérifier l'équipement des personnages.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Equipment Browser - Catalogue d'Équipement BFRPG

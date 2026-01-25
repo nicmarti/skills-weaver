@@ -1,7 +1,8 @@
 ---
 name: character-creator
+version: "1.0.0"
 description: Guide interactif pour créer des personnages D&D 5e étape par étape.
-tools: Read, Write, Glob, Grep
+tools: [Read, Write, Glob, Grep]
 model: sonnet
 ---
 

@@ -1,7 +1,8 @@
 ---
 name: treasure-generator
 description: Génère des trésors BFRPG par type (A-U). Pièces, gemmes, bijoux et objets magiques. Utilise les tables officielles avec probabilités. Indispensable après un combat victorieux.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Treasure Generator - Générateur de Trésors BFRPG

@@ -1,4 +1,11 @@
-# map-generator
+---
+name: map-generator
+description: Génère des prompts enrichis pour cartes 2D fantasy avec validation world-keeper. Permet de créer des cartes de villes, régions, donjons et combats tactiques cohérents avec l'univers BFRPG.
+allowed-tools:
+  - Bash
+---
+
+# Map Generator - Générateur de Cartes
 
 ## Description
 Génère des prompts enrichis pour cartes 2D fantasy avec validation world-keeper. Permet de créer des cartes de villes, régions, donjons et combats tactiques cohérents avec l'univers BFRPG.

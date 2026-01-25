@@ -1,7 +1,9 @@
 ---
 name: character-generator
 description: Crée des personnages D&D 5e. Génère caractéristiques (4d6kh3 ou répartition standard), applique modificateurs d'espèce, calcule bonus maîtrise, points de vie et or de départ. 9 espèces, 12 classes. Sauvegarde dans data/characters/.
-allowed-tools: Bash, Read
+allowed-tools:
+  - Bash
+  - Read
 ---
 
 # Character Generator - Générateur de Personnages D&D 5e

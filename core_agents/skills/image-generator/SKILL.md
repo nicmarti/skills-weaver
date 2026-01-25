@@ -1,7 +1,8 @@
 ---
 name: image-generator
 description: Génère des images heroic fantasy pour BFRPG via fal.ai FLUX.1. Portraits de personnages/PNJ, scènes d'aventure, monstres, objets magiques et lieux. Utilise des prompts optimisés pour le style fantasy médiéval.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Image Generator - Générateur d'images Heroic Fantasy

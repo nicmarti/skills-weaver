@@ -1,7 +1,8 @@
 ---
 name: monster-manual
 description: Bestiaire D&D 5e avec stats de combat, génération de rencontres et PV aléatoires. Indispensable pour le Maître du Jeu en combat. Contient 33 monstres classiques fantasy.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Monster Manual - Bestiaire D&D 5e

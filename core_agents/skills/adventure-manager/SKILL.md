@@ -1,7 +1,9 @@
 ---
 name: adventure-manager
 description: Gère les aventures/campagnes BFRPG. Crée et charge des aventures, gère le groupe de personnages, l'inventaire partagé, les sessions de jeu et le journal automatique. Utilisez pour toute gestion de campagne.
-allowed-tools: Bash, Read
+allowed-tools:
+  - Bash
+  - Read
 ---
 
 # Adventure Manager - Gestionnaire d'Aventures BFRPG

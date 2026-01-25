@@ -1,7 +1,8 @@
 ---
 name: spell-reference
 description: Consulte les sorts D&D 5e par classe et niveau (0-9). Cantrips, écoles, concentration, rituels. Utilisez pour vérifier les sorts lancés.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Spell Reference - Grimoire des Sorts D&D 5e

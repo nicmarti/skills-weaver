@@ -1,7 +1,8 @@
 ---
 name: name-location-generator
 description: Génère des noms de lieux (cités, villes, villages, régions) cohérents avec les 4 factions. Utilise des styles distincts par royaume (valdorine maritime, karvath militaire, lumenciel religieux, astrène mélancolique). Intégré avec world-keeper pour validation.
-allowed-tools: Bash
+allowed-tools:
+  - Bash
 ---
 
 # Name Location Generator - Générateur de Noms de Lieux

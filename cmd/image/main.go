@@ -91,12 +91,12 @@ OPTIONS JOURNAL:
   --start-id=<n>               ID de départ pour reprendre depuis une entrée (optionnel)
   --max=<n>                    Nombre maximum d'images à générer
   --parallel=<n>               Nombre de générations en parallèle (défaut: 4)
-  --model=<model>              Modèle fal.ai (seedream, zimage) défaut: zimage
+  --model=<model>              Modèle fal.ai (seedream, zimage) défaut: seedream
   --dry-run                    Afficher les prompts sans générer
 
 MODÈLES JOURNAL:
+  seedream                     Seedream v4 - Haute qualité (~8s), ~$0.01/megapixel (DÉFAUT)
   zimage                       Z-Image Turbo - Rapide (~2s), ~$0.005/megapixel
-  seedream                     Seedream v4 - Haute qualité (~8s), ~$0.01/megapixel
 
 EXEMPLES:
   sw-image character "Aldric"
@@ -276,6 +276,11 @@ func cmdScene(args []string) error {
 	sceneType := opts["type"]
 	prompt := image.BuildScenePrompt(description, sceneType, style)
 
+	// Set default model for scenes
+	if opts["model"] == "" {
+		opts["model"] = "banana"
+	}
+
 	fmt.Printf("Génération de la scène...\n")
 	printGenerationInfo(opts, "landscape_16_9")
 	fmt.Printf("Prompt: %s\n\n", prompt)
@@ -420,6 +425,11 @@ func cmdLocation(args []string) error {
 		opts["style"] = string(style)
 	}
 	prompt := image.BuildLocationPrompt(locationType, name, style)
+
+	// Set default model for locations (used for maps)
+	if opts["model"] == "" {
+		opts["model"] = "flux-pro-11"
+	}
 
 	fmt.Printf("Génération du lieu: %s...\n", locationType)
 	printGenerationInfo(opts, "landscape_16_9")
@@ -810,7 +820,7 @@ func cmdJournal(args []string) error {
 	journalModels := image.JournalModels()
 	modelName := opts["model"]
 	if modelName == "" {
-		modelName = "zimage" // Default: z-image turbo for fast generation
+		modelName = "seedream" // Default: seedream for high quality journal illustrations
 	}
 
 	// Validate model is available for journal

@@ -662,13 +662,71 @@ func BuildJournalEntryPrompt(entry adventure.JournalEntry) *JournalEntryPrompt {
 
 // getEntryDescription returns the best description available (fallback: Description > DescriptionFr > Content).
 func getEntryDescription(entry adventure.JournalEntry) string {
+	desc := ""
 	if entry.Description != "" {
-		return entry.Description
+		desc = entry.Description
+	} else if entry.DescriptionFr != "" {
+		desc = entry.DescriptionFr
+	} else {
+		desc = entry.Content
 	}
-	if entry.DescriptionFr != "" {
-		return entry.DescriptionFr
+
+	// Sanitize content to avoid content policy violations
+	return sanitizePrompt(desc)
+}
+
+// sanitizePrompt replaces sensitive words with safer alternatives for image generation.
+func sanitizePrompt(text string) string {
+	// Map of sensitive words to safer alternatives
+	replacements := map[string]string{
+		// French terms - Violence
+		"arrêté":         "capturé",
+		"arrêtés":        "capturés",
+		"arrêtée":        "capturée",
+		"arrêtées":       "capturées",
+		"blessé":         "vaincu",
+		"blessés":        "vaincus",
+		"blessée":        "vaincue",
+		"blessées":       "vaincues",
+		"tué":            "vaincu",
+		"tués":           "vaincus",
+		"tuée":           "vaincue",
+		"tuées":          "vaincues",
+		"mort":           "tombé",
+		"morts":          "tombés",
+		"morte":          "tombée",
+		"mortes":         "tombées",
+		"interrogatoire": "questionnement",
+		"torturé":        "questionné",
+		"attaque":        "affrontement",
+		"attaqué":        "affronté",
+		"bataille":       "affrontement",
+
+		// English equivalents
+		"arrested":      "captured",
+		"wounded":       "defeated",
+		"killed":        "defeated",
+		"dead":          "fallen",
+		"interrogation": "questioning",
+		"tortured":      "questioned",
+		"attack":        "confrontation",
+		"attacked":      "confronted",
+		"battle":        "confrontation",
 	}
-	return entry.Content
+
+	result := text
+	for sensitive, safe := range replacements {
+		// Case-insensitive replacement
+		result = strings.ReplaceAll(result, sensitive, safe)
+		// Capitalize first letter for sentence start
+		if len(sensitive) > 0 && len(safe) > 0 {
+			capSensitive := strings.ToUpper(sensitive[:1]) + sensitive[1:]
+			capSafe := strings.ToUpper(safe[:1]) + safe[1:]
+			result = strings.ReplaceAll(result, capSensitive, capSafe)
+		}
+	}
+
+	return result
 }
 
 // buildCombatPrompt creates a prompt for combat entries.

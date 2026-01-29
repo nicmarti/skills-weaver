@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -19,7 +20,9 @@ type SkillRegistry interface {
 
 // NewInvokeSkillTool creates a tool to execute CLI-based skills.
 // This allows the DM agent to use skills like dice-roller, name-generator, etc.
-func NewInvokeSkillTool(registry SkillRegistry) *SimpleTool {
+// adventureBasePath is the path to the current adventure (e.g., "data/adventures/my-adventure")
+// and is used to provide context for commands that need it (like sw-character).
+func NewInvokeSkillTool(registry SkillRegistry, adventureBasePath string) *SimpleTool {
 	return &SimpleTool{
 		name: "invoke_skill",
 		description: fmt.Sprintf(`Execute a CLI-based skill to perform specialized tasks.
@@ -62,6 +65,15 @@ Example parameters:
 					"error":   fmt.Sprintf("skill not found: %s", skillName),
 					"display": fmt.Sprintf("Skill '%s' not found", skillName),
 				}, nil
+			}
+
+			// Auto-inject --char-dir for sw-character commands when using adventure characters
+			if adventureBasePath != "" && strings.HasPrefix(command, "./sw-character") {
+				charDir := filepath.Join(adventureBasePath, "characters")
+				// Only add --char-dir if not already specified
+				if !strings.Contains(command, "--char-dir") {
+					command = command + " --char-dir=" + charDir
+				}
 			}
 
 			// Parse command into program and arguments

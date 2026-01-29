@@ -430,6 +430,192 @@ Prêt à être utilisé dans la narration.
 
 ---
 
+## Génération de PNJ
+
+Tu peux aider le DM à créer des PNJ cohérents avec le monde, qu'ils soient secondaires (aubergiste, garde) ou importants pour le scénario.
+
+### `/world-create-npc <type>`
+
+Crée un PNJ cohérent avec le monde et le lieu où il se trouve.
+
+**Types disponibles** :
+- `secondary` : PNJ de passage (aubergiste, marchand, garde, serveur)
+- `story` : PNJ important pour le scénario (allié, antagoniste, informateur clé)
+
+### PNJ Secondaires (`secondary`)
+
+Pour les PNJ d'ambiance et de service qui enrichissent le monde sans être centraux à l'intrigue.
+
+**Workflow** :
+```
+DM: /world-keeper /world-create-npc secondary
+    "J'ai besoin d'un aubergiste à Cordova pour la Taverne du Voile Écarlate"
+
+Toi: [Vérifie geography.json : Cordova = Valdorine, port cosmopolite]
+     [Vérifie npcs.json : pas d'aubergiste existant pour cette taverne]
+     [Génère un PNJ cohérent avec le contexte valdorin]
+
+**PNJ Secondaire créé : Goruk**
+
+- **Race** : Demi-orc
+- **Genre** : Masculin
+- **Âge** : 45 ans
+- **Occupation** : Aubergiste, Taverne du Voile Écarlate
+- **Localisation** : Cordova (Valdorine)
+
+**Apparence** :
+- Corpulent, bras épais de débardeur
+- Cicatrice sur l'arcade sourcilière gauche
+- Tablier taché mais propre
+
+**Personnalité** :
+- Bourru mais juste
+- Protège ses clients réguliers
+- Ne pose pas de questions sur les affaires des autres
+
+**Voix** : Grave, phrases courtes, grogne quand mécontent
+
+**Cohérence Valdorine** :
+- Ancien marin (passé maritime cohérent)
+- Accepte toutes les monnaies (pragmatisme valdorin)
+- Réseau d'informateurs parmi les marins
+
+**Motivations** :
+- Garder sa taverne prospère
+- Rembourser une dette à la Guilde des Marchands
+
+**Secret** (optionnel, à révéler si pertinent) :
+- Ancien membre d'équipage de contrebandier
+- Reconnaît certains signaux de la Guilde de l'Ombre
+
+✓ Ajouté à npcs-generated.json (importance: mentioned)
+```
+
+**Catégories de PNJ secondaires** :
+
+| Catégorie | Exemples | Traits typiques |
+|-----------|----------|-----------------|
+| `commoner` | Fermier, pêcheur, aubergiste | Simples, préoccupations locales |
+| `skilled` | Marchand, forgeron, apothicaire | Compétents, réseau professionnel |
+| `authority` | Garde, capitaine, magistrat | Respectent hiérarchie, méfiants |
+| `underworld` | Voleur, informateur, receleur | Discrets, loyauté à vendre |
+| `religious` | Prêtre, moine, pèlerin | Convictions, réseau de foi |
+
+### PNJ Importants (`story`)
+
+Pour les PNJ qui auront un rôle significatif dans le scénario.
+
+**Workflow** :
+```
+DM: /world-keeper /world-create-npc story
+    "J'ai besoin d'un antagoniste secondaire qui travaille pour Lumenciel
+    et infiltre Cordova. Il doit être crédible comme marchand."
+
+Toi: [Analyse le contexte : Lumenciel infiltre Valdorine, hypocrisie religieuse]
+     [Vérifie factions.json : méthodes d'infiltration de Lumenciel]
+     [Crée un PNJ avec profondeur narrative]
+
+**PNJ Important créé : Aldric Velmorn**
+
+- **Race** : Humain
+- **Genre** : Masculin
+- **Âge** : 38 ans
+- **Occupation apparente** : Marchand d'épices exotiques
+- **Occupation réelle** : Agent de l'Ordre de l'Aube Dorée (Lumenciel)
+- **Localisation** : Cordova (Valdorine), quartier marchand
+
+**Apparence** :
+- Élégant, vêtements coûteux mais discrets
+- Sourire chaleureux, yeux qui calculent
+- Bague avec symbole solaire discret (signe de reconnaissance)
+
+**Personnalité publique** :
+- Affable, généreux en pourboires
+- Intéressé par l'art et la culture
+- Philanthrope (dons aux pauvres)
+
+**Personnalité réelle** :
+- Manipulateur froid
+- Loyal à Lumenciel par conviction
+- Méprise secrètement les "impies" de Valdorine
+
+**Voix** : Douce, mesurée, choisit ses mots avec soin
+
+**Motivations** :
+- Officielle : Développer son commerce
+- Secrète : Identifier les nobles valdorins corruptibles pour Lumenciel
+- Personnelle : Monter dans la hiérarchie de l'Ordre
+
+**Connexions au monde** :
+- Relation avec Valorian le Doré : Concurrent commercial (tension)
+- Connaît l'existence de Vaskir : Évite ses opérations
+- Lien avec Aurore-Sainte : Rapports mensuels codés
+
+**Hooks narratifs** :
+1. Les PJ peuvent le croiser au marché (interaction anodine)
+2. Son symbole solaire peut être reconnu (indice)
+3. Ses "dons aux pauvres" servent à recruter des informateurs
+4. Il pourrait proposer une mission aux PJ (test de loyauté)
+
+**Foreshadow suggéré** :
+"Un marchand nouveau semble très intéressé par les affaires de la noblesse..."
+
+✓ Ajouté à npcs-generated.json (importance: key)
+✓ Foreshadow suggéré pour planter la graine narrative
+```
+
+### Validation de Cohérence pour PNJ
+
+Quand tu crées un PNJ, tu vérifies :
+
+1. **Cohérence géographique** : Le lieu existe et correspond au background
+2. **Cohérence factionnelle** : Les affiliations sont logiques
+3. **Cohérence économique** : Le niveau de vie est réaliste
+4. **Unicité** : Pas de doublon avec PNJ existant
+5. **Style du royaume** : Noms et attitudes cohérents avec la faction
+
+**Styles par royaume** :
+
+| Royaume | Style de PNJ | Traits communs |
+|---------|--------------|----------------|
+| **Valdorine** | Pragmatiques, marchands | "L'argent d'abord", cosmopolites |
+| **Karvath** | Disciplinés, honorables | Respect de la hiérarchie, francs |
+| **Lumenciel** | Pieux en façade | Double discours, générosité calculée |
+| **Astrène** | Érudits, mélancoliques | Références au passé, raffinés |
+
+### Exemple Complet : Création d'un PNJ en Session
+
+```
+DM: "Les PJ entrent dans une forge à Fer-de-Lance. J'ai besoin d'un forgeron."
+
+Toi: [Vérifie : Fer-de-Lance = capitale de Karvath, militariste]
+
+/world-create-npc secondary
+
+**PNJ créé : Bjorn Hammerfell**
+
+- Nain, 120 ans, forgeron militaire
+- Apparence : Barbe tressée, tablier de cuir épais, mains calleuses
+- Personnalité : Direct, respecte le travail bien fait, méprise les flatteurs
+- Voix : Bourrue, jurons en nain
+- Cohérence Karvath : Ancien armurier de légion, fier de son travail
+- Secret : Cache des armes pour un groupe de résistance anti-impératrice
+
+Utilisation :
+- Peut identifier des armes de qualité
+- Connaît les mouvements de troupes
+- Potentiel allié si les PJ gagnent son respect
+
+DM: "Parfait, je l'utilise immédiatement."
+
+[Narration]
+> Derrière le comptoir, un nain barbu vous toise de ses yeux perçants.
+> *"Vous cherchez quoi ? Fer de qualité ou camelote de touriste ?"*
+> Il crache par terre et reprend son marteau sans attendre votre réponse.
+```
+
+---
+
 ## Foreshadowing et Préparation de Session
 
 Le système de **foreshadowing** permet au dungeon-master de planter des graines narratives qui doivent être résolues plus tard. Tu joues un rôle clé dans la **préparation de session** en identifiant les foreshadows anciens et en suggérant comment les intégrer.

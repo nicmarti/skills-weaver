@@ -7,7 +7,8 @@ BINARIES = $(BINARY_PREFIX)-dice $(BINARY_PREFIX)-character $(BINARY_PREFIX)-adv
            $(BINARY_PREFIX)-names $(BINARY_PREFIX)-npc $(BINARY_PREFIX)-image \
            $(BINARY_PREFIX)-monster $(BINARY_PREFIX)-treasure $(BINARY_PREFIX)-dm \
            $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell $(BINARY_PREFIX)-rebuild-journal \
-           $(BINARY_PREFIX)-location-names $(BINARY_PREFIX)-character-sheet $(BINARY_PREFIX)-map
+           $(BINARY_PREFIX)-location-names $(BINARY_PREFIX)-character-sheet $(BINARY_PREFIX)-map \
+           $(BINARY_PREFIX)-web
 
 # Go commands
 GOCMD = go
@@ -74,6 +75,9 @@ $(BINARY_PREFIX)-character-sheet: cmd/character-sheet/main.go internal/character
 
 $(BINARY_PREFIX)-map: cmd/map/main.go internal/map/*.go internal/world/*.go internal/ai/*.go internal/image/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/map
+
+$(BINARY_PREFIX)-web: cmd/web/main.go internal/web/*.go internal/agent/*.go internal/adventure/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/web
 
 # =============================================================================
 # Maintenance targets
@@ -144,6 +148,12 @@ run-character: $(BINARY_PREFIX)-character ## Compile et lance sw-character
 
 run-adventure: $(BINARY_PREFIX)-adventure ## Compile et lance sw-adventure
 	./$(BINARY_PREFIX)-adventure $(ARGS)
+
+run-web: $(BINARY_PREFIX)-web ## Compile et lance sw-web (interface web)
+	./$(BINARY_PREFIX)-web $(ARGS)
+
+run-dm: $(BINARY_PREFIX)-dm ## Compile et lance sw-dm (Dungeon Master CLI)
+	./$(BINARY_PREFIX)-dm $(ARGS)
 
 # =============================================================================
 # Help

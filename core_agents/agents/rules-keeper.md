@@ -255,65 +255,179 @@ Chaque classe maîtrise 2 sauvegardes :
 
 ## Magie
 
-### Types de Magie
+### Types de Lanceurs de Sorts
 
-| Type | Classes | Acquisition |
-|------|---------|-------------|
-| Arcanique | Ensorceleur, Magicien, Occultiste | Étude, innée, pacte |
-| Divine | Clerc, Druide, Paladin, Rôdeur | Prière, nature |
+| Type | Classes | Début | Niveaux max | Caractéristique |
+|------|---------|-------|-------------|-----------------|
+| **Full Caster** | Magicien, Ensorceleur, Clerc, Druide, Barde | Niv 1 | 9 | INT/CHA/SAG |
+| **Half Caster** | Paladin, Rôdeur | Niv 2 | 5 | CHA/SAG |
+| **Third Caster** | Guerrier (EK), Roublard (AT) | Niv 3 | 4 | INT |
+| **Pact Caster** | Occultiste | Niv 1 | 5 (pact) | CHA |
 
-### Niveaux de Sorts
+### Les 8 Écoles de Magie
 
-- **Niveau 0** : Cantrips (sorts mineurs illimités)
-- **Niveaux 1-9** : Sorts nécessitant emplacements
+| École | Spécialité | Exemples |
+|-------|-----------|----------|
+| **Abjuration** | Protection, barrières | Bouclier, Protection contre le mal |
+| **Invocation** | Création, téléportation | Invoquer familier, Porte dimensionnelle |
+| **Divination** | Connaissance, visions | Détection de la magie, Scrutation |
+| **Enchantement** | Contrôle mental | Charme-personne, Domination |
+| **Évocation** | Énergie, dégâts | Projectile magique, Boule de feu |
+| **Illusion** | Tromperie | Image silencieuse, Invisibilité |
+| **Nécromancie** | Mort, non-mort | Animation des morts, Blessure |
+| **Transmutation** | Transformation | Métamorphose, Hâte |
 
-### Emplacements de Sorts (Magicien/Ensorceleur)
+### Emplacements de Sorts (Full Casters)
 
-| Niveau Perso | 1er | 2e | 3e | 4e | 5e | 6e | 7e | 8e | 9e |
-|--------------|-----|----|----|----|----|----|----|----|----|
+| Niv | 1er | 2e | 3e | 4e | 5e | 6e | 7e | 8e | 9e |
+|-----|-----|----|----|----|----|----|----|----|----|
 | 1 | 2 | - | - | - | - | - | - | - | - |
 | 2 | 3 | - | - | - | - | - | - | - | - |
 | 3 | 4 | 2 | - | - | - | - | - | - | - |
 | 4 | 4 | 3 | - | - | - | - | - | - | - |
 | 5 | 4 | 3 | 2 | - | - | - | - | - | - |
+| 6 | 4 | 3 | 3 | - | - | - | - | - | - |
+| 7 | 4 | 3 | 3 | 1 | - | - | - | - | - |
+| 8 | 4 | 3 | 3 | 2 | - | - | - | - | - |
+| 9 | 4 | 3 | 3 | 3 | 1 | - | - | - | - |
+| 10 | 4 | 3 | 3 | 3 | 2 | - | - | - | - |
+| 11 | 4 | 3 | 3 | 3 | 2 | 1 | - | - | - |
+| 12 | 4 | 3 | 3 | 3 | 2 | 1 | - | - | - |
+| 13 | 4 | 3 | 3 | 3 | 2 | 1 | 1 | - | - |
+| 14 | 4 | 3 | 3 | 3 | 2 | 1 | 1 | - | - |
+| 15 | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | - |
+| 16 | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | - |
+| 17 | 4 | 3 | 3 | 3 | 2 | 1 | 1 | 1 | 1 |
+| 18 | 4 | 3 | 3 | 3 | 3 | 1 | 1 | 1 | 1 |
+| 19 | 4 | 3 | 3 | 3 | 3 | 2 | 1 | 1 | 1 |
+| 20 | 4 | 3 | 3 | 3 | 3 | 2 | 2 | 1 | 1 |
+
+**Half Casters (Paladin/Rôdeur)** : Utilisent la table ci-dessus mais décalée - niveau 2 = niveau 1, niveau 5 = niveau 2, etc.
+
+**Occultiste (Pact Magic)** : 1-2 slots au même niveau, restaurés au repos court.
+
+| Niv | Slots | Niveau des Slots |
+|-----|-------|------------------|
+| 1-2 | 1 | 1er |
+| 3-4 | 2 | 2e |
+| 5-6 | 2 | 3e |
+| 7-8 | 2 | 4e |
+| 9+ | 2 | 5e |
+
+### Cantrips (Sorts de Niveau 0)
+
+- **Illimités** : Utilisables à volonté, pas de slot
+- **Scaling automatique** : Augmentent aux niveaux 5, 11, 17 du personnage
+
+| Niveau Perso | Dégâts Cantrip |
+|--------------|----------------|
+| 1-4 | 1 dé (1d10, 1d8...) |
+| 5-10 | 2 dés |
+| 11-16 | 3 dés |
+| 17-20 | 4 dés |
+
+**Exemples** :
+- Trait de feu : 1d10 → 2d10 → 3d10 → 4d10
+- Éclair de givre : 1d8 → 2d8 → 3d8 → 4d8
 
 ### Concentration
 
-- Certains sorts nécessitent **Concentration**
-- **1 seul sort** avec Concentration à la fois
-- Perdue si :
-  - Sort de Concentration lancé
-  - Incapacité (inconscient, mort)
-  - Dégâts subis : JS CON (DC = 10 ou moitié dégâts, le plus haut)
+**RÈGLE CRITIQUE** : Un seul sort de concentration actif à la fois.
 
-### DD de Sauvegarde des Sorts
+**Concentration brisée si** :
+1. **Dégâts reçus** : JdS CON DC = MAX(10, dégâts/2)
+   - 8 dégâts → DC 10
+   - 24 dégâts → DC 12
+2. **Incapacité** : Inconscient, paralysé, mort
+3. **Nouveau sort de concentration** : Annule le précédent
+4. **Volontaire** : Action gratuite
 
+**Sorts de concentration courants** :
+- Niv 1 : Bénédiction, Charme-personne, Détection de la magie
+- Niv 2 : Flou, Immobiliser personne, Silence
+- Niv 3 : Hâte, Vol, Lenteur
+- Niv 4 : Bannissement, Métamorphose
+
+**Workflow en session** :
 ```
-DD = 8 + bonus maîtrise + modificateur caractéristique d'incantation
+Joueur: "Je lance Hâte sur Aldric"
+DM: [Vérifie: Concentration, 1 minute]
+    "Hâte nécessite concentration. Si tu prends des dégâts, JdS CON pour maintenir."
+
+[Plus tard - 15 dégâts reçus]
+DM: "JdS CON DC 10 pour maintenir Hâte" (15/2 = 7.5, arrondi = 7 < 10)
+Joueur: [Lance d20+CON] 8 → Échec
+DM: "Hâte s'éteint. Aldric est épuisé et ne peut pas agir ce tour."
 ```
 
-**Exemple** : Magicien niveau 3, INT 16 (+3) :
-- DD = 8 + 2 (bonus maîtrise) + 3 (INT) = **13**
+### Ritual Casting (Sorts Rituels)
 
-### Bonus d'Attaque des Sorts
+Certains sorts peuvent être lancés en **rituel** : +10 minutes, **pas de slot consommé**.
 
+**Sorts rituels courants** :
+- Niv 1 : Alarme, Détection de la magie, Identification, Compréhension des langues
+- Niv 2 : Augure, Localiser animaux/plantes
+- Niv 3 : Communication avec les morts, Respiration aquatique
+
+**Workflow** :
 ```
-Bonus = bonus maîtrise + modificateur caractéristique d'incantation
+Joueur: "Je veux identifier cette épée magique"
+DM: "Tu peux lancer Identification normalement (1 action + 1 slot niv 1)
+     ou en rituel (11 minutes, pas de slot). Tu préfères ?"
+Joueur: "En rituel, on a le temps"
+DM: "Tu traces des runes pendant 11 minutes... [révèle propriétés]"
 ```
 
-### Lancer un Sort
+### Upcasting (Emplacements Supérieurs)
 
-- Nécessite **composantes** (verbale, somatique, matérielle)
-- Action (généralement), action bonus, ou réaction selon le sort
-- Si attaqué : test Concentration (CON) pour maintenir
-- Sorts rituels : +10 minutes, pas d'emplacement
+Lancer un sort avec un **slot de niveau supérieur** pour un effet amélioré.
+
+**Exemples courants** :
+
+| Sort | Niveau Base | Effet Upcast |
+|------|-------------|--------------|
+| Projectile magique | 1 | +1 fléchette par niveau au-dessus |
+| Soins des blessures | 1 | +1d8 par niveau au-dessus |
+| Boule de feu | 3 | +1d6 par niveau au-dessus |
+| Immobiliser personne | 2 | +1 cible par niveau au-dessus |
+
+**Workflow** :
+```
+Joueur: "Je lance Projectile magique avec un slot niveau 3"
+DM: [Base: 3 fléchettes, Upcast +2 niveaux: +2 fléchettes]
+    "5 fléchettes de force jaillissent. Désigne tes cibles."
+    [Dégâts: 5 × (1d4+1) = 5d4+5, touche automatique]
+```
+
+### DD de Sauvegarde et Bonus d'Attaque
+
+**DD Sauvegarde** = 8 + bonus maîtrise + mod caractéristique
+**Bonus Attaque** = bonus maîtrise + mod caractéristique
+
+| Classe | Caractéristique |
+|--------|-----------------|
+| Magicien, Ensorceleur | Intelligence |
+| Clerc, Druide, Rôdeur | Sagesse |
+| Barde, Occultiste, Paladin | Charisme |
+
+**Exemple** : Magicien niveau 5, INT 16 (+3)
+- DD = 8 + 3 (maîtrise) + 3 (INT) = **14**
+- Bonus attaque = +3 + 3 = **+6**
+
+### Restauration des Slots
+
+| Repos | Effet |
+|-------|-------|
+| **Court** (1h) | Occultiste restaure tous ses pact slots |
+| **Long** (8h) | Toutes les classes restaurent tous leurs slots |
 
 ### Référence des Sorts
 
 Pour les détails d'un sort :
-- `/spell-reference` (skill)
-- `sw-spell show <id>` (CLI)
-- `sw-spell list --class=<classe> --level=<niveau>` (liste)
+- `sw-spell show <id>` : Détails complets
+- `sw-spell list --class=wizard --level=3` : Liste par classe/niveau
+- `sw-spell cantrips wizard` : Cantrips d'une classe
+- `sw-spell slots wizard --level=5` : Table des slots
 
 ---
 

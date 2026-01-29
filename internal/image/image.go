@@ -74,28 +74,28 @@ var (
 // AvailableModels returns all available models.
 func AvailableModels() map[string]Model {
 	return map[string]Model{
-		"schnell":      ModelSchnell,
-		"banana":       ModelNanoBanana,
-		"seedream":     ModelSeedream,
-		"zimage":       ModelZImageTurbo,
-		"flux-pro-11":  ModelFluxPro11,
+		"flux-pro-11": ModelFluxPro11,
+		"schnell":     ModelSchnell,
+		"banana":      ModelNanoBanana,
+		"seedream":    ModelSeedream,
+		"zimage":      ModelZImageTurbo,
 	}
 }
 
 // JournalModels returns models available for journal illustration.
 func JournalModels() map[string]Model {
 	return map[string]Model{
-		"seedream": ModelSeedream,    // High quality, slower
-		"zimage":   ModelZImageTurbo, // Fast generation
+		"seedream": ModelSeedream, // High quality, slower
+		//"zimage":   ModelZImageTurbo, // Consistent character and fast generation
 	}
 }
 
-// GetModel returns a model by name, defaulting to schnell.
+// GetModel returns a model by name, defaulting to flux-pro-11.
 func GetModel(name string) Model {
 	if m, ok := AvailableModels()[name]; ok {
 		return m
 	}
-	return ModelSchnell
+	return ModelFluxPro11
 }
 
 // Generator handles image generation via fal.ai API.
@@ -183,7 +183,7 @@ func (g *Generator) Generate(prompt string, opts ...Option) (*GeneratedImage, er
 		outputFormat:  "png",
 		imageSize:     "landscape_16_9",
 		safetyChecker: true,
-		model:         ModelSchnell, // Default model
+		model:         ModelFluxPro11, // Default model - high quality
 	}
 
 	for _, opt := range opts {
@@ -279,7 +279,7 @@ func (g *Generator) GenerateAsync(prompt string, opts ...Option) (string, error)
 		outputFormat:  "png",
 		imageSize:     "landscape_16_9",
 		safetyChecker: true,
-		model:         ModelSchnell, // Default model
+		model:         ModelFluxPro11, // Default model - high quality
 	}
 
 	for _, opt := range opts {

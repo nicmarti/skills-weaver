@@ -339,8 +339,8 @@ func cmdGenerate(args []string) error {
 }
 
 func getDebugFile(name, mapType, scale string) string {
-	// Sanitize name for filename
-	safeName := strings.ReplaceAll(name, " ", "_")
+	// Sanitize name for filename (use hyphens for consistency)
+	safeName := strings.ReplaceAll(name, " ", "-")
 	safeName = strings.ToLower(safeName)
 	return filepath.Join("data", "maps", fmt.Sprintf("%s_%s_%s_prompt.json", safeName, mapType, scale))
 }
@@ -370,8 +370,8 @@ func generateMapImage(prompt, name, mapType, scale, imageSize string) error {
 		return fmt.Errorf("creating image generator: %w\nAstuce: Définissez FAL_KEY dans votre environnement", err)
 	}
 
-	// Generate unique filename
-	safeName := strings.ReplaceAll(name, " ", "_")
+	// Generate unique filename (use hyphens for consistency)
+	safeName := strings.ReplaceAll(name, " ", "-")
 	safeName = strings.ToLower(safeName)
 	filename := fmt.Sprintf("%s_%s_%s", safeName, mapType, scale)
 

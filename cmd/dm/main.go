@@ -75,6 +75,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Display persona version for debugging
+	fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("Persona: %s v%s", dmAgent.GetPersonaName(), dmAgent.GetPersonaVersion())))
+
 	// Display welcome
 	displayWelcome(adventureCtx)
 

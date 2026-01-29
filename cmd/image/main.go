@@ -85,6 +85,7 @@ OPTIONS COMMUNES:
   --style=<style>              Style artistique (realistic, painted, illustrated, dark_fantasy, epic)
   --size=<size>                Taille d'image (square_hd, portrait_4_3, landscape_16_9, etc.)
   --format=<format>            Format de sortie (png, jpeg, webp)
+  --output=<dir>               Répertoire de sortie (défaut: data/images)
 
 OPTIONS JOURNAL:
   --types=<types>              Types à illustrer (combat,exploration,story,discovery,loot,session)
@@ -129,8 +130,14 @@ func cmdCharacter(args []string) error {
 		opts["model"] = "banana"
 	}
 
+	// Output directory (default: data/images, can be overridden with --output)
+	outDir := outputDir
+	if opts["output"] != "" {
+		outDir = opts["output"]
+	}
+
 	// Build character file path
-	charPath := fmt.Sprintf("%s/characters/%s.json", dataDir, strings.ToLower(strings.ReplaceAll(charName, " ", "_")))
+	charPath := fmt.Sprintf("%s/characters/%s.json", dataDir, character.SanitizeFilename(charName))
 
 	// Load character
 	char, err := character.Load(charPath)
@@ -138,8 +145,8 @@ func cmdCharacter(args []string) error {
 		return fmt.Errorf("chargement du personnage '%s': %w", charName, err)
 	}
 
-	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	// Create generator with specified output directory
+	gen, err := image.NewGenerator(outDir)
 	if err != nil {
 		return err
 	}

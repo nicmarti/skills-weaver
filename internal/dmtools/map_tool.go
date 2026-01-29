@@ -12,6 +12,12 @@ import (
 	"dungeons/internal/world"
 )
 
+// MapGeneratedNotifier is an interface for notifying about map generation.
+// This avoids import cycle with internal/agent package.
+type MapGeneratedNotifier interface {
+	OnMapGenerated(location, mapPath string)
+}
+
 // GenerateMapTool generates 2D fantasy map prompts with world-keeper validation.
 type GenerateMapTool struct {
 	dataDir       string
@@ -19,10 +25,11 @@ type GenerateMapTool struct {
 	enricher      *ai.Enricher
 	geography     *world.Geography
 	factions      *world.Factions
+	notifier      MapGeneratedNotifier
 }
 
 // NewGenerateMapTool creates a new map generation tool.
-func NewGenerateMapTool(dataDir string, adventurePath string) (*GenerateMapTool, error) {
+func NewGenerateMapTool(dataDir string, adventurePath string, notifier MapGeneratedNotifier) (*GenerateMapTool, error) {
 	// Load world data
 	geo, err := world.LoadGeography(dataDir)
 	if err != nil {
@@ -46,6 +53,7 @@ func NewGenerateMapTool(dataDir string, adventurePath string) (*GenerateMapTool,
 		enricher:      enricher,
 		geography:     geo,
 		factions:      factions,
+		notifier:      notifier,
 	}, nil
 }
 
@@ -266,6 +274,11 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 			response["image_path"] = imagePath
 			response["image_url"] = imageURL
 			response["display"] = response["display"].(string) + fmt.Sprintf("\n\nImage générée: %s", filepath.Base(imagePath))
+
+			// Notify that a map was generated (triggers minimap refresh in web UI)
+			if t.notifier != nil && location != nil {
+				t.notifier.OnMapGenerated(location.Name, imagePath)
+			}
 		}
 	}
 
@@ -283,7 +296,8 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 
 // getCacheFile returns the cache file path for a map prompt.
 func (t *GenerateMapTool) getCacheFile(name, mapType, scale string) string {
-	safeName := strings.ReplaceAll(name, " ", "_")
+	// Use hyphens for consistency in filenames
+	safeName := strings.ReplaceAll(name, " ", "-")
 	safeName = strings.ToLower(safeName)
 	return filepath.Join(t.dataDir, "maps", fmt.Sprintf("%s_%s_%s_prompt.json", safeName, mapType, scale))
 }
@@ -313,8 +327,8 @@ func (t *GenerateMapTool) generateImage(prompt, name, mapType, scale string) (st
 		return "", "", fmt.Errorf("creating generator: %w", err)
 	}
 
-	// Generate unique filename
-	safeName := strings.ReplaceAll(name, " ", "_")
+	// Generate unique filename (use hyphens for consistency)
+	safeName := strings.ReplaceAll(name, " ", "-")
 	safeName = strings.ToLower(safeName)
 	filename := fmt.Sprintf("%s_%s_%s", safeName, mapType, scale)
 

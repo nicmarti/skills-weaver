@@ -186,10 +186,10 @@ func LoadAdventureContext(baseDir, adventureName string) (*AdventureContext, err
 	// Load recent journal entries
 	journal, err := adv.LoadJournal()
 	if err == nil {
-		// Get last 10 entries
+		// Get last 30 entries (provides context from previous sessions)
 		start := 0
-		if len(journal.Entries) > 10 {
-			start = len(journal.Entries) - 10
+		if len(journal.Entries) > 30 {
+			start = len(journal.Entries) - 30
 		}
 		ctx.RecentJournal = journal.Entries[start:]
 	} else {
@@ -214,6 +214,13 @@ func LoadAdventureContext(baseDir, adventureName string) (*AdventureContext, err
 
 // Reload reloads the adventure context after modifications.
 func (ctx *AdventureContext) Reload() error {
+	// Reload characters (to reflect level ups, HP changes, etc.)
+	characters, err := ctx.Adventure.GetCharacters()
+	if err != nil {
+		return fmt.Errorf("failed to reload characters: %w", err)
+	}
+	ctx.Characters = characters
+
 	// Reload inventory
 	inventory, err := ctx.Adventure.LoadInventory()
 	if err != nil {
@@ -227,10 +234,10 @@ func (ctx *AdventureContext) Reload() error {
 		return fmt.Errorf("failed to reload journal: %w", err)
 	}
 
-	// Get last 10 entries
+	// Get last 30 entries (provides context from previous sessions)
 	start := 0
-	if len(journal.Entries) > 10 {
-		start = len(journal.Entries) - 10
+	if len(journal.Entries) > 30 {
+		start = len(journal.Entries) - 30
 	}
 	ctx.RecentJournal = journal.Entries[start:]
 

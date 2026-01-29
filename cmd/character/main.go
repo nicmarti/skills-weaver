@@ -25,29 +25,60 @@ const (
 	defaultCharacterDir = "data/characters"
 )
 
+// Global variables for directory overrides (set via --char-dir and --data-dir flags)
+var (
+	characterDir = defaultCharacterDir
+	dataDir      = defaultDataDir
+)
+
+// initDirs parses global directory flags from args and updates characterDir/dataDir.
+// Returns the args with the flags removed.
+func initDirs(args []string) []string {
+	var filtered []string
+	for _, arg := range args {
+		switch {
+		case strings.HasPrefix(arg, "--char-dir="):
+			characterDir = strings.TrimPrefix(arg, "--char-dir=")
+		case strings.HasPrefix(arg, "--data-dir="):
+			dataDir = strings.TrimPrefix(arg, "--data-dir=")
+		default:
+			filtered = append(filtered, arg)
+		}
+	}
+	return filtered
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		printUsage()
 		os.Exit(1)
 	}
 
-	command := os.Args[1]
+	// Parse global directory flags first
+	args := initDirs(os.Args[1:])
+	if len(args) < 1 {
+		printUsage()
+		os.Exit(1)
+	}
+
+	command := args[0]
+	cmdArgs := args[1:]
 
 	switch command {
 	case "create":
-		handleCreate(os.Args[2:])
+		handleCreate(cmdArgs)
 	case "list":
 		handleList()
 	case "show":
-		handleShow(os.Args[2:])
+		handleShow(cmdArgs)
 	case "delete":
-		handleDelete(os.Args[2:])
+		handleDelete(cmdArgs)
 	case "export":
-		handleExport(os.Args[2:])
+		handleExport(cmdArgs)
 	case "appearance":
-		handleAppearance(os.Args[2:])
+		handleAppearance(cmdArgs)
 	case "set-reference":
-		handleSetReference(os.Args[2:])
+		handleSetReference(cmdArgs)
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -71,7 +102,7 @@ func handleCreate(args []string) {
 	maxHP := hasFlag(args, "--max-hp") // Use max HP at level 1 (variant rule)
 
 	// Load game data
-	gd, err := data.Load(defaultDataDir)
+	gd, err := data.Load(dataDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading game data: %v\n", err)
 		os.Exit(1)
@@ -150,14 +181,14 @@ func handleCreate(args []string) {
 	c.CalculateArmorClass(gd)
 
 	// Save character
-	if err := c.Save(defaultCharacterDir); err != nil {
+	if err := c.Save(characterDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Println("---")
 	fmt.Println()
-	fmt.Printf("Personnage sauvegardé dans `%s/%s.json`\n\n", defaultCharacterDir, strings.ToLower(strings.ReplaceAll(name, " ", "_")))
+	fmt.Printf("Personnage sauvegardé dans `%s/%s.json`\n\n", characterDir, character.SanitizeFilename(name))
 
 	// Print full character sheet
 	fmt.Println("---")
@@ -166,7 +197,7 @@ func handleCreate(args []string) {
 }
 
 func handleList() {
-	characters, err := character.ListCharacters(defaultCharacterDir)
+	characters, err := character.ListCharacters(characterDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error listing characters: %v\n", err)
 		os.Exit(1)
@@ -178,7 +209,7 @@ func handleList() {
 	}
 
 	// Load game data for names
-	gd, _ := data.Load(defaultDataDir)
+	gd, _ := data.Load(dataDir)
 
 	fmt.Println("## Personnages")
 	fmt.Println()
@@ -211,8 +242,8 @@ func handleShow(args []string) {
 	}
 
 	name := args[0]
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	path := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	path := filepath.Join(characterDir, filename)
 
 	c, err := character.Load(path)
 	if err != nil {
@@ -220,7 +251,7 @@ func handleShow(args []string) {
 		os.Exit(1)
 	}
 
-	gd, _ := data.Load(defaultDataDir)
+	gd, _ := data.Load(dataDir)
 	fmt.Println(c.ToMarkdown(gd))
 }
 
@@ -233,7 +264,7 @@ func handleDelete(args []string) {
 
 	name := args[0]
 
-	if err := character.Delete(defaultCharacterDir, name); err != nil {
+	if err := character.Delete(characterDir, name); err != nil {
 		fmt.Fprintf(os.Stderr, "Error deleting character: %v\n", err)
 		os.Exit(1)
 	}
@@ -251,8 +282,8 @@ func handleExport(args []string) {
 	name := args[0]
 	format := getFlag(args, "--format", "md")
 
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	path := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	path := filepath.Join(characterDir, filename)
 
 	c, err := character.Load(path)
 	if err != nil {
@@ -269,7 +300,7 @@ func handleExport(args []string) {
 		}
 		fmt.Println(json)
 	case "md", "markdown":
-		gd, _ := data.Load(defaultDataDir)
+		gd, _ := data.Load(dataDir)
 		fmt.Println(c.ToMarkdown(gd))
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown format: %s (use json or md)\n", format)
@@ -461,8 +492,8 @@ func handleAppearance(args []string) {
 	}
 
 	name := args[0]
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	path := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	path := filepath.Join(characterDir, filename)
 
 	// Load character
 	c, err := character.Load(path)
@@ -542,7 +573,7 @@ func handleAppearance(args []string) {
 	}
 
 	// Save character
-	if err := c.Save(defaultCharacterDir); err != nil {
+	if err := c.Save(characterDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
 		os.Exit(1)
 	}
@@ -563,8 +594,8 @@ func handleSetReference(args []string) {
 	name := args[0]
 	imagePath := args[1]
 
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	charPath := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	charPath := filepath.Join(characterDir, filename)
 
 	// Verify image exists
 	if _, err := os.Stat(imagePath); err != nil {
@@ -585,9 +616,9 @@ func handleSetReference(args []string) {
 	}
 
 	// Copy image to characters directory
-	charSlug := strings.ToLower(strings.ReplaceAll(name, " ", "_"))
+	charSlug := character.SanitizeFilename(name)
 	destFilename := charSlug + "_reference" + filepath.Ext(imagePath)
-	destPath := filepath.Join(defaultCharacterDir, destFilename)
+	destPath := filepath.Join(characterDir, destFilename)
 
 	input, err := os.ReadFile(imagePath)
 	if err != nil {
@@ -604,7 +635,7 @@ func handleSetReference(args []string) {
 	c.Appearance.ReferenceImage = destFilename
 
 	// Save character
-	if err := c.Save(defaultCharacterDir); err != nil {
+	if err := c.Save(characterDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
 		os.Exit(1)
 	}
@@ -658,7 +689,11 @@ func printUsage() {
 	fmt.Println(`SkillsWeaver - Character Generator - Générateur de personnages BFRPG
 
 USAGE:
-    sw-character <command> [arguments]
+    sw-character [global-options] <command> [arguments]
+
+OPTIONS GLOBALES:
+    --char-dir=<path>    Répertoire des personnages (défaut: data/characters)
+    --data-dir=<path>    Répertoire des données de jeu (défaut: data)
 
 COMMANDES:
     create "Nom" [options]       Crée un nouveau personnage

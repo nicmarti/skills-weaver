@@ -16,6 +16,9 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 	case "log_event":
 		// No CLI equivalent - internal adventure operation
 		return ""
+	case "update_location":
+		// No CLI equivalent - internal adventure operation (updates game state)
+		return ""
 	case "add_gold":
 		return mapAddGold(params)
 	case "get_inventory":
@@ -59,6 +62,8 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return ""
 	case "invoke_skill":
 		return mapInvokeSkill(params)
+	case "add_xp":
+		return mapAddXP(params)
 	default:
 		return ""
 	}
@@ -130,6 +135,17 @@ func mapGenerateNPC(params map[string]interface{}) string {
 }
 
 func mapGenerateImage(params map[string]interface{}) string {
+	// Handle direct prompt-based generation (new schema)
+	if prompt, ok := params["prompt"].(string); ok && prompt != "" {
+		style := ""
+		if s, ok := params["style"].(string); ok && s != "" {
+			style = fmt.Sprintf(" --style=%s", s)
+		}
+		// Note: The tool uses seedream model by default
+		return fmt.Sprintf("./sw-image custom \"%s\"%s --model=seedream", prompt, style)
+	}
+
+	// Handle type-based generation (legacy schema)
 	imageType, ok := params["type"].(string)
 	if !ok {
 		return ""
@@ -225,6 +241,10 @@ func mapGenerateMap(params map[string]interface{}) string {
 		parts = append(parts, fmt.Sprintf("--kingdom=%s", kingdom))
 	}
 
+	if style, ok := params["style"].(string); ok && style != "" {
+		parts = append(parts, fmt.Sprintf("--style=%s", style))
+	}
+
 	if scale, ok := params["scale"].(string); ok && scale != "" {
 		parts = append(parts, fmt.Sprintf("--scale=%s", scale))
 	}
@@ -264,6 +284,11 @@ func mapGenerateMap(params map[string]interface{}) string {
 	// Check if generate_image flag is present
 	if generateImage, ok := params["generate_image"].(bool); ok && generateImage {
 		parts = append(parts, "--generate-image")
+	}
+
+	// Add image_size if specified (only relevant when generate_image is true)
+	if imageSize, ok := params["image_size"].(string); ok && imageSize != "" {
+		parts = append(parts, fmt.Sprintf("--image-size=%s", imageSize))
 	}
 
 	return strings.Join(parts, " ")
@@ -390,4 +415,23 @@ func mapInvokeSkill(params map[string]interface{}) string {
 		return ""
 	}
 	return command
+}
+
+func mapAddXP(params map[string]interface{}) string {
+	amount, ok := params["amount"].(float64)
+	if !ok {
+		return ""
+	}
+
+	var parts []string
+	parts = append(parts, fmt.Sprintf("./sw-adventure add-xp \"<adventure>\" %.0f", amount))
+
+	if name, ok := params["character_name"].(string); ok && name != "" {
+		parts = append(parts, fmt.Sprintf("--character=\"%s\"", name))
+	}
+	if reason, ok := params["reason"].(string); ok && reason != "" {
+		parts = append(parts, fmt.Sprintf("--reason=\"%s\"", reason))
+	}
+
+	return strings.Join(parts, " ")
 }

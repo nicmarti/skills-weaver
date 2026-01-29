@@ -18,6 +18,7 @@ type PersonaLoader struct {
 // PersonaMetadata represents the YAML frontmatter metadata from an agent file.
 type PersonaMetadata struct {
 	Name        string   `yaml:"name"`
+	Version     string   `yaml:"version"`
 	Description string   `yaml:"description"`
 	Tools       []string `yaml:"tools"`
 	Model       string   `yaml:"model"`

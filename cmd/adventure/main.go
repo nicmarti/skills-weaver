@@ -71,6 +71,10 @@ func main() {
 		err = cmdMigrateJournal(args)
 	case "validate-journal":
 		err = cmdValidateJournal(args)
+	case "clean-session":
+		err = cmdCleanSession(args)
+	case "inspect-sessions":
+		err = cmdInspectSessions(args)
 	case "help":
 		printUsage()
 	default:
@@ -134,6 +138,8 @@ TYPES DE JOURNAL:
 COMMANDES MAINTENANCE:
   migrate-journal <aventure>    Diviser journal.json en fichiers par session
   validate-journal <aventure>   Valider l'intégrité des journaux
+  inspect-sessions <aventure>   Analyser les sessions pour détecter les problèmes
+  clean-session <aventure> <session_id>  Supprimer une session invalide
 
 EXEMPLES:
   sw-adventure create "La Mine Perdue" "Une aventure dans les montagnes"
@@ -1257,4 +1263,362 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return os.WriteFile(dst, data, 0644)
+}
+
+// cmdCleanSession removes an invalid session and its journal entries.
+func cmdCleanSession(args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("usage: clean-session <aventure> <session_id>")
+	}
+
+	adventureName := args[0]
+	sessionID, err := strconv.Atoi(args[1])
+	if err != nil {
+		return fmt.Errorf("session_id invalide: %s", args[1])
+	}
+
+	if sessionID == 0 {
+		return fmt.Errorf("impossible de supprimer la session 0 (hors session)")
+	}
+
+	// Load adventure
+	adv, err := adventure.LoadByName(adventuresDir, adventureName)
+	if err != nil {
+		return fmt.Errorf("chargement aventure: %w", err)
+	}
+
+	fmt.Printf("🗑️  Suppression de la session %d de l'aventure '%s'\n\n", sessionID, adv.Name)
+
+	// Check if session journal file exists
+	sessionJournalPath := fmt.Sprintf("%s/journal-session-%d.json", adv.BasePath(), sessionID)
+	if _, err := os.Stat(sessionJournalPath); os.IsNotExist(err) {
+		return fmt.Errorf("journal de la session %d non trouvé: %s", sessionID, sessionJournalPath)
+	}
+
+	// Load session journal to show what will be deleted
+	sessionEntries, err := adv.GetEntriesBySession(sessionID)
+	if err != nil {
+		return fmt.Errorf("chargement des entrées: %w", err)
+	}
+
+	fmt.Printf("📊 Entrées à supprimer: %d\n", len(sessionEntries))
+	if len(sessionEntries) > 0 {
+		fmt.Println("\nAperçu des entrées:")
+		for i, entry := range sessionEntries {
+			if i >= 5 {
+				fmt.Printf("   ... et %d autres entrées\n", len(sessionEntries)-5)
+				break
+			}
+			fmt.Printf("   - ID %d [%s]: %s\n", entry.ID, entry.Type, truncate(entry.Content, 60))
+		}
+	}
+
+	// Confirmation prompt
+	fmt.Printf("\n⚠️  Cette action va supprimer:\n")
+	fmt.Printf("   - Le fichier journal-session-%d.json\n", sessionID)
+	fmt.Printf("   - %d entrées du journal\n", len(sessionEntries))
+	fmt.Printf("\nCette action est IRRÉVERSIBLE. Continuer? (oui/non): ")
+
+	var response string
+	fmt.Scanln(&response)
+	if response != "oui" {
+		fmt.Println("❌ Annulé")
+		return nil
+	}
+
+	// Delete session journal file
+	if err := os.Remove(sessionJournalPath); err != nil {
+		return fmt.Errorf("suppression du fichier journal: %w", err)
+	}
+	fmt.Printf("✅ Fichier supprimé: journal-session-%d.json\n", sessionID)
+
+	// Remove session from sessions.json
+	sessionHistory, err := adv.LoadSessions()
+	if err == nil {
+		newSessions := []adventure.Session{}
+		for _, s := range sessionHistory.Sessions {
+			if s.ID != sessionID {
+				newSessions = append(newSessions, s)
+			}
+		}
+		sessionHistory.Sessions = newSessions
+		if err := adv.SaveSessions(sessionHistory); err != nil {
+			fmt.Printf("⚠️  Avertissement: impossible de mettre à jour sessions.json: %v\n", err)
+		} else {
+			fmt.Printf("✅ Session %d retirée de sessions.json\n", sessionID)
+		}
+	}
+
+	// Validate remaining journal integrity
+	fmt.Println("\n🔍 Validation de l'intégrité du journal restant...")
+	journal, err := adv.LoadJournal()
+	if err != nil {
+		return fmt.Errorf("validation: %w", err)
+	}
+
+	// Check for missing IDs
+	if len(journal.Entries) > 0 {
+		allIDs := make([]int, 0)
+		for _, entry := range journal.Entries {
+			allIDs = append(allIDs, entry.ID)
+		}
+		sort.Ints(allIDs)
+
+		missingIDs := []int{}
+		for i := allIDs[0]; i < allIDs[len(allIDs)-1]; i++ {
+			found := false
+			for _, id := range allIDs {
+				if id == i {
+					found = true
+					break
+				}
+			}
+			if !found {
+				missingIDs = append(missingIDs, i)
+			}
+		}
+
+		if len(missingIDs) > 0 {
+			fmt.Printf("⚠️  IDs manquants détectés: %v\n", missingIDs)
+			fmt.Println("   (Cela peut être normal si des entrées ont été supprimées)")
+		}
+	}
+
+	fmt.Printf("\n✅ Session %d supprimée avec succès!\n", sessionID)
+	fmt.Println("\n💡 Conseil: Exécutez 'sw-adventure validate-journal' pour vérifier l'intégrité complète")
+
+	return nil
+}
+
+// truncate truncates a string to maxLen characters.
+func truncate(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
+}
+
+// cmdInspectSessions analyzes all sessions to detect problems.
+func cmdInspectSessions(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: inspect-sessions <aventure>")
+	}
+
+	// Load adventure
+	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	if err != nil {
+		return fmt.Errorf("chargement aventure: %w", err)
+	}
+
+	fmt.Printf("🔍 Inspection des sessions: %s\n\n", adv.Name)
+
+	// Load all journal data
+	journal, err := adv.LoadJournal()
+	if err != nil {
+		return fmt.Errorf("chargement journal: %w", err)
+	}
+
+	// Get all sessions
+	sessions, err := adv.GetAllSessions()
+	if err != nil {
+		fmt.Printf("⚠️  Impossible de charger sessions.json: %v\n", err)
+		sessions = []adventure.Session{}
+	}
+
+	// Build session statistics
+	sessionStats := make(map[int]*SessionStats)
+
+	// Initialize with session 0 (out-of-session)
+	sessionStats[0] = &SessionStats{
+		ID: 0,
+		Name: "Hors session",
+		EntryCount: 0,
+		Types: make(map[string]int),
+	}
+
+	// Initialize from sessions.json
+	for _, s := range sessions {
+		sessionStats[s.ID] = &SessionStats{
+			ID: s.ID,
+			Name: fmt.Sprintf("Session %d", s.ID),
+			StartedAt: s.StartedAt,
+			EndedAt: s.EndedAt,
+			Summary: s.Summary,
+			EntryCount: 0,
+			Types: make(map[string]int),
+		}
+	}
+
+	// Count entries per session
+	for _, entry := range journal.Entries {
+		if stats, exists := sessionStats[entry.SessionID]; exists {
+			stats.EntryCount++
+			stats.Types[entry.Type]++
+
+			// Track first and last entry
+			if stats.FirstEntry.IsZero() || entry.Timestamp.Before(stats.FirstEntry) {
+				stats.FirstEntry = entry.Timestamp
+			}
+			if entry.Timestamp.After(stats.LastEntry) {
+				stats.LastEntry = entry.Timestamp
+			}
+		} else {
+			// Session exists in journal but not in sessions.json
+			sessionStats[entry.SessionID] = &SessionStats{
+				ID: entry.SessionID,
+				Name: fmt.Sprintf("Session %d", entry.SessionID),
+				EntryCount: 1,
+				Types: map[string]int{entry.Type: 1},
+				FirstEntry: entry.Timestamp,
+				LastEntry: entry.Timestamp,
+				Orphaned: true,
+			}
+		}
+	}
+
+	// Check for missing IDs
+	allIDs := make([]int, 0)
+	for _, entry := range journal.Entries {
+		allIDs = append(allIDs, entry.ID)
+	}
+	sort.Ints(allIDs)
+
+	missingIDs := []int{}
+	if len(allIDs) > 0 {
+		for i := allIDs[0]; i < allIDs[len(allIDs)-1]; i++ {
+			found := false
+			for _, id := range allIDs {
+				if id == i {
+					found = true
+					break
+				}
+			}
+			if !found {
+				missingIDs = append(missingIDs, i)
+			}
+		}
+	}
+
+	// Print report
+	fmt.Println("\n📊 Rapport par session:")
+
+	// Sort session IDs
+	sessionIDs := make([]int, 0)
+	for id := range sessionStats {
+		sessionIDs = append(sessionIDs, id)
+	}
+	sort.Ints(sessionIDs)
+
+	problemSessions := []int{}
+	for _, id := range sessionIDs {
+		stats := sessionStats[id]
+		status := "✅ OK"
+		issues := []string{}
+
+		// Detect problems
+		if stats.EntryCount == 0 {
+			status = "⚠️  VIDE"
+			issues = append(issues, "Aucune entrée")
+			problemSessions = append(problemSessions, id)
+		} else if stats.EntryCount == 1 && stats.Types["session"] == 1 {
+			status = "⚠️  INCOMPLÈTE"
+			issues = append(issues, "Seulement 'Session N démarrée'")
+			problemSessions = append(problemSessions, id)
+		} else if stats.EntryCount <= 3 {
+			status = "⚠️  SUSPECTE"
+			issues = append(issues, fmt.Sprintf("Seulement %d entrées", stats.EntryCount))
+		}
+
+		if stats.Orphaned {
+			status = "❌ ORPHELINE"
+			issues = append(issues, "Pas dans sessions.json")
+			problemSessions = append(problemSessions, id)
+		}
+
+		// Check for test data
+		testTypes := []string{"Potion de test", "Test verification", "Test foreshadow"}
+		hasTestData := false
+		for _, entry := range journal.Entries {
+			if entry.SessionID == id {
+				for _, testStr := range testTypes {
+					if strings.Contains(entry.Content, testStr) {
+						hasTestData = true
+						break
+					}
+				}
+			}
+		}
+		if hasTestData {
+			status = "⚠️  TEST DATA"
+			issues = append(issues, "Contient des données de test")
+			if id != 0 { // Don't mark session 0 as problem for test data
+				problemSessions = append(problemSessions, id)
+			}
+		}
+
+		if !stats.EndedAt.IsZero() && stats.Summary == "" {
+			issues = append(issues, "Pas de résumé")
+		}
+
+		fmt.Printf("%s %s:\n", status, stats.Name)
+		fmt.Printf("   Entrées: %d", stats.EntryCount)
+		if stats.EntryCount > 0 {
+			typeList := ""
+			for typ, count := range stats.Types {
+				if typeList != "" {
+					typeList += ", "
+				}
+				typeList += fmt.Sprintf("%s:%d", typ, count)
+			}
+			fmt.Printf(" (%s)", typeList)
+		}
+		fmt.Println()
+
+		if !stats.StartedAt.IsZero() {
+			fmt.Printf("   Démarrée: %s\n", stats.StartedAt.Format("2006-01-02 15:04"))
+		}
+		if !stats.EndedAt.IsZero() {
+			fmt.Printf("   Terminée: %s\n", stats.EndedAt.Format("2006-01-02 15:04"))
+		}
+		if stats.Summary != "" {
+			fmt.Printf("   Résumé: %s\n", truncate(stats.Summary, 60))
+		}
+
+		if len(issues) > 0 {
+			fmt.Printf("   ⚠️  Problèmes: %s\n", strings.Join(issues, ", "))
+		}
+		fmt.Println()
+	}
+
+	// Report missing IDs
+	if len(missingIDs) > 0 {
+		fmt.Printf("⚠️  IDs manquants: %v\n\n", missingIDs)
+	}
+
+	// Summary
+	fmt.Println("📋 Résumé:")
+	fmt.Printf("   Sessions totales: %d\n", len(sessionStats))
+	fmt.Printf("   Entrées totales: %d\n", len(journal.Entries))
+	if len(problemSessions) > 0 {
+		fmt.Printf("   ⚠️  Sessions problématiques: %v\n", problemSessions)
+		fmt.Println("\n💡 Utilisez 'sw-adventure clean-session' pour supprimer une session invalide")
+	} else {
+		fmt.Println("   ✅ Aucun problème détecté")
+	}
+
+	return nil
+}
+
+// SessionStats holds statistics about a session.
+type SessionStats struct {
+	ID          int
+	Name        string
+	StartedAt   time.Time
+	EndedAt     time.Time
+	Summary     string
+	EntryCount  int
+	Types       map[string]int
+	FirstEntry  time.Time
+	LastEntry   time.Time
+	Orphaned    bool // Session in journal but not in sessions.json
 }

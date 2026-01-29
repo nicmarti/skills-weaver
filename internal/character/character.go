@@ -437,7 +437,7 @@ func (c *Character) Save(dir string) error {
 		return fmt.Errorf("creating directory: %w", err)
 	}
 
-	filename := sanitizeFilename(c.Name) + ".json"
+	filename := SanitizeFilename(c.Name) + ".json"
 	path := filepath.Join(dir, filename)
 
 	data, err := json.MarshalIndent(c, "", "  ")
@@ -562,7 +562,7 @@ func ListCharacters(dir string) ([]*Character, error) {
 
 // Delete removes a character file.
 func Delete(dir, name string) error {
-	filename := sanitizeFilename(name) + ".json"
+	filename := SanitizeFilename(name) + ".json"
 	path := filepath.Join(dir, filename)
 
 	if err := os.Remove(path); err != nil {
@@ -771,10 +771,12 @@ func formatMod(mod int) string {
 	return fmt.Sprintf("%d", mod)
 }
 
-func sanitizeFilename(name string) string {
+// SanitizeFilename converts a name to a safe filename slug using hyphens.
+// Example: "Marcus Sanggo" -> "marcus-sanggo"
+func SanitizeFilename(name string) string {
 	// Replace spaces and special characters
 	name = strings.ToLower(name)
-	name = strings.ReplaceAll(name, " ", "_")
+	name = strings.ReplaceAll(name, " ", "-")
 	name = strings.ReplaceAll(name, "'", "")
 	name = strings.ReplaceAll(name, "\"", "")
 	return name

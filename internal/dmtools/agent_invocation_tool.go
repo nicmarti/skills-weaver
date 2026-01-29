@@ -8,6 +8,7 @@ import (
 // This allows dmtools to depend on the interface rather than the concrete implementation.
 type AgentManager interface {
 	InvokeAgent(agentName, question, contextInfo string, depth int) (string, error)
+	InvokeAgentSilent(agentName, question string, depth int) (string, error)
 }
 
 // NewInvokeAgentTool creates a tool to invoke specialized nested agents.
@@ -39,6 +40,11 @@ The nested agent maintains conversation history within the session.`,
 					"type":        "string",
 					"description": "Optional additional context for the agent (e.g., current situation, relevant stats)",
 				},
+				"silent": map[string]interface{}{
+					"type":        "boolean",
+					"description": "If true, response NOT returned in tool_result (injected as system context only). Use for pre-session briefings to avoid spoiling narrative secrets.",
+					"default":     false,
+				},
 			},
 			"required": []string{"agent_name", "question"},
 		},
@@ -51,8 +57,23 @@ The nested agent maintains conversation history within the session.`,
 				contextInfo = ctx
 			}
 
+			silent := false
+			if s, ok := params["silent"].(bool); ok {
+				silent = s
+			}
+
 			// Invoke the nested agent with depth=1 (nested agents cannot invoke other agents)
-			response, err := agentManager.InvokeAgent(agentName, question, contextInfo, 1)
+			var response string
+			var err error
+
+			if silent {
+				// Silent mode: use InvokeAgentSilent (no context info needed for briefings)
+				response, err = agentManager.InvokeAgentSilent(agentName, question, 1)
+			} else {
+				// Normal mode: full invocation with context
+				response, err = agentManager.InvokeAgent(agentName, question, contextInfo, 1)
+			}
+
 			if err != nil {
 				return map[string]interface{}{
 					"success": false,
@@ -61,8 +82,18 @@ The nested agent maintains conversation history within the session.`,
 				}, nil
 			}
 
-			// Return the agent's response
-			// The console output is handled by OutputHandler.OnAgentInvocationStart/Complete
+			// Silent mode: hide full response from DM, only brief notification
+			if silent {
+				return map[string]interface{}{
+					"success":      true,
+					"agent_name":   agentName,
+					"silent":       true,
+					"system_brief": response, // Hidden from player, injected into system context
+					"display":      fmt.Sprintf("✓ %s consulted (guidance injected in system context)", agentName),
+				}, nil
+			}
+
+			// Normal mode: full response visible
 			return map[string]interface{}{
 				"success":    true,
 				"agent_name": agentName,

@@ -171,7 +171,8 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	systemPrompt := am.buildNestedAgentSystemPrompt(nestedAgent)
 
 	// Create API call context with timeout
-	const invocationTimeout = 30 * time.Second
+	// Use 80 seconds (1m20s) to give nested agents more time for complex queries
+	const invocationTimeout = 80 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 
@@ -250,6 +251,135 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	if am.logger != nil {
 		invocationID := fmt.Sprintf("agent_%d", nestedAgent.invocationCount)
 		am.logger.LogAgentInvocation(agentName, invocationID, question, contextInfo, responseText, duration, int(totalTokens))
+	}
+
+	// Notify output handler completion
+	if am.outputHandler != nil {
+		am.outputHandler.OnAgentInvocationComplete(agentName, duration)
+	}
+
+	return responseText, nil
+}
+
+// InvokeAgentSilent invokes a specialized agent and returns response without extensive logging.
+// This is used for pre-session briefings where the full response should not be visible to players.
+// The response is intended to be injected into system context only.
+func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int) (string, error) {
+	startTime := time.Now()
+
+	// Validate recursion depth
+	if depth > am.maxDepth {
+		return "", &ErrRecursionLimit{
+			AgentName:    agentName,
+			CurrentDepth: depth,
+			MaxDepth:     am.maxDepth,
+			CallChain:    []string{"dungeon-master", agentName},
+		}
+	}
+
+	// Validate agent name
+	validAgents := []string{"character-creator", "rules-keeper", "world-keeper"}
+	if !containsString(validAgents, agentName) {
+		return "", &ErrAgentNotFound{
+			AgentName:       agentName,
+			AvailableAgents: validAgents,
+		}
+	}
+
+	// Notify output handler with brief message only
+	if am.outputHandler != nil {
+		am.outputHandler.OnAgentInvocationStart(agentName)
+	}
+
+	// Get or create nested agent
+	nestedAgent, err := am.getOrCreateNestedAgent(agentName)
+	if err != nil {
+		return "", fmt.Errorf("failed to get/create agent %s: %w", agentName, err)
+	}
+
+	// Add user message to conversation context
+	nestedAgent.conversationCtx.AddUserMessage(question)
+
+	// Build system prompt with agent persona + adventure context
+	systemPrompt := am.buildNestedAgentSystemPrompt(nestedAgent)
+
+	// Create API call context with timeout
+	const invocationTimeout = 80 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
+	defer cancel()
+
+	// Call Anthropic API with NO TOOLS (read-only consultant)
+	response, err := nestedAgent.client.GetMessages().New(ctx, anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeHaiku4_5,
+		MaxTokens: 4096,
+		System: []anthropic.TextBlockParam{
+			{
+				Type: "text",
+				Text: systemPrompt,
+			},
+		},
+		Messages: nestedAgent.conversationCtx.GetMessages(),
+		// Tools parameter intentionally omitted
+	})
+
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", &ErrAgentTimeout{
+				AgentName: agentName,
+				Timeout:   invocationTimeout,
+			}
+		}
+		return "", &AgentError{
+			AgentName: agentName,
+			Operation: "API call (silent)",
+			Err:       err,
+		}
+	}
+
+	// Extract text content from response
+	var responseText string
+	for _, block := range response.Content {
+		switch contentBlock := block.AsAny().(type) {
+		case anthropic.TextBlock:
+			responseText += contentBlock.Text
+		}
+	}
+
+	if responseText == "" {
+		return "", fmt.Errorf("agent %s returned empty response", agentName)
+	}
+
+	// Add assistant response to conversation context
+	nestedAgent.conversationCtx.AddAssistantMessage(responseText)
+
+	// Calculate metrics
+	duration := time.Since(startTime)
+	inputTokens := int64(response.Usage.InputTokens)
+	outputTokens := int64(response.Usage.OutputTokens)
+	totalTokens := inputTokens + outputTokens
+
+	// Update agent state
+	nestedAgent.lastInvoked = time.Now()
+	nestedAgent.invocationCount++
+
+	// Update metrics
+	nestedAgent.metrics.TotalTokensUsed += totalTokens
+	nestedAgent.metrics.TotalInputTokens += inputTokens
+	nestedAgent.metrics.TotalOutputTokens += outputTokens
+	nestedAgent.metrics.TotalResponseTime += duration
+	nestedAgent.metrics.LastCallTokens = totalTokens
+	nestedAgent.metrics.LastCallDuration = duration
+
+	// Calculate averages
+	if nestedAgent.invocationCount > 0 {
+		nestedAgent.metrics.AverageTokensPerCall = nestedAgent.metrics.TotalTokensUsed / int64(nestedAgent.invocationCount)
+		nestedAgent.metrics.AverageResponseTime = nestedAgent.metrics.TotalResponseTime / time.Duration(nestedAgent.invocationCount)
+	}
+
+	// Log the invocation (minimal logging for silent mode)
+	if am.logger != nil {
+		invocationID := fmt.Sprintf("agent_%d_silent", nestedAgent.invocationCount)
+		am.logger.LogAgentInvocation(agentName, invocationID, question, "(silent mode)", "[response hidden]", duration, int(totalTokens))
 	}
 
 	// Notify output handler completion

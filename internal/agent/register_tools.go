@@ -14,7 +14,7 @@ import (
 )
 
 // registerAllTools registers all available tools in the registry.
-func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure, agentManager *AgentManager) error {
+func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure, agentManager *AgentManager, outputHandler OutputHandler) error {
 	// Register dice roller
 	registry.Register(dmtools.NewDiceRollerTool())
 
@@ -49,9 +49,20 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewAddGoldTool(adv))
 	registry.Register(dmtools.NewGetInventoryTool(adv))
 
+	// Register location tracking tool (for web UI mini-map)
+	// Cast outputHandler to LocationUpdateNotifier interface
+	var locationNotifier dmtools.LocationUpdateNotifier
+	if notifier, ok := outputHandler.(dmtools.LocationUpdateNotifier); ok {
+		locationNotifier = notifier
+	}
+	registry.Register(dmtools.NewUpdateLocationTool(adv, locationNotifier))
+
 	// Register NPC management tools
 	registry.Register(dmtools.NewUpdateNPCImportanceTool(adv))
 	registry.Register(dmtools.NewGetNPCHistoryTool(adv))
+
+	// Register XP management tool
+	registry.Register(dmtools.NewAddXPTool(adv))
 
 	// Register foreshadowing tools
 	registry.Register(dmtools.NewPlantForeshadowTool(adv))
@@ -64,7 +75,7 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewGetCharacterInfoTool(adv))
 
 	// Register image generation tool
-	imageTool, err := dmtools.NewGenerateImageTool(adv.BasePath())
+	imageTool, err := dmtools.NewGenerateImageTool(adv)
 	if err != nil {
 		// Log warning but don't fail if FAL_KEY is not set
 		fmt.Printf("Warning: Image generation tool not available: %v\n", err)
@@ -73,7 +84,12 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	}
 
 	// Register map generation tool
-	mapTool, err := dmtools.NewGenerateMapTool(dataDir, adv.BasePath())
+	// Cast outputHandler to MapGeneratedNotifier interface
+	var mapNotifier dmtools.MapGeneratedNotifier
+	if notifier, ok := outputHandler.(dmtools.MapGeneratedNotifier); ok {
+		mapNotifier = notifier
+	}
+	mapTool, err := dmtools.NewGenerateMapTool(dataDir, adv.BasePath(), mapNotifier)
 	if err != nil {
 		// Log warning but don't fail if ANTHROPIC_API_KEY is not set
 		fmt.Printf("Warning: Map generation tool not available: %v\n", err)
@@ -132,8 +148,14 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 		// Log warning but don't fail - skills are optional enhancements
 		fmt.Printf("Warning: Skills not available: %v\n", err)
 	} else {
-		registry.Register(dmtools.NewInvokeSkillTool(skillRegistry))
+		registry.Register(dmtools.NewInvokeSkillTool(skillRegistry, adv.BasePath()))
 	}
+
+	// Register campaign plan tools (new)
+	registry.Register(dmtools.NewGetCampaignPlanTool(adv))
+	registry.Register(dmtools.NewUpdateCampaignProgressTool(adv))
+	registry.Register(dmtools.NewAddNarrativeThreadTool(adv))
+	registry.Register(dmtools.NewRemoveNarrativeThreadTool(adv))
 
 	return nil
 }

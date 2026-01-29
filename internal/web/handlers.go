@@ -82,6 +82,11 @@ func (s *Server) handleCreateAdventure(c *gin.Context) {
 		}
 	}
 
+	// Copy global characters if they exist
+	if err := s.copyGlobalCharactersToAdventure(adv); err != nil {
+		fmt.Printf("Warning: failed to copy global characters: %v\n", err)
+	}
+
 	// Redirect to play page
 	c.Redirect(http.StatusSeeOther, "/play/"+adv.Slug)
 }
@@ -1126,5 +1131,96 @@ CRITICAL: Return ONLY valid JSON matching this exact structure (no markdown, no 
 	}
 
 	fmt.Printf("✓ Generated campaign plan for '%s': %s\n", adv.Name, campaignPlan.Metadata.CampaignTitle)
+	return nil
+}
+
+// copyGlobalCharactersToAdventure copies existing characters from data/characters/ to the new adventure.
+func (s *Server) copyGlobalCharactersToAdventure(adv *adventure.Adventure) error {
+	globalCharactersDir := filepath.Join("data", "characters")
+
+	// Check if global characters directory exists
+	if _, err := os.Stat(globalCharactersDir); os.IsNotExist(err) {
+		// No global characters directory, skip
+		return nil
+	}
+
+	// List all character JSON files in global directory
+	entries, err := os.ReadDir(globalCharactersDir)
+	if err != nil {
+		return fmt.Errorf("failed to read global characters: %w", err)
+	}
+
+	var characterFiles []string
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".json") {
+			characterFiles = append(characterFiles, entry.Name())
+		}
+	}
+
+	if len(characterFiles) == 0 {
+		// No characters to copy
+		return nil
+	}
+
+	// Create characters directory for the adventure
+	adventureCharactersDir := filepath.Join("data", "adventures", adv.Slug, "characters")
+	if err := os.MkdirAll(adventureCharactersDir, 0755); err != nil {
+		return fmt.Errorf("failed to create adventure characters directory: %w", err)
+	}
+
+	// Copy each character file
+	var characterNames []string
+	for _, charFile := range characterFiles {
+		srcPath := filepath.Join(globalCharactersDir, charFile)
+		dstPath := filepath.Join(adventureCharactersDir, charFile)
+
+		// Read character file to extract name
+		data, err := os.ReadFile(srcPath)
+		if err != nil {
+			fmt.Printf("Warning: failed to read character file %s: %v\n", charFile, err)
+			continue
+		}
+
+		// Parse to get character name
+		var charData map[string]interface{}
+		if err := json.Unmarshal(data, &charData); err != nil {
+			fmt.Printf("Warning: failed to parse character file %s: %v\n", charFile, err)
+			continue
+		}
+
+		if name, ok := charData["name"].(string); ok && name != "" {
+			characterNames = append(characterNames, name)
+		}
+
+		// Copy file
+		if err := os.WriteFile(dstPath, data, 0644); err != nil {
+			fmt.Printf("Warning: failed to copy character file %s: %v\n", charFile, err)
+			continue
+		}
+	}
+
+	if len(characterNames) == 0 {
+		// No valid characters copied
+		return nil
+	}
+
+	// Create party.json with the copied characters
+	partyData := map[string]interface{}{
+		"characters":     characterNames,
+		"marching_order": characterNames,
+		"formation":      "travel",
+	}
+
+	partyPath := filepath.Join("data", "adventures", adv.Slug, "party.json")
+	partyJSON, err := json.MarshalIndent(partyData, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal party.json: %w", err)
+	}
+
+	if err := os.WriteFile(partyPath, partyJSON, 0644); err != nil {
+		return fmt.Errorf("failed to write party.json: %w", err)
+	}
+
+	fmt.Printf("✓ Copied %d character(s) to adventure '%s': %v\n", len(characterNames), adv.Name, characterNames)
 	return nil
 }

@@ -631,9 +631,14 @@ go build -o sw-web ./cmd/web
 - Interface web avec thème Dark Fantasy Médiéval
 - Streaming des réponses en temps réel via SSE (Server-Sent Events)
 - Liste et création d'aventures
+- Génération automatique de campaign plan (si thème fourni)
+- Copie automatique des personnages globaux vers nouvelle aventure
 - Session de jeu interactive avec le Dungeon Master
 - Affichage du groupe, inventaire et journal
 - Images générées affichées inline
+
+**Gestion Automatique des Personnages** :
+Lors de la création d'une nouvelle aventure, le système copie automatiquement tous les personnages présents dans `data/characters/` vers le répertoire de l'aventure et crée le fichier `party.json`. Si aucun personnage global n'existe, vous devrez créer des personnages via `sw-character` avant de démarrer la session.
 
 **Architecture** :
 - `cmd/web/main.go` : Entry point du serveur

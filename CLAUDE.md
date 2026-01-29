@@ -49,7 +49,9 @@ skillsweaver/
 │   ├── treasure/            # CLI sw-treasure
 │   ├── equipment/           # CLI sw-equipment
 │   ├── spell/               # CLI sw-spell
-│   └── map/                 # CLI sw-map
+│   ├── map/                 # CLI sw-map
+│   ├── dm/                  # CLI sw-dm (Dungeon Master REPL)
+│   └── web/                 # CLI sw-web (Interface Web)
 ├── internal/
 │   ├── agent/               # ⭐ NEW: Agent orchestration system
 │   │   ├── agent.go         # Main agent loop with tool execution
@@ -81,7 +83,15 @@ skillsweaver/
 │   ├── equipment/           # Package catalogue équipement
 │   ├── spell/               # Package grimoire des sorts
 │   ├── map/                 # Package génération prompts cartes
-│   └── world/               # Package données géographiques
+│   ├── world/               # Package données géographiques
+│   └── web/                 # ⭐ NEW: Interface web Gin
+│       ├── server.go        # Configuration Gin et routes
+│       ├── handlers.go      # Handlers HTTP
+│       ├── session.go       # Gestion sessions de jeu
+│       └── web_output.go    # OutputHandler pour SSE
+├── web/                     # ⭐ NEW: Assets web
+│   ├── templates/           # Templates HTML (index, game, error)
+│   └── static/              # CSS et JavaScript
 ├── data/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
@@ -601,6 +611,68 @@ grep "Equivalent CLI:" data/adventures/*/sw-dm*.log
 
 Voir `docs/cli-logging-example.md` pour plus d'exemples et de patterns d'utilisation.
 
+### CLI sw-web (Interface Web)
+
+Interface web basée sur Gin pour jouer à SkillsWeaver via navigateur :
+
+```bash
+# Compiler
+go build -o sw-web ./cmd/web
+
+# Lancer le serveur (port 8085 par défaut)
+./sw-web
+
+# Options
+./sw-web --port=3000        # Port personnalisé
+./sw-web --debug            # Mode debug avec logs Gin
+```
+
+**Fonctionnalités** :
+- Interface web avec thème Dark Fantasy Médiéval
+- Streaming des réponses en temps réel via SSE (Server-Sent Events)
+- Liste et création d'aventures
+- Session de jeu interactive avec le Dungeon Master
+- Affichage du groupe, inventaire et journal
+- Images générées affichées inline
+
+**Architecture** :
+- `cmd/web/main.go` : Entry point du serveur
+- `internal/web/` : Package web
+  - `server.go` : Configuration Gin et routes
+  - `handlers.go` : Handlers HTTP
+  - `session.go` : Gestion des sessions de jeu (SessionManager)
+  - `web_output.go` : OutputHandler pour SSE (WebOutput)
+- `web/templates/` : Templates HTML
+  - `index.html` : Page d'accueil avec liste des aventures
+  - `game.html` : Interface de jeu
+  - `error.html` : Page d'erreur
+- `web/static/` : Assets statiques
+  - `css/fantasy.css` : Thème Dark Fantasy
+  - `js/app.js` : Client JavaScript pour SSE
+
+**Routes** :
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/` | Page d'accueil |
+| GET | `/adventures` | Liste des aventures (HTMX) |
+| POST | `/adventures` | Créer une aventure |
+| GET | `/play/:slug` | Page de jeu |
+| POST | `/play/:slug/message` | Envoyer un message au DM |
+| GET | `/play/:slug/stream` | Endpoint SSE |
+| GET | `/play/:slug/characters` | Liste des personnages |
+| GET | `/play/:slug/info` | Info aventure (HTMX) |
+| GET | `/play/:slug/images/*` | Images générées |
+
+**Prérequis** :
+- Variable d'environnement `ANTHROPIC_API_KEY` configurée
+- Des aventures existantes dans `data/adventures/` (ou créez-en via l'interface)
+
+**Session Management** :
+- Une session par aventure (mono-joueur)
+- Sessions persistées en mémoire pendant 30 minutes d'inactivité
+- Nettoyage automatique des sessions expirées
+
 ---
 
 ## 🚀 Agent System - Fonctionnalités Avancées
@@ -1023,4 +1095,173 @@ git commit -m "docs: update rules-keeper with BFRPG combat rules"
 - [D&D Beyond](https://www.dndbeyond.com/) - Règles D&D 5e officielles
 - [D&D 5e SRD](https://www.5esrd.com/) - System Reference Document (gratuit)
 - [The Lazy GM's resource Document](https://slyflourish.com/lazy_gm_resource_document.html#treasuregenerator) - Site contenant de nombreuses idées, outils, tables pour améliorer le travail du MJ (Maitre du jeu). A utiliser pour améliorer le système actuel.
+
+
+---
+
+## 🎭 Système de Planification Narrative de Campagne
+
+### Vue d'Ensemble
+
+SkillsWeaver dispose d'un système avancé de planification narrative en 3 actes qui guide les sessions de jeu. Ce système automatise les briefings pré-session et maintient la cohérence de l'intrigue sur plusieurs sessions.
+
+### Fichier campaign-plan.json
+
+**Localisation** : `data/adventures/<nom>/campaign-plan.json`
+
+**Génération automatique** : Si un thème est fourni lors de la création d'une aventure via l'interface web, le DM génère automatiquement un plan structuré incluant :
+
+- **Structure narrative 3 actes** avec objectifs, événements clés, et critères de complétion
+- **Antagoniste principal** avec arc narratif et sessions clés
+- **MacGuffins et lieux importants** liés aux actes
+- **Foreshadows critiques** avec liens aux actes et payoff planifiés
+- **Progression et pacing** trackés automatiquement
+
+### Fonctionnement Automatique
+
+#### 1. Création d'Aventure avec Thème
+
+Dans l'interface web :
+```
+Nom : Le Sextant Magique de Cordova
+Description : Conspiration maritime dans le royaume de Valdorine
+Thème : Un sextant magique révèle l'emplacement d'une entité ancienne 
+        scellée sous Shasseth. Plusieurs factions cherchent à l'atteindre.
+```
+
+Le DM génère automatiquement :
+- 3 actes structurés (début, rebondissements, confrontation finale)
+- Antagonistes avec motivations et arcs
+- 2-3 foreshadows critiques liés aux actes
+- Pacing cible (ex: 10 sessions, 3h chacune)
+
+#### 2. Briefing Automatique au Démarrage de Session
+
+Quand vous appelez `start_session` dans sw-dm :
+
+```
+✓ Session 12 démarrée
+
+=== CAMPAIGN CONTEXT (CONFIDENTIAL - DO NOT QUOTE DIRECTLY) ===
+
+Act 3: Confrontation à Shasseth
+Les PJ arrivent à la cité perdue. Vaskir prépare le rituel final.
+
+Campaign Objective: Empêcher le réveil de l'entité divine ancienne
+
+Active Threads:
+  • vaskir_ritual_countdown
+  • cinquieme_acteur_identity
+
+Critical Foreshadows (2):
+  • [fsh_002] Entité scellée (planted 5 sessions ago, critical)
+  • [fsh_004] Trahison d'allié (planted 3 sessions ago, major)
+
+World-Keeper Briefing:
+[Guidance stratégique pour la session...]
+
+=== INSTRUCTIONS ===
+• Use this context to guide your narration naturally
+• DO NOT quote world-keeper directly to players
+• Integrate information organically into the story
+===
+```
+
+**Ce briefing est caché du joueur** mais guide votre narration pour :
+- Avancer les threads narratifs actifs
+- Résoudre les foreshadows critiques
+- Respecter les objectifs de l'acte en cours
+- Maintenir le pacing
+
+#### 3. Consultation Silencieuse World-Keeper
+
+Le système consulte automatiquement le world-keeper en mode silencieux :
+- **Notification visible** : `[Consulting world-keeper...]`
+- **Réponse cachée** : Injectée dans le contexte système uniquement
+- **Utilisation** : Guide votre narration sans révéler les secrets
+
+### Tools Disponibles pour Campaign Plan
+
+#### get_campaign_plan
+
+```json
+{"section": "current_act"}
+{"section": "foreshadows"}
+{"section": "progression"}
+{"section": "all"}
+```
+
+Retourne l'état complet du plan narratif.
+
+#### update_campaign_progress
+
+```json
+{"action": "complete_plot_point", "plot_point_id": "valorian_alliance"}
+{"action": "advance_act", "act_number": 2}
+```
+
+Marque des milestones comme complétés.
+
+#### add_narrative_thread / remove_narrative_thread
+
+```json
+{"thread_name": "mysterious_stranger_identity"}
+{"thread_name": "alliance_betrayal"}
+```
+
+Track les intrigues secondaires actives.
+
+### Migration depuis Foreshadows.json
+
+Les anciennes aventures utilisent `foreshadows.json`. Le nouveau système utilise `campaign-plan.json` qui intègre les foreshadows avec des liens vers les actes.
+
+**Backward Compatibility** : Les aventures sans campaign-plan continuent de fonctionner normalement avec foreshadows.json legacy.
+
+**Migration manuelle** (optionnelle) :
+1. Créer `campaign-plan.json` avec structure par défaut
+2. Importer foreshadows existants avec liens actes estimés
+3. Enrichir manuellement : objectif, actes, antagonistes
+
+### Règles Importantes pour le DM
+
+#### ✅ CORRECT - Intégrer le Briefing Naturellement
+
+**Briefing** : "Vaskir est à Shasseth depuis 2 jours, préparant le rituel dans les ruines du temple."
+
+**Narration** :
+```
+Les rumeurs dans les tavernes du port parlent d'un navire noir aperçu
+près de Shasseth il y a deux jours. Les marins superstitieux murmurent
+que personne n'en est revenu vivant.
+
+Que faites-vous ?
+```
+
+#### ❌ INTERDIT - Citer Directement
+
+**JAMAIS faire** :
+- "Le world-keeper m'informe que Vaskir est à Shasseth."
+- "Selon le briefing, l'entité se réveille bientôt."
+- Paraphraser mot-à-mot le briefing
+
+#### Transformation de l'Information
+
+Le briefing te donne la **direction stratégique**. Les joueurs découvrent par :
+- **Dialogues PNJ** : "Un marin tremble : 'J'ai vu ce navire... noir comme la nuit...'"
+- **Indices visuels** : "Des runes anciennes gravées pâlissent lentement."
+- **Rumeurs** : "Les prêtres parlent à voix basse de tremblements souterrains."
+
+### Avantages du Système
+
+1. **Cohérence Narrative** : Objectif clair et structure 3 actes dès le début
+2. **Foreshadows Organisés** : Liés aux actes, pas orphelins
+3. **Briefings Automatiques** : Direction narrative au début de chaque session
+4. **Confidentialité** : Secrets restent secrets (world-keeper en mode silencieux)
+5. **Pacing Trackéé** : Comparaison sessions planifiées vs réelles par acte
+
+### Fichiers Concernés
+
+- `data/adventures/<nom>/campaign-plan.json` - Plan narratif complet
+- `data/adventures/<nom>/foreshadows.json` - Legacy (deprecated)
+- `data/adventures/<nom>/agent-states.json` - Historique consultations agents
 

@@ -23,6 +23,8 @@ type Agent struct {
 	logger          *Logger
 	personaLoader   *PersonaLoader
 	agentManager    *AgentManager
+	personaMetadata *PersonaMetadata
+	systemGuidance  string // Hidden campaign/session briefing injected into system context
 }
 
 // New creates a new agent with the given configuration.
@@ -44,6 +46,12 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 	// Initialize persona loader
 	personaLoader := NewPersonaLoader()
 
+	// Load persona metadata for version tracking
+	personaMetadata, _, err := personaLoader.LoadWithMetadata("dungeon-master")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load dungeon-master persona: %w", err)
+	}
+
 	// Initialize logger
 	logger, err := NewLogger(adventureCtx.BasePath())
 	if err != nil {
@@ -57,8 +65,8 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 	// Initialize tool registry with adventure context
 	toolRegistry := NewToolRegistry(adventureCtx)
 
-	// Register all tools - pass Adventure object and agentManager for real persistence
-	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure, agentManager); err != nil {
+	// Register all tools - pass Adventure object, agentManager, and outputHandler for real persistence
+	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure, agentManager, outputHandler); err != nil {
 		return nil, fmt.Errorf("failed to register tools: %w", err)
 	}
 
@@ -74,6 +82,7 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		logger:          logger,
 		personaLoader:   personaLoader,
 		agentManager:    agentManager,
+		personaMetadata: personaMetadata,
 	}
 
 	// Load agent states from previous sessions
@@ -170,7 +179,7 @@ func (a *Agent) buildSystemPrompt() (string, error) {
 **Or** : %d po
 **Lieu actuel** : %s
 
-**Journal récent** (5 dernières entrées) :
+**Journal récent** (jusqu'à 20 dernières entrées) :
 %s
 `,
 		a.adventureCtx.Adventure.Name,
@@ -181,7 +190,27 @@ func (a *Agent) buildSystemPrompt() (string, error) {
 		formatRecentJournal(a.adventureCtx),
 	)
 
-	return dmPersona + "\n\n" + adventureInfo, nil
+	systemPrompt := dmPersona + "\n\n" + adventureInfo
+
+	// Add system guidance if available (campaign briefing, hidden from player)
+	if a.systemGuidance != "" {
+		systemPrompt += "\n\n" + a.systemGuidance
+	}
+
+	return systemPrompt, nil
+}
+
+// AddSystemGuidance injects hidden campaign/session briefing into system context.
+// This is used for pre-session briefings from world-keeper that should guide DM narration
+// without being directly visible to players.
+func (a *Agent) AddSystemGuidance(guidance string) {
+	a.systemGuidance = guidance
+}
+
+// ClearSystemGuidance removes the current system guidance.
+// Useful when guidance is only relevant for current session.
+func (a *Agent) ClearSystemGuidance() {
+	a.systemGuidance = ""
 }
 
 // callAnthropicAPI calls the Anthropic API with streaming and returns tool uses if any.
@@ -278,6 +307,19 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 			a.logger.LogToolResult(use.Name, use.ID, result)
 		}
 
+		// Check for system_brief in tool result (hidden campaign guidance)
+		if resultMap, ok := result.(map[string]interface{}); ok {
+			if systemBrief, ok := resultMap["system_brief"].(string); ok && systemBrief != "" {
+				// Inject system briefing into agent context (hidden from player)
+				a.AddSystemGuidance(systemBrief)
+
+				// Log that guidance was injected
+				if a.logger != nil {
+					a.logger.LogInfo(fmt.Sprintf("[SYSTEM] Injected campaign briefing into agent context (%d chars)", len(systemBrief)))
+				}
+			}
+		}
+
 		// Convert result to JSON string
 		resultJSON := formatToolResult(result)
 		results = append(results, ToolResultMessage{
@@ -332,10 +374,10 @@ func formatRecentJournal(ctx *AdventureContext) string {
 	}
 
 	parts := []string{}
-	// Take last 5 entries
+	// Take last 20 entries (or all if less than 20)
 	start := 0
-	if len(ctx.RecentJournal) > 5 {
-		start = len(ctx.RecentJournal) - 5
+	if len(ctx.RecentJournal) > 20 {
+		start = len(ctx.RecentJournal) - 20
 	}
 
 	for i := start; i < len(ctx.RecentJournal); i++ {
@@ -401,4 +443,23 @@ func (a *Agent) saveAgentStates() {
 			a.logger.LogError("save_agent_states", err)
 		}
 	}
+}
+
+// GetPersonaVersion returns the version of the loaded persona.
+func (a *Agent) GetPersonaVersion() string {
+	if a.personaMetadata == nil {
+		return "unknown"
+	}
+	if a.personaMetadata.Version == "" {
+		return "unversioned"
+	}
+	return a.personaMetadata.Version
+}
+
+// GetPersonaName returns the name of the loaded persona.
+func (a *Agent) GetPersonaName() string {
+	if a.personaMetadata == nil {
+		return "unknown"
+	}
+	return a.personaMetadata.Name
 }

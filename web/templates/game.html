@@ -18,6 +18,21 @@
             <h2>{{.Adventure.Name}}</h2>
         </div>
 
+        <!-- Session Status Indicator -->
+        <div class="session-status {{if .IsSessionActive}}active{{else}}inactive{{end}}"
+             id="session-status"
+             hx-get="/play/{{.Slug}}/session-status"
+             hx-trigger="refreshInfo from:body"
+             hx-swap="outerHTML">
+            {{if .IsSessionActive}}
+                <span class="status-indicator"></span>
+                <span class="status-text">Session {{.ActiveSessionID}} en cours</span>
+            {{else}}
+                <span class="status-indicator"></span>
+                <span class="status-text">Aucune session active</span>
+            {{end}}
+        </div>
+
         <!-- Mini-map Section -->
         <div class="minimap-section" id="minimap-section">
             <h3>Carte</h3>

@@ -3,7 +3,9 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -36,14 +38,15 @@ func (r *realAnthropicClient) GetMessages() messagesService {
 
 // AgentManager manages multiple nested agent instances with stateful conversation contexts.
 type AgentManager struct {
-	nestedAgents  map[string]*NestedAgentState
-	anthropicKey  string
-	adventureCtx  *AdventureContext
-	logger        *Logger
-	outputHandler OutputHandler
-	personaLoader *PersonaLoader
-	maxDepth      int // Maximum nesting depth (always 1 for now)
-	clientFactory ClientFactory // Factory for creating Anthropic clients (allows mocking)
+	nestedAgents     map[string]*NestedAgentState
+	anthropicKey     string
+	adventureCtx     *AdventureContext
+	logger           *Logger
+	outputHandler    OutputHandler
+	personaLoader    *PersonaLoader
+	mainToolRegistry *ToolRegistry   // Main agent's tool registry, used to create filtered registries
+	maxDepth         int             // Maximum nesting depth (always 1 for now)
+	clientFactory    ClientFactory   // Factory for creating Anthropic clients (allows mocking)
 }
 
 // NestedAgentState represents a nested agent with its own conversation context.
@@ -55,9 +58,12 @@ type NestedAgentState struct {
 	conversationCtx *ConversationContext
 	lastInvoked     time.Time
 	invocationCount int
-	client          anthropicClient // Changed to interface for testability
+	client          anthropicClient  // Changed to interface for testability
 	tokenLimit      int
 	metrics         *AgentMetrics
+	model           anthropic.Model  // Model to use for this agent (from persona)
+	toolRegistry    *ToolRegistry    // Filtered tool registry for this agent
+	toolPolicy      *ToolAccessPolicy // Tool access policy for this agent
 }
 
 // AgentMetrics tracks performance metrics for an agent.
@@ -88,15 +94,22 @@ func NewAgentManager(
 	personaLoader *PersonaLoader,
 ) *AgentManager {
 	return &AgentManager{
-		nestedAgents:  make(map[string]*NestedAgentState),
-		anthropicKey:  apiKey,
-		adventureCtx:  adventureCtx,
-		logger:        logger,
-		outputHandler: outputHandler,
-		personaLoader: personaLoader,
-		maxDepth:      1, // Nested agents cannot invoke other agents
-		clientFactory: defaultClientFactory, // Use real client by default
+		nestedAgents:     make(map[string]*NestedAgentState),
+		anthropicKey:     apiKey,
+		adventureCtx:     adventureCtx,
+		logger:           logger,
+		outputHandler:    outputHandler,
+		personaLoader:    personaLoader,
+		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
+		maxDepth:         1,   // Nested agents cannot invoke other agents
+		clientFactory:    defaultClientFactory, // Use real client by default
 	}
+}
+
+// SetMainToolRegistry sets the main tool registry from which nested agent registries are derived.
+// This should be called after the main agent's tool registry is set up.
+func (am *AgentManager) SetMainToolRegistry(registry *ToolRegistry) {
+	am.mainToolRegistry = registry
 }
 
 // NewAgentManagerWithClientFactory creates an AgentManager with a custom client factory.
@@ -110,18 +123,21 @@ func NewAgentManagerWithClientFactory(
 	clientFactory ClientFactory,
 ) *AgentManager {
 	return &AgentManager{
-		nestedAgents:  make(map[string]*NestedAgentState),
-		anthropicKey:  apiKey,
-		adventureCtx:  adventureCtx,
-		logger:        logger,
-		outputHandler: outputHandler,
-		personaLoader: personaLoader,
-		maxDepth:      1,
-		clientFactory: clientFactory,
+		nestedAgents:     make(map[string]*NestedAgentState),
+		anthropicKey:     apiKey,
+		adventureCtx:     adventureCtx,
+		logger:           logger,
+		outputHandler:    outputHandler,
+		personaLoader:    personaLoader,
+		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
+		maxDepth:         1,
+		clientFactory:    clientFactory,
 	}
 }
 
 // InvokeAgent invokes a specialized agent with a question and optional context.
+// The agent runs with its own tool loop (up to MaxIterations from policy) and
+// uses the model specified in its persona.
 // Returns the agent's response or an error.
 func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, depth int) (string, error) {
 	startTime := time.Now()
@@ -138,7 +154,7 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 
 	// Validate agent name
 	validAgents := []string{"character-creator", "rules-keeper", "world-keeper"}
-	if !containsString(validAgents, agentName) {
+	if !slices.Contains(validAgents, agentName) {
 		return "", &ErrAgentNotFound{
 			AgentName:       agentName,
 			AvailableAgents: validAgents,
@@ -170,64 +186,123 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	// Build system prompt with agent persona + adventure context
 	systemPrompt := am.buildNestedAgentSystemPrompt(nestedAgent)
 
+	// Get max iterations from policy (default to 5)
+	maxIterations := 5
+	if nestedAgent.toolPolicy != nil {
+		maxIterations = nestedAgent.toolPolicy.MaxIterations
+	}
+
+	// Prepare tools (may be nil if agent has no tools)
+	var toolsParam []anthropic.ToolUnionParam
+	hasTools := nestedAgent.toolRegistry != nil && nestedAgent.toolRegistry.Count() > 0
+	if hasTools {
+		toolsParam = nestedAgent.toolRegistry.ToAnthropicToolsParam()
+	}
+
 	// Create API call context with timeout
 	// Use 80 seconds (1m20s) to give nested agents more time for complex queries
 	const invocationTimeout = 80 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 
-	// Call Anthropic API with NO TOOLS for nested agents
-	// Nested agents are read-only consultants - they cannot modify game state or invoke skills
-	// This enforces tool restrictions: nested agents have zero tool access for safety
-	response, err := nestedAgent.client.GetMessages().New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.ModelClaudeHaiku4_5, // Use Haiku for faster responses
-		MaxTokens: 4096,
-		System: []anthropic.TextBlockParam{
-			{
-				Type: "text",
-				Text: systemPrompt,
-			},
-		},
-		Messages: nestedAgent.conversationCtx.GetMessages(),
-		// Tools parameter intentionally omitted - nested agents cannot use tools
-	})
+	var finalResponseText string
+	var totalInputTokens, totalOutputTokens int64
 
-	if err != nil {
-		// Check if it's a timeout error
-		if ctx.Err() == context.DeadlineExceeded {
-			return "", &ErrAgentTimeout{
+	// Agent loop with tool execution
+	for iteration := 0; iteration < maxIterations; iteration++ {
+		// Build API request
+		params := anthropic.MessageNewParams{
+			Model:     nestedAgent.model,
+			MaxTokens: 4096,
+			System: []anthropic.TextBlockParam{
+				{
+					Type: "text",
+					Text: systemPrompt,
+				},
+			},
+			Messages: nestedAgent.conversationCtx.GetMessages(),
+		}
+
+		// Add tools if available
+		if hasTools {
+			params.Tools = toolsParam
+		}
+
+		// Call Anthropic API
+		response, err := nestedAgent.client.GetMessages().New(ctx, params)
+		if err != nil {
+			if ctx.Err() == context.DeadlineExceeded {
+				return "", &ErrAgentTimeout{
+					AgentName: agentName,
+					Timeout:   invocationTimeout,
+				}
+			}
+			return "", &AgentError{
 				AgentName: agentName,
-				Timeout:   invocationTimeout,
+				Operation: "API call",
+				Err:       err,
 			}
 		}
-		return "", &AgentError{
-			AgentName: agentName,
-			Operation: "API call",
-			Err:       err,
+
+		// Track tokens
+		totalInputTokens += int64(response.Usage.InputTokens)
+		totalOutputTokens += int64(response.Usage.OutputTokens)
+
+		// Process response content
+		var textContent string
+		var toolUses []ToolUse
+
+		for _, block := range response.Content {
+			switch contentBlock := block.AsAny().(type) {
+			case anthropic.TextBlock:
+				textContent += contentBlock.Text
+			case anthropic.ToolUseBlock:
+				// Parse tool input
+				var input map[string]interface{}
+				if err := json.Unmarshal(contentBlock.Input, &input); err != nil {
+					input = make(map[string]interface{})
+				}
+				toolUses = append(toolUses, ToolUse{
+					ID:    contentBlock.ID,
+					Name:  contentBlock.Name,
+					Input: input,
+				})
+			}
 		}
-	}
 
-	// Extract text content from response
-	var responseText string
-	for _, block := range response.Content {
-		switch contentBlock := block.AsAny().(type) {
-		case anthropic.TextBlock:
-			responseText += contentBlock.Text
+		// If no tool uses, we're done
+		if len(toolUses) == 0 {
+			finalResponseText = textContent
+			nestedAgent.conversationCtx.AddAssistantMessage(textContent)
+			break
 		}
+
+		// Add assistant message with tool uses to conversation
+		nestedAgent.conversationCtx.AddAssistantMessageWithToolUses(textContent, toolUses)
+
+		// Execute tools
+		toolResults := am.executeNestedAgentTools(nestedAgent, toolUses)
+
+		// Add tool results to conversation
+		nestedAgent.conversationCtx.AddToolResults(toolResults)
+
+		// Log tool calls
+		if am.logger != nil {
+			for _, use := range toolUses {
+				am.logger.LogInfo(fmt.Sprintf("[%s] Tool call: %s", agentName, use.Name))
+			}
+		}
+
+		// Continue loop to get response with tool results
 	}
 
-	if responseText == "" {
-		return "", fmt.Errorf("agent %s returned empty response", agentName)
+	if finalResponseText == "" {
+		return "", fmt.Errorf("agent %s returned empty response after %d iterations", agentName, maxIterations)
 	}
-
-	// Add assistant response to conversation context
-	nestedAgent.conversationCtx.AddAssistantMessage(responseText)
 
 	// Calculate metrics
 	duration := time.Since(startTime)
-	inputTokens := int64(response.Usage.InputTokens)
-	outputTokens := int64(response.Usage.OutputTokens)
-	totalTokens := inputTokens + outputTokens
+	totalTokens := totalInputTokens + totalOutputTokens
 
 	// Update agent state
 	nestedAgent.lastInvoked = time.Now()
@@ -235,8 +310,8 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 
 	// Update metrics
 	nestedAgent.metrics.TotalTokensUsed += totalTokens
-	nestedAgent.metrics.TotalInputTokens += inputTokens
-	nestedAgent.metrics.TotalOutputTokens += outputTokens
+	nestedAgent.metrics.TotalInputTokens += totalInputTokens
+	nestedAgent.metrics.TotalOutputTokens += totalOutputTokens
 	nestedAgent.metrics.TotalResponseTime += duration
 	nestedAgent.metrics.LastCallTokens = totalTokens
 	nestedAgent.metrics.LastCallDuration = duration
@@ -250,7 +325,7 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	// Log the invocation
 	if am.logger != nil {
 		invocationID := fmt.Sprintf("agent_%d", nestedAgent.invocationCount)
-		am.logger.LogAgentInvocation(agentName, invocationID, question, contextInfo, responseText, duration, int(totalTokens))
+		am.logger.LogAgentInvocation(agentName, invocationID, question, contextInfo, finalResponseText, duration, int(totalTokens))
 	}
 
 	// Notify output handler completion
@@ -258,12 +333,66 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 		am.outputHandler.OnAgentInvocationComplete(agentName, duration)
 	}
 
-	return responseText, nil
+	return finalResponseText, nil
+}
+
+// executeNestedAgentTools executes tools for a nested agent and returns results.
+func (am *AgentManager) executeNestedAgentTools(agent *NestedAgentState, toolUses []ToolUse) []ToolResultMessage {
+	results := make([]ToolResultMessage, 0, len(toolUses))
+
+	for _, use := range toolUses {
+		// Get tool from agent's filtered registry
+		tool, exists := agent.toolRegistry.Get(use.Name)
+		if !exists {
+			if am.logger != nil {
+				am.logger.LogInfo(fmt.Sprintf("[%s] Tool not found: %s", agent.agentName, use.Name))
+			}
+			results = append(results, ToolResultMessage{
+				ToolUseID: use.ID,
+				Content:   fmt.Sprintf(`{"success": false, "error": "Tool not found: %s"}`, use.Name),
+				IsError:   true,
+			})
+			continue
+		}
+
+		// Execute tool
+		result, err := tool.Execute(use.Input)
+		if err != nil {
+			if am.logger != nil {
+				am.logger.LogInfo(fmt.Sprintf("[%s] Tool %s error: %v", agent.agentName, use.Name, err))
+			}
+			results = append(results, ToolResultMessage{
+				ToolUseID: use.ID,
+				Content:   fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error()),
+				IsError:   true,
+			})
+			continue
+		}
+
+		// Convert result to JSON string
+		resultJSON, err := json.Marshal(result)
+		if err != nil {
+			// Log serialization failure and return a warning so the agent knows the result couldn't be serialized
+			if am.logger != nil {
+				am.logger.LogInfo(fmt.Sprintf("[%s] Tool %s result not serializable: %v", agent.agentName, use.Name, err))
+			}
+			resultJSON = []byte(fmt.Sprintf(`{"success": true, "warning": "result not serializable: %s"}`, err.Error()))
+		}
+
+		results = append(results, ToolResultMessage{
+			ToolUseID: use.ID,
+			Content:   string(resultJSON),
+			IsError:   false,
+		})
+	}
+
+	return results
 }
 
 // InvokeAgentSilent invokes a specialized agent and returns response without extensive logging.
 // This is used for pre-session briefings where the full response should not be visible to players.
 // The response is intended to be injected into system context only.
+// Unlike InvokeAgent, this version uses a single API call without tool loop for faster responses.
 func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int) (string, error) {
 	startTime := time.Now()
 
@@ -279,7 +408,7 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 
 	// Validate agent name
 	validAgents := []string{"character-creator", "rules-keeper", "world-keeper"}
-	if !containsString(validAgents, agentName) {
+	if !slices.Contains(validAgents, agentName) {
 		return "", &ErrAgentNotFound{
 			AgentName:       agentName,
 			AvailableAgents: validAgents,
@@ -308,9 +437,10 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 
-	// Call Anthropic API with NO TOOLS (read-only consultant)
+	// Call Anthropic API with NO TOOLS for silent mode (faster, simpler response)
+	// Silent mode is used for briefings where we don't need tool execution
 	response, err := nestedAgent.client.GetMessages().New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.ModelClaudeHaiku4_5,
+		Model:     nestedAgent.model, // Use model from persona
 		MaxTokens: 4096,
 		System: []anthropic.TextBlockParam{
 			{
@@ -319,7 +449,7 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 			},
 		},
 		Messages: nestedAgent.conversationCtx.GetMessages(),
-		// Tools parameter intentionally omitted
+		// Tools parameter intentionally omitted for silent mode
 	})
 
 	if err != nil {
@@ -410,6 +540,28 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 	const nestedAgentTokenLimit = 20000 // Lower than main agent's 50K
 	conversationCtx := NewConversationContextWithLimit(nestedAgentTokenLimit)
 
+	// Map persona model to Anthropic model
+	// If persona doesn't specify a model, defaults to Sonnet
+	model := MapPersonaModelToAnthropic(metadata.Model)
+	modelDisplayName := GetModelDisplayName(model)
+
+	// Get tool access policy for this agent
+	policy := GetPolicyForAgent(agentName)
+
+	// Create filtered tool registry for this agent
+	var filteredRegistry *ToolRegistry
+	if am.mainToolRegistry != nil && policy != nil {
+		filteredRegistry = am.mainToolRegistry.CreateFilteredRegistry(
+			policy.GetAllowedToolNames(),
+			policy.ForbiddenTools,
+		)
+		// Log tool configuration
+		if am.logger != nil && filteredRegistry.Count() > 0 {
+			am.logger.LogInfo(fmt.Sprintf("[%s] Initialized with %d tools: %v",
+				agentName, filteredRegistry.Count(), filteredRegistry.Names()))
+		}
+	}
+
 	// Create nested agent state
 	agent := &NestedAgentState{
 		agentName:       agentName,
@@ -421,8 +573,11 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		invocationCount: 0,
 		client:          client,
 		tokenLimit:      nestedAgentTokenLimit,
+		model:           model,
+		toolRegistry:    filteredRegistry,
+		toolPolicy:      policy,
 		metrics: &AgentMetrics{
-			ModelUsed: "claude-haiku-4-5", // Nested agents always use Haiku
+			ModelUsed: modelDisplayName, // Use actual model from persona
 		},
 	}
 
@@ -520,12 +675,3 @@ func (am *AgentManager) GetAgentMetrics(agentName string) (*AgentMetrics, bool) 
 	return agent.metrics, true
 }
 
-// containsString checks if a string is in a slice.
-func containsString(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
-	}
-	return false
-}

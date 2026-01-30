@@ -70,6 +70,9 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		return nil, fmt.Errorf("failed to register tools: %w", err)
 	}
 
+	// Set the main tool registry in the agent manager for nested agent tool filtering
+	agentManager.SetMainToolRegistry(toolRegistry)
+
 	conversationCtx := NewConversationContext()
 
 	agent := &Agent{

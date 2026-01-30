@@ -114,12 +114,12 @@
 
         {{if .SpellSlots}}
         <div class="cs-spell-slots">
-            {{range .SpellSlots}}
+            {{range $slot := .SpellSlots}}
             <div class="cs-slot-row">
-                <span class="cs-slot-level">Niv.{{.Level}}</span>
+                <span class="cs-slot-level">Niv.{{$slot.Level}}</span>
                 <div class="cs-slot-boxes">
-                    {{range $i := (iterate .Total)}}
-                        {{if lt $i $.Available}}
+                    {{range $i := (iterate $slot.Total)}}
+                        {{if lt $i $slot.Available}}
                         <span class="cs-slot-box available" title="Disponible">&#x25A0;</span>
                         {{else}}
                         <span class="cs-slot-box used" title="Utilise">&#x25A1;</span>

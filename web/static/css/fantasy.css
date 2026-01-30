@@ -402,6 +402,64 @@ a:hover {
     margin: 0;
 }
 
+/* Session Status Indicator */
+.session-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--border-color);
+}
+
+.session-status.active {
+    background: rgba(46, 125, 50, 0.15);
+    border-color: var(--accent-green);
+}
+
+.session-status.inactive {
+    background: rgba(139, 0, 0, 0.15);
+    border-color: var(--accent-red);
+}
+
+.session-status .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.session-status.active .status-indicator {
+    background: var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green);
+    animation: pulse-green 2s ease-in-out infinite;
+}
+
+.session-status.inactive .status-indicator {
+    background: var(--accent-red);
+}
+
+.session-status .status-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+@keyframes pulse-green {
+    0%, 100% {
+        box-shadow: 0 0 8px var(--accent-green);
+        opacity: 1;
+    }
+    50% {
+        box-shadow: 0 0 16px var(--accent-green);
+        opacity: 0.7;
+    }
+}
+
 /* Adventure Info */
 .adventure-info {
     background: var(--bg-card);

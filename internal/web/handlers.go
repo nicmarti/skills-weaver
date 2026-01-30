@@ -131,6 +131,14 @@ func (s *Server) handleGame(c *gin.Context) {
 		}
 	}
 
+	// Check if there's an active game session
+	currentSession, _ := adv.GetCurrentSession()
+	isSessionActive := currentSession != nil
+	activeSessionID := 0
+	if currentSession != nil {
+		activeSessionID = currentSession.ID
+	}
+
 	c.HTML(http.StatusOK, "game.html", gin.H{
 		"Title":           adv.Name,
 		"Adventure":       adv,
@@ -139,6 +147,8 @@ func (s *Server) handleGame(c *gin.Context) {
 		"Gold":            session.AdventureCtx.Inventory.Gold,
 		"CurrentLocation": session.AdventureCtx.State.CurrentLocation,
 		"RecentJournal":   session.AdventureCtx.RecentJournal,
+		"IsSessionActive": isSessionActive,
+		"ActiveSessionID": activeSessionID,
 	})
 }
 
@@ -279,6 +289,47 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 </div>`,
 		session.AdventureCtx.State.CurrentLocation,
 		session.AdventureCtx.Inventory.Gold)
+
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(http.StatusOK, html)
+}
+
+// handleSessionStatus returns updated session status (for refreshing UI).
+func (s *Server) handleSessionStatus(c *gin.Context) {
+	slug := c.Param("slug")
+
+	// Load adventure
+	adv, err := adventure.LoadByName(adventuresDir, slug)
+	if err != nil {
+		c.String(http.StatusNotFound, "Adventure not found")
+		return
+	}
+
+	// Check if there's an active game session
+	currentSession, _ := adv.GetCurrentSession()
+	isActive := currentSession != nil
+
+	// Return complete div HTML for HTMX (outerHTML swap)
+	var html string
+	if isActive {
+		html = fmt.Sprintf(`<div class="session-status active"
+             id="session-status"
+             hx-get="/play/%s/session-status"
+             hx-trigger="refreshInfo from:body"
+             hx-swap="outerHTML">
+    <span class="status-indicator"></span>
+    <span class="status-text">Session %d en cours</span>
+</div>`, slug, currentSession.ID)
+	} else {
+		html = fmt.Sprintf(`<div class="session-status inactive"
+             id="session-status"
+             hx-get="/play/%s/session-status"
+             hx-trigger="refreshInfo from:body"
+             hx-swap="outerHTML">
+    <span class="status-indicator"></span>
+    <span class="status-text">Aucune session active</span>
+</div>`, slug)
+	}
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)

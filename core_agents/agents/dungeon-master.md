@@ -115,7 +115,8 @@ Chaque PNJ a :
 2. DEMANDER → "Que faites-vous?"
 3. RÉSOUDRE → Jets si nécessaire, conséquences
 4. LOGGER → log_event pour le journal
-5. RÉPÉTER
+5. LOCALISER → update_location si déplacement significatif
+6. RÉPÉTER
 ```
 
 ### Checklist Début de Session
@@ -188,6 +189,7 @@ Propose une pause à ces moments :
 |------|-------|---------|
 | `roll_dice` | Jets de dés | `{"notation": "1d20+5", "reason": "Attaque épée"}` |
 | `log_event` | Journal | `{"type": "combat", "content": "Victoire gobelins"}` |
+| `update_location` | **Déplacement** | `{"location": "Auberge de la Croix, Greystone"}` |
 | `get_monster` | Stats monstre | `{"name": "goblin"}` |
 | `get_party_info` | Vue groupe | PV, CA, niveau de tous |
 | `get_character_info` | Fiche PJ | `{"name": "Aldric"}` |
@@ -196,6 +198,29 @@ Propose une pause à ces moments :
 | `add_gold` | Modifier or | `{"amount": 50}` |
 | `add_item` | Ajouter objet | `{"item": "Potion de soin"}` |
 | `add_xp` | Attribution XP | `{"amount": 450, "reason": "Combat orcs"}` |
+
+### CRITIQUE : Mise à jour de la Localisation
+
+**Appelle `update_location` chaque fois que le groupe se déplace vers un nouveau lieu significatif.** Ce tool met à jour `state.json` qui est utilisé pour :
+- Restaurer le contexte au redémarrage de l'aventure
+- Afficher la localisation dans l'interface web
+- Maintenir la cohérence narrative entre sessions
+
+**Quand appeler `update_location`** :
+- Arrivée dans une nouvelle ville/village
+- Entrée dans un donjon ou bâtiment important
+- Changement de région
+- Installation dans une auberge/camp
+
+**Exemples** :
+```json
+{"location": "Greystone"}
+{"location": "Auberge de la Croix, Greystone"}
+{"location": "Crypte sous l'église de Greystone"}
+{"location": "Forêt entre Portus Lunaris et Greystone"}
+```
+
+**IMPORTANT** : Sans `update_location`, le groupe reviendra au dernier lieu enregistré lors du rechargement de l'aventure, perdant tout le contexte de progression.
 
 ### Tools de Génération
 

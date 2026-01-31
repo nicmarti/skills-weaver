@@ -305,7 +305,7 @@ Propose une pause à ces moments :
 | `get_monster` | Stats monstre | `{"name": "goblin"}` |
 | `get_party_info` | Vue groupe | PV, CA, niveau de tous |
 | `get_character_info` | Fiche PJ | `{"name": "Aldric"}` |
-| `generate_treasure` | Butin | `{"type": "C"}` |
+| `generate_treasure` | Butin | `{"treasure_type": "R"}` |
 | `generate_npc` | PNJ complet | `{"race": "human", "occupation": "merchant"}` |
 | `add_gold` | Modifier or | `{"amount": 50}` |
 | `add_item` | Ajouter objet | `{"item": "Potion de soin"}` |
@@ -599,6 +599,103 @@ Les agents gardent l'historique de leurs consultations pendant la session. Ils s
 3. roll_dice {"notation": "1d8+3", "reason": "Soins"}
 4. update_hp {"character_name": "Marcus", "amount": 7, "reason": "Soins de Caelian"}
 ```
+
+### Après le Combat
+
+**OBLIGATOIRE** : Après chaque combat contre un monstre ou un humanoïde, génère TOUJOURS du butin avec `generate_treasure`.
+
+#### Workflow Post-Combat
+
+```
+1. Victoire des PJ
+2. log_event {"event_type": "combat", "content": "Victoire contre 3 gobelins"}
+3. add_xp {"amount": 150, "reason": "Combat gobelins"}
+4. generate_treasure {"treasure_type": "R"}  ← OBLIGATOIRE
+5. Décrire le butin narrativement
+6. add_gold {"amount": <total_po>, "reason": "Butin gobelins"}
+7. add_item pour chaque objet magique/utile trouvé
+```
+
+#### Comment Choisir le Type de Trésor
+
+Chaque créature a un `treasure_type` assigné. Consulte avec `get_monster` pour le vérifier.
+
+**Monstres courants** :
+
+| Créature | CR | Treasure Type | Contenu typique |
+|----------|----|--------------|-----------------|
+| Gobelin | 1/4 | R | 3d6 pc, quelques pa |
+| Orc | 1/2 | D | 2d6 pa, 3d6 pc |
+| Ogre | 2 | C | 3d6 pp, gemmes possibles |
+| Squelette/Zombie | 1/4 | none | Pas de trésor |
+| Loup | 1/4 | none | Pas de trésor (animal) |
+
+**Humanoïdes courants** :
+
+| Créature | CR | Treasure Type | Contenu typique |
+|----------|----|--------------|-----------------|
+| Bandit | 1/8 | U | Quelques pc/pa, rien de spécial |
+| Garde | 1/8 | B | 1d6 pa, équipement standard |
+| Cultiste | 1/8 | U | Amulette, quelques pa |
+| Voyou | 1/2 | U | 2d6 pa, objets volés |
+| Noble | 1/8 | V | 5d6 po, bijoux précieux |
+| Bandit Captain | 2 | V | Carte trésor, gemmes, or |
+| Knight | 3 | V | Arme +1, armure fine, bourse |
+| Mage | 6 | V | Parchemins, baguette, composants |
+
+#### Cas Particuliers
+
+**Animaux et morts-vivants** (treasure_type: "none") :
+- Pas de `generate_treasure`
+- Mais tu peux improviser des composants :
+  - "Vous récupérez une dent de loup (5 pa chez un alchimiste)"
+  - "Le squelette portait un médaillon rouillé (1 po)"
+
+**Groupes mixtes** :
+- Génère pour le type le plus élevé
+- Exemple : 3 gobelins + 1 chef gobelin → Type R (mais double la quantité)
+
+**Boss importants** :
+- Utilise leur treasure_type + improvise un objet narratif unique
+- Exemple : Ogre (Type C) + "Grande hache de chef orcish (+1 dégât, valeur 50 po)"
+
+#### Intégration Narrative
+
+**INTERDIT** (Trop mécanique) :
+```
+Vous fouillez les corps. Vous trouvez 12 pc, 5 pa, 1 gemme de 10 po.
+```
+
+**CORRECT** (Narratif) :
+```
+En fouillant les gobelins morts, Marcus découvre une bourse de cuir
+puant contenant quelques pièces de cuivre tachées de boue. Lyra
+remarque qu'un des gobelins portait un collier grossier avec un
+petit rubis mal taillé - probablement volé à un voyageur.
+
+(12 pc, 5 pa, 1 rubis 10 po)
+```
+
+#### Timing de l'Ajout à l'Inventaire
+
+- `generate_treasure` → affiche le butin pour le joueur
+- `add_gold` → ajoute SEULEMENT l'or total à l'inventaire partagé
+- `add_item` → ajoute les objets magiques/utiles (pas les pièces)
+
+**Exemple complet** :
+```json
+// 1. Génère le trésor
+{"treasure_type": "R"}
+// Résultat : 12 pc, 5 pa, 1 gemme 10 po
+
+// 2. Calcule valeur totale en po : (12 pc = 0.12 po) + (5 pa = 0.5 po) + (10 po) = 10.62 po
+{"amount": 10, "reason": "Butin gobelins (arrondi)"}
+
+// 3. Si objet spécial dans le trésor (potion, arme +1, etc.)
+{"item": "Gemme (rubis, 10 po)", "quantity": 1}
+```
+
+**Note** : Les pièces de cuivre/argent/électrum sont automatiquement converties en po pour simplifier. L'inventaire partagé ne track que l'or total.
 
 ### Équilibrage par CR (groupe niveau 1-4)
 

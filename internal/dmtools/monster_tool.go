@@ -70,24 +70,29 @@ func (t *MonsterTool) Execute(params map[string]interface{}) (interface{}, error
 	// Format attacks
 	attacksInfo := []string{}
 	for _, atk := range found.Attacks {
-		attacksInfo = append(attacksInfo, fmt.Sprintf("%s +%d (%s dmg)", atk.NameFR, atk.Bonus, atk.Damage))
+		atkStr := fmt.Sprintf("%s +%d (%s dmg)", atk.NameFR, atk.Bonus, atk.Damage)
+		if atk.DamageType != "" {
+			atkStr += fmt.Sprintf(" [%s]", atk.DamageType)
+		}
+		attacksInfo = append(attacksInfo, atkStr)
 	}
 
-	display := fmt.Sprintf(`%s
-AC: %d | DV: %s (moy. %d PV) | Mvt: %d'
+	// D&D 5e format display
+	display := fmt.Sprintf(`%s (%s)
+CA: %d | CR: %s | PV: %d (moy.) | Mvt: %d'
+Bonus maîtrise: +%d | XP: %d
 Attaques: %s
-Sauve comme: %s | Moral: %d
-Type trésor: %s | XP: %d`,
+Type trésor: %s`,
 		found.NameFR,
+		found.Type,
 		found.ArmorClass,
-		found.HitDice,
+		found.ChallengeRating,
 		found.HitPointsAvg,
 		found.Movement,
-		strings.Join(attacksInfo, ", "),
-		found.SaveAs,
-		found.Morale,
-		found.TreasureType,
+		found.ProficiencyBonus,
 		found.XP,
+		strings.Join(attacksInfo, ", "),
+		found.TreasureType,
 	)
 
 	if len(found.Special) > 0 {

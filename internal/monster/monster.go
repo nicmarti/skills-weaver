@@ -43,11 +43,11 @@ type Monster struct {
 	Type          string   `json:"type"`
 	Size          string   `json:"size"`
 
-	// BFRPG fields (kept for backward compatibility)
-	HitDice       string   `json:"hit_dice,omitempty"`
+	// Legacy BFRPG fields (deprecated - D&D 5e only)
+	HitDice       string   `json:"hit_dice,omitempty"`       // Deprecated: use hit_points_avg
 	HitPointsAvg  int      `json:"hit_points_avg"`
-	SaveAs        string   `json:"save_as,omitempty"`
-	Morale        int      `json:"morale,omitempty"`
+	SaveAs        string   `json:"save_as,omitempty"`        // Deprecated: D&D 5e uses proficiency bonus
+	Morale        int      `json:"morale,omitempty"`         // Deprecated: not used in D&D 5e
 
 	// D&D 5e fields
 	ChallengeRating   string    `json:"challenge_rating,omitempty"` // "0", "1/8", "1/4", "1/2", "1", "2", etc.
@@ -130,14 +130,15 @@ func GetCRXP(cr string) int {
 	return 0
 }
 
-// IsBFRPG returns true if this monster uses BFRPG format (has HitDice field).
+// IsBFRPG is deprecated. All monsters now use D&D 5e format.
+// Kept for backward compatibility.
 func (m *Monster) IsBFRPG() bool {
-	return m.HitDice != ""
+	return false
 }
 
-// IsDnD5e returns true if this monster uses D&D 5e format (has ChallengeRating field).
+// IsDnD5e returns true (all monsters are D&D 5e format).
 func (m *Monster) IsDnD5e() bool {
-	return m.ChallengeRating != ""
+	return true
 }
 
 // EncounterEntry represents a monster entry in an encounter table.
@@ -183,28 +184,50 @@ type Bestiary struct {
 }
 
 // NewBestiary creates a new bestiary from the data directory.
-// Tries to load D&D 5e monsters first (data/5e/monsters.json),
-// falls back to BFRPG (data/monsters.json) if not found.
+// Loads D&D 5e monsters from multiple JSON files in data/5e/:
+// - monsters.json (beasts, undead, etc.)
+// - humanoids.json (guards, bandits, cultists, etc.)
 func NewBestiary(dataDir string) (*Bestiary, error) {
-	// Try D&D 5e first
-	path5e := filepath.Join(dataDir, "5e", "monsters.json")
-	data, err := os.ReadFile(path5e)
-	if err != nil {
-		// Fallback to BFRPG
-		pathBFRPG := filepath.Join(dataDir, "monsters.json")
-		data, err = os.ReadFile(pathBFRPG)
+	// List of JSON files to load
+	files := []string{
+		filepath.Join(dataDir, "5e", "monsters.json"),
+		filepath.Join(dataDir, "5e", "humanoids.json"),
+	}
+
+	// Merged data
+	var allData MonstersData
+	allData.Monsters = []Monster{}
+	allData.EncounterTables = make(map[string]EncounterTable)
+
+	// Load each file
+	for _, filePath := range files {
+		data, err := os.ReadFile(filePath)
 		if err != nil {
-			return nil, fmt.Errorf("reading monsters.json: %w", err)
+			// Skip missing files (humanoids.json may not exist in older installations)
+			continue
+		}
+
+		var fileData MonstersData
+		if err := json.Unmarshal(data, &fileData); err != nil {
+			return nil, fmt.Errorf("parsing %s: %w", filepath.Base(filePath), err)
+		}
+
+		// Merge monsters
+		allData.Monsters = append(allData.Monsters, fileData.Monsters...)
+
+		// Merge encounter tables
+		for name, table := range fileData.EncounterTables {
+			allData.EncounterTables[name] = table
 		}
 	}
 
-	var monstersData MonstersData
-	if err := json.Unmarshal(data, &monstersData); err != nil {
-		return nil, fmt.Errorf("parsing monsters.json: %w", err)
+	// Ensure at least one file was loaded
+	if len(allData.Monsters) == 0 {
+		return nil, fmt.Errorf("no monsters found in data/5e/ directory")
 	}
 
 	return &Bestiary{
-		data:    &monstersData,
+		data:    &allData,
 		rng:     rand.New(rand.NewSource(time.Now().UnixNano())),
 		roller:  dice.New(),
 		dataDir: dataDir,
@@ -432,45 +455,20 @@ func (m *Monster) ToMarkdown() string {
 			m.Abilities.Intelligence, m.Abilities.Wisdom, m.Abilities.Charisma))
 	}
 
-	// Combat stats
+	// Combat stats (D&D 5e format)
 	sb.WriteString("### Statistiques de Combat\n\n")
-	sb.WriteString(fmt.Sprintf("| Stat | Valeur |\n"))
-	sb.WriteString(fmt.Sprintf("|------|--------|\n"))
-
-	// D&D 5e: Show CR
-	if m.ChallengeRating != "" {
-		sb.WriteString(fmt.Sprintf("| **Challenge Rating** | %s (XP %d) |\n", m.ChallengeRating, m.XP))
-		sb.WriteString(fmt.Sprintf("| **Bonus de Maîtrise** | +%d |\n", m.ProficiencyBonus))
-	}
-
-	// BFRPG: Show Hit Dice
-	if m.HitDice != "" {
-		sb.WriteString(fmt.Sprintf("| **Dés de Vie** | %s (moy. %d PV) |\n", m.HitDice, m.HitPointsAvg))
-	} else {
-		sb.WriteString(fmt.Sprintf("| **Points de Vie** | %d (moyenne) |\n", m.HitPointsAvg))
-	}
-
+	sb.WriteString("| Stat | Valeur |\n")
+	sb.WriteString("|------|--------|\n")
+	sb.WriteString(fmt.Sprintf("| **Challenge Rating** | %s (XP %d) |\n", m.ChallengeRating, m.XP))
+	sb.WriteString(fmt.Sprintf("| **Bonus de Maîtrise** | +%d |\n", m.ProficiencyBonus))
+	sb.WriteString(fmt.Sprintf("| **Points de Vie** | %d (moyenne) |\n", m.HitPointsAvg))
 	sb.WriteString(fmt.Sprintf("| **Classe d'Armure** | %d |\n", m.ArmorClass))
 	sb.WriteString(fmt.Sprintf("| **Mouvement** | %d", m.Movement))
 	if m.MovementFly > 0 {
 		sb.WriteString(fmt.Sprintf(" (vol %d)", m.MovementFly))
 	}
 	sb.WriteString(" |\n")
-
-	// BFRPG specific
-	if m.SaveAs != "" {
-		sb.WriteString(fmt.Sprintf("| **Sauvegarde** | %s |\n", m.SaveAs))
-	}
-	if m.Morale > 0 {
-		sb.WriteString(fmt.Sprintf("| **Moral** | %d |\n", m.Morale))
-	}
-
 	sb.WriteString(fmt.Sprintf("| **Trésor** | %s |\n", m.TreasureType))
-
-	// D&D 5e doesn't show XP again if already shown with CR
-	if m.ChallengeRating == "" {
-		sb.WriteString(fmt.Sprintf("| **XP** | %d |\n", m.XP))
-	}
 
 	// Attacks
 	sb.WriteString("\n### Attaques\n\n")
@@ -500,16 +498,10 @@ func (m *Monster) ToMarkdown() string {
 	return sb.String()
 }
 
-// ToShortDescription returns a one-line description.
+// ToShortDescription returns a one-line description (D&D 5e format).
 func (m *Monster) ToShortDescription() string {
-	if m.ChallengeRating != "" {
-		// D&D 5e format
-		return fmt.Sprintf("%s (%s) - CA %d, CR %s (%d PV), XP %d",
-			m.NameFR, m.Type, m.ArmorClass, m.ChallengeRating, m.HitPointsAvg, m.XP)
-	}
-	// BFRPG format
-	return fmt.Sprintf("%s (%s) - CA %d, DV %s (%d PV), XP %d",
-		m.NameFR, m.Type, m.ArmorClass, m.HitDice, m.HitPointsAvg, m.XP)
+	return fmt.Sprintf("%s (%s) - CA %d, CR %s (%d PV), XP %d",
+		m.NameFR, m.Type, m.ArmorClass, m.ChallengeRating, m.HitPointsAvg, m.XP)
 }
 
 // ToJSON returns the monster as JSON string.

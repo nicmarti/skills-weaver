@@ -68,6 +68,18 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapUpdateHP(params)
 	case "use_spell_slot":
 		return mapUseSpellSlot(params)
+	case "update_time":
+		return mapUpdateTime(params)
+	case "set_flag":
+		return mapSetFlag(params)
+	case "add_quest":
+		return mapAddQuest(params)
+	case "complete_quest":
+		return mapCompleteQuest(params)
+	case "set_variable":
+		return mapSetVariable(params)
+	case "get_state":
+		return mapGetState(params)
 	default:
 		return ""
 	}
@@ -477,4 +489,70 @@ func mapUseSpellSlot(params map[string]interface{}) string {
 		spellName = fmt.Sprintf(" --spell=\"%s\"", s)
 	}
 	return fmt.Sprintf("# use_spell_slot \"%s\" level=%.0f%s (internal operation - modifies character JSON)", name, level, spellName)
+}
+
+func mapUpdateTime(params map[string]interface{}) string {
+	// No direct CLI equivalent - this is an internal adventure operation
+	day := ""
+	if d, ok := params["day"].(float64); ok {
+		day = fmt.Sprintf("day=%.0f ", d)
+	}
+	hour := ""
+	if h, ok := params["hour"].(float64); ok {
+		hour = fmt.Sprintf("hour=%.0f ", h)
+	}
+	minute := ""
+	if m, ok := params["minute"].(float64); ok {
+		minute = fmt.Sprintf("minute=%.0f", m)
+	}
+	return fmt.Sprintf("# update_time %s%s%s(internal operation - modifies state.json)", day, hour, minute)
+}
+
+func mapSetFlag(params map[string]interface{}) string {
+	flag, ok := params["flag"].(string)
+	if !ok {
+		return ""
+	}
+	value := "true"
+	if v, ok := params["value"].(bool); ok && !v {
+		value = "false"
+	}
+	return fmt.Sprintf("# set_flag \"%s\" value=%s (internal operation - modifies state.json)", flag, value)
+}
+
+func mapAddQuest(params map[string]interface{}) string {
+	name, ok := params["name"].(string)
+	if !ok {
+		return ""
+	}
+	desc := ""
+	if d, ok := params["description"].(string); ok && d != "" {
+		desc = fmt.Sprintf(" --description=\"%s\"", d)
+	}
+	return fmt.Sprintf("# add_quest \"%s\"%s (internal operation - modifies state.json)", name, desc)
+}
+
+func mapCompleteQuest(params map[string]interface{}) string {
+	name, ok := params["quest_name"].(string)
+	if !ok {
+		return ""
+	}
+	return fmt.Sprintf("# complete_quest \"%s\" (internal operation - modifies state.json)", name)
+}
+
+func mapSetVariable(params map[string]interface{}) string {
+	key, ok := params["key"].(string)
+	if !ok {
+		return ""
+	}
+	value := ""
+	if v, ok := params["value"].(string); ok {
+		value = fmt.Sprintf(" value=\"%s\"", v)
+	}
+	return fmt.Sprintf("# set_variable \"%s\"%s (internal operation - modifies state.json)", key, value)
+}
+
+func mapGetState(params map[string]interface{}) string {
+	// No parameters for get_state
+	return "# get_state (internal operation - reads state.json)"
 }

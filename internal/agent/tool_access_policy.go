@@ -29,6 +29,14 @@ var AlwaysForbiddenTools = []string{
 	"remove_item",
 	"add_xp",
 	"update_location",
+	"update_hp",
+	"use_spell_slot",
+	"update_time",
+	"set_flag",
+	"add_quest",
+	"complete_quest",
+	"set_variable",
+	"get_state",
 
 	// Foreshadowing - only DM can plant/resolve narrative elements
 	"plant_foreshadow",

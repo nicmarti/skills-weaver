@@ -209,9 +209,52 @@ func SerializeConversationContextWithOptimization(ctx *ConversationContext, maxT
 	return serialized, nil
 }
 
+// cleanOrphanedToolResults removes tool_results from messages that don't have
+// corresponding tool_uses in the previous message. This can happen when
+// conversation history is truncated for token optimization.
+func cleanOrphanedToolResults(messages []SerializableMessage) []SerializableMessage {
+	if len(messages) == 0 {
+		return messages
+	}
+
+	// Track tool_use IDs from assistant messages
+	toolUseIDs := make(map[string]bool)
+
+	for i := range messages {
+		msg := &messages[i]
+
+		// If this is an assistant message, record all tool_use IDs
+		if msg.Role == "assistant" {
+			for _, toolUse := range msg.ToolUses {
+				toolUseIDs[toolUse.ID] = true
+			}
+		}
+
+		// If this is a user message with tool_results, check if they're valid
+		if msg.Role == "user" && len(msg.ToolResults) > 0 {
+			validResults := []SerializableToolResult{}
+			for _, result := range msg.ToolResults {
+				// Only keep tool_results that have corresponding tool_uses
+				if toolUseIDs[result.ToolUseID] {
+					validResults = append(validResults, result)
+				} else {
+					fmt.Printf("Warning: Removing orphaned tool_result with ID %s at message %d\n",
+						result.ToolUseID, i)
+				}
+			}
+			msg.ToolResults = validResults
+		}
+	}
+
+	return messages
+}
+
 // DeserializeConversationContextFromMessages creates a conversation context from serialized messages.
 func DeserializeConversationContextFromMessages(messages []SerializableMessage, tokenLimit int) (*ConversationContext, error) {
 	ctx := NewConversationContextWithLimit(tokenLimit)
+
+	// Clean orphaned tool_results before deserializing
+	messages = cleanOrphanedToolResults(messages)
 
 	for i, msg := range messages {
 		anthropicMsg, err := DeserializeMessage(&msg)

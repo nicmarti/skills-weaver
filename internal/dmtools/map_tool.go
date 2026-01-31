@@ -64,7 +64,7 @@ func (t *GenerateMapTool) Name() string {
 
 // Description returns the tool description.
 func (t *GenerateMapTool) Description() string {
-	return `Generate a detailed 2D fantasy map prompt to clarify narration for players. Validates locations against world-keeper data and applies kingdom-specific architectural styles.
+	return `Generate a detailed 2D fantasy map prompt to clarify narration for players. City maps are validated against world-keeper data for architectural consistency. Region, dungeon, and tactical maps can use any location name.
 
 WHEN TO USE:
 - Players are confused about geography or layout
@@ -73,10 +73,10 @@ WHEN TO USE:
 - Combat requires a tactical grid map
 
 MAP TYPES:
-- city: Aerial view of a city with districts, POIs, and infrastructure
-- region: Bird's eye view of multiple settlements, routes, and terrain
-- dungeon: Top-down floor plan with rooms, corridors, traps, and grid
-- tactical: Combat grid with terrain, cover, obstacles, and elevation
+- city: Aerial view of a city with districts, POIs, and infrastructure (requires location in geography.json)
+- region: Bird's eye view of multiple settlements, routes, and terrain (no validation required)
+- dungeon: Top-down floor plan with rooms, corridors, traps, and grid (no validation required)
+- tactical: Combat grid with terrain, cover, obstacles, and elevation (no validation required)
 
 The tool enriches prompts with Claude Haiku 3.5, caches results, and optionally generates images via fal.ai flux-2.`
 }
@@ -93,7 +93,7 @@ func (t *GenerateMapTool) InputSchema() map[string]interface{} {
 			},
 			"name": map[string]interface{}{
 				"type":        "string",
-				"description": "Name of the location, dungeon, or scene. For city/region: must exist in geography.json (e.g., 'Cordova'). For dungeon/tactical: any descriptive name (e.g., 'La Crypte des Ombres', 'Embuscade en forêt').",
+				"description": "Name of the location, dungeon, or scene. For city: must exist in geography.json (e.g., 'Cordova'). For region/dungeon/tactical: any descriptive name (e.g., 'Route entre Greystone et Portus Lunaris', 'La Crypte des Ombres', 'Embuscade en forêt').",
 			},
 			"features": map[string]interface{}{
 				"type":        "array",
@@ -192,11 +192,11 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 		generateImage = genImg
 	}
 
-	// Validate and get location data (for city/region types)
+	// Validate and get location data (for city type only)
 	var location *world.Location
 	var kingdom *world.Kingdom
 
-	if mapType == "city" || mapType == "region" {
+	if mapType == "city" {
 		exists, loc, _, _ := world.ValidateLocationExists(name, t.geography)
 		if !exists {
 			// Provide suggestions
@@ -210,7 +210,7 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 				"success":     false,
 				"error":       fmt.Sprintf("Location '%s' not found in geography.json", name),
 				"suggestions": suggestionStrs,
-				"hint":        "For dungeons and tactical maps, location validation is not required.",
+				"hint":        "For region, dungeon and tactical maps, location validation is not required.",
 			}, nil
 		}
 		location = loc

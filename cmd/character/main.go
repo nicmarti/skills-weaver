@@ -1,4 +1,4 @@
-// Command character provides a CLI for creating and managing BFRPG characters.
+// Command character provides a CLI for creating and managing D&D 5e characters.
 //
 // Usage:
 //
@@ -686,7 +686,7 @@ func formatRolls(rolls []int, keptIndices []int) string {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - Character Generator - Générateur de personnages BFRPG
+	fmt.Println(`SkillsWeaver - Character Generator - Générateur de personnages D&D 5e
 
 USAGE:
     sw-character [global-options] <command> [arguments]

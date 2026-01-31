@@ -75,6 +75,10 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewGetPartyInfoTool(adv))
 	registry.Register(dmtools.NewGetCharacterInfoTool(adv))
 
+	// Register combat tools (HP modification and spell slot usage)
+	registry.Register(dmtools.NewUpdateHPTool(adv))
+	registry.Register(dmtools.NewUseSpellSlotTool(adv))
+
 	// Register image generation tool
 	imageTool, err := dmtools.NewGenerateImageTool(adv)
 	if err != nil {
@@ -157,6 +161,14 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewUpdateCampaignProgressTool(adv))
 	registry.Register(dmtools.NewAddNarrativeThreadTool(adv))
 	registry.Register(dmtools.NewRemoveNarrativeThreadTool(adv))
+
+	// Register game state management tools
+	registry.Register(dmtools.NewUpdateTimeTool(adv))
+	registry.Register(dmtools.NewSetFlagTool(adv))
+	registry.Register(dmtools.NewAddQuestTool(adv))
+	registry.Register(dmtools.NewCompleteQuestTool(adv))
+	registry.Register(dmtools.NewSetVariableTool(adv))
+	registry.Register(dmtools.NewGetStateTool(adv))
 
 	return nil
 }

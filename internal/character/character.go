@@ -15,7 +15,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// AbilityScores represents the six ability scores in BFRPG order.
+// AbilityScores represents the six D&D 5e ability scores.
 type AbilityScores struct {
 	Strength     int `json:"strength"`
 	Intelligence int `json:"intelligence"`
@@ -116,7 +116,7 @@ func (c *Character) GenerateAbilities(method GenerationMethod) []dice.Result {
 		results = roller.RollStats()
 	}
 
-	// Assign in BFRPG order: STR, INT, WIS, DEX, CON, CHA
+	// Assign ability scores: STR, INT, WIS, DEX, CON, CHA
 	c.Abilities.Strength = results[0].Total
 	c.Abilities.Intelligence = results[1].Total
 	c.Abilities.Wisdom = results[2].Total
@@ -178,7 +178,7 @@ func (c *Character) CalculateModifiers() {
 //
 // Parameters:
 //   - maxHP: if true, gives maximum hit die value (popular variant for survivability)
-//     if false, rolls the hit die randomly (standard BFRPG rules)
+//     if false, rolls the hit die randomly (standard D&D 5e rules)
 //
 // The hit die depends on class:
 //   - Fighter: d8 (1-8)
@@ -198,7 +198,7 @@ func (c *Character) RollHitPoints(gd *data.GameData, maxHP bool) error {
 		// Variant rule: maximum hit die at level 1
 		hp = class.HitDieSides
 	} else {
-		// Standard BFRPG: roll the hit die
+		// Standard D&D 5e: roll the hit die
 		roller := dice.New()
 		result, err := roller.Roll(class.HitDie)
 		if err != nil {

@@ -28,7 +28,7 @@ type Abilities struct {
 type Attack struct {
 	Name       string `json:"name"`
 	NameFR     string `json:"name_fr"`
-	Bonus      int    `json:"bonus"`        // Attack bonus (BFRPG) or to-hit (D&D 5e)
+	Bonus      int    `json:"bonus"`        // Attack bonus (to-hit modifier)
 	Damage     string `json:"damage"`       // Damage dice (e.g., "1d8+2")
 	DamageAvg  int    `json:"damage_avg"`   // Average damage
 	DamageType string `json:"damage_type,omitempty"` // slashing, piercing, bludgeoning, etc. (D&D 5e)

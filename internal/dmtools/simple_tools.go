@@ -200,7 +200,7 @@ func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
 
 	return &SimpleTool{
 		name:        "generate_treasure",
-		description: "Generate a treasure hoard according to BFRPG treasure types (A-U). Each monster type has an associated treasure type.",
+		description: "Generate a treasure hoard according to D&D 5e treasure types (A-U). Each monster type has an associated treasure type.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{

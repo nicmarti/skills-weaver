@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Weapon represents a weapon in BFRPG.
+// Weapon represents a D&D 5e weapon.
 type Weapon struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -22,7 +22,7 @@ type Weapon struct {
 	Range      string   `json:"range,omitempty"`
 }
 
-// Armor represents armor or shield in BFRPG.
+// Armor represents D&D 5e armor or shield.
 type Armor struct {
 	ID      string  `json:"id"`
 	Name    string  `json:"name"`

@@ -132,8 +132,8 @@ func (r *Roller) Initiative(dexMod int) *Result {
 
 // AttackRoll rolls d20 + attack bonus for a combat attack.
 // Returns the result with the natural roll preserved for critical hit detection.
-// BFRPG rule: d20 + attack bonus >= target AC to hit.
-// Natural 20 is always a hit, natural 1 is always a miss.
+// D&D 5e rule: d20 + attack bonus >= target AC to hit.
+// Natural 20 is always a hit (critical), natural 1 is always a miss.
 func (r *Roller) AttackRoll(attackBonus int) *Result {
 	result, _ := r.Roll("1d20")
 	result.Modifier = attackBonus

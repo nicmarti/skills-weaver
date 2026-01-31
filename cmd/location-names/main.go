@@ -52,7 +52,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Location Name Generator - Générateur de Noms de Lieux BFRPG
+	fmt.Println(`Location Name Generator - Générateur de Noms de Lieux D&D 5e
 
 UTILISATION:
   sw-location-names <commande> [options]

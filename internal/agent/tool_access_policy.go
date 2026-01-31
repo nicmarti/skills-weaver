@@ -70,7 +70,7 @@ var AgentToolPolicies = map[string]*ToolAccessPolicy{
 			"roll_monster_hp",
 		},
 		ForbiddenTools: AlwaysForbiddenTools,
-		MaxIterations:  5,
+		MaxIterations:  8,
 	},
 	"character-creator": {
 		AgentName: "character-creator",

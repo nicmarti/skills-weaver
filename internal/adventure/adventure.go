@@ -1,4 +1,4 @@
-// Package adventure provides adventure/campaign management for BFRPG.
+// Package adventure provides adventure/campaign management for D&D 5e.
 package adventure
 
 import (

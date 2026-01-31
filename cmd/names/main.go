@@ -48,7 +48,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`Name Generator - Générateur de Noms Fantasy BFRPG
+	fmt.Println(`Name Generator - Générateur de Noms Fantasy D&D 5e
 
 UTILISATION:
   sw-names <commande> [arguments]

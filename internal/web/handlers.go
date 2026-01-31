@@ -162,10 +162,10 @@ func (s *Server) handleMessage(c *gin.Context) {
 		return
 	}
 
-	// Get session
-	session, exists := s.sessionManager.GetSession(slug)
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+	// Get or recreate session (handles session expiration gracefully)
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to restore session: " + err.Error()})
 		return
 	}
 
@@ -176,7 +176,7 @@ func (s *Server) handleMessage(c *gin.Context) {
 	}
 
 	// Start processing - this returns immediately with the output to read from
-	_, err := session.ProcessMessage(message)
+	_, err = session.ProcessMessage(message)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -193,10 +193,10 @@ func (s *Server) handleMessage(c *gin.Context) {
 func (s *Server) handleStream(c *gin.Context) {
 	slug := c.Param("slug")
 
-	// Get session
-	session, exists := s.sessionManager.GetSession(slug)
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+	// Get or recreate session
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to restore session: " + err.Error()})
 		return
 	}
 
@@ -233,10 +233,10 @@ func (s *Server) handleStream(c *gin.Context) {
 func (s *Server) handleCharacters(c *gin.Context) {
 	slug := c.Param("slug")
 
-	// Get session
-	session, exists := s.sessionManager.GetSession(slug)
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+	// Get or recreate session
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to restore session: " + err.Error()})
 		return
 	}
 
@@ -264,10 +264,10 @@ func (s *Server) handleCharacters(c *gin.Context) {
 func (s *Server) handleAdventureInfo(c *gin.Context) {
 	slug := c.Param("slug")
 
-	// Get session (reload context)
-	session, exists := s.sessionManager.GetSession(slug)
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+	// Get or recreate session (reload context)
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to restore session: " + err.Error()})
 		return
 	}
 
@@ -356,10 +356,10 @@ func (s *Server) handleMaps(c *gin.Context) {
 func (s *Server) handleMinimap(c *gin.Context) {
 	slug := c.Param("slug")
 
-	// Get session
-	session, exists := s.sessionManager.GetSession(slug)
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+	// Get or recreate session
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to restore session: " + err.Error()})
 		return
 	}
 
@@ -671,16 +671,11 @@ func (s *Server) handleCharacterSheet(c *gin.Context) {
 	slug := c.Param("slug")
 	charName := c.Param("name")
 
-	// Get session
-	session, exists := s.sessionManager.GetSession(slug)
-	if !exists {
-		// Try to create session
-		var err error
-		session, err = s.sessionManager.GetOrCreateSession(slug)
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
-			return
-		}
+	// Get or recreate session
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to restore session: " + err.Error()})
+		return
 	}
 
 	// Find character by name (case-insensitive)

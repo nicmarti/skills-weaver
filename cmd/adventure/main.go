@@ -90,7 +90,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - Adventure Manager - Gestionnaire d'Aventures BFRPG
+	fmt.Println(`SkillsWeaver - Adventure Manager - Gestionnaire d'Aventures D&D 5e
 
 UTILISATION:
   sw-adventure <commande> [arguments]

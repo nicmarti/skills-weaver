@@ -10,9 +10,10 @@ import (
 
 const (
 	// SessionTTL is how long a session remains active without activity.
-	SessionTTL = 30 * time.Minute
+	// Set to 2 hours to allow for breaks during gameplay.
+	SessionTTL = 2 * time.Hour
 	// CleanupInterval is how often to check for expired sessions.
-	CleanupInterval = 5 * time.Minute
+	CleanupInterval = 10 * time.Minute
 )
 
 // OutputRedirector is an OutputHandler that redirects to another OutputHandler.

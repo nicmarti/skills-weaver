@@ -201,7 +201,7 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 
 	// Create API call context with timeout
 	// Use 80 seconds (1m20s) to give nested agents more time for complex queries
-	const invocationTimeout = 80 * time.Second
+	const invocationTimeout = 120 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 
@@ -433,7 +433,7 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 	systemPrompt := am.buildNestedAgentSystemPrompt(nestedAgent)
 
 	// Create API call context with timeout
-	const invocationTimeout = 80 * time.Second
+	const invocationTimeout = 120 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 

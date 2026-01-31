@@ -64,6 +64,10 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapInvokeSkill(params)
 	case "add_xp":
 		return mapAddXP(params)
+	case "update_hp":
+		return mapUpdateHP(params)
+	case "use_spell_slot":
+		return mapUseSpellSlot(params)
 	default:
 		return ""
 	}
@@ -434,4 +438,43 @@ func mapAddXP(params map[string]interface{}) string {
 	}
 
 	return strings.Join(parts, " ")
+}
+
+func mapUpdateHP(params map[string]interface{}) string {
+	name, ok := params["character_name"].(string)
+	if !ok {
+		return ""
+	}
+	amount, ok := params["amount"].(float64)
+	if !ok {
+		return ""
+	}
+
+	// No direct CLI equivalent - this is an internal adventure operation
+	// that modifies character JSON files directly
+	// Return a descriptive pseudo-command for logging purposes
+	reason := ""
+	if r, ok := params["reason"].(string); ok && r != "" {
+		reason = fmt.Sprintf(" --reason=\"%s\"", r)
+	}
+	return fmt.Sprintf("# update_hp \"%s\" %.0f%s (internal operation - modifies character JSON)", name, amount, reason)
+}
+
+func mapUseSpellSlot(params map[string]interface{}) string {
+	name, ok := params["character_name"].(string)
+	if !ok {
+		return ""
+	}
+	level, ok := params["spell_level"].(float64)
+	if !ok {
+		return ""
+	}
+
+	// No direct CLI equivalent - this is an internal adventure operation
+	// Return a descriptive pseudo-command for logging purposes
+	spellName := ""
+	if s, ok := params["spell_name"].(string); ok && s != "" {
+		spellName = fmt.Sprintf(" --spell=\"%s\"", s)
+	}
+	return fmt.Sprintf("# use_spell_slot \"%s\" level=%.0f%s (internal operation - modifies character JSON)", name, level, spellName)
 }

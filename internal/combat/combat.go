@@ -337,7 +337,7 @@ func (c *Combat) Attack(attackerName, defenderName string) (*AttackResult, error
 		}
 		result.Damage = damageRoll.Total
 
-		// Double damage on critical hit (optional BFRPG rule)
+		// Double damage on critical hit (simplified D&D 5e rule)
 		if result.CriticalHit {
 			result.Damage *= 2
 		}

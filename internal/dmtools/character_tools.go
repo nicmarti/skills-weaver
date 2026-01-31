@@ -328,7 +328,7 @@ func formatPartyDisplay(party *adventure.Party, members []map[string]interface{}
 
 		sb.WriteString(fmt.Sprintf("| %s | %s %s | %d | %d/%d | %d | %s %s |\n",
 			m["name"],
-			m["race"],
+			m["species"],
 			m["class"],
 			m["level"],
 			m["hp"],

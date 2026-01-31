@@ -47,7 +47,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - NPC Generator - Générateur de PNJ pour BFRPG
+	fmt.Println(`SkillsWeaver - NPC Generator - Générateur de PNJ pour D&D 5e
 
 UTILISATION:
   sw-npc <commande> [arguments]

@@ -4,19 +4,30 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"dungeons/internal/adventure"
 )
 
 // TestMapGenerationValidation verifies the validation behavior for different map types.
 func TestMapGenerationValidation(t *testing.T) {
 	// Get test data directory
 	dataDir := filepath.Join("..", "..", "data")
+	adventuresDir := filepath.Join(dataDir, "adventures")
 
-	// Create temporary adventure directory for testing
-	tempAdventure := filepath.Join(dataDir, "adventures", "test-map-validation")
-	if err := os.MkdirAll(tempAdventure, 0755); err != nil {
-		t.Fatalf("Failed to create temp adventure: %v", err)
+	// Create minimal adventure.json for testing
+	advData := adventure.New("Test Map Validation", "Test adventure for map generation")
+	if err := advData.Save(adventuresDir); err != nil {
+		t.Fatalf("Failed to save test adventure: %v", err)
 	}
-	defer os.RemoveAll(tempAdventure)
+
+	// Load adventure instance
+	tempAdventurePath := filepath.Join(adventuresDir, advData.Slug)
+	defer os.RemoveAll(tempAdventurePath)
+
+	tempAdventure, err := adventure.Load(tempAdventurePath)
+	if err != nil {
+		t.Fatalf("Failed to load adventure: %v", err)
+	}
 
 	// Create tool instance
 	tool, err := NewGenerateMapTool(dataDir, tempAdventure, nil)
@@ -116,11 +127,22 @@ func TestMapGenerationValidation(t *testing.T) {
 // TestMapGenerationHintMessage verifies the hint message is updated.
 func TestMapGenerationHintMessage(t *testing.T) {
 	dataDir := filepath.Join("..", "..", "data")
-	tempAdventure := filepath.Join(dataDir, "adventures", "test-hint")
-	if err := os.MkdirAll(tempAdventure, 0755); err != nil {
-		t.Fatalf("Failed to create temp adventure: %v", err)
+	adventuresDir := filepath.Join(dataDir, "adventures")
+
+	// Create minimal adventure.json for testing
+	advData := adventure.New("Test Hint Message", "Test adventure for hint message")
+	if err := advData.Save(adventuresDir); err != nil {
+		t.Fatalf("Failed to save test adventure: %v", err)
 	}
-	defer os.RemoveAll(tempAdventure)
+
+	// Load adventure instance
+	tempAdventurePath := filepath.Join(adventuresDir, advData.Slug)
+	defer os.RemoveAll(tempAdventurePath)
+
+	tempAdventure, err := adventure.Load(tempAdventurePath)
+	if err != nil {
+		t.Fatalf("Failed to load adventure: %v", err)
+	}
 
 	tool, err := NewGenerateMapTool(dataDir, tempAdventure, nil)
 	if err != nil {

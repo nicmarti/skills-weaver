@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/ai"
 	"dungeons/internal/image"
 	"dungeons/internal/world"
@@ -20,16 +21,16 @@ type MapGeneratedNotifier interface {
 
 // GenerateMapTool generates 2D fantasy map prompts with world-keeper validation.
 type GenerateMapTool struct {
-	dataDir       string
-	adventurePath string
-	enricher      *ai.Enricher
-	geography     *world.Geography
-	factions      *world.Factions
-	notifier      MapGeneratedNotifier
+	dataDir   string
+	adventure *adventure.Adventure
+	enricher  *ai.Enricher
+	geography *world.Geography
+	factions  *world.Factions
+	notifier  MapGeneratedNotifier
 }
 
 // NewGenerateMapTool creates a new map generation tool.
-func NewGenerateMapTool(dataDir string, adventurePath string, notifier MapGeneratedNotifier) (*GenerateMapTool, error) {
+func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGeneratedNotifier) (*GenerateMapTool, error) {
 	// Load world data
 	geo, err := world.LoadGeography(dataDir)
 	if err != nil {
@@ -48,13 +49,29 @@ func NewGenerateMapTool(dataDir string, adventurePath string, notifier MapGenera
 	}
 
 	return &GenerateMapTool{
-		dataDir:       dataDir,
-		adventurePath: adventurePath,
-		enricher:      enricher,
-		geography:     geo,
-		factions:      factions,
-		notifier:      notifier,
+		dataDir:   dataDir,
+		adventure: adv,
+		enricher:  enricher,
+		geography: geo,
+		factions:  factions,
+		notifier:  notifier,
 	}, nil
+}
+
+// getSessionImagesDir returns the images directory for the current session.
+// Uses the active session number, or session-0 if no session is active.
+func (t *GenerateMapTool) getSessionImagesDir() (string, error) {
+	sessionNum := 0
+	if session, err := t.adventure.GetCurrentSession(); err == nil && session != nil {
+		sessionNum = session.ID
+	}
+
+	imagesDir := filepath.Join(t.adventure.BasePath(), "images", fmt.Sprintf("session-%d", sessionNum))
+	if err := os.MkdirAll(imagesDir, 0755); err != nil {
+		return "", fmt.Errorf("creating images directory: %w", err)
+	}
+
+	return imagesDir, nil
 }
 
 // Name returns the tool name.
@@ -320,8 +337,13 @@ func (t *GenerateMapTool) saveCachedPrompt(cacheFile string, result *ai.MapPromp
 
 // generateImage generates an actual map image using fal.ai flux-2.
 func (t *GenerateMapTool) generateImage(prompt, name, mapType, scale string) (string, string, error) {
+	// Get the images directory for the current session
+	outputDir, err := t.getSessionImagesDir()
+	if err != nil {
+		return "", "", fmt.Errorf("getting session images dir: %w", err)
+	}
+
 	// Create image generator
-	outputDir := filepath.Join(t.dataDir, "maps")
 	gen, err := image.NewGenerator(outputDir)
 	if err != nil {
 		return "", "", fmt.Errorf("creating generator: %w", err)

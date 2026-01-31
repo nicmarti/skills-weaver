@@ -94,7 +94,7 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	if notifier, ok := outputHandler.(dmtools.MapGeneratedNotifier); ok {
 		mapNotifier = notifier
 	}
-	mapTool, err := dmtools.NewGenerateMapTool(dataDir, adv.BasePath(), mapNotifier)
+	mapTool, err := dmtools.NewGenerateMapTool(dataDir, adv, mapNotifier)
 	if err != nil {
 		// Log warning but don't fail if ANTHROPIC_API_KEY is not set
 		fmt.Printf("Warning: Map generation tool not available: %v\n", err)

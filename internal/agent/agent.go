@@ -193,7 +193,36 @@ func (a *Agent) buildSystemPrompt() (string, error) {
 		formatRecentJournal(a.adventureCtx),
 	)
 
-	systemPrompt := dmPersona + "\n\n" + adventureInfo
+	// Post-journal reminder to counter recency bias
+	postJournalReminder := `
+=== RAPPEL CRITIQUE APRÈS LECTURE DU JOURNAL ===
+
+Le journal ci-dessus montre des événements PASSÉS de cette aventure.
+
+**TYPES D'ENTRÉES AUTOMATIQUES** (générées par tools) :
+  • [xp] : Créé automatiquement par add_xp
+  • [loot] : Créé automatiquement par generate_treasure
+  • [combat] : Certains créés automatiquement par update_hp
+
+**TYPES D'ENTRÉES MANUELLES** (TU DOIS appeler log_event) :
+  • [story] : Événements narratifs (dialogues, décisions, découvertes)
+  • [npc] : Rencontres de PNJ clés, alliances, trahisons
+  • [discovery] : Révélations importantes, indices critiques
+  • [quest] : Nouveaux objectifs, changements de plan
+
+⚠️ SANS log_event régulier pour événements narratifs, le contexte sera PERDU au rechargement.
+
+**APPELER log_event MAINTENANT si le joueur vient de** :
+  • Recevoir information critique d'un PNJ
+  • Prendre décision stratégique
+  • Découvrir indice ou lieu important
+  • Faire alliance ou trahison
+  • Terminer combat (même si update_hp a créé entrée automatique)
+
+========================
+`
+
+	systemPrompt := dmPersona + "\n\n" + adventureInfo + "\n" + postJournalReminder
 
 	// Add system guidance if available (campaign briefing, hidden from player)
 	if a.systemGuidance != "" {

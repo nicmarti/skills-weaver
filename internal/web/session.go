@@ -287,6 +287,13 @@ func (s *Session) ProcessMessage(message string) (*WebOutput, error) {
 	}
 	s.processing = true
 
+	// Reload adventure context to get latest state
+	// This ensures the DM has up-to-date journal/inventory even if modified externally
+	if err := s.AdventureCtx.Reload(); err != nil {
+		s.mu.Unlock()
+		return nil, fmt.Errorf("failed to reload adventure context: %w", err)
+	}
+
 	// Create new WebOutput for this message
 	output := NewWebOutput()
 	s.outputRedirect.SetTarget(output)

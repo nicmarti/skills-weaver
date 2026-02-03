@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1800" width="1400" height="1800">
+  <defs>
+    <style>
+      .title { font: bold 28px sans-serif; fill: #2c3e50; }
+      .subtitle { font: bold 20px sans-serif; fill: #34495e; }
+      .label { font: 14px sans-serif; fill: #2c3e50; }
+      .small-label { font: 12px sans-serif; fill: #555; }
+      .box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; }
+      .user-box { fill: #3498db; stroke: #2980b9; stroke-width: 2; }
+      .entry-box { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .agent-box { fill: #2ecc71; stroke: #27ae60; stroke-width: 2; }
+      .skill-box { fill: #f39c12; stroke: #d68910; stroke-width: 2; }
+      .internal-box { fill: #9b59b6; stroke: #8e44ad; stroke-width: 2; }
+      .data-box { fill: #1abc9c; stroke: #16a085; stroke-width: 2; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .arrow-agent { stroke: #27ae60; stroke-width: 2; fill: none; marker-end: url(#arrowhead-green); stroke-dasharray: 5,5; }
+      .arrow-skill { stroke: #d68910; stroke-width: 2; fill: none; marker-end: url(#arrowhead-orange); }
+      .white-text { fill: white; font: bold 14px sans-serif; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#34495e" />
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#27ae60" />
+    </marker>
+    <marker id="arrowhead-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#d68910" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="700" y="40" text-anchor="middle" class="title">Architecture SkillsWeaver - Moteur de Jeu D&amp;D 5e</text>
+
+  <!-- User Layer -->
+  <text x="700" y="80" text-anchor="middle" class="subtitle">Couche Utilisateur</text>
+  <rect x="50" y="100" width="200" height="80" class="user-box" rx="5"/>
+  <text x="150" y="130" text-anchor="middle" class="white-text">UTILISATEUR</text>
+  <text x="150" y="150" text-anchor="middle" class="white-text">Joueur / DM</text>
+  <text x="150" y="165" text-anchor="middle" class="small-label" fill="white">Interface humaine</text>
+
+  <!-- Entry Points -->
+  <text x="700" y="230" text-anchor="middle" class="subtitle">Points d'Entrée</text>
+
+  <!-- sw-web -->
+  <rect x="100" y="250" width="180" height="100" class="entry-box" rx="5"/>
+  <text x="190" y="280" text-anchor="middle" class="white-text">sw-web</text>
+  <text x="190" y="300" text-anchor="middle" class="small-label" fill="white">Interface Web (Gin)</text>
+  <text x="190" y="315" text-anchor="middle" class="small-label" fill="white">Port: 8085</text>
+  <text x="190" y="330" text-anchor="middle" class="small-label" fill="white">SSE Streaming</text>
+
+  <!-- sw-dm -->
+  <rect x="350" y="250" width="180" height="100" class="entry-box" rx="5"/>
+  <text x="440" y="280" text-anchor="middle" class="white-text">sw-dm</text>
+  <text x="440" y="300" text-anchor="middle" class="small-label" fill="white">CLI REPL</text>
+  <text x="440" y="315" text-anchor="middle" class="small-label" fill="white">Agent Loop</text>
+  <text x="440" y="330" text-anchor="middle" class="small-label" fill="white">Readline Interface</text>
+
+  <!-- Other CLI Commands -->
+  <rect x="600" y="250" width="700" height="100" class="entry-box" rx="5"/>
+  <text x="950" y="275" text-anchor="middle" class="white-text">Autres Commandes CLI</text>
+  <text x="700" y="300" text-anchor="middle" class="small-label" fill="white">sw-dice • sw-character • sw-adventure • sw-names • sw-npc</text>
+  <text x="700" y="320" text-anchor="middle" class="small-label" fill="white">sw-image • sw-monster • sw-treasure • sw-equipment • sw-spell</text>
+  <text x="700" y="340" text-anchor="middle" class="small-label" fill="white">sw-map • sw-location-names • sw-character-sheet</text>
+
+  <!-- Arrows from user to entry points -->
+  <path d="M 150 180 L 190 250" class="arrow"/>
+  <path d="M 150 180 L 440 250" class="arrow"/>
+  <path d="M 150 180 L 950 250" class="arrow"/>
+
+  <!-- Agent Orchestration Layer -->
+  <text x="700" y="400" text-anchor="middle" class="subtitle">Couche Orchestration (internal/agent/)</text>
+
+  <!-- Main Agent Manager -->
+  <rect x="50" y="420" width="600" height="180" class="agent-box" rx="5"/>
+  <text x="350" y="445" text-anchor="middle" class="white-text">Agent Manager</text>
+  <text x="100" y="470" text-anchor="start" class="small-label">• Agent Loop avec Tool Execution</text>
+  <text x="100" y="490" text-anchor="start" class="small-label">• Streaming Response Handler</text>
+  <text x="100" y="510" text-anchor="start" class="small-label">• Conversation Context (50K tokens main agent)</text>
+  <text x="100" y="530" text-anchor="start" class="small-label">• Agent State Persistence (agent-states.json)</text>
+  <text x="100" y="550" text-anchor="start" class="small-label">• Tool Registry &amp; Execution</text>
+  <text x="100" y="570" text-anchor="start" class="small-label">• Nested Agent Invocation (max depth=1)</text>
+  <text x="100" y="590" text-anchor="start" class="small-label">• Logger with Rotation &amp; Compression</text>
+
+  <!-- Arrows from entry points to agent manager -->
+  <path d="M 190 350 L 350 420" class="arrow"/>
+  <path d="M 440 350 L 350 420" class="arrow"/>
+  <path d="M 950 350 L 350 420" class="arrow"/>
+
+  <!-- Agents (Personas) -->
+  <text x="1050" y="440" text-anchor="middle" class="subtitle">Agents (core_agents/agents/)</text>
+
+  <rect x="720" y="460" width="200" height="60" class="agent-box" rx="5"/>
+  <text x="820" y="485" text-anchor="middle" class="white-text">dungeon-master.md</text>
+  <text x="820" y="505" text-anchor="middle" class="small-label">Main DM • Full tools access</text>
+
+  <rect x="960" y="460" width="200" height="60" class="agent-box" rx="5"/>
+  <text x="1060" y="485" text-anchor="middle" class="white-text">rules-keeper.md</text>
+  <text x="1060" y="505" text-anchor="middle" class="small-label">D&amp;D 5e Expert • Read-only</text>
+
+  <rect x="1200" y="460" width="180" height="60" class="agent-box" rx="5"/>
+  <text x="1290" y="485" text-anchor="middle" class="white-text">world-keeper.md</text>
+  <text x="1290" y="505" text-anchor="middle" class="small-label">Consistency Guardian</text>
+
+  <rect x="960" y="540" width="200" height="60" class="agent-box" rx="5"/>
+  <text x="1060" y="565" text-anchor="middle" class="white-text">character-creator.md</text>
+  <text x="1060" y="585" text-anchor="middle" class="small-label">Character Guide</text>
+
+  <!-- Agent communication arrows -->
+  <path d="M 650 510 L 720 490" class="arrow-agent"/>
+  <text x="680" y="490" text-anchor="middle" class="small-label">invoke_agent</text>
+  <path d="M 820 460 L 1060 520" class="arrow-agent"/>
+  <path d="M 820 460 L 1290 520" class="arrow-agent"/>
+  <path d="M 820 480 L 1060 560" class="arrow-agent"/>
+
+  <!-- Tools/Skills Layer -->
+  <text x="700" y="660" text-anchor="middle" class="subtitle">Couche Tools (internal/dmtools/ + core_agents/skills/)</text>
+
+  <!-- DM Tools -->
+  <rect x="50" y="680" width="280" height="180" class="skill-box" rx="5"/>
+  <text x="190" y="705" text-anchor="middle" class="white-text">DM Tools (dmtools/)</text>
+  <text x="70" y="730" text-anchor="start" class="small-label">• roll_dice</text>
+  <text x="70" y="750" text-anchor="start" class="small-label">• get_monster</text>
+  <text x="70" y="770" text-anchor="start" class="small-label">• generate_treasure</text>
+  <text x="70" y="790" text-anchor="start" class="small-label">• generate_npc</text>
+  <text x="70" y="810" text-anchor="start" class="small-label">• generate_image</text>
+  <text x="70" y="830" text-anchor="start" class="small-label">• generate_map</text>
+  <text x="70" y="850" text-anchor="start" class="small-label">• get_equipment / get_spell</text>
+
+  <rect x="350" y="680" width="280" height="180" class="skill-box" rx="5"/>
+  <text x="490" y="705" text-anchor="middle" class="white-text">Session Tools</text>
+  <text x="370" y="730" text-anchor="start" class="small-label">• start_session / end_session</text>
+  <text x="370" y="750" text-anchor="start" class="small-label">• log_event</text>
+  <text x="370" y="770" text-anchor="start" class="small-label">• add_gold / get_inventory</text>
+  <text x="370" y="790" text-anchor="start" class="small-label">• add_item / remove_item</text>
+  <text x="370" y="810" text-anchor="start" class="small-label">• get_party_info</text>
+  <text x="370" y="830" text-anchor="start" class="small-label">• get_character_info</text>
+  <text x="370" y="850" text-anchor="start" class="small-label">• generate_encounter</text>
+
+  <rect x="650" y="680" width="280" height="180" class="skill-box" rx="5"/>
+  <text x="790" y="705" text-anchor="middle" class="white-text">Campaign Tools</text>
+  <text x="670" y="730" text-anchor="start" class="small-label">• get_campaign_plan</text>
+  <text x="670" y="750" text-anchor="start" class="small-label">• update_campaign_progress</text>
+  <text x="670" y="770" text-anchor="start" class="small-label">• add_narrative_thread</text>
+  <text x="670" y="790" text-anchor="start" class="small-label">• plant_foreshadow</text>
+  <text x="670" y="810" text-anchor="start" class="small-label">• invoke_agent (nested)</text>
+  <text x="670" y="830" text-anchor="start" class="small-label">• invoke_skill (CLI)</text>
+  <text x="670" y="850" text-anchor="start" class="small-label">• XP management</text>
+
+  <rect x="950" y="680" width="320" height="180" class="skill-box" rx="5"/>
+  <text x="1110" y="705" text-anchor="middle" class="white-text">Skills Registry (skills/)</text>
+  <text x="970" y="730" text-anchor="start" class="small-label">• dice-roller</text>
+  <text x="970" y="750" text-anchor="start" class="small-label">• character-generator</text>
+  <text x="970" y="770" text-anchor="start" class="small-label">• adventure-manager</text>
+  <text x="970" y="790" text-anchor="start" class="small-label">• name-generator / npc-generator</text>
+  <text x="970" y="810" text-anchor="start" class="small-label">• image-generator / journal-illustrator</text>
+  <text x="970" y="830" text-anchor="start" class="small-label">• map-generator</text>
+  <text x="970" y="850" text-anchor="start" class="small-label">• monster-manual / treasure-generator</text>
+
+  <!-- Arrows from agent to tools -->
+  <path d="M 350 600 L 190 680" class="arrow-skill"/>
+  <path d="M 350 600 L 490 680" class="arrow-skill"/>
+  <path d="M 350 600 L 790 680" class="arrow-skill"/>
+  <path d="M 350 600 L 1110 680" class="arrow-skill"/>
+
+  <!-- Internal Packages Layer -->
+  <text x="700" y="920" text-anchor="middle" class="subtitle">Packages Internes (internal/)</text>
+
+  <rect x="50" y="940" width="240" height="160" class="internal-box" rx="5"/>
+  <text x="170" y="965" text-anchor="middle" class="white-text">Core Packages</text>
+  <text x="70" y="990" text-anchor="start" class="small-label" fill="white">• dice/ - Dice rolling engine</text>
+  <text x="70" y="1010" text-anchor="start" class="small-label" fill="white">• character/ - Character mgmt</text>
+  <text x="70" y="1030" text-anchor="start" class="small-label" fill="white">• adventure/ - Campaign state</text>
+  <text x="70" y="1050" text-anchor="start" class="small-label" fill="white">• monster/ - Bestiary</text>
+  <text x="70" y="1070" text-anchor="start" class="small-label" fill="white">• treasure/ - Loot tables</text>
+  <text x="70" y="1090" text-anchor="start" class="small-label" fill="white">• data/ - JSON loader</text>
+
+  <rect x="310" y="940" width="240" height="160" class="internal-box" rx="5"/>
+  <text x="430" y="965" text-anchor="middle" class="white-text">Content Generation</text>
+  <text x="330" y="990" text-anchor="start" class="small-label" fill="white">• names/ - Name generator</text>
+  <text x="330" y="1010" text-anchor="start" class="small-label" fill="white">• npc/ - NPC generator</text>
+  <text x="330" y="1030" text-anchor="start" class="small-label" fill="white">• locations/ - Location names</text>
+  <text x="330" y="1050" text-anchor="start" class="small-label" fill="white">• image/ - AI image gen</text>
+  <text x="330" y="1070" text-anchor="start" class="small-label" fill="white">• map/ - Map prompt gen</text>
+  <text x="330" y="1090" text-anchor="start" class="small-label" fill="white">• world/ - Geography data</text>
+
+  <rect x="570" y="940" width="240" height="160" class="internal-box" rx="5"/>
+  <text x="690" y="965" text-anchor="middle" class="white-text">D&amp;D 5e Rules</text>
+  <text x="590" y="990" text-anchor="start" class="small-label" fill="white">• equipment/ - Items catalog</text>
+  <text x="590" y="1010" text-anchor="start" class="small-label" fill="white">• spell/ - Spell reference</text>
+  <text x="590" y="1030" text-anchor="start" class="small-label" fill="white">• charactersheet/ - Sheet gen</text>
+  <text x="590" y="1050" text-anchor="start" class="small-label" fill="white">9 races, 12 classes</text>
+  <text x="590" y="1070" text-anchor="start" class="small-label" fill="white">18 skills, 6 abilities</text>
+  <text x="590" y="1090" text-anchor="start" class="small-label" fill="white">CR system, spell slots</text>
+
+  <rect x="830" y="940" width="240" height="160" class="internal-box" rx="5"/>
+  <text x="950" y="965" text-anchor="middle" class="white-text">Web Infrastructure</text>
+  <text x="850" y="990" text-anchor="start" class="small-label" fill="white">• web/ - Gin server</text>
+  <text x="850" y="1010" text-anchor="start" class="small-label" fill="white">  - handlers.go</text>
+  <text x="850" y="1030" text-anchor="start" class="small-label" fill="white">  - session.go</text>
+  <text x="850" y="1050" text-anchor="start" class="small-label" fill="white">  - web_output.go (SSE)</text>
+  <text x="850" y="1070" text-anchor="start" class="small-label" fill="white">Templates + Static assets</text>
+  <text x="850" y="1090" text-anchor="start" class="small-label" fill="white">Dark Fantasy theme</text>
+
+  <rect x="1090" y="940" width="240" height="160" class="internal-box" rx="5"/>
+  <text x="1210" y="965" text-anchor="middle" class="white-text">Skills System</text>
+  <text x="1110" y="990" text-anchor="start" class="small-label" fill="white">• skills/ - Skill management</text>
+  <text x="1110" y="1010" text-anchor="start" class="small-label" fill="white">  - parser.go</text>
+  <text x="1110" y="1030" text-anchor="start" class="small-label" fill="white">  - registry.go</text>
+  <text x="1110" y="1050" text-anchor="start" class="small-label" fill="white">SKILL.md format</text>
+  <text x="1110" y="1070" text-anchor="start" class="small-label" fill="white">YAML + Markdown</text>
+  <text x="1110" y="1090" text-anchor="start" class="small-label" fill="white">Auto-discovery</text>
+
+  <!-- Arrows from tools to packages -->
+  <path d="M 190 860 L 170 940" class="arrow"/>
+  <path d="M 490 860 L 430 940" class="arrow"/>
+  <path d="M 790 860 L 690 940" class="arrow"/>
+  <path d="M 1110 860 L 1210 940" class="arrow"/>
+
+  <!-- Data Layer -->
+  <text x="700" y="1160" text-anchor="middle" class="subtitle">Couche Données (data/)</text>
+
+  <rect x="50" y="1180" width="320" height="160" class="data-box" rx="5"/>
+  <text x="210" y="1205" text-anchor="middle" class="white-text">Game Data (JSON)</text>
+  <text x="70" y="1230" text-anchor="start" class="small-label">• names.json - Name dictionaries</text>
+  <text x="70" y="1250" text-anchor="start" class="small-label">• npc-traits.json - NPC traits</text>
+  <text x="70" y="1270" text-anchor="start" class="small-label">• location-names.json - Places</text>
+  <text x="70" y="1290" text-anchor="start" class="small-label">• monsters.json - D&amp;D 5e bestiary</text>
+  <text x="70" y="1310" text-anchor="start" class="small-label">• treasure.json - Loot tables</text>
+  <text x="70" y="1330" text-anchor="start" class="small-label">• world/ - Geography &amp; Kingdoms</text>
+
+  <rect x="390" y="1180" width="400" height="160" class="data-box" rx="5"/>
+  <text x="590" y="1205" text-anchor="middle" class="white-text">Adventures (data/adventures/&lt;slug&gt;/)</text>
+  <text x="410" y="1230" text-anchor="start" class="small-label">• adventure.json - Metadata</text>
+  <text x="410" y="1250" text-anchor="start" class="small-label">• campaign-plan.json - 3-act narrative structure</text>
+  <text x="410" y="1270" text-anchor="start" class="small-label">• sessions.json - Session history</text>
+  <text x="410" y="1290" text-anchor="start" class="small-label">• party.json - Group composition</text>
+  <text x="410" y="1310" text-anchor="start" class="small-label">• inventory.json - Shared loot</text>
+  <text x="410" y="1330" text-anchor="start" class="small-label">• state.json - Game state &amp; flags</text>
+
+  <rect x="810" y="1180" width="320" height="80" class="data-box" rx="5"/>
+  <text x="970" y="1205" text-anchor="middle" class="white-text">Journal System</text>
+  <text x="830" y="1230" text-anchor="start" class="small-label">• journal-meta.json - Global metadata</text>
+  <text x="830" y="1250" text-anchor="start" class="small-label">• journal-session-N.json - Per-session entries</text>
+
+  <rect x="810" y="1280" width="320" height="60" class="data-box" rx="5"/>
+  <text x="970" y="1305" text-anchor="middle" class="white-text">Characters</text>
+  <text x="830" y="1330" text-anchor="start" class="small-label">• characters/ - Per-adventure characters</text>
+
+  <rect x="1150" y="1180" width="200" height="160" class="data-box" rx="5"/>
+  <text x="1250" y="1205" text-anchor="middle" class="white-text">Images &amp; Assets</text>
+  <text x="1170" y="1230" text-anchor="start" class="small-label">• images/ - Generated</text>
+  <text x="1170" y="1250" text-anchor="start" class="small-label">  session-N/</text>
+  <text x="1170" y="1270" text-anchor="start" class="small-label">• maps/ - Battle maps</text>
+  <text x="1170" y="1290" text-anchor="start" class="small-label">• characters/ - Portraits</text>
+  <text x="1170" y="1310" text-anchor="start" class="small-label">Flux Pro / Schnell</text>
+  <text x="1170" y="1330" text-anchor="start" class="small-label">2D tactical maps</text>
+
+  <!-- Arrows from packages to data -->
+  <path d="M 170 1100 L 210 1180" class="arrow"/>
+  <path d="M 430 1100 L 590 1180" class="arrow"/>
+  <path d="M 690 1100 L 970 1180" class="arrow"/>
+  <path d="M 950 1100 L 1250 1180" class="arrow"/>
+
+  <!-- External Services -->
+  <text x="700" y="1410" text-anchor="middle" class="subtitle">Services Externes</text>
+
+  <rect x="200" y="1430" width="250" height="80" class="box" rx="5"/>
+  <text x="325" y="1460" text-anchor="middle" class="label">Anthropic API</text>
+  <text x="325" y="1480" text-anchor="middle" class="small-label">Claude Sonnet 4.5 (Main DM)</text>
+  <text x="325" y="1500" text-anchor="middle" class="small-label">Claude Haiku 4.5 (Nested agents)</text>
+
+  <rect x="500" y="1430" width="200" height="80" class="box" rx="5"/>
+  <text x="600" y="1460" text-anchor="middle" class="label">FAL.ai API</text>
+  <text x="600" y="1480" text-anchor="middle" class="small-label">Flux Pro 1.1</text>
+  <text x="600" y="1500" text-anchor="middle" class="small-label">Image Generation</text>
+
+  <rect x="750" y="1430" width="200" height="80" class="box" rx="5"/>
+  <text x="850" y="1460" text-anchor="middle" class="label">Context7 MCP</text>
+  <text x="850" y="1480" text-anchor="middle" class="small-label">Library Documentation</text>
+  <text x="850" y="1500" text-anchor="middle" class="small-label">Code Examples</text>
+
+  <rect x="1000" y="1430" width="200" height="80" class="box" rx="5"/>
+  <text x="1100" y="1460" text-anchor="middle" class="label">Chrome DevTools</text>
+  <text x="1100" y="1480" text-anchor="middle" class="small-label">Web Automation</text>
+  <text x="1100" y="1500" text-anchor="middle" class="small-label">Browser Control</text>
+
+  <!-- Arrows to external services -->
+  <path d="M 350 600 L 325 1430" class="arrow" stroke-dasharray="10,5"/>
+  <path d="M 190 860 L 600 1430" class="arrow" stroke-dasharray="10,5"/>
+
+  <!-- Key Features Box -->
+  <rect x="50" y="1560" width="620" height="220" class="box" rx="5" fill="#f8f9fa"/>
+  <text x="360" y="1590" text-anchor="middle" class="subtitle">Fonctionnalités Clés</text>
+
+  <text x="70" y="1620" text-anchor="start" class="label" font-weight="bold">🎭 Agent-to-Agent Communication</text>
+  <text x="90" y="1640" text-anchor="start" class="small-label">• Main agent (dungeon-master) invoque des consultants spécialisés</text>
+  <text x="90" y="1655" text-anchor="start" class="small-label">• Nested agents read-only (rules-keeper, world-keeper, character-creator)</text>
+  <text x="90" y="1670" text-anchor="start" class="small-label">• Conversations stateful avec historique persisté</text>
+
+  <text x="70" y="1695" text-anchor="start" class="label" font-weight="bold">📊 Campaign Planning System</text>
+  <text x="90" y="1715" text-anchor="start" class="small-label">• Structure narrative 3 actes générée automatiquement</text>
+  <text x="90" y="1730" text-anchor="start" class="small-label">• Foreshadows liés aux actes narratifs</text>
+  <text x="90" y="1745" text-anchor="start" class="small-label">• Briefing automatique par world-keeper (mode silencieux)</text>
+
+  <text x="70" y="1770" text-anchor="start" class="label" font-weight="bold">🔧 Tooling Avancé</text>
+  <text x="90" y="1790" text-anchor="start" class="small-label">• Logging avec rotation et compression automatique</text>
+
+  <rect x="690" y="1560" width="660" height="220" class="box" rx="5" fill="#f8f9fa"/>
+  <text x="1020" y="1590" text-anchor="middle" class="subtitle">Flux de Données Principal</text>
+
+  <text x="710" y="1620" text-anchor="start" class="label" font-weight="bold">1️⃣ Utilisateur → sw-web ou sw-dm</text>
+  <text x="730" y="1640" text-anchor="start" class="small-label">Entrée de commande ou action web</text>
+
+  <text x="710" y="1665" text-anchor="start" class="label" font-weight="bold">2️⃣ Agent Manager → Dungeon Master</text>
+  <text x="730" y="1685" text-anchor="start" class="small-label">Traitement de la requête avec contexte (50K tokens)</text>
+
+  <text x="710" y="1710" text-anchor="start" class="label" font-weight="bold">3️⃣ DM → Tools + Nested Agents</text>
+  <text x="730" y="1730" text-anchor="start" class="small-label">Invocation d'outils (dice, monster, etc.) et consultation d'experts</text>
+
+  <text x="710" y="1755" text-anchor="start" class="label" font-weight="bold">4️⃣ Packages → Data Layer</text>
+  <text x="730" y="1775" text-anchor="start" class="small-label">Lecture/écriture des fichiers JSON (adventures, journal, etc.)</text>
+
+  <!-- Footer -->
+  <text x="700" y="1790" text-anchor="middle" class="small-label" font-style="italic">
+    Moteur D&amp;D 5e • Go 1.25 • Claude Sonnet 4.5 • Architecture modulaire avec agent autonomes
+  </text>
+</svg>

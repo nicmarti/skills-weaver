@@ -25,8 +25,51 @@
         if (messageForm) {
             messageForm.addEventListener('submit', handleSubmit);
         }
+        initModelSelector();
         initMinimap();
         scrollToBottom();
+    }
+
+    // Model selector - uses event delegation to survive HTMX refreshes
+    function initModelSelector() {
+        const infoEl = document.getElementById('adventure-info');
+        if (!infoEl) return;
+
+        infoEl.addEventListener('change', async function(e) {
+            if (e.target.id !== 'model-selector') return;
+            const selector = e.target;
+            const model = selector.value;
+            selector.disabled = true;
+            selector.classList.add('model-loading');
+
+            try {
+                const response = await fetch(`/play/${slug}/model`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `model=${encodeURIComponent(model)}`
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to change model');
+                }
+
+                // Brief visual feedback
+                selector.classList.add('model-changed');
+                setTimeout(() => selector.classList.remove('model-changed'), 1500);
+            } catch (error) {
+                console.error('Model change error:', error);
+                // Revert selection by fetching current model
+                try {
+                    const resp = await fetch(`/play/${slug}/model`);
+                    const data = await resp.json();
+                    selector.value = data.model;
+                } catch (e) { /* ignore */ }
+            } finally {
+                selector.disabled = false;
+                selector.classList.remove('model-loading');
+            }
+        });
     }
 
     // Parse markdown table to HTML

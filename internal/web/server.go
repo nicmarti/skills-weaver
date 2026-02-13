@@ -140,6 +140,10 @@ func (s *Server) setupRoutes() {
 	// Character images (served from data/characters/)
 	s.engine.GET("/characters/images/:filename", s.handleCharacterImages)
 
+	// Model selection
+	s.engine.GET("/play/:slug/model", s.handleGetModel)
+	s.engine.POST("/play/:slug/model", s.handleSetModel)
+
 	// Gallery routes
 	s.engine.GET("/play/:slug/gallery", s.handleGallery)
 }

@@ -59,6 +59,13 @@
                 <span class="info-label">Or</span>
                 <span class="info-value gold">{{.Gold}} po</span>
             </div>
+            <div class="info-item">
+                <span class="info-label">Modele IA</span>
+                <select id="model-selector" class="model-select">
+                    <option value="sonnet" {{if eq .CurrentModel "sonnet"}}selected{{end}}>Sonnet 4.5</option>
+                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.5</option>
+                </select>
+            </div>
         </div>
 
         <div class="party-section">

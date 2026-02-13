@@ -139,6 +139,18 @@ func (s *Server) handleGame(c *gin.Context) {
 		activeSessionID = currentSession.ID
 	}
 
+	// Determine current model for the selector
+	currentModel := "sonnet" // default
+	if session.Agent != nil {
+		modelStr := agent.GetModelDisplayName(session.Agent.GetModel())
+		switch {
+		case strings.Contains(modelStr, "opus"):
+			currentModel = "opus"
+		case strings.Contains(modelStr, "sonnet"):
+			currentModel = "sonnet"
+		}
+	}
+
 	c.HTML(http.StatusOK, "game.html", gin.H{
 		"Title":           adv.Name,
 		"Adventure":       adv,
@@ -149,6 +161,7 @@ func (s *Server) handleGame(c *gin.Context) {
 		"RecentJournal":   session.AdventureCtx.RecentJournal,
 		"IsSessionActive": isSessionActive,
 		"ActiveSessionID": activeSessionID,
+		"CurrentModel":    currentModel,
 	})
 }
 
@@ -277,6 +290,22 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 		return
 	}
 
+	// Determine current model for selector
+	currentModel := "sonnet"
+	if session.Agent != nil {
+		modelStr := agent.GetModelDisplayName(session.Agent.GetModel())
+		if strings.Contains(modelStr, "opus") {
+			currentModel = "opus"
+		}
+	}
+	sonnetSelected := ""
+	opusSelected := ""
+	if currentModel == "sonnet" {
+		sonnetSelected = " selected"
+	} else {
+		opusSelected = " selected"
+	}
+
 	// Return HTML directly for HTMX
 	html := fmt.Sprintf(`
 <div class="info-item">
@@ -286,9 +315,18 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 <div class="info-item">
     <span class="info-label">Or</span>
     <span class="info-value gold">%d po</span>
+</div>
+<div class="info-item">
+    <span class="info-label">Modele IA</span>
+    <select id="model-selector" class="model-select">
+        <option value="sonnet"%s>Sonnet 4.5</option>
+        <option value="opus"%s>Opus 4.5</option>
+    </select>
 </div>`,
 		session.AdventureCtx.State.CurrentLocation,
-		session.AdventureCtx.Inventory.Gold)
+		session.AdventureCtx.Inventory.Gold,
+		sonnetSelected,
+		opusSelected)
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)
@@ -940,6 +978,59 @@ func getAbilityNameFR(ability string) string {
 	}
 }
 
+
+// handleGetModel returns the current model for an adventure session.
+func (s *Server) handleGetModel(c *gin.Context) {
+	slug := c.Param("slug")
+
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+		return
+	}
+
+	model := session.Agent.GetModel()
+	displayName := agent.GetModelDisplayName(model)
+
+	// Map to short name
+	shortName := "sonnet"
+	if strings.Contains(displayName, "opus") {
+		shortName = "opus"
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"model":   shortName,
+		"display": displayName,
+	})
+}
+
+// handleSetModel changes the model used by the DM agent.
+func (s *Server) handleSetModel(c *gin.Context) {
+	slug := c.Param("slug")
+	modelName := strings.TrimSpace(c.PostForm("model"))
+
+	// Validate: only sonnet or opus
+	if modelName != "sonnet" && modelName != "opus" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid model. Use 'sonnet' or 'opus'."})
+		return
+	}
+
+	session, err := s.sessionManager.GetOrCreateSession(slug)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+		return
+	}
+
+	// Map and apply
+	anthropicModel := agent.MapPersonaModelToAnthropic(modelName)
+	session.Agent.SetModel(anthropicModel)
+
+	displayName := agent.GetModelDisplayName(anthropicModel)
+	c.JSON(http.StatusOK, gin.H{
+		"model":   modelName,
+		"display": displayName,
+	})
+}
 
 // generateCampaignPlan generates a 3-act campaign plan using the DM agent.
 func (s *Server) generateCampaignPlan(adv *adventure.Adventure, theme string) error {

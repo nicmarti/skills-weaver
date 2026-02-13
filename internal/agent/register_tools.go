@@ -79,6 +79,10 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewUpdateHPTool(adv))
 	registry.Register(dmtools.NewUseSpellSlotTool(adv))
 
+	// Register level-up and rest tools
+	registry.Register(dmtools.NewUpdateCharacterStatTool(adv))
+	registry.Register(dmtools.NewLongRestTool(adv))
+
 	// Register image generation tool
 	imageTool, err := dmtools.NewGenerateImageTool(adv)
 	if err != nil {

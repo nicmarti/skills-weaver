@@ -68,6 +68,10 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapUpdateHP(params)
 	case "use_spell_slot":
 		return mapUseSpellSlot(params)
+	case "update_character_stat":
+		return mapUpdateCharacterStat(params)
+	case "long_rest":
+		return mapLongRest(params)
 	case "update_time":
 		return mapUpdateTime(params)
 	case "set_flag":
@@ -555,4 +559,31 @@ func mapSetVariable(params map[string]interface{}) string {
 func mapGetState(params map[string]interface{}) string {
 	// No parameters for get_state
 	return "# get_state (internal operation - reads state.json)"
+}
+
+func mapUpdateCharacterStat(params map[string]interface{}) string {
+	name, ok := params["character_name"].(string)
+	if !ok {
+		return ""
+	}
+	stat, ok := params["stat"].(string)
+	if !ok {
+		return ""
+	}
+	value, ok := params["value"].(float64)
+	if !ok {
+		return ""
+	}
+	reason := ""
+	if r, ok := params["reason"].(string); ok && r != "" {
+		reason = fmt.Sprintf(" --reason=\"%s\"", r)
+	}
+	return fmt.Sprintf("# update_character_stat \"%s\" %s=%.0f%s (internal operation - modifies character JSON)", name, stat, value, reason)
+}
+
+func mapLongRest(params map[string]interface{}) string {
+	if name, ok := params["character_name"].(string); ok && name != "" {
+		return fmt.Sprintf("# long_rest \"%s\" (internal operation - restores HP, spell slots, hit dice)", name)
+	}
+	return "# long_rest (internal operation - restores all characters)"
 }

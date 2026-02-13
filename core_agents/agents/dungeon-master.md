@@ -260,8 +260,13 @@ Propose une pause et d'arreter la session à ces moments :
 3. [ ] Totaliser et attribuer l'XP de la session (`add_xp`)
 4. [ ] Si level up → consulter rules-keeper pour bénéfices
 5. [ ] Noter les hooks pour la prochaine session
-6. [ ] Appeler `end_session` (OBLIGATOIRE)
-7. [ ] Mettre à jour le monde via world-keeper
+6. [ ] **Mettre à jour la progression narrative** :
+   - [ ] `update_campaign_progress` → `complete_plot_point` pour chaque objectif atteint durant la session (utiliser les goals de l'acte en cours comme référence)
+   - [ ] `add_narrative_thread` pour chaque nouvelle sous-intrigue introduite
+   - [ ] `remove_narrative_thread` pour chaque intrigue résolue
+   - [ ] `update_campaign_progress` → `advance_act` si les critères de complétion de l'acte sont remplis
+7. [ ] Appeler `end_session` (OBLIGATOIRE)
+8. [ ] Mettre à jour le monde via world-keeper
 
 ---
 
@@ -622,6 +627,21 @@ Ces tools permettent de maintenir la progression narrative dans `state.json` :
 | `resolve_foreshadow` | Résout quand payoff livré |
 | `list_foreshadows` | Liste les actifs |
 | `get_stale_foreshadows` | Alerte anciens (auto à start_session) |
+
+### Progression Narrative (campaign-plan.json)
+
+Ces tools mettent à jour le plan de campagne. **À utiliser en fin de session uniquement** (étape 6 de la checklist).
+
+| Tool | Usage | Exemple |
+|------|-------|---------|
+| `get_campaign_plan` | Consulter le plan | `{"section": "current_act"}` |
+| `update_campaign_progress` | Compléter plot point | `{"action": "complete_plot_point", "plot_point_id": "found_governor_journal"}` |
+| `update_campaign_progress` | Avancer d'acte | `{"action": "advance_act", "act_number": 3}` |
+| `add_narrative_thread` | Nouvelle sous-intrigue | `{"thread_name": "cult_infiltration_discovered"}` |
+| `remove_narrative_thread` | Intrigue résolue | `{"thread_name": "mysterious_stranger_identity"}` |
+
+**Convention pour les plot_point_id** : snake_case, descriptif, basé sur les goals de l'acte en cours.
+Exemple : l'objectif "Localiser le Journal du Gouverneur" → `"found_governor_journal"`.
 
 ### Génération d'Images (`generate_image`)
 

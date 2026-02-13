@@ -163,6 +163,12 @@ func DeserializeMessage(msg *SerializableMessage) (anthropic.MessageParam, error
 		))
 	}
 
+	// Safety check: the Anthropic API requires non-empty content arrays
+	if len(contentBlocks) == 0 {
+		return anthropic.MessageParam{}, fmt.Errorf(
+			"empty content for message with role %s (orphaned after cleanup)", msg.Role)
+	}
+
 	// Create message param based on role
 	switch role {
 	case anthropic.MessageParamRoleUser:
@@ -212,6 +218,7 @@ func SerializeConversationContextWithOptimization(ctx *ConversationContext, maxT
 // cleanOrphanedToolResults removes tool_results from messages that don't have
 // corresponding tool_uses in the previous message. This can happen when
 // conversation history is truncated for token optimization.
+// It also removes messages that become completely empty after cleanup.
 func cleanOrphanedToolResults(messages []SerializableMessage) []SerializableMessage {
 	if len(messages) == 0 {
 		return messages
@@ -246,7 +253,17 @@ func cleanOrphanedToolResults(messages []SerializableMessage) []SerializableMess
 		}
 	}
 
-	return messages
+	// Remove messages that became empty after cleanup
+	cleaned := make([]SerializableMessage, 0, len(messages))
+	for i, msg := range messages {
+		if msg.TextContent == "" && len(msg.ToolUses) == 0 && len(msg.ToolResults) == 0 {
+			fmt.Printf("Warning: Dropping empty message %d (role=%s) after orphan cleanup\n", i, msg.Role)
+			continue
+		}
+		cleaned = append(cleaned, msg)
+	}
+
+	return cleaned
 }
 
 // DeserializeConversationContextFromMessages creates a conversation context from serialized messages.

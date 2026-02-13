@@ -77,7 +77,7 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 
 	agent := &Agent{
 		client:          client,
-		model:           anthropic.ModelClaudeHaiku4_5,
+		model:           anthropic.ModelClaudeSonnet4_5,
 		toolRegistry:    toolRegistry,
 		conversationCtx: conversationCtx,
 		adventureCtx:    adventureCtx,
@@ -423,9 +423,23 @@ func formatRecentJournal(ctx *AdventureContext) string {
 // isStateModifyingTool returns true if the tool modifies adventure state.
 func isStateModifyingTool(toolName string) bool {
 	modifyingTools := map[string]bool{
-		"log_event": true,
-		"add_gold":  true,
-		"add_item":  true,
+		"log_event":              true,
+		"add_gold":               true,
+		"add_item":               true,
+		"remove_item":            true,
+		"update_time":            true,
+		"update_location":        true,
+		"set_flag":               true,
+		"add_quest":              true,
+		"complete_quest":         true,
+		"set_variable":           true,
+		"update_hp":              true,
+		"use_spell_slot":         true,
+		"add_xp":                 true,
+		"generate_npc":            true,
+		"update_npc_importance":   true,
+		"update_character_stat":   true,
+		"long_rest":               true,
 	}
 	return modifyingTools[toolName]
 }
@@ -475,6 +489,16 @@ func (a *Agent) saveAgentStates() {
 			a.logger.LogError("save_agent_states", err)
 		}
 	}
+}
+
+// SetModel changes the model used by the agent for API calls.
+func (a *Agent) SetModel(model anthropic.Model) {
+	a.model = model
+}
+
+// GetModel returns the current model used by the agent.
+func (a *Agent) GetModel() anthropic.Model {
+	return a.model
 }
 
 // GetPersonaVersion returns the version of the loaded persona.

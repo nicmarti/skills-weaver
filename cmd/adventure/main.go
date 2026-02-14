@@ -71,6 +71,16 @@ func main() {
 		err = cmdMigrateJournal(args)
 	case "validate-journal":
 		err = cmdValidateJournal(args)
+	case "sync-characters":
+		err = cmdSyncCharacters(args)
+	case "archive":
+		err = cmdArchive(args)
+	case "unarchive":
+		err = cmdUnarchive(args)
+	case "list-archived":
+		err = cmdListArchived()
+	case "purge-maps":
+		err = cmdPurgeMaps()
 	case "clean-session":
 		err = cmdCleanSession(args)
 	case "inspect-sessions":
@@ -99,7 +109,12 @@ COMMANDES AVENTURE:
   create <nom> [description]    Créer une nouvelle aventure
   list                          Lister toutes les aventures
   show <nom>                    Afficher les détails d'une aventure
-  delete <nom>                  Supprimer une aventure
+  delete <nom>                  Supprimer une aventure (avec confirmation)
+  sync-characters <nom>         Sauvegarder la progression des personnages
+  archive <nom>                 Archiver une aventure (réversible)
+  unarchive <nom>               Restaurer une aventure archivée
+  list-archived                 Lister les aventures archivées
+  purge-maps                    Supprimer toutes les maps globales
   status <nom>                  Afficher le statut complet
 
 COMMANDES GROUPE:
@@ -230,11 +245,128 @@ func cmdDelete(args []string) error {
 		return fmt.Errorf("usage: adventure delete <nom>")
 	}
 
+	fmt.Printf("Supprimer définitivement l'aventure \"%s\" ? (oui/non): ", args[0])
+	var response string
+	fmt.Scanln(&response)
+	if response != "oui" {
+		fmt.Println("Annulé.")
+		return nil
+	}
+
+	// Sync characters to global before deleting
+	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	if err == nil {
+		if synced, syncErr := adv.SyncCharactersToGlobal(charactersDir); syncErr != nil {
+			fmt.Printf("Avertissement : impossible de sauvegarder les personnages : %v\n", syncErr)
+		} else if len(synced) > 0 {
+			fmt.Printf("Progression sauvegardée pour : %s\n", strings.Join(synced, ", "))
+		}
+	}
+
 	if err := adventure.Delete(adventuresDir, args[0]); err != nil {
 		return err
 	}
 
 	fmt.Printf("Aventure \"%s\" supprimée.\n", args[0])
+	return nil
+}
+
+func cmdSyncCharacters(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: adventure sync-characters <nom>")
+	}
+
+	adv, err := adventure.LoadByName(adventuresDir, args[0])
+	if err != nil {
+		return err
+	}
+
+	synced, err := adv.SyncCharactersToGlobal(charactersDir)
+	if err != nil {
+		return err
+	}
+
+	if len(synced) == 0 {
+		fmt.Println("Aucun personnage à synchroniser.")
+		return nil
+	}
+
+	fmt.Printf("Progression sauvegardée pour %d personnage(s) :\n", len(synced))
+	for _, name := range synced {
+		fmt.Printf("  - %s → %s/%s.json\n", name, charactersDir, strings.ToLower(strings.ReplaceAll(name, " ", "-")))
+	}
+	return nil
+}
+
+func cmdArchive(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: adventure archive <nom>")
+	}
+
+	if err := adventure.Archive(adventuresDir, args[0]); err != nil {
+		return err
+	}
+
+	fmt.Printf("Aventure \"%s\" archivée.\n", args[0])
+	fmt.Println("Restaurez-la avec : sw-adventure unarchive \"" + args[0] + "\"")
+	return nil
+}
+
+func cmdUnarchive(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: adventure unarchive <nom>")
+	}
+
+	if err := adventure.Unarchive(adventuresDir, args[0]); err != nil {
+		return err
+	}
+
+	fmt.Printf("Aventure \"%s\" restaurée.\n", args[0])
+	return nil
+}
+
+func cmdListArchived() error {
+	adventures, err := adventure.ListArchived(adventuresDir)
+	if err != nil {
+		return err
+	}
+
+	if len(adventures) == 0 {
+		fmt.Println("Aucune aventure archivée.")
+		return nil
+	}
+
+	fmt.Println("## Aventures archivées")
+	fmt.Println()
+	fmt.Println("| Nom | Sessions | Dernière partie |")
+	fmt.Println("|-----|----------|-----------------|")
+
+	for _, a := range adventures {
+		fmt.Printf("| %s | %d | %s |\n",
+			a.Name,
+			a.SessionCount,
+			a.LastPlayed.Format("02/01/2006"),
+		)
+	}
+
+	return nil
+}
+
+func cmdPurgeMaps() error {
+	fmt.Print("Supprimer TOUTES les maps globales dans data/maps/ ? (oui/non): ")
+	var response string
+	fmt.Scanln(&response)
+	if response != "oui" {
+		fmt.Println("Annulé.")
+		return nil
+	}
+
+	count, err := adventure.PurgeMaps("data")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d fichier(s) supprimé(s) dans data/maps/.\n", count)
 	return nil
 }
 

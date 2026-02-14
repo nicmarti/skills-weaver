@@ -69,11 +69,22 @@ var (
 		MaxSteps: 50, // Professional model supports more steps
 		DefSteps: 28, // Default to balanced quality/speed
 	}
+	// ModelFlux2Pro is FLUX.2 Pro for state-of-the-art image quality (~$0.03/megapixel)
+	// Zero-config: no inference steps or guidance scale needed
+	ModelFlux2Pro = Model{
+		ID:       "fal-ai/flux-2-pro",
+		Short:    "flux-2-pro",
+		SyncURL:  "https://fal.run/fal-ai/flux-2-pro",
+		QueueURL: "https://queue.fal.run/fal-ai/flux-2-pro",
+		MaxSteps: 0, // Not used by FLUX.2 Pro
+		DefSteps: 0, // Not used by FLUX.2 Pro
+	}
 )
 
 // AvailableModels returns all available models.
 func AvailableModels() map[string]Model {
 	return map[string]Model{
+		"flux-2-pro":  ModelFlux2Pro,
 		"flux-pro-11": ModelFluxPro11,
 		"schnell":     ModelSchnell,
 		"banana":      ModelNanoBanana,
@@ -85,8 +96,7 @@ func AvailableModels() map[string]Model {
 // JournalModels returns models available for journal illustration.
 func JournalModels() map[string]Model {
 	return map[string]Model{
-		"seedream": ModelSeedream, // High quality, slower
-		//"zimage":   ModelZImageTurbo, // Consistent character and fast generation
+		"flux-2-pro": ModelFlux2Pro, // State-of-the-art quality, default for journal
 	}
 }
 

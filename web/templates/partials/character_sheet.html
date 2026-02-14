@@ -93,6 +93,18 @@
         </div>
     </div>
 
+    {{/* Class Features Section */}}
+    {{if .ClassFeatures}}
+    <div class="cs-section cs-features-section">
+        <h3 class="cs-section-title">Capacites de classe</h3>
+        <ul class="cs-features-list">
+            {{range .ClassFeatures}}
+            <li class="cs-feature-item">{{.}}</li>
+            {{end}}
+        </ul>
+    </div>
+    {{end}}
+
     {{/* Spells Section */}}
     {{if .IsSpellcaster}}
     <div class="cs-section cs-spells-section">

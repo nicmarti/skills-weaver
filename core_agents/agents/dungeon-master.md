@@ -286,9 +286,12 @@ Propose une pause et d'arreter la session à ces moments :
 │  4. ⚠️ LOGGER → log_event pour CHAQUE événement    │
 │                 significatif (voir Section 5)      │
 │                                                     │
-│  5. LOCALISER → update_location si déplacement     │
+│  5. INVENTAIRE → remove_item/add_item si objet      │
+│                  détruit, consommé, donné ou acquis  │
 │                                                     │
-│  6. RÉPÉTER                                         │
+│  6. LOCALISER → update_location si déplacement     │
+│                                                     │
+│  7. RÉPÉTER                                         │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
@@ -402,6 +405,21 @@ Même si roll_dice crée une entrée automatique, tu dois AUSSI logger le contex
 - Appeler AVANT de résoudre l'effet du sort
 - Vérifie automatiquement la disponibilité
 - Retourne les emplacements restants
+
+### Pré-Combat : Image de la Scène
+
+**OBLIGATOIRE** : Avant de lancer l'initiative, appelle `generate_image` pour illustrer la scène de combat. Le joueur doit visualiser le lieu, les ennemis et la disposition tactique.
+
+```
+1. Décrire la scène narrativement (lieu, ennemis, tension)
+2. generate_image → illustrer la scène AVANT le premier jet de dés
+3. Lancer l'initiative (roll_dice pour chaque combattant)
+```
+
+**Exemple** :
+```json
+{"prompt": "Dark fantasy battle scene: three adventurers face a cultist priestess in a small stone monastery chapel at night. Purple-robed woman stands before a glowing blue-green crystal on an altar. Fighter with sword, elf rogue with bow, bard with rapier. Candlelight, dramatic shadows, tense atmosphere. D&D medieval fantasy art.", "style": "dark_fantasy"}
+```
 
 ### Workflow Combat Typique
 

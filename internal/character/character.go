@@ -51,6 +51,9 @@ type Character struct {
 	HitDice          int             `json:"hit_dice,omitempty"`          // Remaining hit dice
 	MaxHitDice       int             `json:"max_hit_dice,omitempty"`      // Maximum hit dice (= level)
 
+	// Class features (e.g., "Sursaut d'action", "Attaque sournoise 2d6")
+	ClassFeatures []string `json:"class_features,omitempty"`
+
 	// Spell system fields
 	SpellSaveDC      int        `json:"spell_save_dc,omitempty"`       // DC for spell saves
 	SpellAttackBonus int        `json:"spell_attack_bonus,omitempty"`  // Bonus for spell attacks

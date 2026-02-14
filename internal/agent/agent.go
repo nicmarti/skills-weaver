@@ -222,6 +222,12 @@ Le journal ci-dessus montre des événements PASSÉS de cette aventure.
 ========================
 `
 
+	// Load campaign plan directive (narrative guardrails, always present)
+	campaignDirective := a.buildCampaignDirective()
+	if campaignDirective != "" {
+		adventureInfo += "\n" + campaignDirective
+	}
+
 	systemPrompt := dmPersona + "\n\n" + adventureInfo + "\n" + postJournalReminder
 
 	// Add system guidance if available (campaign briefing, hidden from player)
@@ -230,6 +236,55 @@ Le journal ci-dessus montre des événements PASSÉS de cette aventure.
 	}
 
 	return systemPrompt, nil
+}
+
+// buildCampaignDirective loads the campaign plan and builds a compact narrative directive
+// that is always included in the system prompt. This ensures the DM never operates without
+// knowing the planned storyline, even if start_session is not called.
+func (a *Agent) buildCampaignDirective() string {
+	plan, err := a.adventureCtx.Adventure.LoadCampaignPlan()
+	if err != nil || plan == nil {
+		return ""
+	}
+
+	var b strings.Builder
+	b.WriteString("=== PLAN NARRATIF (OBLIGATOIRE - NE PAS DÉVIER) ===\n")
+
+	// Campaign objective
+	if plan.NarrativeStructure.Objective != "" {
+		b.WriteString(fmt.Sprintf("Objectif: %s\n", plan.NarrativeStructure.Objective))
+	}
+
+	// Current act
+	if act := plan.GetCurrentAct(); act != nil {
+		b.WriteString(fmt.Sprintf("Acte %d: %s — %s\n", act.Number, act.Title, act.Description))
+		if len(act.Goals) > 0 {
+			b.WriteString("Objectifs:\n")
+			for _, goal := range act.Goals {
+				b.WriteString(fmt.Sprintf("  • %s\n", goal))
+			}
+		}
+	}
+
+	// Antagonist
+	antag := plan.PlotElements.Antagonist
+	if antag.Name != "" {
+		b.WriteString(fmt.Sprintf("Antagoniste: %s (%s, %s)\n", antag.Name, antag.Role, antag.Motivation))
+	}
+
+	// Key locations
+	if len(plan.PlotElements.KeyLocations) > 0 {
+		names := make([]string, 0, len(plan.PlotElements.KeyLocations))
+		for _, loc := range plan.PlotElements.KeyLocations {
+			names = append(names, loc.Name)
+		}
+		b.WriteString(fmt.Sprintf("Lieux clés: %s\n", strings.Join(names, ", ")))
+	}
+
+	b.WriteString("\n⚠️ Tu DOIS suivre ce plan narratif. N'invente PAS de nouveaux antagonistes, cultes ou intrigues absents de ce plan.\n")
+	b.WriteString("===")
+
+	return b.String()
 }
 
 // AddSystemGuidance injects hidden campaign/session briefing into system context.
@@ -253,6 +308,11 @@ func (a *Agent) callAnthropicAPI(systemPrompt string, messages []anthropic.Messa
 			// Non-fatal: just log to stderr
 			fmt.Fprintf(os.Stderr, "Warning: Could not write system prompt to log: %v\n", err)
 		}
+	}
+
+	// Log model being used for this API call
+	if a.logger != nil {
+		a.logger.LogInfo(fmt.Sprintf("API call using model: %s", GetModelDisplayName(a.model)))
 	}
 
 	// Create streaming message
@@ -493,7 +553,11 @@ func (a *Agent) saveAgentStates() {
 
 // SetModel changes the model used by the agent for API calls.
 func (a *Agent) SetModel(model anthropic.Model) {
+	oldModel := a.model
 	a.model = model
+	if a.logger != nil {
+		a.logger.LogInfo(fmt.Sprintf("Model changed: %s -> %s", GetModelDisplayName(oldModel), GetModelDisplayName(model)))
+	}
 }
 
 // GetModel returns the current model used by the agent.

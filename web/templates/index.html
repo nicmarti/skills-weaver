@@ -39,10 +39,33 @@
                                   placeholder="Une breve description de votre aventure..."></textarea>
                     </div>
                     <div class="form-group">
+                        <label for="duration">Duree de l'aventure</label>
+                        <select id="duration" name="duration" class="form-select">
+                            <option value="oneshot">One-shot (1-2 sessions) - 1 acte</option>
+                            <option value="short" selected>Courte aventure (3-5 sessions) - 1 acte</option>
+                            <option value="campaign">Campagne (8-12 sessions) - 2-3 actes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adventure_type">Type d'aventure</label>
+                        <select id="adventure_type" name="adventure_type" class="form-select">
+                            <option value="">Choix libre</option>
+                            <option value="escort">Mission d'escorte</option>
+                            <option value="fetch_quest">Quete d'objet</option>
+                            <option value="mystery">Enquete / mystere</option>
+                            <option value="rescue">Mission de sauvetage</option>
+                            <option value="exploration">Exploration / donjon</option>
+                            <option value="defense">Garde / defense</option>
+                            <option value="heist">Braquage / infiltration</option>
+                            <option value="hunt">Chasse au monstre</option>
+                            <option value="diplomacy">Diplomatie</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="theme">Theme de campagne (optionnel)</label>
                         <textarea id="theme" name="theme" rows="3"
-                                  placeholder="Ex: Conspiration maritime avec entite ancienne scellee sous une cite perdue..."></textarea>
-                        <small class="form-hint">Si fourni, le DM generera automatiquement un plan narratif structure en 3 actes</small>
+                                  placeholder="Ex: Escorter un marchand de Cordova a Fer-de-Lance a travers les cols montagneux..."></textarea>
+                        <small class="form-hint">Si un type est choisi, le theme precise les details specifiques de votre aventure</small>
                     </div>
                     <div class="form-note">
                         <strong>Note :</strong> Si des personnages existent dans <code>data/characters/</code>, ils seront automatiquement ajoutes a cette aventure.
@@ -62,17 +85,24 @@
             <div id="adventures-list" class="adventures-grid">
                 {{if .Adventures}}
                     {{range .Adventures}}
-                    <a href="/play/{{.Slug}}" class="adventure-card">
-                        <div class="card-header">
-                            <h3>{{.Name}}</h3>
-                            <span class="status status-{{.Status}}">{{.Status}}</span>
+                    <div class="adventure-card-wrapper">
+                        <a href="/play/{{.Slug}}" class="adventure-card">
+                            <div class="card-header">
+                                <h3>{{.Name}}</h3>
+                                <span class="status status-{{.Status}}">{{.Status}}</span>
+                            </div>
+                            <p class="card-description">{{.Description}}</p>
+                            <div class="card-footer">
+                                <span class="sessions">{{.SessionCount}} sessions</span>
+                                <span class="last-played">Derniere session: {{.LastPlayed.Format "02/01/2006"}}</span>
+                            </div>
+                        </a>
+                        <div class="card-actions">
+                            <form action="/adventures/{{.Slug}}/archive" method="POST" style="display:inline">
+                                <button type="submit" class="btn btn-small btn-secondary" title="Archiver">Archiver</button>
+                            </form>
                         </div>
-                        <p class="card-description">{{.Description}}</p>
-                        <div class="card-footer">
-                            <span class="sessions">{{.SessionCount}} sessions</span>
-                            <span class="last-played">Derniere session: {{.LastPlayed.Format "02/01/2006"}}</span>
-                        </div>
-                    </a>
+                    </div>
                     {{end}}
                 {{else}}
                     <div class="empty-state">

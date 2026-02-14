@@ -1,0 +1,65 @@
+{
+  "id": "marcus-sanggo-001",
+  "name": "Marcus Sanggo",
+  "species": "human",
+  "class": "fighter",
+  "level": 4,
+  "xp": 3350,
+  "abilities": {
+    "strength": 17,
+    "intelligence": 11,
+    "wisdom": 13,
+    "dexterity": 14,
+    "constitution": 15,
+    "charisma": 12
+  },
+  "modifiers": {
+    "strength": 3,
+    "intelligence": 0,
+    "wisdom": 1,
+    "dexterity": 2,
+    "constitution": 2,
+    "charisma": 1
+  },
+  "hit_points": 15,
+  "max_hit_points": 31,
+  "armor_class": 16,
+  "gold": 150,
+  "equipment": [],
+  "background": "soldier",
+  "proficiency_bonus": 2,
+  "skills": {
+    "athletics": true,
+    "intimidation": true,
+    "perception": true
+  },
+  "saving_throw_profs": {
+    "constitution": true,
+    "strength": true
+  },
+  "hit_dice": 4,
+  "max_hit_dice": 4,
+  "class_features": [
+    "Second souffle (1d10+4 PV, 1/repos court)",
+    "Sursaut d'action (1 action supplementaire, 1/repos court)",
+    "Style de combat : Defense (+1 CA en armure)",
+    "Archetype martial : Champion",
+    "Critique ameliore (19-20)"
+  ],
+  "appearance": {
+    "age": 39,
+    "gender": "male",
+    "build": "muscular",
+    "height": "average",
+    "hair_color": "dark brown with gray streaks",
+    "hair_style": "short military cut",
+    "eye_color": "steel gray",
+    "skin_tone": "weathered tan",
+    "facial_feature": "short beard with scars",
+    "distinctive_feature": "battle scar across left eyebrow",
+    "armor_description": "worn chainmail with military insignia",
+    "weapon_description": "longsword with notched blade",
+    "accessories": "shield bearing old regiment emblem"
+  },
+  "created_at": "2026-01-06T00:00:00Z"
+}

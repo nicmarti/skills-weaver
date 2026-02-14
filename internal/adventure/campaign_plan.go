@@ -79,11 +79,12 @@ type Resolution struct {
 
 // PlotElements contains NPCs, locations, and MacGuffins.
 type PlotElements struct {
-	Antagonist           Character   `json:"antagonist"`
-	SecondaryAntagonists []Character `json:"secondary_antagonists,omitempty"`
-	SupportingCharacters []Character `json:"supporting_characters,omitempty"`
-	MacGuffins           []MacGuffin `json:"macguffins,omitempty"`
-	KeyLocations         []Location  `json:"key_locations,omitempty"`
+	Antagonist           Character       `json:"antagonist"`
+	SecondaryAntagonists []Character     `json:"secondary_antagonists,omitempty"`
+	SupportingCharacters []Character     `json:"supporting_characters,omitempty"`
+	MacGuffins           []MacGuffin     `json:"macguffins,omitempty"`
+	KeyLocations         []Location      `json:"key_locations,omitempty"`
+	NPCs                 []NPCDefinition `json:"npcs,omitempty"`
 }
 
 // Character represents an NPC with a story arc.
@@ -116,6 +117,27 @@ type Location struct {
 	Role        string `json:"role"` // Act 1 hub|Act 3 destination
 	Sessions    []int  `json:"sessions,omitempty"`
 	DangerLevel string `json:"danger_level,omitempty"` // safe|moderate|dangerous|extreme
+}
+
+// NPCDefinition represents an NPC defined in the campaign plan, ready to be generated.
+type NPCDefinition struct {
+	Name                 string            `json:"name"`
+	Role                 string            `json:"role"` // quest_giver|antagonist|ally|rival|informant
+	Race                 string            `json:"race"`
+	Gender               string            `json:"gender"`
+	Occupation           string            `json:"occupation"`
+	Attitude             string            `json:"attitude"` // positive|neutral|negative
+	Motivation           string            `json:"motivation"`
+	Secret               string            `json:"secret"`
+	NarrativeContext     string            `json:"narrative_context"`
+	NarrativeIntegration *NPCNarrativeLink `json:"narrative_integration,omitempty"`
+}
+
+// NPCNarrativeLink ties an NPC to the narrative structure.
+type NPCNarrativeLink struct {
+	IntroductionSession int    `json:"introduction_session"`
+	PlotRole            string `json:"plot_role"`
+	LinkedToAct         int    `json:"linked_to_act"`
 }
 
 // ForeshadowsContainer organizes foreshadows by status with act linkage.

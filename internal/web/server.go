@@ -144,6 +144,10 @@ func (s *Server) setupRoutes() {
 	s.engine.GET("/play/:slug/model", s.handleGetModel)
 	s.engine.POST("/play/:slug/model", s.handleSetModel)
 
+	// Adventure management
+	s.engine.POST("/adventures/:slug/archive", s.handleArchiveAdventure)
+	s.engine.POST("/adventures/:slug/delete", s.handleDeleteAdventure)
+
 	// Gallery routes
 	s.engine.GET("/play/:slug/gallery", s.handleGallery)
 }

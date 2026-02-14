@@ -59,7 +59,6 @@ docs/*.pdf
 /sw-spell
 /sw-character-sheet
 /sw-map
-/data/adventures/la-crypte-des-ombres/sw-dm.log
 
 # Test-generated persona files
 internal/agent/core_agents/
@@ -71,15 +70,14 @@ ai/REFACTO.md
 # Runtime data (user-generated content)
 data/adventures/*/
 data/characters/*/
+data/adventures/*/
+data/maps/*/
 
 # Keep directory structure with .empty files
 !data/adventures/.empty
+!data/maps/.empty
 !data/characters/.empty
 
-# Character JSON files (user data)
-data/characters/*.json
 
-# do not save maps
-!data/maps/.empty
 /adventure
 /dm

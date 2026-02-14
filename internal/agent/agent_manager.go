@@ -44,9 +44,10 @@ type AgentManager struct {
 	logger           *Logger
 	outputHandler    OutputHandler
 	personaLoader    *PersonaLoader
-	mainToolRegistry *ToolRegistry   // Main agent's tool registry, used to create filtered registries
-	maxDepth         int             // Maximum nesting depth (always 1 for now)
-	clientFactory    ClientFactory   // Factory for creating Anthropic clients (allows mocking)
+	mainToolRegistry *ToolRegistry      // Main agent's tool registry, used to create filtered registries
+	maxDepth         int                // Maximum nesting depth (always 1 for now)
+	clientFactory    ClientFactory      // Factory for creating Anthropic clients (allows mocking)
+	worldResources   *WorldResources    // World map description + image for world-keeper
 }
 
 // NestedAgentState represents a nested agent with its own conversation context.
@@ -103,6 +104,7 @@ func NewAgentManager(
 		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
 		maxDepth:         1,   // Nested agents cannot invoke other agents
 		clientFactory:    defaultClientFactory, // Use real client by default
+		worldResources:   LoadWorldResources(),
 	}
 }
 
@@ -132,6 +134,7 @@ func NewAgentManagerWithClientFactory(
 		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
 		maxDepth:         1,
 		clientFactory:    clientFactory,
+		worldResources:   LoadWorldResources(),
 	}
 }
 
@@ -581,6 +584,18 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		},
 	}
 
+	// Inject world map image for world-keeper as initial conversation context
+	if agentName == "world-keeper" && am.worldResources != nil && am.worldResources.MapImageBase64 != "" {
+		agent.conversationCtx.AddUserMessageWithImage(
+			"Voici la carte du monde des Quatre Royaumes. Utilise-la comme référence géographique pour toutes tes validations.",
+			am.worldResources.MapImageBase64,
+			am.worldResources.MapImageMediaType,
+		)
+		agent.conversationCtx.AddAssistantMessage(
+			"J'ai bien reçu la carte du monde des Quatre Royaumes. Je l'utiliserai comme référence pour assurer la cohérence géographique de l'aventure.",
+		)
+	}
+
 	// Store in map
 	am.nestedAgents[agentName] = agent
 
@@ -603,6 +618,15 @@ func (am *AgentManager) buildNestedAgentSystemPrompt(agent *NestedAgentState) st
 	sb.WriteString(fmt.Sprintf("**Party**: %s\n", formatParty(am.adventureCtx)))
 	sb.WriteString(fmt.Sprintf("**Gold**: %d gp\n", am.adventureCtx.Inventory.Gold))
 	sb.WriteString(fmt.Sprintf("**Current Location**: %s\n\n", am.adventureCtx.State.CurrentLocation))
+
+	// Inject world map description for world-keeper
+	if agent.agentName == "world-keeper" && am.worldResources != nil && am.worldResources.MapDescription != "" {
+		sb.WriteString("\n## World Map Reference\n\n")
+		sb.WriteString("Use this detailed geographical description of the Four Kingdoms as your authoritative reference ")
+		sb.WriteString("for all geography, distances, trade routes, and location validation:\n\n")
+		sb.WriteString(am.worldResources.MapDescription)
+		sb.WriteString("\n\n")
+	}
 
 	// Add constraint for nested agents
 	sb.WriteString("**Important**: You are a specialized consultant agent. ")

@@ -40,6 +40,16 @@ func (ctx *ConversationContext) AddUserMessage(content string) {
 	ctx.TruncateIfNeeded()
 }
 
+// AddUserMessageWithImage adds a user message containing text and a base64-encoded image.
+func (ctx *ConversationContext) AddUserMessageWithImage(content string, imageBase64 string, mediaType string) {
+	ctx.messages = append(ctx.messages, anthropic.NewUserMessage(
+		anthropic.NewTextBlock(content),
+		anthropic.NewImageBlockBase64(mediaType, imageBase64),
+	))
+	ctx.tokenEstimate += len(content)/4 + 1600 // ~1600 tokens for a 1536x1024 image
+	ctx.TruncateIfNeeded()
+}
+
 // AddAssistantMessage adds an assistant message to the conversation.
 func (ctx *ConversationContext) AddAssistantMessage(content string) {
 	// Don't add message if content is empty - API rejects empty text blocks

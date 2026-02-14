@@ -827,7 +827,7 @@ func cmdJournal(args []string) error {
 	journalModels := image.JournalModels()
 	modelName := opts["model"]
 	if modelName == "" {
-		modelName = "seedream" // Default: seedream for high quality journal illustrations
+		modelName = "flux-2-pro" // Default: FLUX.2 Pro for high quality journal illustrations
 	}
 
 	// Validate model is available for journal

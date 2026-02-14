@@ -1,0 +1,94 @@
+{
+  "id": "caelian-aurelmoor-001",
+  "name": "Caelian Aurelmoor",
+  "species": "human",
+  "class": "bard",
+  "level": 4,
+  "xp": 3350,
+  "abilities": {
+    "strength": 9,
+    "intelligence": 12,
+    "wisdom": 11,
+    "dexterity": 14,
+    "constitution": 13,
+    "charisma": 16
+  },
+  "modifiers": {
+    "strength": -1,
+    "intelligence": 1,
+    "wisdom": 0,
+    "dexterity": 2,
+    "constitution": 1,
+    "charisma": 3
+  },
+  "hit_points": 6,
+  "max_hit_points": 22,
+  "armor_class": 13,
+  "gold": 120,
+  "equipment": [
+    "Armure de cuir",
+    "Rapière d'apparat",
+    "Violon elfique ancien",
+    "Composantes matérielles",
+    "Paquetage d'érudit (livres, parchemins, encre)",
+    "Tunique violette brodée d'argent (couleurs d'Astrène)",
+    "Cape noire avec insigne de l'Université d'Étoile-d'Automne"
+  ],
+  "background": "sage",
+  "proficiency_bonus": 2,
+  "skills": {
+    "arcana": true,
+    "history": true,
+    "insight": true,
+    "investigation": true,
+    "performance": true,
+    "persuasion": true
+  },
+  "saving_throw_profs": {
+    "charisma": true,
+    "dexterity": true
+  },
+  "hit_dice": 4,
+  "max_hit_dice": 4,
+  "class_features": [
+    "Inspiration bardique (d6, 3/repos long)",
+    "Touche-a-tout (demi-bonus maitrise aux competences non-maitrises)",
+    "Chant reposant (+1d6 PV lors d'un repos court)",
+    "College du Savoir",
+    "Mots cinglants (reaction, soustraire d6 a un jet ennemi)"
+  ],
+  "spell_save_dc": 13,
+  "spell_attack_bonus": 5,
+  "known_spells": [
+    "Lumiere",
+    "Moquerie cruelle",
+    "Soins",
+    "Charme-personne",
+    "Detection de la magie",
+    "Heroisme"
+  ],
+  "spell_slots": {
+    "1": 4,
+    "2": 3
+  },
+  "spell_slots_used": {
+    "1": 1,
+    "2": 0
+  },
+  "appearance": {
+    "age": 27,
+    "gender": "male",
+    "build": "slender",
+    "height": "average",
+    "hair_color": "raven black",
+    "hair_style": "medium length, refined",
+    "eye_color": "deep violet (Astrène signature)",
+    "skin_tone": "pale",
+    "facial_feature": "elegant academic features, soft beard",
+    "distinctive_feature": "melancholic gaze, musician's delicate hands",
+    "armor_description": "violet tunic with silver embroidery, black cape with University insignia",
+    "weapon_description": "ornate ceremonial rapier",
+    "accessories": "ancient elven violin, satchel of scrolls and books"
+  },
+  "created_at": "2026-01-06T00:00:00Z"
+}

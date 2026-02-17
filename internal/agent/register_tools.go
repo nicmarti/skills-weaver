@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/data"
 	"dungeons/internal/dmtools"
 	"dungeons/internal/equipment"
 	"dungeons/internal/locations"
@@ -74,6 +75,13 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	// Register character info tools
 	registry.Register(dmtools.NewGetPartyInfoTool(adv))
 	registry.Register(dmtools.NewGetCharacterInfoTool(adv))
+
+	// Register character creation tool
+	gd, err := data.Load(dataDir)
+	if err != nil {
+		return fmt.Errorf("failed to load game data: %w", err)
+	}
+	registry.Register(dmtools.NewCreateCharacterTool(adv, gd))
 
 	// Register combat tools (HP modification and spell slot usage)
 	registry.Register(dmtools.NewUpdateHPTool(adv))

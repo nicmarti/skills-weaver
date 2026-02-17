@@ -108,6 +108,13 @@ a:hover {
     margin-bottom: var(--space-xl);
 }
 
+.header-logo {
+    max-width: 280px;
+    height: auto;
+    margin-bottom: var(--space-md);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+}
+
 .title {
     font-size: 3rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -1436,9 +1443,15 @@ a:hover {
 
 .cs-header.with-portrait {
     display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    text-align: left;
+    flex-direction: column;
+    gap: 0;
+    text-align: center;
+    padding: 0;
+    overflow: hidden;
+}
+
+.cs-header.with-portrait .cs-header-text {
+    padding: var(--space-md) var(--space-lg) var(--space-lg);
 }
 
 .cs-header::before {
@@ -1450,18 +1463,28 @@ a:hover {
     width: 60%;
     height: 3px;
     background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+    z-index: 1;
 }
 
 /* Character Portrait */
 .cs-portrait {
-    flex-shrink: 0;
-    width: 140px;
-    height: 180px;
-    border: 3px solid var(--accent-gold);
-    border-radius: var(--radius-md);
+    width: 100%;
+    max-height: 400px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(201, 162, 39, 0.2);
     background: var(--bg-tertiary);
+    border-bottom: 3px solid var(--accent-gold);
+    position: relative;
+}
+
+.cs-portrait::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to top, #1a1a2e, transparent);
+    pointer-events: none;
 }
 
 .cs-portrait-img {
@@ -1469,6 +1492,7 @@ a:hover {
     height: 100%;
     object-fit: cover;
     object-position: top center;
+    display: block;
 }
 
 .cs-header-text {
@@ -1963,8 +1987,7 @@ a:hover {
     }
 
     .cs-portrait {
-        width: 120px;
-        height: 150px;
+        max-height: 280px;
     }
 }
 

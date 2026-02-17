@@ -561,6 +561,7 @@ petit rubis mal taillé - probablement volé à un voyageur.
 | `get_monster` | Stats monstre | `{"name": "goblin"}` |
 | `get_party_info` | Vue groupe | PV, CA, niveau de tous |
 | `get_character_info` | Fiche PJ | `{"name": "Aldric"}` |
+| `create_character` | Créer PJ | `{"name": "Una", "species": "human", "class": "fighter", "level": 3, "abilities": {"strength": 16, ...}}` |
 | `generate_treasure` | Butin | `{"treasure_type": "R"}` |
 | `generate_npc` | PNJ complet | `{"race": "human", "occupation": "merchant"}` |
 | `add_gold` | Modifier or | `{"amount": 50}` |

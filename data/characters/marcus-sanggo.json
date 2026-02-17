@@ -4,7 +4,7 @@
   "species": "human",
   "class": "fighter",
   "level": 4,
-  "xp": 3350,
+  "xp": 4350,
   "abilities": {
     "strength": 17,
     "intelligence": 11,
@@ -21,12 +21,17 @@
     "constitution": 2,
     "charisma": 1
   },
-  "hit_points": 15,
+  "hit_points": 31,
   "max_hit_points": 31,
   "armor_class": 16,
   "gold": 150,
-  "equipment": [],
-  "background": "soldier",
+  "equipment": [
+    "Cotte de mailles",
+    "Épée longue",
+    "Bouclier (emblème de régiment)",
+    "Paquetage de soldat"
+  ],
+  "background": "soldat",
   "proficiency_bonus": 2,
   "skills": {
     "athletics": true,
@@ -39,27 +44,20 @@
   },
   "hit_dice": 4,
   "max_hit_dice": 4,
-  "class_features": [
-    "Second souffle (1d10+4 PV, 1/repos court)",
-    "Sursaut d'action (1 action supplementaire, 1/repos court)",
-    "Style de combat : Defense (+1 CA en armure)",
-    "Archetype martial : Champion",
-    "Critique ameliore (19-20)"
-  ],
   "appearance": {
     "age": 39,
-    "gender": "male",
-    "build": "muscular",
-    "height": "average",
-    "hair_color": "dark brown with gray streaks",
-    "hair_style": "short military cut",
-    "eye_color": "steel gray",
-    "skin_tone": "weathered tan",
-    "facial_feature": "short beard with scars",
-    "distinctive_feature": "battle scar across left eyebrow",
-    "armor_description": "worn chainmail with military insignia",
-    "weapon_description": "longsword with notched blade",
-    "accessories": "shield bearing old regiment emblem"
+    "gender": "homme",
+    "build": "musclé",
+    "height": "moyen",
+    "hair_color": "brun foncé strié de gris",
+    "hair_style": "coupe militaire courte",
+    "eye_color": "gris acier",
+    "skin_tone": "hâlé, tanné par les intempéries",
+    "facial_feature": "barbe courte avec cicatrices",
+    "distinctive_feature": "cicatrice de combat au sourcil gauche",
+    "armor_description": "Cotte de mailles usée avec insignes militaires",
+    "weapon_description": "Épée longue à la lame ébréchée",
+    "accessories": "Bouclier portant l'emblème de son ancien régiment"
   },
   "created_at": "2026-01-06T00:00:00Z"
 }

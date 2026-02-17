@@ -72,6 +72,8 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapUpdateCharacterStat(params)
 	case "long_rest":
 		return mapLongRest(params)
+	case "create_character":
+		return mapCreateCharacter(params)
 	case "update_time":
 		return mapUpdateTime(params)
 	case "set_flag":
@@ -559,6 +561,13 @@ func mapSetVariable(params map[string]interface{}) string {
 func mapGetState(params map[string]interface{}) string {
 	// No parameters for get_state
 	return "# get_state (internal operation - reads state.json)"
+}
+
+func mapCreateCharacter(params map[string]interface{}) string {
+	name, _ := params["name"].(string)
+	species, _ := params["species"].(string)
+	class, _ := params["class"].(string)
+	return fmt.Sprintf("# create_character \"%s\" species=%s class=%s (internal operation - creates character JSON + updates party)", name, species, class)
 }
 
 func mapUpdateCharacterStat(params map[string]interface{}) string {

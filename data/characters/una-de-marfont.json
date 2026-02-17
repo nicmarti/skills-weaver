@@ -1,0 +1,98 @@
+{
+  "id": "una-de-marfont-001",
+  "name": "Una de Marfont",
+  "species": "human",
+  "class": "cleric",
+  "level": 4,
+  "xp": 2700,
+  "abilities": {
+    "strength": 16,
+    "intelligence": 10,
+    "wisdom": 18,
+    "dexterity": 10,
+    "constitution": 14,
+    "charisma": 12
+  },
+  "modifiers": {
+    "strength": 3,
+    "intelligence": 0,
+    "wisdom": 4,
+    "dexterity": 0,
+    "constitution": 2,
+    "charisma": 1
+  },
+  "hit_points": 30,
+  "max_hit_points": 30,
+  "armor_class": 18,
+  "gold": 100,
+  "equipment": [
+    "Marteau de guerre",
+    "Bouclier",
+    "Armure d'écailles",
+    "Symbole sacré"
+  ],
+  "background": "acolyte",
+  "proficiency_bonus": 2,
+  "skills": {
+    "insight": true,
+    "medicine": true
+  },
+  "saving_throw_profs": {
+    "wisdom": true,
+    "charisma": true
+  },
+  "hit_dice": 4,
+  "max_hit_dice": 4,
+  "class_features": [
+    "Prêtre de guerre",
+    "Frappe guidée",
+    "Conduit divin"
+  ],
+  "spell_save_dc": 14,
+  "spell_attack_bonus": 6,
+  "known_spells": [
+    "Flamme sacrée",
+    "Épargner les mourants",
+    "Assistance",
+    "Soins",
+    "Mot de guérison",
+    "Bouclier de la foi",
+    "Sanctuaire",
+    "Prière de guérison",
+    "Arme spirituelle",
+    "Restauration partielle"
+  ],
+  "prepared_spells": [
+    "Soins",
+    "Mot de guérison",
+    "Bouclier de la foi",
+    "Sanctuaire",
+    "Prière de guérison",
+    "Arme spirituelle",
+    "Restauration partielle"
+  ],
+  "spell_slots": {
+    "1": 4,
+    "2": 3
+  },
+  "spell_slots_used": {
+    "1": 0,
+    "2": 0
+  },
+  "appearance": {
+    "age": 47,
+    "gender": "femme",
+    "build": "robuste",
+    "height": "moyenne",
+    "hair_color": "gris acier",
+    "hair_style": "coupe courte et pratique",
+    "eye_color": "bleu marine délavé",
+    "skin_tone": "hâlé, buriné par le soleil",
+    "facial_feature": "regard sévère de vétéran",
+    "distinctive_feature": "Tatouage du blason Marfont (ancre entrelacée avec fontaine) sur l'avant-bras droit, cicatrice au sourcil gauche",
+    "armor_description": "Armure d'écailles ornée de symboles religieux maritimes",
+    "weapon_description": "Marteau de guerre gravé de motifs de vagues",
+    "accessories": "Pendentif sacré en argent (ancre et fontaine - blason Marfont)"
+  },
+  "created_at": "2026-02-14T22:40:00Z"
+}

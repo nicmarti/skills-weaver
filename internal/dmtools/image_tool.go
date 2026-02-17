@@ -106,8 +106,8 @@ func (t *GenerateImageTool) Execute(params map[string]interface{}) (interface{},
 		}, nil
 	}
 
-	// Generate the image using seedream model for high quality
-	result, err := generator.Generate(prompt, image.WithModel("seedream"))
+	// Generate the image using flux-2-pro (state-of-the-art quality)
+	result, err := generator.Generate(prompt, image.WithModelInstance(image.ModelFlux2Pro))
 	if err != nil {
 		return map[string]interface{}{
 			"success": false,

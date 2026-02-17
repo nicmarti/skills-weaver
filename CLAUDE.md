@@ -503,6 +503,7 @@ go build -o sw-dm ./cmd/dm
 **Consultation des Personnages** :
 - `get_party_info` : Vue d'ensemble du groupe (PV, CA, niveau, stat principale)
 - `get_character_info` : Fiche détaillée d'un personnage (caractéristiques, modificateurs, équipement, apparence)
+- `create_character` : Créer un personnage complet et l'ajouter au groupe (sauvegarde aventure + global + party.json)
 
 **Consultation Équipement et Sorts** :
 - `get_equipment` : Consulter armes, armures, équipement (dégâts, CA, coût, propriétés)
@@ -542,6 +543,7 @@ go build -o sw-dm ./cmd/dm
   - `simple_tools.go` : Tools basiques (log_event, add_gold, etc.)
   - `session_tools.go` : Gestion de session (start/end/get_info)
   - `character_tools.go` : Consultation personnages (get_party_info, get_character_info)
+  - `create_character_tool.go` : Création de personnage (create_character)
   - `equipment_tools.go` : Consultation équipement (get_equipment)
   - `spell_tools.go` : Consultation sorts (get_spell)
   - `encounter_tools.go` : Génération rencontres (generate_encounter, roll_monster_hp)

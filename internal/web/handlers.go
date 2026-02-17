@@ -948,12 +948,15 @@ func buildCharacterSheetData(char *character.Character, gd *data.GameData, inven
 		}
 	}
 
-	// Check for character portrait image
+	// Check for character portrait image (try multiple extensions)
 	charSlug := character.SanitizeFilename(char.Name)
-	portraitPath := filepath.Join("data", "characters", charSlug+".png")
-	if _, err := os.Stat(portraitPath); err == nil {
-		sheet.HasPortrait = true
-		sheet.PortraitURL = "/characters/images/" + charSlug + ".png"
+	for _, ext := range []string{".jpg", ".jpeg", ".png", ".webp"} {
+		portraitPath := filepath.Join("data", "characters", charSlug+ext)
+		if _, err := os.Stat(portraitPath); err == nil {
+			sheet.HasPortrait = true
+			sheet.PortraitURL = "/characters/images/" + charSlug + ext
+			break
+		}
 	}
 
 	return sheet

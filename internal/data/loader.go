@@ -1,4 +1,4 @@
-// Package data provides loading and access to BFRPG game data.
+// Package data provides loading and access to D&D 5e game data.
 package data
 
 import (
@@ -9,62 +9,42 @@ import (
 	"strings"
 )
 
-// AbilityModifiers represents racial ability score modifiers.
-type AbilityModifiers map[string]int
-
-// SpecialAbility represents a racial or class special ability.
-type SpecialAbility struct {
-	Name          string `json:"name"`
-	NameEN        string `json:"name_en"`
-	Description   string `json:"description"`
-	LevelRequired int    `json:"level_required,omitempty"`
+// Species represents a playable species (race) in D&D 5e.
+type Species struct {
+	ID               string         `json:"id"`
+	Name             string         `json:"name"`
+	NameEN           string         `json:"name_en"`
+	Description      string         `json:"description"`
+	Size             string         `json:"size"`             // "Small" or "Medium"
+	Speed            int            `json:"speed"`            // Usually 25 or 30 feet
+	Languages        []string       `json:"languages"`        // At least Common + 1-2 others
+	SpecialTraits    []string       `json:"special_traits"`   // Narrative descriptions
+	AbilityModifiers map[string]int `json:"ability_modifiers"` // +2 DEX, +1 CON, etc.
 }
 
-// Race represents a playable race in BFRPG.
-type Race struct {
-	ID               string           `json:"id"`
-	Name             string           `json:"name"`
-	NameEN           string           `json:"name_en"`
-	Description      string           `json:"description"`
-	AbilityModifiers AbilityModifiers `json:"ability_modifiers"`
-	SpecialAbilities []SpecialAbility `json:"special_abilities"`
-	AllowedClasses   []string         `json:"allowed_classes"`
-	LevelLimits      map[string]any   `json:"level_limits"`
-	Languages        []string         `json:"languages"`
-	BaseMovement     int              `json:"base_movement"`
-	Size             string           `json:"size"`
+// Skill represents one of the 18 D&D 5e skills.
+type Skill struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	NameEN      string `json:"name_en"`
+	Ability     string `json:"ability"`     // "strength", "dexterity", etc.
+	Description string `json:"description"` // Brief explanation
 }
 
-// SavingThrows represents saving throw values.
-type SavingThrows struct {
-	DeathRayPoison  int `json:"death_ray_poison"`
-	MagicWands      int `json:"magic_wands"`
-	ParalysisPetrif int `json:"paralysis_petrify"`
-	DragonBreath    int `json:"dragon_breath"`
-	Spells          int `json:"spells"`
-}
-
-// Class represents a playable class in BFRPG.
+// Class represents a playable class in D&D 5e.
 type Class struct {
-	ID               string                   `json:"id"`
-	Name             string                   `json:"name"`
-	NameEN           string                   `json:"name_en"`
-	Description      string                   `json:"description"`
-	HitDie           string                   `json:"hit_die"`
-	HitDieSides      int                      `json:"hit_die_sides"`
-	PrimeRequisite   string                   `json:"prime_requisite"`
-	XPBonusThreshold int                      `json:"xp_bonus_threshold"`
-	ArmorAllowed     []string                 `json:"armor_allowed"`
-	ShieldsAllowed   bool                     `json:"shields_allowed"`
-	WeaponsAllowed   []string                 `json:"weapons_allowed"`
-	SpecialAbilities []SpecialAbility         `json:"special_abilities"`
-	SpellsPerLevel   map[string][]int         `json:"spells_per_level,omitempty"`
-	SavingThrows     map[string]SavingThrows  `json:"saving_throws"`
-	AttackBonus      map[string]int           `json:"attack_bonus"`
-	XPTable          map[string]int           `json:"xp_table"`
-	ThiefSkills      map[string]map[string]int `json:"thief_skills,omitempty"`
-	TurnUndead       map[string]map[string]any `json:"turn_undead,omitempty"`
-	StartingGold     string                   `json:"starting_gold"`
+	ID                      string         `json:"id"`
+	Name                    string         `json:"name"`
+	NameEN                  string         `json:"name_en"`
+	HitDie                  string         `json:"hit_die"`                     // "d6", "d8", "d10", "d12"
+	HitDieSides             int            `json:"hit_die_sides"`               // 6, 8, 10, 12
+	PrimaryAbility          string         `json:"primary_ability"`             // "strength", "charisma", etc.
+	SavingThrowProfs        []string       `json:"saving_throw_proficiencies"`  // 2 abilities
+	SkillProfs              []string       `json:"skill_proficiencies"`         // Available skills
+	SkillChoiceCount        int            `json:"skill_choice_count"`          // How many to choose
+	ProficiencyBonus        map[string]int `json:"proficiency_bonus"`           // By level: "1": 2, "5": 3, etc.
+	SpellcastingAbility     string         `json:"spellcasting_ability"`        // Empty if non-caster
+	StartingEquipment       string         `json:"starting_equipment,omitempty"` // Brief description
 }
 
 // Weapon represents a weapon item.
@@ -100,6 +80,29 @@ type Gear struct {
 	Weight float64 `json:"weight"`
 }
 
+// Spell5e represents a D&D 5e spell.
+type Spell5e struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	NameEN        string   `json:"name_en"`
+	Level         int      `json:"level"`         // 0-9 (0 = cantrip)
+	School        string   `json:"school"`        // "evocation", "abjuration", etc.
+	CastingTime   string   `json:"casting_time"`  // "1 action", "1 bonus action", etc.
+	Range         string   `json:"range"`         // "9 m", "Contact", "Personnelle"
+	Components    []string `json:"components"`    // ["V", "S", "M"]
+	Material      string   `json:"material,omitempty"` // Required if M in components
+	Duration      string   `json:"duration"`      // "Instantanée", "1 heure", etc.
+	Concentration bool     `json:"concentration"` // True if requires concentration
+	Ritual        bool     `json:"ritual"`        // True if can be cast as ritual
+	Classes       []string `json:"classes"`       // Class IDs that can cast
+	DescriptionFR string   `json:"description_fr"`
+	DescriptionEN string   `json:"description_en,omitempty"`
+	Upcast        string   `json:"upcast,omitempty"`  // Effect when cast at higher level
+	Damage        string   `json:"damage,omitempty"`  // e.g., "1d4+1"
+	Healing       string   `json:"healing,omitempty"` // e.g., "1d8"
+	Save          string   `json:"save,omitempty"`    // e.g., "Constitution"
+}
+
 // StartingEquipment represents class-specific starting equipment options.
 type StartingEquipment struct {
 	Required      []string   `json:"required"`
@@ -110,17 +113,24 @@ type StartingEquipment struct {
 // GameData holds all loaded game data.
 type GameData struct {
 	dataDir           string
-	Races             map[string]*Race
+	Species           map[string]*Species
 	Classes           map[string]*Class
+	Skills            map[string]*Skill
 	Weapons           map[string]*Weapon
 	Armor             map[string]*Armor
 	Gear              map[string]*Gear
+	Spells5e          map[string]*Spell5e
 	StartingEquipment map[string]*StartingEquipment
 }
 
-// racesFile represents the JSON structure for races.
-type racesFile struct {
-	Races []Race `json:"races"`
+// speciesFile represents the JSON structure for species.
+type speciesFile struct {
+	Species []Species `json:"species"`
+}
+
+// skillsFile represents the JSON structure for skills.
+type skillsFile struct {
+	Skills []Skill `json:"skills"`
 }
 
 // classesFile represents the JSON structure for classes.
@@ -137,6 +147,11 @@ type equipmentFile struct {
 	Ammunition        []Gear                       `json:"ammunition"`
 }
 
+// spellsFile represents the JSON structure for D&D 5e spells.
+type spellsFile struct {
+	Spells []Spell5e `json:"spells"`
+}
+
 // Load reads all game data from JSON files in the specified directory.
 // If dataDir is empty, it defaults to "./data".
 func Load(dataDir string) (*GameData, error) {
@@ -146,17 +161,24 @@ func Load(dataDir string) (*GameData, error) {
 
 	gd := &GameData{
 		dataDir:           dataDir,
-		Races:             make(map[string]*Race),
+		Species:           make(map[string]*Species),
 		Classes:           make(map[string]*Class),
+		Skills:            make(map[string]*Skill),
 		Weapons:           make(map[string]*Weapon),
 		Armor:             make(map[string]*Armor),
 		Gear:              make(map[string]*Gear),
+		Spells5e:          make(map[string]*Spell5e),
 		StartingEquipment: make(map[string]*StartingEquipment),
 	}
 
-	// Load races
-	if err := gd.loadRaces(); err != nil {
-		return nil, fmt.Errorf("loading races: %w", err)
+	// Load species (D&D 5e races)
+	if err := gd.loadSpecies(); err != nil {
+		return nil, fmt.Errorf("loading species: %w", err)
+	}
+
+	// Load skills (D&D 5e 18 skills)
+	if err := gd.loadSkills(); err != nil {
+		return nil, fmt.Errorf("loading skills: %w", err)
 	}
 
 	// Load classes
@@ -169,30 +191,54 @@ func Load(dataDir string) (*GameData, error) {
 		return nil, fmt.Errorf("loading equipment: %w", err)
 	}
 
+	// Load spells (D&D 5e)
+	if err := gd.loadSpells(); err != nil {
+		return nil, fmt.Errorf("loading spells: %w", err)
+	}
+
 	return gd, nil
 }
 
-func (gd *GameData) loadRaces() error {
-	data, err := os.ReadFile(filepath.Join(gd.dataDir, "races.json"))
+func (gd *GameData) loadSpecies() error {
+	data, err := os.ReadFile(filepath.Join(gd.dataDir, "5e", "species.json"))
 	if err != nil {
 		return err
 	}
 
-	var rf racesFile
-	if err := json.Unmarshal(data, &rf); err != nil {
+	var sf speciesFile
+	if err := json.Unmarshal(data, &sf); err != nil {
 		return err
 	}
 
-	for i := range rf.Races {
-		race := &rf.Races[i]
-		gd.Races[race.ID] = race
+	for i := range sf.Species {
+		species := &sf.Species[i]
+		gd.Species[species.ID] = species
+	}
+
+	return nil
+}
+
+func (gd *GameData) loadSkills() error {
+	data, err := os.ReadFile(filepath.Join(gd.dataDir, "5e", "skills.json"))
+	if err != nil {
+		return err
+	}
+
+	var sf skillsFile
+	if err := json.Unmarshal(data, &sf); err != nil {
+		return err
+	}
+
+	for i := range sf.Skills {
+		skill := &sf.Skills[i]
+		gd.Skills[skill.ID] = skill
 	}
 
 	return nil
 }
 
 func (gd *GameData) loadClasses() error {
-	data, err := os.ReadFile(filepath.Join(gd.dataDir, "classes.json"))
+	data, err := os.ReadFile(filepath.Join(gd.dataDir, "5e", "classes.json"))
 	if err != nil {
 		return err
 	}
@@ -249,10 +295,16 @@ func (gd *GameData) loadEquipment() error {
 	return nil
 }
 
-// GetRace returns a race by ID.
-func (gd *GameData) GetRace(id string) (*Race, bool) {
-	r, ok := gd.Races[id]
-	return r, ok
+// GetSpecies returns a species by ID.
+func (gd *GameData) GetSpecies(id string) (*Species, bool) {
+	s, ok := gd.Species[id]
+	return s, ok
+}
+
+// GetSkill returns a skill by ID.
+func (gd *GameData) GetSkill(id string) (*Skill, bool) {
+	s, ok := gd.Skills[id]
+	return s, ok
 }
 
 // GetClass returns a class by ID.
@@ -273,13 +325,22 @@ func (gd *GameData) GetArmor(id string) (*Armor, bool) {
 	return a, ok
 }
 
-// ListRaces returns all available races.
-func (gd *GameData) ListRaces() []*Race {
-	races := make([]*Race, 0, len(gd.Races))
-	for _, r := range gd.Races {
-		races = append(races, r)
+// ListSpecies returns all available species.
+func (gd *GameData) ListSpecies() []*Species {
+	species := make([]*Species, 0, len(gd.Species))
+	for _, s := range gd.Species {
+		species = append(species, s)
 	}
-	return races
+	return species
+}
+
+// ListSkills returns all available skills.
+func (gd *GameData) ListSkills() []*Skill {
+	skills := make([]*Skill, 0, len(gd.Skills))
+	for _, s := range gd.Skills {
+		skills = append(skills, s)
+	}
+	return skills
 }
 
 // ListClasses returns all available classes.
@@ -291,51 +352,25 @@ func (gd *GameData) ListClasses() []*Class {
 	return classes
 }
 
-// CanPlayClass checks if a race can play a specific class.
-func (gd *GameData) CanPlayClass(raceID, classID string) bool {
-	race, ok := gd.GetRace(raceID)
-	if !ok {
-		return false
-	}
-
-	for _, allowed := range race.AllowedClasses {
-		if allowed == classID {
-			return true
-		}
-	}
-	return false
+// AbilityModifier calculates the D&D 5e ability modifier.
+// Formula: (ability_score - 10) ÷ 2 (rounded down)
+func AbilityModifier(score int) int {
+	return (score - 10) / 2
 }
 
-// GetLevelLimit returns the level limit for a race/class combination.
-//
-// Return values:
-//   - 0: Unlimited (no level cap for this class)
-//   - Positive number (e.g., 6): Maximum level the race can reach
-//   - -1: Class not allowed for this race (not in level_limits or race not found)
-//
-// Note: Multi-class limits like "6/9" are returned as 0 (treated as special case).
-// Use allowed_classes to check if a class is valid for a race before checking limits.
-func (gd *GameData) GetLevelLimit(raceID, classID string) int {
-	race, ok := gd.GetRace(raceID)
-	if !ok {
-		return -1
-	}
-
-	limit, ok := race.LevelLimits[classID]
-	if !ok {
-		return -1
-	}
-
-	switch v := limit.(type) {
-	case float64:
-		return int(v)
-	case int:
-		return v
-	case string:
-		// Multi-class like "6/9"
-		return 0
+// ProficiencyBonusByLevel returns the proficiency bonus for a given character level.
+func ProficiencyBonusByLevel(level int) int {
+	switch {
+	case level >= 17:
+		return 6
+	case level >= 13:
+		return 5
+	case level >= 9:
+		return 4
+	case level >= 5:
+		return 3
 	default:
-		return -1
+		return 2
 	}
 }
 
@@ -352,34 +387,13 @@ type ValidationError struct {
 func ValidateGameData(gd *GameData) []ValidationError {
 	var errors []ValidationError
 
-	// Validate race -> class references
-	errors = append(errors, validateRaceClassRefs(gd)...)
-
 	// Validate starting equipment references
 	errors = append(errors, validateStartingEquipment(gd)...)
 
 	return errors
 }
 
-// validateRaceClassRefs checks that all allowed_classes in races reference valid classes.
-func validateRaceClassRefs(gd *GameData) []ValidationError {
-	var errors []ValidationError
-
-	for raceID, race := range gd.Races {
-		for _, classID := range race.AllowedClasses {
-			if !gd.isValidClassRef(classID) {
-				errors = append(errors, ValidationError{
-					File:     "races.json",
-					Field:    fmt.Sprintf("races[%s].allowed_classes", raceID),
-					Message:  fmt.Sprintf("references non-existent class '%s'", classID),
-					Severity: "error",
-				})
-			}
-		}
-	}
-
-	return errors
-}
+// validateSpeciesClassRefs is removed - D&D 5e has no species/class restrictions.
 
 // isValidClassRef checks if a class ID is valid.
 // Supports multi-class notation like "fighter/magic-user".
@@ -462,4 +476,96 @@ func (gd *GameData) itemExists(id string) bool {
 		return true
 	}
 	return false
+}
+
+// loadSpells loads D&D 5e spells from data/5e/spells.json.
+func (gd *GameData) loadSpells() error {
+	data, err := os.ReadFile(filepath.Join(gd.dataDir, "5e", "spells.json"))
+	if err != nil {
+		return err
+	}
+
+	var sf spellsFile
+	if err := json.Unmarshal(data, &sf); err != nil {
+		return err
+	}
+
+	for i := range sf.Spells {
+		spell := &sf.Spells[i]
+		gd.Spells5e[spell.ID] = spell
+	}
+
+	return nil
+}
+
+// GetSpell5e returns a D&D 5e spell by ID.
+func (gd *GameData) GetSpell5e(id string) (*Spell5e, bool) {
+	spell, ok := gd.Spells5e[id]
+	return spell, ok
+}
+
+// ListSpellsByClass returns all spells available to a specific class and spell level.
+// If level is -1, returns all spells for the class regardless of level.
+func (gd *GameData) ListSpellsByClass(classID string, level int) []*Spell5e {
+	spells := make([]*Spell5e, 0)
+	for _, spell := range gd.Spells5e {
+		// Check if this class can cast this spell
+		hasClass := false
+		for _, c := range spell.Classes {
+			if c == classID {
+				hasClass = true
+				break
+			}
+		}
+		if !hasClass {
+			continue
+		}
+
+		// Check level if specified
+		if level >= 0 && spell.Level != level {
+			continue
+		}
+
+		spells = append(spells, spell)
+	}
+	return spells
+}
+
+// ListCantrips returns all cantrips (level 0 spells) for a specific class.
+func (gd *GameData) ListCantrips(classID string) []*Spell5e {
+	return gd.ListSpellsByClass(classID, 0)
+}
+
+// ListSpellsBySchool returns all spells of a specific school of magic.
+func (gd *GameData) ListSpellsBySchool(school string) []*Spell5e {
+	spells := make([]*Spell5e, 0)
+	for _, spell := range gd.Spells5e {
+		if strings.EqualFold(spell.School, school) {
+			spells = append(spells, spell)
+		}
+	}
+	return spells
+}
+
+// SearchSpells searches for spells by name (French or English).
+func (gd *GameData) SearchSpells(query string) []*Spell5e {
+	query = strings.ToLower(query)
+	spells := make([]*Spell5e, 0)
+	for _, spell := range gd.Spells5e {
+		if strings.Contains(strings.ToLower(spell.Name), query) ||
+			strings.Contains(strings.ToLower(spell.NameEN), query) ||
+			strings.Contains(strings.ToLower(spell.ID), query) {
+			spells = append(spells, spell)
+		}
+	}
+	return spells
+}
+
+// ListAllSpells returns all spells.
+func (gd *GameData) ListAllSpells() []*Spell5e {
+	spells := make([]*Spell5e, 0, len(gd.Spells5e))
+	for _, spell := range gd.Spells5e {
+		spells = append(spells, spell)
+	}
+	return spells
 }

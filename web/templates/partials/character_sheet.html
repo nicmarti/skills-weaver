@@ -1,0 +1,234 @@
+{{/* Character Sheet - BG3 Style */}}
+<div class="cs-sheet">
+    {{/* Header with Portrait */}}
+    <div class="cs-header {{if .HasPortrait}}with-portrait{{end}}">
+        {{if .HasPortrait}}
+        <div class="cs-portrait">
+            <img src="{{.PortraitURL}}" alt="Portrait de {{.Name}}" class="cs-portrait-img">
+        </div>
+        {{end}}
+        <div class="cs-header-text">
+            <h2 class="cs-name">{{.Name}}</h2>
+            <div class="cs-subtitle">
+                {{.SpeciesName}} {{.ClassName}} &bull; Niveau {{.Level}} &bull; {{.XP}} XP
+            </div>
+            {{if .Background}}
+            <div class="cs-background">Historique: {{.Background}}</div>
+            {{end}}
+        </div>
+    </div>
+
+    {{/* Combat Stats Bar */}}
+    <div class="cs-combat-bar">
+        <div class="cs-combat-stat">
+            <span class="cs-combat-icon">&#x2764;</span>
+            <span class="cs-combat-value">{{.HP}}/{{.MaxHP}}</span>
+            <span class="cs-combat-label">PV</span>
+        </div>
+        <div class="cs-combat-stat">
+            <span class="cs-combat-icon">&#x1F6E1;</span>
+            <span class="cs-combat-value">{{.AC}}</span>
+            <span class="cs-combat-label">CA</span>
+        </div>
+        <div class="cs-combat-stat">
+            <span class="cs-combat-icon">&#x26A1;</span>
+            <span class="cs-combat-value">{{.Initiative}}</span>
+            <span class="cs-combat-label">Initiative</span>
+        </div>
+        <div class="cs-combat-stat">
+            <span class="cs-combat-icon">&#x1F463;</span>
+            <span class="cs-combat-value">{{.Speed}}m</span>
+            <span class="cs-combat-label">Vitesse</span>
+        </div>
+        <div class="cs-combat-stat">
+            <span class="cs-combat-icon">&#x1F3AF;</span>
+            <span class="cs-combat-value">+{{.ProficiencyBonus}}</span>
+            <span class="cs-combat-label">Maitrise</span>
+        </div>
+    </div>
+
+    <div class="cs-main-content">
+        {{/* Left Column: Abilities */}}
+        <div class="cs-abilities-column">
+            <h3 class="cs-section-title">Caracteristiques</h3>
+            <div class="cs-abilities-grid">
+                {{range .Abilities}}
+                <div class="cs-ability-block">
+                    <div class="cs-ability-name">{{.Abbrev}}</div>
+                    <div class="cs-ability-modifier">{{.ModifierStr}}</div>
+                    <div class="cs-ability-score">{{.Score}}</div>
+                    {{if .IsSaveProf}}
+                    <div class="cs-ability-save-prof" title="Maitrise jet de sauvegarde">&#x25CF;</div>
+                    {{end}}
+                </div>
+                {{end}}
+            </div>
+
+            {{/* Saving Throws */}}
+            <h3 class="cs-section-title">Jets de Sauvegarde</h3>
+            <div class="cs-saves-list">
+                {{range .Abilities}}
+                <div class="cs-save-item {{if .IsSaveProf}}proficient{{end}}">
+                    <span class="cs-proficiency-dot">{{if .IsSaveProf}}&#x25CF;{{else}}&#x25CB;{{end}}</span>
+                    <span class="cs-save-name">{{.Abbrev}}</span>
+                    <span class="cs-save-mod">{{.ModifierStr}}</span>
+                </div>
+                {{end}}
+            </div>
+        </div>
+
+        {{/* Right Column: Skills */}}
+        <div class="cs-skills-column">
+            <h3 class="cs-section-title">Competences</h3>
+            <div class="cs-skills-list">
+                {{range .Skills}}
+                <div class="cs-skill-item {{if .IsProficient}}proficient{{end}}">
+                    <span class="cs-proficiency-dot">{{if .IsProficient}}&#x25CF;{{else}}&#x25CB;{{end}}</span>
+                    <span class="cs-skill-name">{{.Name}}</span>
+                    <span class="cs-skill-ability">({{.AbilityAbbr}})</span>
+                    <span class="cs-skill-mod">{{.ModifierStr}}</span>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    {{/* Class Features Section */}}
+    {{if .ClassFeatures}}
+    <div class="cs-section cs-features-section">
+        <h3 class="cs-section-title">Capacites de classe</h3>
+        <ul class="cs-features-list">
+            {{range .ClassFeatures}}
+            <li class="cs-feature-item">{{.}}</li>
+            {{end}}
+        </ul>
+    </div>
+    {{end}}
+
+    {{/* Spells Section */}}
+    {{if .IsSpellcaster}}
+    <div class="cs-section cs-spells-section">
+        <h3 class="cs-section-title">Magie</h3>
+        <div class="cs-spell-stats">
+            <div class="cs-spell-stat">
+                <span class="cs-spell-stat-label">DD Sauvegarde:</span>
+                <span class="cs-spell-stat-value">{{.SpellSaveDC}}</span>
+            </div>
+            <div class="cs-spell-stat">
+                <span class="cs-spell-stat-label">Attaque:</span>
+                <span class="cs-spell-stat-value">{{.SpellAttackBonus}}</span>
+            </div>
+            <div class="cs-spell-stat">
+                <span class="cs-spell-stat-label">Carac:</span>
+                <span class="cs-spell-stat-value">{{.SpellcastingAbility}}</span>
+            </div>
+        </div>
+
+        {{if .SpellSlots}}
+        <div class="cs-spell-slots">
+            {{range $slot := .SpellSlots}}
+            <div class="cs-slot-row">
+                <span class="cs-slot-level">Niv.{{$slot.Level}}</span>
+                <div class="cs-slot-boxes">
+                    {{range $i := (iterate $slot.Total)}}
+                        {{if lt $i $slot.Available}}
+                        <span class="cs-slot-box available" title="Disponible">&#x25A0;</span>
+                        {{else}}
+                        <span class="cs-slot-box used" title="Utilise">&#x25A1;</span>
+                        {{end}}
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+
+        {{if .KnownSpells}}
+        <div class="cs-known-spells">
+            <strong>Sorts connus:</strong>
+            <span class="cs-spell-list">{{range $i, $spell := .KnownSpells}}{{if $i}}, {{end}}{{$spell}}{{end}}</span>
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+
+    {{/* Equipment Section */}}
+    <div class="cs-section cs-equipment-section">
+        <h3 class="cs-section-title">Equipement</h3>
+        <div class="cs-equipment-grid">
+            {{/* Personal Equipment */}}
+            <div class="cs-equipment-personal">
+                <h4 class="cs-subsection-title">Personnel <span class="cs-gold">{{.PersonalGold}} po</span></h4>
+                {{if .PersonalEquipment}}
+                <ul class="cs-item-list">
+                    {{range .PersonalEquipment}}
+                    <li>{{.}}</li>
+                    {{end}}
+                </ul>
+                {{else}}
+                <p class="cs-empty">Aucun equipement</p>
+                {{end}}
+            </div>
+
+            {{/* Shared Inventory */}}
+            <div class="cs-equipment-shared">
+                <h4 class="cs-subsection-title">Sac Commun <span class="cs-gold">{{.SharedGold}} po</span></h4>
+                {{if .SharedInventory}}
+                <ul class="cs-item-list">
+                    {{range .SharedInventory}}
+                    <li>{{.Name}}{{if gt .Quantity 1}} x{{.Quantity}}{{end}}</li>
+                    {{end}}
+                </ul>
+                {{else}}
+                <p class="cs-empty">Inventaire vide</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    {{/* Appearance Section */}}
+    {{if .HasAppearance}}
+    <div class="cs-section cs-appearance-section">
+        <h3 class="cs-section-title">Apparence</h3>
+        <div class="cs-appearance-content">
+            <div class="cs-appearance-traits">
+                {{if .Appearance.Age}}<span>{{.Appearance.Age}} ans</span>{{end}}
+                {{if .Appearance.Gender}}<span>{{.Appearance.Gender}}</span>{{end}}
+                {{if .Appearance.Build}}<span>{{.Appearance.Build}}</span>{{end}}
+                {{if .Appearance.Height}}<span>{{.Appearance.Height}}</span>{{end}}
+            </div>
+            <div class="cs-appearance-details">
+                {{if .Appearance.HairColor}}
+                <p><strong>Cheveux:</strong> {{.Appearance.HairColor}}{{if .Appearance.HairStyle}}, {{.Appearance.HairStyle}}{{end}}</p>
+                {{end}}
+                {{if .Appearance.EyeColor}}
+                <p><strong>Yeux:</strong> {{.Appearance.EyeColor}}</p>
+                {{end}}
+                {{if .Appearance.SkinTone}}
+                <p><strong>Teint:</strong> {{.Appearance.SkinTone}}</p>
+                {{end}}
+                {{if .Appearance.FacialFeature}}
+                <p><strong>Visage:</strong> {{.Appearance.FacialFeature}}</p>
+                {{end}}
+                {{if .Appearance.DistinctiveFeature}}
+                <p><strong>Signe distinctif:</strong> {{.Appearance.DistinctiveFeature}}</p>
+                {{end}}
+                {{if .Appearance.ArmorDescription}}
+                <p><strong>Armure:</strong> {{.Appearance.ArmorDescription}}</p>
+                {{end}}
+                {{if .Appearance.WeaponDescription}}
+                <p><strong>Arme:</strong> {{.Appearance.WeaponDescription}}</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+    {{end}}
+
+    {{/* Biography Section */}}
+    {{if .Biography}}
+    <div class="cs-section cs-biography-section">
+        <h3 class="cs-section-title">Biographie</h3>
+        <p class="cs-biography-text">{{.Biography}}</p>
+    </div>
+    {{end}}
+</div>

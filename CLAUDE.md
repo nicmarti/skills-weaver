@@ -2,7 +2,7 @@
 
 ## Description
 
-**SkillsWeaver** est un moteur de jeu de rôle interactif basé sur les règles de **Basic Fantasy RPG** (BFRPG), orchestré par Claude Code. Il utilise des skills et des sous-agents pour gérer les différentes mécaniques du jeu.
+**SkillsWeaver** est un moteur de jeu de rôle interactif basé sur les règles de **D&D 5e** (5ème édition), orchestré par Claude Code. Il utilise des skills et des sous-agents pour gérer les différentes mécaniques du jeu.
 
 Le préfixe `sw-` identifie toutes les commandes CLI du projet.
 
@@ -17,24 +17,25 @@ Créer une expérience de jeu de rôle complète où Claude Code agit comme :
 
 ```
 skillsweaver/
-├── .claude/
-│   ├── skills/              # Skills Claude Code
-│   │   ├── dice-roller/     # Lancer de dés
-│   │   ├── character-generator/ # Création de personnages
-│   │   ├── adventure-manager/   # Gestion des aventures
-│   │   ├── name-generator/      # Génération de noms
-│   │   ├── npc-generator/       # Génération de PNJ
-│   │   ├── image-generator/     # Génération d'images
-│   │   ├── journal-illustrator/ # Illustration de journaux
-│   │   ├── monster-manual/      # Bestiaire
-│   │   ├── treasure-generator/  # Génération de trésors
-│   │   ├── equipment-browser/   # Catalogue d'équipement
-│   │   ├── spell-reference/     # Grimoire des sorts
-│   │   └── map-generator/       # Génération de prompts pour cartes 2D
-│   └── agents/              # Sous-agents spécialisés
-│       ├── character-creator.md
-│       ├── rules-keeper.md
-│       └── dungeon-master.md
+├── core_agents/             # ⭐ NEW: Core agent/skill definitions
+│   ├── agents/              # Agent personas (markdown with YAML frontmatter)
+│   │   ├── dungeon-master.md      # Main DM agent
+│   │   ├── character-creator.md   # Character creation guide
+│   │   ├── rules-keeper.md        # D&D 5e rules arbiter
+│   │   └── world-keeper.md        # World consistency guardian
+│   └── skills/              # Skill definitions (SKILL.md files)
+│       ├── dice-roller/     # Lancer de dés
+│       ├── character-generator/ # Création de personnages
+│       ├── adventure-manager/   # Gestion des aventures
+│       ├── name-generator/      # Génération de noms
+│       ├── npc-generator/       # Génération de PNJ
+│       ├── image-generator/     # Génération d'images
+│       ├── journal-illustrator/ # Illustration de journaux
+│       ├── monster-manual/      # Bestiaire
+│       ├── treasure-generator/  # Génération de trésors
+│       ├── equipment-browser/   # Catalogue d'équipement
+│       ├── spell-reference/     # Grimoire des sorts
+│       └── map-generator/       # Génération de prompts pour cartes 2D
 ├── cmd/
 │   ├── dice/                # CLI sw-dice
 │   ├── character/           # CLI sw-character
@@ -48,8 +49,26 @@ skillsweaver/
 │   ├── treasure/            # CLI sw-treasure
 │   ├── equipment/           # CLI sw-equipment
 │   ├── spell/               # CLI sw-spell
-│   └── map/                 # CLI sw-map
+│   ├── map/                 # CLI sw-map
+│   ├── dm/                  # CLI sw-dm (Dungeon Master REPL)
+│   └── web/                 # CLI sw-web (Interface Web)
 ├── internal/
+│   ├── agent/               # ⭐ NEW: Agent orchestration system
+│   │   ├── agent.go         # Main agent loop with tool execution
+│   │   ├── agent_manager.go # Nested agent invocation management
+│   │   ├── agent_state.go   # Agent conversation persistence
+│   │   ├── persona_loader.go # Dynamic persona loading
+│   │   ├── context.go       # Conversation context with token limits
+│   │   ├── tools.go         # Tool registry and execution
+│   │   └── streaming.go     # Streaming response handling
+│   ├── dmtools/             # ⭐ NEW: Tool wrappers for sw-dm
+│   │   ├── agent_invocation_tool.go  # invoke_agent tool
+│   │   ├── skill_invocation_tool.go  # invoke_skill tool
+│   │   ├── simple_tools.go           # Basic game tools
+│   │   └── session_tools.go          # Session management
+│   ├── skills/              # ⭐ NEW: Skill management
+│   │   ├── parser.go        # SKILL.md parser (YAML + markdown)
+│   │   └── registry.go      # Skill discovery and registration
 │   ├── dice/                # Package lancer de dés
 │   ├── data/                # Chargement données JSON
 │   ├── character/           # Package personnages
@@ -64,13 +83,21 @@ skillsweaver/
 │   ├── equipment/           # Package catalogue équipement
 │   ├── spell/               # Package grimoire des sorts
 │   ├── map/                 # Package génération prompts cartes
-│   └── world/               # Package données géographiques
+│   ├── world/               # Package données géographiques
+│   └── web/                 # ⭐ NEW: Interface web Gin
+│       ├── server.go        # Configuration Gin et routes
+│       ├── handlers.go      # Handlers HTTP
+│       ├── session.go       # Gestion sessions de jeu
+│       └── web_output.go    # OutputHandler pour SSE
+├── web/                     # ⭐ NEW: Assets web
+│   ├── templates/           # Templates HTML (index, game, error)
+│   └── static/              # CSS et JavaScript
 ├── data/
 │   ├── names.json           # Dictionnaires de noms
 │   ├── npc-traits.json      # Traits pour les PNJ
 │   ├── location-names.json  # Dictionnaires de noms de lieux
-│   ├── monsters.json        # Bestiaire BFRPG
-│   ├── treasure.json        # Tables de trésors BFRPG
+│   ├── monsters.json        # Bestiaire D&D 5e
+│   ├── treasure.json        # Tables de trésors D&D 5e
 │   ├── characters/          # Personnages sauvegardés
 │   ├── maps/                # Prompts et images de cartes
 │   ├── adventures/          # Aventures sauvegardées
@@ -79,10 +106,12 @@ skillsweaver/
 │   │       ├── sessions.json          # Historique sessions
 │   │       ├── party.json             # Composition du groupe
 │   │       ├── inventory.json         # Inventaire partagé
+│   │       ├── agent-states.json      # ⭐ NEW: Nested agent conversation history
 │   │       ├── journal-meta.json      # Métadonnées journal (NextID, Categories)
 │   │       ├── journal-session-0.json # Journal hors session
 │   │       ├── journal-session-1.json # Journal session 1
 │   │       ├── journal-session-N.json # Journal session N
+│   │       ├── sw-dm-session-N.log    # ⭐ NEW: Session-specific DM logs
 │   │       ├── images/
 │   │       │   ├── session-0/         # Images hors session
 │   │       │   ├── session-1/         # Images session 1
@@ -237,48 +266,168 @@ Les PNJ générés sont automatiquement sauvegardés et gérés via un système 
 - Maintiennent un style et ton cohérent
 - Orchestrent plusieurs skills pour accomplir des tâches complexes
 
-### Hiérarchie
+### ⭐ NEW: Architecture Standalone sw-dm
+
+**sw-dm est désormais autonome** - Il n'a plus besoin de Claude Code pour fonctionner !
+
+#### Agent-to-Agent Communication
+
+Le système implémente désormais une **communication agent-à-agent** permettant au dungeon-master d'invoquer des agents spécialisés :
+
+**Architecture à 2 niveaux** :
+- **Main Agent (dungeon-master)** : Orchestrateur principal avec accès complet aux tools
+- **Nested Agents** : Consultants spécialisés (rules-keeper, character-creator, world-keeper)
+
+**Caractéristiques** :
+- ✅ **Conversations stateful** : Les agents gardent l'historique de leurs consultations pendant la session
+- ✅ **Token limits** : Main agent 50K, nested agents 20K
+- ✅ **Récursion prévenue** : Profondeur maximale = 1 (agents imbriqués ne peuvent pas invoquer d'autres agents)
+- ✅ **Persistance** : L'historique de conversation est sauvegardé dans `agent-states.json`
+- ✅ **Logging complet** : Toutes les invocations sont enregistrées dans `sw-dm-session-N.log`
+
+#### Nouveaux Tools Disponibles
+
+**1. invoke_agent** : Consulte un agent spécialisé
+
+```json
+{
+  "agent_name": "rules-keeper|character-creator|world-keeper",
+  "question": "Question pour l'agent",
+  "context": "Contexte additionnel (optionnel)"
+}
+```
+
+Exemples d'utilisation :
+```json
+// Consulter rules-keeper pour arbitrer une règle
+{"agent_name": "rules-keeper", "question": "Comment fonctionne le désavantage sur les jets d'attaque en D&D 5e ?"}
+
+// Demander conseil à character-creator
+{"agent_name": "character-creator", "question": "Quelles sont les meilleures cantrips pour un magicien niveau 1 ?"}
+
+// Vérifier la cohérence avec world-keeper
+{"agent_name": "world-keeper", "question": "Quels PNJ sont actuellement à Cordova ?", "context": "Session 3, après la bataille"}
+```
+
+**2. invoke_skill** : Exécute directement une skill CLI
+
+```json
+{
+  "skill_name": "dice-roller|treasure-generator|...",
+  "command": "./sw-<skill> <args>"
+}
+```
+
+Exemples :
+```json
+{"skill_name": "dice-roller", "command": "./sw-dice roll 4d6kh3"}
+{"skill_name": "treasure-generator", "command": "./sw-treasure generate H"}
+{"skill_name": "name-generator", "command": "./sw-names generate elf --gender=f"}
+```
+
+#### Agent State Persistence
+
+Le système sauvegarde automatiquement l'état des agents imbriqués :
+
+**Fichier** : `data/adventures/<nom>/agent-states.json`
+
+**Structure** :
+```json
+{
+  "session_id": 3,
+  "last_updated": "2026-01-07T14:30:00Z",
+  "agents": {
+    "rules-keeper": {
+      "invocation_count": 5,
+      "last_invoked": "2026-01-07T14:25:00Z",
+      "conversation_history": [...],
+      "token_estimate": 2340
+    },
+    "world-keeper": {
+      "invocation_count": 3,
+      "last_invoked": "2026-01-07T14:20:00Z",
+      "conversation_history": [...],
+      "token_estimate": 1850
+    }
+  }
+}
+```
+
+**Avantages** :
+- Les agents se souviennent des consultations précédentes
+- Continuité entre les invocations dans une même session
+- Chargement automatique au démarrage de sw-dm
+- Sauvegarde automatique après chaque message utilisateur
+
+### Hiérarchie (Architecture v2.0 avec Agent-to-Agent)
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                      UTILISATEUR                        │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────┐
-│                       AGENTS                            │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐   │
-│  │ dungeon-    │ │ character-  │ │ rules-keeper    │   │
-│  │ master      │ │ creator     │ │ (arbitre)       │   │
-│  └──────┬──────┘ └──────┬──────┘ └────────┬────────┘   │
-└─────────┼───────────────┼─────────────────┼────────────┘
-          │               │                 │
-┌─────────▼───────────────▼─────────────────▼────────────┐
-│                       SKILLS                            │
-│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
-│  │dice-roller │ │character-  │ │adventure-manager   │  │
-│  │            │ │generator   │ │                    │  │
-│  └────────────┘ └────────────┘ └────────────────────┘  │
-│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
-│  │name-       │ │npc-        │ │image-generator     │  │
-│  │generator   │ │generator   │ │                    │  │
-│  └────────────┘ └────────────┘ └────────────────────┘  │
-│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
-│  │name-       │ │monster-    │ │treasure-generator  │  │
-│  │location-   │ │manual      │ │                    │  │
-│  │generator   │ │            │ │                    │  │
-│  └────────────┘ └────────────┘ └────────────────────┘  │
-│  ┌────────────┐ ┌────────────┐ ┌────────────────────┐  │
-│  │equipment-  │ │spell-      │ │journal-illustrator │  │
-│  │browser     │ │reference   │ │                    │  │
-│  └────────────┘ └────────────┘ └────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────┐
-│                    CLI (sw-*)                           │
-│  sw-dice, sw-character, sw-adventure, sw-names,        │
-│  sw-npc, sw-location-names, sw-image, sw-monster,      │
-│  sw-treasure, sw-equipment, sw-spell                   │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                      UTILISATEUR                         │
+└────────────────────────┬─────────────────────────────────┘
+                         │
+                         │ ./sw-dm
+                         ▼
+┌────────────────────────────────────────────────────────────┐
+│                    MAIN AGENT (sw-dm)                      │
+│                   dungeon-master.md                        │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │ • 50K token limit                                │     │
+│  │ • Full tool access (dice, monsters, treasure...)│     │
+│  │ • Can invoke nested agents ─────────────────┐   │     │
+│  │ • Can invoke skills directly                │   │     │
+│  └──────────────────────────────────────────────┘   │     │
+└────┬───────────────────────────────────────────┬────┼─────┘
+     │                                           │    │
+     │ invoke_agent                              │    │ invoke_skill
+     ▼                                           │    ▼
+┌──────────────────────────────────────┐         │  ┌──────────┐
+│       NESTED AGENTS                  │         │  │  SKILLS  │
+│  (Read-only consultants)             │         │  └─────┬────┘
+│  ┌─────────────────────────────────┐ │         │        │
+│  │ rules-keeper (20K tokens)       │◄┼─────────┘        │
+│  │ • D&D 5e rules expert           │ │                  │
+│  │ • Maintains conversation history│ │                  │
+│  └─────────────────────────────────┘ │                  │
+│  ┌─────────────────────────────────┐ │                  │
+│  │ character-creator (20K tokens)  │ │                  │
+│  │ • Character build guidance      │ │                  │
+│  │ • Race/class recommendations    │ │                  │
+│  └─────────────────────────────────┘ │                  │
+│  ┌─────────────────────────────────┐ │                  │
+│  │ world-keeper (20K tokens)       │ │                  │
+│  │ • World consistency validation  │ │                  │
+│  │ • Geography/faction coherence   │ │                  │
+│  └─────────────────────────────────┘ │                  │
+└──────────────────────────────────────┘                  │
+                                                          ▼
+┌────────────────────────────────────────────────────────────┐
+│                    SKILL REGISTRY                          │
+│  dice-roller, character-generator, adventure-manager,      │
+│  name-generator, npc-generator, image-generator,           │
+│  monster-manual, treasure-generator, equipment-browser,    │
+│  spell-reference, map-generator, journal-illustrator       │
+└────────────────────────┬───────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────────────┐
+│                    CLI BINARIES (sw-*)                     │
+│  sw-dice, sw-character, sw-adventure, sw-names,           │
+│  sw-npc, sw-location-names, sw-image, sw-monster,         │
+│  sw-treasure, sw-equipment, sw-spell, sw-map              │
+└────────────────────────────────────────────────────────────┘
+
+**Flux Agent-to-Agent** :
+1. User → sw-dm : "Le magicien lance Boule de Feu"
+2. sw-dm → invoke_agent(rules-keeper, "Comment résoudre Boule de Feu ?")
+3. rules-keeper → Response : "8d6 dégâts, JDS DEX DD 15..."
+4. sw-dm → invoke_skill(dice-roller, "./sw-dice roll 8d6")
+5. sw-dm → User : "La boule explose ! 35 dégâts de feu..."
+
+**Persistance** :
+- Conversation history saved in agent-states.json
+- Agents remember previous consultations within session
+- Automatic load on startup, save after each user message
 ```
 
 ### Workflow typique : Création de personnage
@@ -300,23 +449,6 @@ Les PNJ générés sont automatiquement sauvegardés et gérés via un système 
 7. **Skill** `image-generator` illustre les moments clés
 
 ## Outils Disponibles
-
-### CLI sw-dice
-
-Lancer des dés avec notation standard RPG :
-
-```bash
-# Compiler
-go build -o sw-dice ./cmd/dice
-
-# Utiliser
-./sw-dice roll d20              # Lance 1d20
-./sw-dice roll 2d6+3            # Lance 2d6, ajoute 3
-./sw-dice roll 4d6kh3           # Lance 4d6, garde les 3 plus hauts
-./sw-dice roll d20 --advantage  # Avantage (2d20, garde le plus haut)
-./sw-dice stats                 # Génère 6 caractéristiques (4d6kh3)
-./sw-dice stats --classic       # Méthode classique (3d6)
-```
 
 ### Skill dice-roller
 
@@ -359,7 +491,7 @@ go build -o sw-dm ./cmd/dm
 - `get_inventory` : Consulter l'inventaire partagé
 
 **Génération de contenu** :
-- `generate_treasure` : Générer un trésor BFRPG
+- `generate_treasure` : Générer un trésor D&D 5e
 - `generate_npc` : Créer un PNJ complet (auto-sauvegardé)
 - `generate_image` : Générer une illustration fantasy (requiert FAL_KEY)
 - `generate_map` : Générer prompt carte 2D avec validation world-keeper
@@ -371,6 +503,7 @@ go build -o sw-dm ./cmd/dm
 **Consultation des Personnages** :
 - `get_party_info` : Vue d'ensemble du groupe (PV, CA, niveau, stat principale)
 - `get_character_info` : Fiche détaillée d'un personnage (caractéristiques, modificateurs, équipement, apparence)
+- `create_character` : Créer un personnage complet et l'ajouter au groupe (sauvegarde aventure + global + party.json)
 
 **Consultation Équipement et Sorts** :
 - `get_equipment` : Consulter armes, armures, équipement (dégâts, CA, coût, propriétés)
@@ -388,25 +521,38 @@ go build -o sw-dm ./cmd/dm
 - `generate_name` : Noms de personnages par race/genre ou type PNJ
 - `generate_location_name` : Noms de lieux par royaume et type
 
+**⭐ NEW: Agent et Skill Invocation** :
+- `invoke_agent` : Consulter un agent spécialisé (rules-keeper, character-creator, world-keeper)
+- `invoke_skill` : Exécuter directement une skill CLI (dice-roller, treasure-generator, etc.)
+
 **IMPORTANT** : L'agent dungeon-master DOIT appeler `start_session` au début de chaque partie et `end_session` à la fin. Sans cela, tous les événements seront enregistrés dans `journal-session-0.json` au lieu d'être correctement organisés par session.
 
 **Architecture** :
-- `internal/agent/` : Orchestration de la boucle d'agent
-  - `agent.go` : Boucle principale avec tool execution
+- `internal/agent/` : ⭐ Orchestration de la boucle d'agent avec agent-to-agent
+  - `agent.go` : Boucle principale avec tool execution et state persistence
+  - `agent_manager.go` : ⭐ NEW - Gestion des agents imbriqués (rules-keeper, etc.)
+  - `agent_state.go` : ⭐ NEW - Persistance conversations agents dans agent-states.json
+  - `persona_loader.go` : ⭐ NEW - Chargement dynamique personas depuis core_agents/
   - `tools.go` : Système de registry des tools
-  - `context.go` : Gestion contexte conversation/aventure
+  - `context.go` : Gestion contexte conversation/aventure avec token limits
   - `streaming.go` : Traitement événements streaming
   - `register_tools.go` : Enregistrement de tous les tools
 - `internal/dmtools/` : Wrappers des tools pour l'agent
+  - `agent_invocation_tool.go` : ⭐ NEW - Tool invoke_agent pour consulter agents
+  - `skill_invocation_tool.go` : ⭐ NEW - Tool invoke_skill pour exécuter skills
   - `simple_tools.go` : Tools basiques (log_event, add_gold, etc.)
   - `session_tools.go` : Gestion de session (start/end/get_info)
   - `character_tools.go` : Consultation personnages (get_party_info, get_character_info)
+  - `create_character_tool.go` : Création de personnage (create_character)
   - `equipment_tools.go` : Consultation équipement (get_equipment)
   - `spell_tools.go` : Consultation sorts (get_spell)
   - `encounter_tools.go` : Génération rencontres (generate_encounter, roll_monster_hp)
   - `inventory_tools.go` : Gestion inventaire (add_item, remove_item)
   - `name_tools.go` : Génération noms (generate_name, generate_location_name)
   - `dice_tool.go`, `monster_tool.go`, `npc_management_tools.go`, etc.
+- `internal/skills/` : ⭐ NEW - Système de gestion des skills
+  - `parser.go` : Parser SKILL.md (YAML frontmatter + markdown)
+  - `registry.go` : Découverte et enregistrement des skills
 - `cmd/dm/main.go` : Application REPL
 
 **Prérequis** :
@@ -467,471 +613,308 @@ grep "Equivalent CLI:" data/adventures/*/sw-dm*.log
 
 Voir `docs/cli-logging-example.md` pour plus d'exemples et de patterns d'utilisation.
 
-### CLI sw-character
+### CLI sw-web (Interface Web)
 
-Créer et gérer des personnages BFRPG :
+Interface web basée sur Gin pour jouer à SkillsWeaver via navigateur :
 
 ```bash
 # Compiler
-go build -o sw-character ./cmd/character
+go build -o sw-web ./cmd/web
 
-# Créer un personnage
-./sw-character create "Aldric" --race=human --class=fighter
-./sw-character create "Lyra" --race=elf --class=magic-user --method=classic
+# Lancer le serveur (port 8085 par défaut)
+./sw-web
 
-# Gérer
-./sw-character list              # Liste tous les personnages
-./sw-character show "Aldric"     # Affiche la fiche
-./sw-character delete "Aldric"   # Supprime
-./sw-character export "Aldric" --format=json
+# Options
+./sw-web --port=3000        # Port personnalisé
+./sw-web --debug            # Mode debug avec logs Gin
 ```
+
+**Fonctionnalités** :
+- Interface web avec thème Dark Fantasy Médiéval
+- Streaming des réponses en temps réel via SSE (Server-Sent Events)
+- Liste et création d'aventures
+- Génération automatique de campaign plan (si thème fourni)
+- Copie automatique des personnages globaux vers nouvelle aventure
+- Session de jeu interactive avec le Dungeon Master
+- Affichage du groupe, inventaire et journal
+- Images générées affichées inline
+
+**Gestion Automatique des Personnages** :
+Lors de la création d'une nouvelle aventure, le système copie automatiquement tous les personnages présents dans `data/characters/` vers le répertoire de l'aventure et crée le fichier `party.json`. Si aucun personnage global n'existe, vous devrez créer des personnages via `sw-character` avant de démarrer la session.
+
+**Architecture** :
+- `cmd/web/main.go` : Entry point du serveur
+- `internal/web/` : Package web
+  - `server.go` : Configuration Gin et routes
+  - `handlers.go` : Handlers HTTP
+  - `session.go` : Gestion des sessions de jeu (SessionManager)
+  - `web_output.go` : OutputHandler pour SSE (WebOutput)
+- `web/templates/` : Templates HTML
+  - `index.html` : Page d'accueil avec liste des aventures
+  - `game.html` : Interface de jeu
+  - `error.html` : Page d'erreur
+- `web/static/` : Assets statiques
+  - `css/fantasy.css` : Thème Dark Fantasy
+  - `js/app.js` : Client JavaScript pour SSE
+
+**Routes** :
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/` | Page d'accueil |
+| GET | `/adventures` | Liste des aventures (HTMX) |
+| POST | `/adventures` | Créer une aventure |
+| GET | `/play/:slug` | Page de jeu |
+| POST | `/play/:slug/message` | Envoyer un message au DM |
+| GET | `/play/:slug/stream` | Endpoint SSE |
+| GET | `/play/:slug/characters` | Liste des personnages |
+| GET | `/play/:slug/info` | Info aventure (HTMX) |
+| GET | `/play/:slug/images/*` | Images générées |
+
+**Prérequis** :
+- Variable d'environnement `ANTHROPIC_API_KEY` configurée
+- Des aventures existantes dans `data/adventures/` (ou créez-en via l'interface)
+
+**Session Management** :
+- Une session par aventure (mono-joueur)
+- Sessions persistées en mémoire pendant 30 minutes d'inactivité
+- Nettoyage automatique des sessions expirées
+
+---
+
+## 🚀 Agent System - Fonctionnalités Avancées
+
+Le système d'agents de SkillsWeaver inclut 4 fonctionnalités avancées pour une expérience professionnelle :
+
+### 1. ✅ Historique de Conversation Complet avec Optimisation Token
+
+**Fichier** : `internal/agent/message_serialization.go`
+
+Le système sauvegarde maintenant l'historique complet des conversations des agents imbriqués :
+
+**Fonctionnalités** :
+- ✅ Sérialisation complète : texte, tool uses, tool results
+- ✅ Optimisation : conserve seulement les 15K derniers tokens
+- ✅ Persistance : sauvegardé dans `agent-states.json`
+- ✅ Restauration : conversation continuée entre sessions
+
+**Détails Techniques** :
+```go
+// Serialization automatique avec limite de tokens
+conversationHistory, _ := SerializeConversationContextWithOptimization(
+    state.conversationCtx,
+    15000, // Garde les 15K derniers tokens
+)
+```
+
+**Avantages** :
+- Les agents se souviennent des discussions précédentes
+- Continuité contextuelle entre sessions
+- Optimisation de la taille des fichiers d'état
+- Balance entre contexte et performance
+
+---
+
+### 2. ✅ Rotation et Compression Automatique des Logs
+
+**Fichier** : `internal/agent/logger.go`
+
+Les logs sont automatiquement gérés pour éviter les fichiers trop volumineux :
+
+**Fonctionnalités** :
+- ✅ Rotation automatique à 10MB (configurable)
+- ✅ Compression gzip (~90% de réduction)
+- ✅ Conservation de 5 rotations par défaut
+- ✅ Nettoyage automatique des anciens fichiers
+
+**Configuration** :
+```go
+logger.SetMaxSize(20)        // Rotation à 20MB
+logger.SetMaxRotations(10)   // Garde 10 fichiers compressés
+```
+
+**Exemple de Rotation** :
+```
+sw-dm-session-1.log        (10MB - rotation déclenchée)
+  ↓
+sw-dm-session-1.log        (0 bytes - nouveau fichier)
+sw-dm-session-1.log.1.gz   (1MB compressé)
+  ↓ (après seconde rotation)
+sw-dm-session-1.log        (0 bytes)
+sw-dm-session-1.log.1.gz   (1MB)
+sw-dm-session-1.log.2.gz   (1MB)
+```
+
+**Avantages** :
+- Gestion automatique de l'espace disque
+- Logs compressés pour archivage
+- Performance améliorée (fichiers plus petits)
+- Maintenance zéro
+
+---
+
+### 3. ✅ Restrictions d'Outils par Agent
+
+**Fichier** : `internal/agent/agent_manager.go`
+
+Les agents imbriqués sont des **consultants en lecture seule** sans accès aux outils :
+
+**Restrictions Enforced** :
+- ❌ **Rules-Keeper** : Ne peut PAS modifier l'état du jeu
+- ❌ **Character-Creator** : Ne peut PAS invoquer de skills
+- ❌ **World-Keeper** : Ne peut PAS modifier les données monde
+
+**Implémentation** :
+```go
+// Appel API SANS paramètre Tools
+response, err := nestedAgent.client.Messages.New(ctx, anthropic.MessageNewParams{
+    Model:     anthropic.ModelClaudeHaiku4_5,
+    MaxTokens: 4096,
+    System:    []anthropic.TextBlockParam{...},
+    Messages:  nestedAgent.conversationCtx.GetMessages(),
+    // Tools intentionnellement omis - agents imbriqués sans outils
+})
+```
+
+**Garanties de Sécurité** :
+- ✅ Impossible d'invoquer d'autres agents (limite de récursion = 1)
+- ✅ Impossible d'invoquer des skills
+- ✅ Impossible de modifier l'état du jeu
+- ✅ Consultants purement informatifs
+
+**Avantages** :
+- Sécurité : Aucune modification involontaire
+- Prévisibilité : Agents imbriqués = consultants purs
+- Architecture claire : Seul le DM principal contrôle l'état
+
+---
+
+### 4. ✅ Métriques de Performance des Agents
+
+**Fichiers** : `internal/agent/agent_manager.go`, `internal/agent/agent_state.go`
+
+Suivi complet des performances et coûts pour chaque agent :
+
+**Métriques Trackées** :
+```go
+type AgentMetrics struct {
+    TotalTokensUsed      int64         // Tokens cumulés
+    TotalInputTokens     int64         // Tokens d'entrée
+    TotalOutputTokens    int64         // Tokens de sortie
+    TotalResponseTime    time.Duration // Temps cumulé
+    AverageTokensPerCall int64         // Moyenne par appel
+    AverageResponseTime  time.Duration // Temps moyen
+    ModelUsed            string        // Modèle utilisé
+    LastCallTokens       int64         // Dernier appel
+    LastCallDuration     time.Duration // Durée dernier appel
+}
+```
+
+**API d'Accès** :
+```go
+// Statistiques de tous les agents
+stats := agentManager.GetStatistics()
+
+// Métriques d'un agent spécifique
+metrics, exists := agentManager.GetAgentMetrics("rules-keeper")
+```
+
+**Exemple de Sortie** :
+```json
+{
+  "rules-keeper": {
+    "invocation_count": 5,
+    "total_tokens_used": 12450,
+    "total_input_tokens": 8200,
+    "total_output_tokens": 4250,
+    "average_tokens_per_call": 2490,
+    "average_response_time_ms": 3064,
+    "model_used": "claude-haiku-4-5",
+    "last_call_tokens": 2680
+  }
+}
+```
+
+**Avantages** :
+- 💰 Suivi des coûts : Tokens utilisés par agent
+- 📊 Optimisation : Identifie les agents lents
+- 📈 Analytics : Données pour améliorer le système
+- 💾 Persisté : Métriques sauvegardées entre sessions
+
+**Utilisation** :
+```bash
+# Voir les statistiques après une session
+cat data/adventures/<nom>/agent-states.json | jq '.agents'
+```
+
+---
+
+### Documentation Complète
+
+Voir `docs/optional-features-summary.md` pour :
+- Guide détaillé de chaque fonctionnalité
+- Exemples d'utilisation
+- Détails techniques d'implémentation
+- Résultats des tests
+
+---
 
 ### Skill character-generator
 
 La skill `character-generator` permet à Claude de créer des personnages en guidant le joueur étape par étape.
 
-### CLI sw-character-sheet
-
-Générer des fiches de personnages HTML stylisées (Dark Fantasy / Baldur's Gate) :
-
-```bash
-# Compiler
-go build -o sw-character-sheet ./cmd/character-sheet
-
-# Générer une fiche
-./sw-character-sheet generate "Aldric"                                    # Fiche basique
-./sw-character-sheet generate "Aldric" --with-biography                   # Avec biographie AI
-./sw-character-sheet generate "Aldric" --adventure="la-crypte-des-ombres" # Avec inventaire partagé
-
-# Régénérer une fiche (rafraîchir après level up)
-./sw-character-sheet regenerate "Aldric"                                  # Garde la bio en cache
-./sw-character-sheet regenerate "Aldric" --refresh-bio                    # Régénère la bio
-
-# Gérer les biographies
-./sw-character-sheet bio "Aldric"                                         # Affiche la bio JSON
-./sw-character-sheet bio "Aldric" --refresh                               # Régénère la bio
-
-# Aide et options
-./sw-character-sheet help
-./sw-character-sheet templates                                            # Liste templates disponibles
-```
-
-**Caractéristiques** :
-- HTML avec Tailwind CSS (Dark Fantasy style, inspiré Baldur's Gate 3)
-- Biographies enrichies via API Claude (Haiku 3.5) avec fallback sur templates
-- Intégration contexte d'aventure dans les biographies
-- Équipement personnel + inventaire partagé de l'aventure
-- Portrait du personnage (image de référence si disponible)
-- Cache JSON modifiable pour les biographies (`*_bio.json`)
-- Prêt pour l'impression (média print optimisé)
-- Sortie : `data/characters/<nom>.html`
-
-**Biographies AI** :
-- Utilise `ANTHROPIC_API_KEY` si disponible
-- Style narratif immersif basé sur stats, apparence, race/classe
-- Intègre les événements récents de l'aventure
-- Personnalité cohérente avec les caractéristiques
-- Génère origine, passé, motivation, relations et secrets
-
-**Exemple de fiche générée** :
-```bash
-./sw-character-sheet generate "Aldric" --adventure="la-crypte-des-ombres" --with-biography
-# → data/characters/aldric.html
-# → data/characters/aldric_bio.json (cache modifiable)
-```
-
-### CLI sw-adventure
-
-Gérer des aventures et campagnes BFRPG :
-
-```bash
-# Compiler
-go build -o sw-adventure ./cmd/adventure
-
-# Créer une aventure
-./sw-adventure create "La Mine Perdue" "Une aventure dans les montagnes"
-
-# Gérer le groupe
-./sw-adventure add-character "La Mine Perdue" "Aldric"
-./sw-adventure party "La Mine Perdue"
-
-# Sessions de jeu
-./sw-adventure start-session "La Mine Perdue"
-./sw-adventure log "La Mine Perdue" combat "Combat contre 3 gobelins"
-./sw-adventure add-gold "La Mine Perdue" 50 "Trésor gobelin"
-./sw-adventure end-session "La Mine Perdue" "Premier niveau exploré"
-
-# Consulter
-./sw-adventure status "La Mine Perdue"    # Statut complet
-./sw-adventure journal "La Mine Perdue"   # Journal de l'aventure
-./sw-adventure sessions "La Mine Perdue"  # Historique des sessions
-./sw-adventure inventory "La Mine Perdue" # Inventaire partagé
-
-# Maintenance - Migration vers structure par session
-./sw-adventure migrate-journal "La Mine Perdue"    # Migrer journal.json vers fichiers session
-./sw-adventure validate-journal "La Mine Perdue"   # Valider intégrité des journaux
-```
-
-**Note** : Les aventures existantes avec `journal.json` monolithique sont automatiquement supportées. La migration vers la structure par session est optionnelle mais recommandée pour améliorer les performances.
 
 ### Skill adventure-manager
 
 La skill `adventure-manager` permet à Claude de gérer les aventures, suivre les sessions et maintenir le journal automatique.
 
-### CLI sw-names
-
-Générer des noms de personnages fantasy :
-
-```bash
-# Compiler
-go build -o sw-names ./cmd/names
-
-# Générer des noms par race
-./sw-names generate dwarf                    # Nom de nain
-./sw-names generate elf --gender=f           # Nom d'elfe féminin
-./sw-names generate human --count=5          # 5 noms humains
-./sw-names generate halfling --first-only    # Prénom de halfelin
-
-# Générer des noms de PNJ
-./sw-names npc innkeeper                     # Nom de tavernier
-./sw-names npc merchant                      # Nom de marchand
-./sw-names npc villain                       # Nom de méchant
-
-# Lister les options
-./sw-names list                              # Toutes les options
-```
 
 ### Skill name-generator
 
 La skill `name-generator` permet à Claude de générer des noms pour les joueurs et les PNJ selon la race et le type.
 
-### CLI sw-npc
-
-Générer des PNJ complets :
-
-```bash
-# Compiler
-go build -o sw-npc ./cmd/npc
-
-# Générer un PNJ complet
-./sw-npc generate                              # PNJ aléatoire
-./sw-npc generate --race=dwarf --gender=m      # Nain masculin
-./sw-npc generate --occupation=authority       # Figure d'autorité
-./sw-npc generate --attitude=hostile           # PNJ hostile
-
-# Génération rapide
-./sw-npc quick --count=5                       # 5 PNJ en une ligne
-
-# Formats de sortie
-./sw-npc generate --format=md                  # Markdown (défaut)
-./sw-npc generate --format=json                # JSON
-./sw-npc generate --format=short               # Une ligne
-```
 
 ### Skill npc-generator
 
 La skill `npc-generator` permet à Claude de créer des PNJ complets avec apparence, personnalité, motivations et secrets.
 
-### CLI sw-location-names
-
-Générer des noms de lieux cohérents avec les 4 factions :
-
-```bash
-# Compiler
-go build -o sw-location-names ./cmd/location-names
-
-# Générer des noms par royaume
-./sw-location-names city --kingdom=valdorine    # Cité maritime
-./sw-location-names town --kingdom=karvath      # Bourg militaire
-./sw-location-names village --kingdom=lumenciel # Village religieux
-./sw-location-names region --kingdom=astrene    # Région mélancolique
-
-# Lieux neutres
-./sw-location-names ruin                        # Ruines anciennes
-./sw-location-names generic                     # Lieu géographique
-./sw-location-names special                     # Terres Brûlées, etc.
-
-# Génération multiple
-./sw-location-names city --kingdom=valdorine --count=5
-
-# Lister les options
-./sw-location-names list                        # Tout
-./sw-location-names list kingdoms               # Royaumes
-./sw-location-names list types                  # Types de lieux
-```
 
 ### Skill name-location-generator
 
 La skill `name-location-generator` permet à Claude de générer des noms de lieux (cités, villages, régions) cohérents avec les 4 factions. Utilise des styles distincts par royaume : valdorine maritime, karvath militaire, lumenciel religieux, astrène mélancolique.
 
-### CLI sw-image
-
-Générer des images heroic fantasy via fal.ai FLUX.1 :
-
-```bash
-# Compiler
-go build -o sw-image ./cmd/image
-
-# Prérequis: variable d'environnement FAL_KEY
-export FAL_KEY="votre_clé_fal_ai"
-
-# Portrait de personnage existant
-./sw-image character "Aldric" --style=epic
-
-# Portrait de PNJ
-./sw-image npc --race=dwarf --gender=m --occupation=skilled
-
-# Scène d'aventure
-./sw-image scene "Combat contre des gobelins" --type=battle
-
-# Monstre
-./sw-image monster dragon --style=dark_fantasy
-
-# Objet magique
-./sw-image item weapon "épée flamboyante"
-
-# Lieu
-./sw-image location dungeon "Les Mines Perdues"
-
-# Prompt personnalisé
-./sw-image custom "Un groupe d'aventuriers dans une taverne"
-
-# Lister les options
-./sw-image list
-```
 
 ### Skill image-generator
 
 La skill `image-generator` permet à Claude de générer des illustrations fantasy pour enrichir l'expérience de jeu : portraits, scènes, monstres, objets et lieux.
 
-### Commande journal (sw-image)
-
-Illustrer automatiquement le journal d'une aventure :
-
-```bash
-# Prévisualiser les prompts (sans générer d'images)
-./sw-image journal "la-crypte-des-ombres" --dry-run
-
-# Générer toutes les illustrations (parallèle)
-./sw-image journal "la-crypte-des-ombres"
-
-# Limiter le nombre d'images
-./sw-image journal "la-crypte-des-ombres" --max=5
-
-# Filtrer par type
-./sw-image journal "la-crypte-des-ombres" --types=combat,discovery
-
-# Ajuster le parallélisme (1-8)
-./sw-image journal "la-crypte-des-ombres" --parallel=8
-```
-
-Types illustrables : `combat`, `exploration`, `discovery`, `loot`, `session`
-
-Les images sont sauvegardées dans `data/adventures/<nom>/images/`
-
 ### Skill journal-illustrator
 
 La skill `journal-illustrator` permet à Claude d'illustrer automatiquement les journaux d'aventures avec des prompts optimisés par type d'événement et une génération parallèle.
-
-### CLI sw-map
-
-Générer des prompts pour cartes 2D fantasy avec validation world-keeper :
-
-```bash
-# Compiler
-go build -o sw-map ./cmd/map
-
-# Carte de ville
-./sw-map generate city Cordova
-./sw-map generate city Cordova --features="Taverne du Voile Écarlate,Docks"
-
-# Carte régionale
-./sw-map generate region "Côte Occidentale" --scale=large
-
-# Plan de donjon
-./sw-map generate dungeon "La Crypte des Ombres" --level=1
-
-# Carte tactique
-./sw-map generate tactical "Embuscade" --terrain=forêt --scene="Combat en forêt"
-
-# Avec génération d'image
-./sw-map generate city Cordova --generate-image --image-size=landscape_16_9
-
-# Validation de lieu
-./sw-map validate "Cordova"
-./sw-map validate "Port-Nouveau" --kingdom=valdorine --suggest
-
-# Lister les ressources
-./sw-map list kingdoms
-./sw-map list cities --kingdom=valdorine
-./sw-map types
-```
-
-**Caractéristiques**:
-- Validation automatique avec world-keeper data
-- Prompts enrichis par Claude Haiku 3.5
-- Support 4 types de cartes (city, region, dungeon, tactical)
-- Intégration POIs depuis geography.json
-- Styles architecturaux par royaume
-- Cache des prompts pour réutilisation
-- Génération d'images via fal.ai flux-2
-
-**Prérequis**:
-- `ANTHROPIC_API_KEY` pour enrichissement AI
-- `FAL_KEY` pour génération d'images (optionnel)
 
 ### Skill map-generator
 
 La skill `map-generator` permet à Claude de générer des prompts enrichis pour cartes 2D fantasy avec validation world-keeper. Elle assure la cohérence des noms de lieux et des styles architecturaux des 4 royaumes.
 
-### CLI sw-monster
-
-Consulter le bestiaire et générer des rencontres :
-
-```bash
-# Compiler
-go build -o sw-monster ./cmd/monster
-
-# Consulter un monstre
-./sw-monster show goblin              # Fiche complète
-./sw-monster show dragon_red_adult    # Dragon rouge adulte
-./sw-monster search undead            # Recherche par type
-
-# Lister les monstres
-./sw-monster list                     # Tous les monstres
-./sw-monster list --type=humanoid    # Par type
-./sw-monster types                    # Types disponibles
-
-# Générer une rencontre
-./sw-monster encounter dungeon_level_1  # Niveau 1
-./sw-monster encounter --level=3        # Par niveau de groupe
-./sw-monster encounter forest           # En forêt
-
-# Créer des ennemis avec PV
-./sw-monster roll orc --count=4       # 4 orcs avec PV aléatoires
-./sw-monster roll goblin --count=6    # 6 gobelins
-```
 
 ### Skill monster-manual
 
 La skill `monster-manual` permet à Claude de consulter les stats des monstres et générer des rencontres équilibrées pendant les sessions de jeu.
 
-### CLI sw-treasure
-
-Générer des trésors selon les tables BFRPG :
-
-```bash
-# Compiler
-go build -o sw-treasure ./cmd/treasure
-
-# Générer un trésor
-./sw-treasure generate R              # Trésor type R (Gobelin)
-./sw-treasure generate A              # Trésor type A (Dragon)
-./sw-treasure generate B --count=3    # 3 trésors type B
-
-# Lister les types de trésors
-./sw-treasure types                   # Tous les types A-U
-
-# Détails d'un type
-./sw-treasure info A                  # Probabilités du type A
-
-# Lister les objets magiques
-./sw-treasure items                   # Catégories disponibles
-./sw-treasure items potions           # Toutes les potions
-./sw-treasure items weapons           # Armes magiques
-./sw-treasure items armor             # Armures magiques
-```
 
 ### Skill treasure-generator
 
 La skill `treasure-generator` permet à Claude de générer des trésors appropriés après les combats, en respectant les types de trésors assignés aux monstres.
 
-### CLI sw-equipment
-
-Consulter le catalogue d'équipement BFRPG :
-
-```bash
-# Compiler
-go build -o sw-equipment ./cmd/equipment
-
-# Lister les armes
-./sw-equipment weapons                    # Toutes les armes
-./sw-equipment weapons --type=melee      # Armes de mêlée
-./sw-equipment weapons --type=ranged     # Armes à distance
-
-# Lister les armures
-./sw-equipment armor                      # Toutes les armures
-./sw-equipment armor --type=heavy        # Armures lourdes
-
-# Équipement d'aventure
-./sw-equipment gear                       # Liste l'équipement
-./sw-equipment ammo                       # Munitions
-
-# Afficher un item
-./sw-equipment show longsword            # Détails de l'épée longue
-./sw-equipment search épée               # Recherche par nom FR/EN
-
-# Équipement de départ
-./sw-equipment starting fighter          # Équipement guerrier
-./sw-equipment starting magic-user       # Équipement magicien
-```
 
 ### Skill equipment-browser
 
 La skill `equipment-browser` permet à Claude de consulter les armes, armures et équipement avec leurs statistiques (dégâts, CA, coût, propriétés).
 
-### CLI sw-spell
-
-Consulter le grimoire des sorts BFRPG :
-
-```bash
-# Compiler
-go build -o sw-spell ./cmd/spell
-
-# Lister les sorts
-./sw-spell list                              # Tous les sorts
-./sw-spell list --class=cleric              # Sorts de clerc
-./sw-spell list --class=magic-user          # Sorts de magicien
-./sw-spell list --class=cleric --level=1    # Clerc niveau 1
-
-# Afficher un sort
-./sw-spell show magic_missile               # Détails du projectile magique
-./sw-spell show cure_light_wounds           # Soins légers
-
-# Rechercher
-./sw-spell search lumière                   # Recherche par nom FR/EN
-
-# Sorts réversibles
-./sw-spell reversible                       # Liste les sorts avec forme inversée
-```
 
 ### Skill spell-reference
 
 La skill `spell-reference` permet à Claude de consulter les sorts par classe et niveau, avec leurs effets détaillés (portée, durée, descriptions).
-
-### CLI sw-validate
-
-Valider les données de jeu :
-
-```bash
-# Compiler
-go build -o sw-validate ./cmd/validate
-
-# Valider toutes les données
-./sw-validate                 # Affichage texte
-./sw-validate --json          # Sortie JSON (CI/CD)
-./sw-validate --data /path    # Répertoire personnalisé
-
-# Aide
-./sw-validate help
-```
-
-**Validations effectuées** :
-- `races.json` : allowed_classes référencent des classes valides
-- `equipment.json` : starting_equipment référence des items valides
-- `monsters.json` : treasure_type valide (A-U ou 'none')
-- `names.json` : toutes les races ont des entrées de noms
-- `spells.json` : spell_lists référencent des sorts valides
 
 ## Sous-Agents Spécialisés
 
@@ -941,45 +924,41 @@ Les agents sont disponibles dans `.claude/agents/` :
 Guide interactif pour créer des personnages étape par étape. Explique les races, classes, et aide à faire des choix cohérents.
 
 ### rules-keeper
-Référence rapide des règles BFRPG. Répond aux questions sur le combat, la magie, les jets de sauvegarde et arbitre les situations.
+Référence rapide des règles D&D 5e. Répond aux questions sur le combat, la magie, les jets de sauvegarde et arbitre les situations.
 
 ### dungeon-master
 Maître du Jeu complet. Narration immersive, gestion des rencontres, incarnation des PNJ, et tracking automatique via les commandes sw-adventure.
 
-## Règles BFRPG
+## Système de Jeu D&D 5e
 
-### Races Disponibles
+SkillsWeaver utilise les règles de **D&D 5e** (5ème édition) :
 
-| Race | Modificateurs | Classes Autorisées |
-|------|--------------|-------------------|
-| Humain | Aucun | Toutes |
-| Elfe | +1 DEX, -1 CON | Guerrier (6), Magicien (9), Voleur |
-| Nain | +1 CON, -1 CHA | Guerrier (7), Clerc (6), Voleur |
-| Halfelin | +1 DEX, -1 FOR | Guerrier (4), Voleur |
+### Caractéristiques
 
-### Classes Disponibles
+- **9 espèces** : Humain, Drakéide, Elfe, Gnome, Goliath, Halfelin, Nain, Orc, Tieffelin
+- **12 classes** : Barbare, Barde, Clerc, Druide, Ensorceleur, Guerrier, Magicien, Moine, Occultiste, Paladin, Rôdeur, Roublard
+- **Niveaux** : 1 à 20 (pas de restrictions espèce/classe)
+- **18 compétences** formelles
 
-| Classe | Dé de Vie | Armes | Armures |
-|--------|-----------|-------|---------|
-| Guerrier | d8 | Toutes | Toutes |
-| Clerc | d6 | Contondantes | Toutes |
-| Magicien | d4 | Dague, bâton | Aucune |
-| Voleur | d4 | Toutes | Cuir |
+### Mécaniques Principales
 
+- **Modificateurs** : `(Score - 10) ÷ 2`
+- **Bonus de maîtrise** : +2 à +6 selon niveau
+- **Initiative** : d20 + DEX (pas d6)
+- **Avantage/Désavantage** : 2d20 (garde meilleur/pire)
+- **Challenge Rating (CR)** : Difficulté des monstres (0, 1/8, 1/4, 1/2, 1-30)
 
-## Règles d'Utilisation des CLI
+### Documentation
 
-### Accès Direct (Claude Code)
-Les CLI `sw-*` peuvent être utilisés directement pour :
-- Jets de dés ponctuels
-- Consultation de données (show, list, status)
-- Commandes de debug
+Les règles complètes D&D 5e sont disponibles dans `docs/markdown-new/` :
+- `regles_de_bases_SRD_CCv5.2.1.md` (règles fondamentales)
+- `personnages.md` (création de personnage)
+- `monstres.md` (bestiaire)
+- `equipements.md` (équipement)
 
-### Via Agents/Skills
-Utilisez les sous-agents specialisés pour :
-- Sessions de jeu complètes (dungeon-master)
-- Création guidée de personnages (character-creator)
-- Arbitrage de règles (rules-keeper)
+Les agents `rules-keeper` et `dungeon-master` consultent ces fichiers via Read/Grep/Glob.
+
+Ces agents ne sont pas destinés à être utilisé de Claude Code directement, mais via sw-dm.
 
 ## Commandes de Développement
 
@@ -1073,7 +1052,6 @@ Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
 
 4. **Documenter le tool** :
    - `.claude/agents/dungeon-master.md` : Ajouter dans la table "Tools API"
-   - `CLAUDE.md` : Ajouter dans la section "Tools disponibles pour l'agent"
 
 5. **Tester** :
    ```bash
@@ -1119,38 +1097,178 @@ git commit -m "docs: update rules-keeper with BFRPG combat rules"
 
 ## Ressources
 
-### Règles Officielles BFRPG (Locales)
-
-Les règles complètes de **Basic Fantasy RPG Release 142** sont disponibles au format markdown dans `data/rules/` :
-
-| Fichier | Contenu | Taille | Pages PDF |
-|---------|---------|--------|-----------|
-| `README.md` | Index et guide d'utilisation | 2 KB | - |
-| `01-character-creation.md` | Races, classes, caractéristiques, création | 44 KB | 3-14 |
-| `02-combat.md` | Initiative, attaque, AC, sauvegardes, renvoi morts-vivants | 53 KB | 50-62 |
-| `03-magic.md` | Listes sorts, incantation, descriptions | 120 KB | 15-42 |
-| `04-adventure.md` | Mouvement, encombrement, exploration | 34 KB | 42-50 |
-| `05-monsters.md` | Créatures, DV, attaques, capacités spéciales | 162 KB | 62-120 |
-| `06-treasure.md` | Tables trésors, objets magiques | 57 KB | 163-180 |
-| `07-gm-info.md` | Règles optionnelles, création aventure | 91 KB | 180-203 |
-
-**Source originale** : `docs/Basic-Fantasy-RPG-Rules-r142.pdf` (106 MB, 208 pages)
-
-**Accès** : L'agent `rules-keeper` peut consulter ces fichiers via `Read`, `Grep` et `Glob`.
-
-**Exemples d'utilisation** :
-```bash
-# Rechercher une règle spécifique
-grep -i "initiative" data/rules/02-combat.md
-
-# Lire une section complète
-cat data/rules/01-character-creation.md
-
-# Rechercher dans tous les fichiers
-grep -r "poison" data/rules/
-```
-
 ### Liens Externes
 
-- [Basic Fantasy RPG](https://www.basicfantasy.org/) - Règles complètes (gratuit)
-- [SRD BFRPG](https://www.basicfantasy.org/srd/) - System Reference Document
+- [D&D Beyond](https://www.dndbeyond.com/) - Règles D&D 5e officielles
+- [D&D 5e SRD](https://www.5esrd.com/) - System Reference Document (gratuit)
+- [The Lazy GM's resource Document](https://slyflourish.com/lazy_gm_resource_document.html#treasuregenerator) - Site contenant de nombreuses idées, outils, tables pour améliorer le travail du MJ (Maitre du jeu). A utiliser pour améliorer le système actuel.
+
+
+---
+
+## 🎭 Système de Planification Narrative de Campagne
+
+### Vue d'Ensemble
+
+SkillsWeaver dispose d'un système avancé de planification narrative en 3 actes qui guide les sessions de jeu. Ce système automatise les briefings pré-session et maintient la cohérence de l'intrigue sur plusieurs sessions.
+
+### Fichier campaign-plan.json
+
+**Localisation** : `data/adventures/<nom>/campaign-plan.json`
+
+**Génération automatique** : Si un thème est fourni lors de la création d'une aventure via l'interface web, le DM génère automatiquement un plan structuré incluant :
+
+- **Structure narrative 3 actes** avec objectifs, événements clés, et critères de complétion
+- **Antagoniste principal** avec arc narratif et sessions clés
+- **MacGuffins et lieux importants** liés aux actes
+- **Foreshadows critiques** avec liens aux actes et payoff planifiés
+- **Progression et pacing** trackés automatiquement
+
+### Fonctionnement Automatique
+
+#### 1. Création d'Aventure avec Thème
+
+Dans l'interface web :
+```
+Nom : Le Sextant Magique de Cordova
+Description : Conspiration maritime dans le royaume de Valdorine
+Thème : Un sextant magique révèle l'emplacement d'une entité ancienne 
+        scellée sous Shasseth. Plusieurs factions cherchent à l'atteindre.
+```
+
+Le DM génère automatiquement :
+- 3 actes structurés (début, rebondissements, confrontation finale)
+- Antagonistes avec motivations et arcs
+- 2-3 foreshadows critiques liés aux actes
+- Pacing cible (ex: 10 sessions, 3h chacune)
+
+#### 2. Briefing Automatique au Démarrage de Session
+
+Quand vous appelez `start_session` dans sw-dm :
+
+```
+✓ Session 12 démarrée
+
+=== CAMPAIGN CONTEXT (CONFIDENTIAL - DO NOT QUOTE DIRECTLY) ===
+
+Act 3: Confrontation à Shasseth
+Les PJ arrivent à la cité perdue. Vaskir prépare le rituel final.
+
+Campaign Objective: Empêcher le réveil de l'entité divine ancienne
+
+Active Threads:
+  • vaskir_ritual_countdown
+  • cinquieme_acteur_identity
+
+Critical Foreshadows (2):
+  • [fsh_002] Entité scellée (planted 5 sessions ago, critical)
+  • [fsh_004] Trahison d'allié (planted 3 sessions ago, major)
+
+World-Keeper Briefing:
+[Guidance stratégique pour la session...]
+
+=== INSTRUCTIONS ===
+• Use this context to guide your narration naturally
+• DO NOT quote world-keeper directly to players
+• Integrate information organically into the story
+===
+```
+
+**Ce briefing est caché du joueur** mais guide votre narration pour :
+- Avancer les threads narratifs actifs
+- Résoudre les foreshadows critiques
+- Respecter les objectifs de l'acte en cours
+- Maintenir le pacing
+
+#### 3. Consultation Silencieuse World-Keeper
+
+Le système consulte automatiquement le world-keeper en mode silencieux :
+- **Notification visible** : `[Consulting world-keeper...]`
+- **Réponse cachée** : Injectée dans le contexte système uniquement
+- **Utilisation** : Guide votre narration sans révéler les secrets
+
+### Tools Disponibles pour Campaign Plan
+
+#### get_campaign_plan
+
+```json
+{"section": "current_act"}
+{"section": "foreshadows"}
+{"section": "progression"}
+{"section": "all"}
+```
+
+Retourne l'état complet du plan narratif.
+
+#### update_campaign_progress
+
+```json
+{"action": "complete_plot_point", "plot_point_id": "valorian_alliance"}
+{"action": "advance_act", "act_number": 2}
+```
+
+Marque des milestones comme complétés.
+
+#### add_narrative_thread / remove_narrative_thread
+
+```json
+{"thread_name": "mysterious_stranger_identity"}
+{"thread_name": "alliance_betrayal"}
+```
+
+Track les intrigues secondaires actives.
+
+### Migration depuis Foreshadows.json
+
+Les anciennes aventures utilisent `foreshadows.json`. Le nouveau système utilise `campaign-plan.json` qui intègre les foreshadows avec des liens vers les actes.
+
+**Backward Compatibility** : Les aventures sans campaign-plan continuent de fonctionner normalement avec foreshadows.json legacy.
+
+**Migration manuelle** (optionnelle) :
+1. Créer `campaign-plan.json` avec structure par défaut
+2. Importer foreshadows existants avec liens actes estimés
+3. Enrichir manuellement : objectif, actes, antagonistes
+
+### Règles Importantes pour le DM
+
+#### ✅ CORRECT - Intégrer le Briefing Naturellement
+
+**Briefing** : "Vaskir est à Shasseth depuis 2 jours, préparant le rituel dans les ruines du temple."
+
+**Narration** :
+```
+Les rumeurs dans les tavernes du port parlent d'un navire noir aperçu
+près de Shasseth il y a deux jours. Les marins superstitieux murmurent
+que personne n'en est revenu vivant.
+
+Que faites-vous ?
+```
+
+#### ❌ INTERDIT - Citer Directement
+
+**JAMAIS faire** :
+- "Le world-keeper m'informe que Vaskir est à Shasseth."
+- "Selon le briefing, l'entité se réveille bientôt."
+- Paraphraser mot-à-mot le briefing
+
+#### Transformation de l'Information
+
+Le briefing te donne la **direction stratégique**. Les joueurs découvrent par :
+- **Dialogues PNJ** : "Un marin tremble : 'J'ai vu ce navire... noir comme la nuit...'"
+- **Indices visuels** : "Des runes anciennes gravées pâlissent lentement."
+- **Rumeurs** : "Les prêtres parlent à voix basse de tremblements souterrains."
+
+### Avantages du Système
+
+1. **Cohérence Narrative** : Objectif clair et structure 3 actes dès le début
+2. **Foreshadows Organisés** : Liés aux actes, pas orphelins
+3. **Briefings Automatiques** : Direction narrative au début de chaque session
+4. **Confidentialité** : Secrets restent secrets (world-keeper en mode silencieux)
+5. **Pacing Trackéé** : Comparaison sessions planifiées vs réelles par acte
+
+### Fichiers Concernés
+
+- `data/adventures/<nom>/campaign-plan.json` - Plan narratif complet
+- `data/adventures/<nom>/foreshadows.json` - Legacy (deprecated)
+- `data/adventures/<nom>/agent-states.json` - Historique consultations agents
+

@@ -1,4 +1,4 @@
-// Command character provides a CLI for creating and managing BFRPG characters.
+// Command character provides a CLI for creating and managing D&D 5e characters.
 //
 // Usage:
 //
@@ -25,29 +25,60 @@ const (
 	defaultCharacterDir = "data/characters"
 )
 
+// Global variables for directory overrides (set via --char-dir and --data-dir flags)
+var (
+	characterDir = defaultCharacterDir
+	dataDir      = defaultDataDir
+)
+
+// initDirs parses global directory flags from args and updates characterDir/dataDir.
+// Returns the args with the flags removed.
+func initDirs(args []string) []string {
+	var filtered []string
+	for _, arg := range args {
+		switch {
+		case strings.HasPrefix(arg, "--char-dir="):
+			characterDir = strings.TrimPrefix(arg, "--char-dir=")
+		case strings.HasPrefix(arg, "--data-dir="):
+			dataDir = strings.TrimPrefix(arg, "--data-dir=")
+		default:
+			filtered = append(filtered, arg)
+		}
+	}
+	return filtered
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		printUsage()
 		os.Exit(1)
 	}
 
-	command := os.Args[1]
+	// Parse global directory flags first
+	args := initDirs(os.Args[1:])
+	if len(args) < 1 {
+		printUsage()
+		os.Exit(1)
+	}
+
+	command := args[0]
+	cmdArgs := args[1:]
 
 	switch command {
 	case "create":
-		handleCreate(os.Args[2:])
+		handleCreate(cmdArgs)
 	case "list":
 		handleList()
 	case "show":
-		handleShow(os.Args[2:])
+		handleShow(cmdArgs)
 	case "delete":
-		handleDelete(os.Args[2:])
+		handleDelete(cmdArgs)
 	case "export":
-		handleExport(os.Args[2:])
+		handleExport(cmdArgs)
 	case "appearance":
-		handleAppearance(os.Args[2:])
+		handleAppearance(cmdArgs)
 	case "set-reference":
-		handleSetReference(os.Args[2:])
+		handleSetReference(cmdArgs)
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -71,7 +102,7 @@ func handleCreate(args []string) {
 	maxHP := hasFlag(args, "--max-hp") // Use max HP at level 1 (variant rule)
 
 	// Load game data
-	gd, err := data.Load(defaultDataDir)
+	gd, err := data.Load(dataDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading game data: %v\n", err)
 		os.Exit(1)
@@ -110,23 +141,10 @@ func handleCreate(args []string) {
 	}
 	fmt.Println()
 
-	// Apply racial modifiers
+	// Validate species (D&D 5e: no ability modifiers from species)
 	if err := c.ApplyRacialModifiers(gd); err != nil {
-		fmt.Fprintf(os.Stderr, "Error applying racial modifiers: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error validating species: %v\n", err)
 		os.Exit(1)
-	}
-
-	raceData, _ := gd.GetRace(race)
-	if len(raceData.AbilityModifiers) > 0 {
-		fmt.Printf("### Modificateurs raciaux (%s)\n\n", raceData.Name)
-		for ability, mod := range raceData.AbilityModifiers {
-			if mod > 0 {
-				fmt.Printf("- %s: +%d\n", ability, mod)
-			} else {
-				fmt.Printf("- %s: %d\n", ability, mod)
-			}
-		}
-		fmt.Println()
 	}
 
 	// Calculate modifiers
@@ -163,14 +181,14 @@ func handleCreate(args []string) {
 	c.CalculateArmorClass(gd)
 
 	// Save character
-	if err := c.Save(defaultCharacterDir); err != nil {
+	if err := c.Save(characterDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Println("---")
 	fmt.Println()
-	fmt.Printf("Personnage sauvegardé dans `%s/%s.json`\n\n", defaultCharacterDir, strings.ToLower(strings.ReplaceAll(name, " ", "_")))
+	fmt.Printf("Personnage sauvegardé dans `%s/%s.json`\n\n", characterDir, character.SanitizeFilename(name))
 
 	// Print full character sheet
 	fmt.Println("---")
@@ -179,7 +197,7 @@ func handleCreate(args []string) {
 }
 
 func handleList() {
-	characters, err := character.ListCharacters(defaultCharacterDir)
+	characters, err := character.ListCharacters(characterDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error listing characters: %v\n", err)
 		os.Exit(1)
@@ -191,7 +209,7 @@ func handleList() {
 	}
 
 	// Load game data for names
-	gd, _ := data.Load(defaultDataDir)
+	gd, _ := data.Load(dataDir)
 
 	fmt.Println("## Personnages")
 	fmt.Println()
@@ -199,12 +217,12 @@ func handleList() {
 	fmt.Println("|-----|------|--------|--------|-----|")
 
 	for _, c := range characters {
-		raceName := c.Race
+		speciesName := c.Species
 		className := c.Class
 
 		if gd != nil {
-			if race, ok := gd.GetRace(c.Race); ok {
-				raceName = race.Name
+			if species, ok := gd.GetSpecies(c.Species); ok {
+				speciesName = species.Name
 			}
 			if class, ok := gd.GetClass(c.Class); ok {
 				className = class.Name
@@ -212,7 +230,7 @@ func handleList() {
 		}
 
 		fmt.Printf("| %s | %s | %s | %d | %d/%d |\n",
-			c.Name, raceName, className, c.Level, c.HitPoints, c.MaxHitPoints)
+			c.Name, speciesName, className, c.Level, c.HitPoints, c.MaxHitPoints)
 	}
 }
 
@@ -224,8 +242,8 @@ func handleShow(args []string) {
 	}
 
 	name := args[0]
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	path := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	path := filepath.Join(characterDir, filename)
 
 	c, err := character.Load(path)
 	if err != nil {
@@ -233,7 +251,7 @@ func handleShow(args []string) {
 		os.Exit(1)
 	}
 
-	gd, _ := data.Load(defaultDataDir)
+	gd, _ := data.Load(dataDir)
 	fmt.Println(c.ToMarkdown(gd))
 }
 
@@ -246,7 +264,7 @@ func handleDelete(args []string) {
 
 	name := args[0]
 
-	if err := character.Delete(defaultCharacterDir, name); err != nil {
+	if err := character.Delete(characterDir, name); err != nil {
 		fmt.Fprintf(os.Stderr, "Error deleting character: %v\n", err)
 		os.Exit(1)
 	}
@@ -264,8 +282,8 @@ func handleExport(args []string) {
 	name := args[0]
 	format := getFlag(args, "--format", "md")
 
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	path := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	path := filepath.Join(characterDir, filename)
 
 	c, err := character.Load(path)
 	if err != nil {
@@ -282,7 +300,7 @@ func handleExport(args []string) {
 		}
 		fmt.Println(json)
 	case "md", "markdown":
-		gd, _ := data.Load(defaultDataDir)
+		gd, _ := data.Load(dataDir)
 		fmt.Println(c.ToMarkdown(gd))
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown format: %s (use json or md)\n", format)
@@ -474,8 +492,8 @@ func handleAppearance(args []string) {
 	}
 
 	name := args[0]
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	path := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	path := filepath.Join(characterDir, filename)
 
 	// Load character
 	c, err := character.Load(path)
@@ -555,7 +573,7 @@ func handleAppearance(args []string) {
 	}
 
 	// Save character
-	if err := c.Save(defaultCharacterDir); err != nil {
+	if err := c.Save(characterDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
 		os.Exit(1)
 	}
@@ -576,8 +594,8 @@ func handleSetReference(args []string) {
 	name := args[0]
 	imagePath := args[1]
 
-	filename := strings.ToLower(strings.ReplaceAll(name, " ", "_")) + ".json"
-	charPath := filepath.Join(defaultCharacterDir, filename)
+	filename := character.SanitizeFilename(name) + ".json"
+	charPath := filepath.Join(characterDir, filename)
 
 	// Verify image exists
 	if _, err := os.Stat(imagePath); err != nil {
@@ -598,9 +616,9 @@ func handleSetReference(args []string) {
 	}
 
 	// Copy image to characters directory
-	charSlug := strings.ToLower(strings.ReplaceAll(name, " ", "_"))
+	charSlug := character.SanitizeFilename(name)
 	destFilename := charSlug + "_reference" + filepath.Ext(imagePath)
-	destPath := filepath.Join(defaultCharacterDir, destFilename)
+	destPath := filepath.Join(characterDir, destFilename)
 
 	input, err := os.ReadFile(imagePath)
 	if err != nil {
@@ -617,7 +635,7 @@ func handleSetReference(args []string) {
 	c.Appearance.ReferenceImage = destFilename
 
 	// Save character
-	if err := c.Save(defaultCharacterDir); err != nil {
+	if err := c.Save(characterDir); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving character: %v\n", err)
 		os.Exit(1)
 	}
@@ -668,10 +686,14 @@ func formatRolls(rolls []int, keptIndices []int) string {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - Character Generator - Générateur de personnages BFRPG
+	fmt.Println(`SkillsWeaver - Character Generator - Générateur de personnages D&D 5e
 
 USAGE:
-    sw-character <command> [arguments]
+    sw-character [global-options] <command> [arguments]
+
+OPTIONS GLOBALES:
+    --char-dir=<path>    Répertoire des personnages (défaut: data/characters)
+    --data-dir=<path>    Répertoire des données de jeu (défaut: data)
 
 COMMANDES:
     create "Nom" [options]       Crée un nouveau personnage
@@ -684,8 +706,8 @@ COMMANDES:
     help                         Affiche cette aide
 
 OPTIONS POUR CREATE:
-    --race=<race>       Race du personnage (human, elf, dwarf, halfling)
-    --class=<class>     Classe du personnage (fighter, cleric, magic-user, thief)
+    --race=<race>       Espèce du personnage (human, elf, dwarf, dragonborn, etc.)
+    --class=<class>     Classe du personnage (fighter, wizard, cleric, etc.)
     --method=<method>   Méthode de génération (standard=4d6kh3, classic=3d6)
     --max-hp            PV max au niveau 1 (variante pour survie)
 
@@ -707,22 +729,37 @@ OPTIONS POUR APPEARANCE:
     --weapon=<value>        Description de l'arme (longsword, staff with crystal)
     --accessories=<value>   Accessoires (shield, holy symbol, spell book)
 
-RACES DISPONIBLES:
-    human     - Humain (toutes classes, niveau illimité)
-    elf       - Elfe (+1 DEX, -1 CON) : Guerrier 6, Magicien 9, Voleur
-    dwarf     - Nain (+1 CON, -1 CHA) : Guerrier 7, Clerc 6, Voleur
-    halfling  - Halfelin (+1 DEX, -1 FOR) : Guerrier 4, Voleur
+ESPÈCES DISPONIBLES (D&D 5e):
+    human       - Humain
+    dragonborn  - Drakéide
+    dwarf       - Nain
+    elf         - Elfe
+    gnome       - Gnome
+    goliath     - Goliath
+    halfling    - Halfelin
+    orc         - Orc
+    tiefling    - Tieffelin
 
-CLASSES DISPONIBLES:
-    fighter     - Guerrier (d8 PV, toutes armes/armures)
-    cleric      - Clerc (d6 PV, sorts divins, armes contondantes)
-    magic-user  - Magicien (d4 PV, sorts arcaniques)
-    thief       - Voleur (d4 PV, compétences spéciales)
+    Note: En D&D 5e, toutes les espèces peuvent jouer toutes les classes
+
+CLASSES DISPONIBLES (D&D 5e):
+    barbarian   - Barbare (d12 PV, rage)
+    bard        - Barde (d8 PV, sorts + compétences)
+    cleric      - Clerc (d8 PV, sorts divins)
+    druid       - Druide (d8 PV, sorts nature)
+    fighter     - Guerrier (d10 PV, toutes armes/armures)
+    monk        - Moine (d8 PV, arts martiaux)
+    paladin     - Paladin (d10 PV, sorts + serments)
+    ranger      - Rôdeur (d10 PV, sorts + exploration)
+    rogue       - Roublard (d8 PV, attaque sournoise)
+    sorcerer    - Ensorceleur (d6 PV, magie innée)
+    warlock     - Occultiste (d8 PV, pacte)
+    wizard      - Magicien (d6 PV, sorts arcaniques)
 
 EXEMPLES:
     sw-character create "Aldric" --race=human --class=fighter
-    sw-character create "Lyra" --race=elf --class=magic-user --method=classic
-    sw-character create "Gorim" --race=dwarf --class=fighter --max-hp
+    sw-character create "Lyra" --race=elf --class=wizard --method=classic
+    sw-character create "Thorin" --race=dwarf --class=cleric --max-hp
     sw-character list
     sw-character show "Aldric"
     sw-character export "Aldric" --format=json
@@ -730,7 +767,7 @@ EXEMPLES:
     sw-character set-reference "Aldric" path/to/portrait.png
 
 NOTES SUR LES PV:
-    Par défaut, les PV au niveau 1 sont lancés aléatoirement (règle BFRPG standard).
+    Par défaut, les PV au niveau 1 sont lancés aléatoirement (règle D&D 5e standard).
     Avec --max-hp, le personnage reçoit le maximum du dé de vie (variante populaire
     pour améliorer la survie des personnages de bas niveau).`)
 }

@@ -3,6 +3,7 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/packages/ssestream"
@@ -13,6 +14,8 @@ type OutputHandler interface {
 	OnTextChunk(text string)
 	OnToolStart(toolName, toolID string)
 	OnToolComplete(toolName string, result interface{})
+	OnAgentInvocationStart(agentName string)
+	OnAgentInvocationComplete(agentName string, duration time.Duration)
 	OnError(err error)
 	OnComplete()
 }

@@ -7,22 +7,30 @@ import (
 	"path/filepath"
 	"strings"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/ai"
 	"dungeons/internal/image"
 	"dungeons/internal/world"
 )
 
+// MapGeneratedNotifier is an interface for notifying about map generation.
+// This avoids import cycle with internal/agent package.
+type MapGeneratedNotifier interface {
+	OnMapGenerated(location, mapPath string)
+}
+
 // GenerateMapTool generates 2D fantasy map prompts with world-keeper validation.
 type GenerateMapTool struct {
-	dataDir       string
-	adventurePath string
-	enricher      *ai.Enricher
-	geography     *world.Geography
-	factions      *world.Factions
+	dataDir   string
+	adventure *adventure.Adventure
+	enricher  *ai.Enricher
+	geography *world.Geography
+	factions  *world.Factions
+	notifier  MapGeneratedNotifier
 }
 
 // NewGenerateMapTool creates a new map generation tool.
-func NewGenerateMapTool(dataDir string, adventurePath string) (*GenerateMapTool, error) {
+func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGeneratedNotifier) (*GenerateMapTool, error) {
 	// Load world data
 	geo, err := world.LoadGeography(dataDir)
 	if err != nil {
@@ -41,12 +49,29 @@ func NewGenerateMapTool(dataDir string, adventurePath string) (*GenerateMapTool,
 	}
 
 	return &GenerateMapTool{
-		dataDir:       dataDir,
-		adventurePath: adventurePath,
-		enricher:      enricher,
-		geography:     geo,
-		factions:      factions,
+		dataDir:   dataDir,
+		adventure: adv,
+		enricher:  enricher,
+		geography: geo,
+		factions:  factions,
+		notifier:  notifier,
 	}, nil
+}
+
+// getSessionImagesDir returns the images directory for the current session.
+// Uses the active session number, or session-0 if no session is active.
+func (t *GenerateMapTool) getSessionImagesDir() (string, error) {
+	sessionNum := 0
+	if session, err := t.adventure.GetCurrentSession(); err == nil && session != nil {
+		sessionNum = session.ID
+	}
+
+	imagesDir := filepath.Join(t.adventure.BasePath(), "images", fmt.Sprintf("session-%d", sessionNum))
+	if err := os.MkdirAll(imagesDir, 0755); err != nil {
+		return "", fmt.Errorf("creating images directory: %w", err)
+	}
+
+	return imagesDir, nil
 }
 
 // Name returns the tool name.
@@ -56,7 +81,7 @@ func (t *GenerateMapTool) Name() string {
 
 // Description returns the tool description.
 func (t *GenerateMapTool) Description() string {
-	return `Generate a detailed 2D fantasy map prompt to clarify narration for players. Validates locations against world-keeper data and applies kingdom-specific architectural styles.
+	return `Generate a detailed 2D fantasy map prompt to clarify narration for players. City maps are validated against world-keeper data for architectural consistency. Region, dungeon, and tactical maps can use any location name.
 
 WHEN TO USE:
 - Players are confused about geography or layout
@@ -65,10 +90,10 @@ WHEN TO USE:
 - Combat requires a tactical grid map
 
 MAP TYPES:
-- city: Aerial view of a city with districts, POIs, and infrastructure
-- region: Bird's eye view of multiple settlements, routes, and terrain
-- dungeon: Top-down floor plan with rooms, corridors, traps, and grid
-- tactical: Combat grid with terrain, cover, obstacles, and elevation
+- city: Aerial view of a city with districts, POIs, and infrastructure (requires location in geography.json)
+- region: Bird's eye view of multiple settlements, routes, and terrain (no validation required)
+- dungeon: Top-down floor plan with rooms, corridors, traps, and grid (no validation required)
+- tactical: Combat grid with terrain, cover, obstacles, and elevation (no validation required)
 
 The tool enriches prompts with Claude Haiku 3.5, caches results, and optionally generates images via fal.ai flux-2.`
 }
@@ -85,7 +110,7 @@ func (t *GenerateMapTool) InputSchema() map[string]interface{} {
 			},
 			"name": map[string]interface{}{
 				"type":        "string",
-				"description": "Name of the location, dungeon, or scene. For city/region: must exist in geography.json (e.g., 'Cordova'). For dungeon/tactical: any descriptive name (e.g., 'La Crypte des Ombres', 'Embuscade en forêt').",
+				"description": "Name of the location, dungeon, or scene. For city: must exist in geography.json (e.g., 'Cordova'). For region/dungeon/tactical: any descriptive name (e.g., 'Route entre Greystone et Portus Lunaris', 'La Crypte des Ombres', 'Embuscade en forêt').",
 			},
 			"features": map[string]interface{}{
 				"type":        "array",
@@ -184,11 +209,11 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 		generateImage = genImg
 	}
 
-	// Validate and get location data (for city/region types)
+	// Validate and get location data (for city type only)
 	var location *world.Location
 	var kingdom *world.Kingdom
 
-	if mapType == "city" || mapType == "region" {
+	if mapType == "city" {
 		exists, loc, _, _ := world.ValidateLocationExists(name, t.geography)
 		if !exists {
 			// Provide suggestions
@@ -202,7 +227,7 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 				"success":     false,
 				"error":       fmt.Sprintf("Location '%s' not found in geography.json", name),
 				"suggestions": suggestionStrs,
-				"hint":        "For dungeons and tactical maps, location validation is not required.",
+				"hint":        "For region, dungeon and tactical maps, location validation is not required.",
 			}, nil
 		}
 		location = loc
@@ -266,6 +291,11 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 			response["image_path"] = imagePath
 			response["image_url"] = imageURL
 			response["display"] = response["display"].(string) + fmt.Sprintf("\n\nImage générée: %s", filepath.Base(imagePath))
+
+			// Notify that a map was generated (triggers minimap refresh in web UI)
+			if t.notifier != nil && location != nil {
+				t.notifier.OnMapGenerated(location.Name, imagePath)
+			}
 		}
 	}
 
@@ -283,7 +313,8 @@ func (t *GenerateMapTool) Execute(params map[string]interface{}) (interface{}, e
 
 // getCacheFile returns the cache file path for a map prompt.
 func (t *GenerateMapTool) getCacheFile(name, mapType, scale string) string {
-	safeName := strings.ReplaceAll(name, " ", "_")
+	// Use hyphens for consistency in filenames
+	safeName := strings.ReplaceAll(name, " ", "-")
 	safeName = strings.ToLower(safeName)
 	return filepath.Join(t.dataDir, "maps", fmt.Sprintf("%s_%s_%s_prompt.json", safeName, mapType, scale))
 }
@@ -306,15 +337,20 @@ func (t *GenerateMapTool) saveCachedPrompt(cacheFile string, result *ai.MapPromp
 
 // generateImage generates an actual map image using fal.ai flux-2.
 func (t *GenerateMapTool) generateImage(prompt, name, mapType, scale string) (string, string, error) {
+	// Get the images directory for the current session
+	outputDir, err := t.getSessionImagesDir()
+	if err != nil {
+		return "", "", fmt.Errorf("getting session images dir: %w", err)
+	}
+
 	// Create image generator
-	outputDir := filepath.Join(t.dataDir, "maps")
 	gen, err := image.NewGenerator(outputDir)
 	if err != nil {
 		return "", "", fmt.Errorf("creating generator: %w", err)
 	}
 
-	// Generate unique filename
-	safeName := strings.ReplaceAll(name, " ", "_")
+	// Generate unique filename (use hyphens for consistency)
+	safeName := strings.ReplaceAll(name, " ", "-")
 	safeName = strings.ToLower(safeName)
 	filename := fmt.Sprintf("%s_%s_%s", safeName, mapType, scale)
 

@@ -80,7 +80,7 @@ func (g *SheetGenerator) Generate(opts SheetOptions) (*Sheet, error) {
 
 	sheet := &Sheet{
 		Character:   c,
-		RaceName:    getRaceName(c.Race),
+		RaceName:    getRaceName(c.Species),
 		ClassName:   getClassName(c.Class),
 		Gold:        c.Gold,
 		GeneratedAt: time.Now().Format("2 January 2006 à 15:04"),

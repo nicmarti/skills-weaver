@@ -3,7 +3,7 @@
 ![SkillsWeaver Logo](logo.png)
 
 **SkillsWeaver** is an interactive tabletop RPG engine powered by [Claude Code](https://claude.ai/claude-code) created by Nicolas Martignole.
-The engine is based on [Basic Fantasy RPG](https://www.basicfantasy.org/) rules. It combines AI orchestration with Go CLI tools to create a complete role-playing experience.
+The engine is based on [Dungeon&Dragon v5.2 French version](https://media.dndbeyond.com/compendium-images/srd/5.2/FR_SRD_CC_v5.2.1.pdf) rules. It combines AI orchestration with Go CLI tools to create a complete role-playing experience.
 
 
 ## See it live on YouTube
@@ -12,7 +12,7 @@ You can watch a sample game session on [my YouTube channel](https://youtu.be/K5C
 
 ## How to Play
 
-**To play a game session, use `sw-dm`** - the autonomous Dungeon Master application:
+**To play a game session:**
 
 ```bash
 # Build the tools
@@ -33,26 +33,197 @@ The `sw-dm` application provides an immersive, interactive RPG experience with:
 
 > **Note:** While Claude Code can also orchestrate gameplay using the agents and skills in this repository, `sw-dm` provides a more streamlined and immersive experience for actual game sessions.
 
+## How to Create a New Adventure and Characters
+
+Before you can play with `sw-dm`, you need to create an adventure and characters. You can use **Claude Code** to guide you through this process interactively.
+
+### Prerequisites
+
+```bash
+# Build the tools first
+make build
+
+# Start Claude Code
+claude
+```
+
+### Option 1: Interactive Guided Creation (Recommended)
+
+Let Claude Code guide you through the entire process step by step:
+
+**Step 1: Ask Claude Code to create characters**
+
+In Claude Code, simply say:
+
+```
+"I want to create a new adventure. Help me create characters first."
+```
+
+Claude Code will:
+1. Launch the `character-creator` agent
+2. Guide you through choosing species, class, and abilities
+3. Generate stats using 4d6 keep highest 3 (or standard array)
+4. Apply species modifiers automatically
+5. Help you select skills, combat style, and background
+6. Save the character automatically
+
+**Example conversation:**
+
+```
+You: "I want to create a new adventure. I need characters first."
+
+Claude: "Let me help you create characters. How many do you want to create?
+         For a balanced party, I recommend 3-4 characters:
+         - 1 Tank/Fighter
+         - 1 Ranged/Rogue
+         - 1 Support/Healer"
+
+You: "Create a human male fighter, 39 years old, veteran soldier"
+
+Claude: [Launches character-creator agent]
+        "Excellent choice! Let's create Marcus Sanggo.
+         Rolling stats with 4d6 keep highest 3...
+         [Shows stats]
+         For a Fighter, I suggest: STR 16, DEX 14, CON 15...
+         [Guides through choices]"
+
+[Process repeats for each character]
+```
+
+**Step 2: Create the adventure**
+
+Once you have 2-4 characters, tell Claude Code:
+
+```
+"Now create an adventure called 'The Magic Sextant of Cordova'"
+```
+
+Claude Code will:
+1. Create the adventure with `sw-adventure create`
+2. Add all your characters to the party automatically
+3. Initialize inventory, journal, and session tracking
+4. Show you the adventure status
+
+**Step 3: Start playing**
+
+```bash
+./sw-dm
+# Select your adventure from the menu
+# The game begins!
+```
+
+### Option 2: Manual CLI Creation (Advanced)
+
+If you prefer direct control, use the CLI tools:
+
+**Create characters:**
+
+```bash
+# Create a fighter
+./sw-character create "Marcus Sanggo" \
+  --species=human \
+  --class=fighter \
+  --str=16 --dex=14 --con=15 --int=11 --wis=13 --cha=12
+
+# Create a rogue
+./sw-character create "Lyra" \
+  --species=elf \
+  --class=rogue \
+  --str=10 --dex=18 --con=14 --int=12 --wis=16 --cha=10
+
+# Create a bard
+./sw-character create "Caelian Aurelmoor" \
+  --species=human \
+  --class=bard \
+  --str=9 --dex=14 --con=13 --int=12 --wis=11 --cha=15
+```
+
+**Create adventure and add characters:**
+
+```bash
+# Create the adventure
+./sw-adventure create "my-adventure"
+
+# Add characters to the party
+./sw-adventure add-character "my-adventure" "Marcus Sanggo"
+./sw-adventure add-character "my-adventure" "Lyra"
+./sw-adventure add-character "my-adventure" "Caelian Aurelmoor"
+
+# Verify setup
+./sw-adventure status "my-adventure"
+```
+
+**Start playing:**
+
+```bash
+./sw-dm
+# Select your adventure and play!
+```
+
+### Character Creation Tips
+
+**Balanced Party Composition:**
+- **Tank/DPS:** Fighter, Barbarian, Paladin (high STR/CON, heavy armor)
+- **Ranged/Scout:** Rogue, Ranger (high DEX, stealth, ranged attacks)
+- **Support/Healer:** Bard, Cleric (CHA/WIS, healing spells, buffs)
+- **Caster:** Wizard, Sorcerer, Warlock (INT/CHA, powerful spells)
+
+**Stat Priorities by Class:**
+- **Fighter/Barbarian:** STR > CON > DEX
+- **Rogue/Ranger:** DEX > WIS/INT > CON
+- **Bard/Cleric:** CHA/WIS > CON > DEX
+- **Wizard/Sorcerer:** INT/CHA > CON > DEX
+
+**Using the World Context:**
+
+The project includes a rich world with 4 kingdoms (`data/world/factions.json`):
+- **Valdorine:** Maritime merchant kingdom (Cordova capital)
+- **Karvath:** Military empire (honor, discipline)
+- **Lumenciel:** Religious theocracy (conversion, influence)
+- **Astrène:** Declining scholarly kingdom (culture, magic)
+
+You can create characters tied to these kingdoms for richer roleplay!
+
+### What Gets Created
+
+After setup, your file structure will look like:
+
+```
+data/
+├── characters/
+│   ├── marcus-sanggo.json
+│   ├── lyra.json
+│   └── caelian-aurelmoor.json
+└── adventures/
+    └── my-adventure/
+        ├── adventure.json       # Adventure metadata
+        ├── party.json           # Your 3 characters
+        ├── inventory.json       # Shared inventory
+        ├── sessions.json        # Session history
+        ├── journal-meta.json    # Journal metadata
+        └── journal-session-0.json # Pre-session journal
+```
+
 ## What is this repository?
 
 SkillsWeaver demonstrates how to build a complex, multi-tool AI application using Claude Code's skills and agents system. It includes:
 
 - **Autonomous Dungeon Master** (`sw-dm`) - Interactive REPL with full agent loop and tool use
 - **Dice rolling** with standard RPG notation (2d6+3, 4d6kh3, advantage/disadvantage)
-- **Character generation** following BFRPG rules (4 races, 4 classes)
+- **Character generation** following Dungeon&Dragon v5.2 rules
 - **Adventure management** with session tracking and automatic journaling
 - **NPC generation** with personalities, motivations, and secrets
 - **AI image generation** for characters, scenes, and monsters via fal.ai
-- **Monster manual** with 33 classic fantasy creatures
-- **Treasure generation** using official BFRPG tables
+- **Monster manual** based on official D&D manual
+- **Treasure generation** 
 - **Journal illustration** - automatically generate images for adventure logs
 
 ## Prerequisites
 
-### 1. Claude Code
+### 1. Claude Code (optional)
 
-Install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude. We recommend to use the native version.
-A key is not required to play as the game can use the Haiku model. 
+You can install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude if you want to test skills or each Agents.
+Else, use directly the go cli with a valid ANTHROPIC API key.
 
 ### 2. Go
 
@@ -157,7 +328,7 @@ The Dungeon Master has access to these tools during gameplay:
 | `log_event` | Record events in the adventure journal |
 | `add_gold` | Modify the party's gold |
 | `get_inventory` | Check the shared inventory |
-| `generate_treasure` | Generate treasure using BFRPG tables |
+| `generate_treasure` | Generate treasure using D&D 5e tables |
 | `generate_npc` | Create NPCs with personality and motivations |
 | `generate_image` | Generate fantasy-style images from prompts (requires FAL_KEY) |
 
@@ -268,14 +439,14 @@ sw-dm
 
 Markdown files that teach Claude how to use specific tools:
 - `dice-roller` - Roll dice with RPG notation
-- `character-generator` - Create BFRPG characters
+- `character-generator` - Create D&D 5e characters
 - `adventure-manager` - Manage campaigns and sessions
-- `name-generator` - Generate fantasy names by race
+- `name-generator` - Generate fantasy names by species
 - `npc-generator` - Create NPCs with personalities and secrets
 - `image-generator` - Generate fantasy illustrations
 - `journal-illustrator` - Illustrate adventure journals
 - `monster-manual` - Monster stats and encounters
-- `treasure-generator` - Generate treasure using BFRPG tables
+- `treasure-generator` - Generate treasure using D&D 5e tables
 - `equipment-browser` - Browse weapons, armor, and gear
 - `spell-reference` - Spell details by class and level
 
@@ -354,7 +525,7 @@ After enriching your journal, automatically generate images for key moments:
 # Generate images (parallel, fast)
 ./sw-image journal "my-adventure"
 
-# Use a higher quality model
+# Use a higher quality model with a valid fal.ai key 
 ./sw-image journal "my-adventure" --model=banana
 
 # Only combat scenes
@@ -446,9 +617,12 @@ As long as you:
 - **Share alike** — distribute your contributions under the same license
 
 SkillsWeaver builds upon:
-- **Basic Fantasy RPG** - © Chris Gonnerman and contributors (Open Game License)
 - **Claude Code** - © Anthropic
 - **fal.ai** - Image generation API
+
+This work includes material taken from the Lazy GM's Resource Document by Michael E. Shea of SlyFlourish.com, available under a Creative Commons Attribution 4.0 International License.
+
+This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
 See the [LICENSE](LICENSE) file for full legal details.
 
@@ -457,8 +631,4 @@ See the [LICENSE](LICENSE) file for full legal details.
 This engine and the original idea is from **Nicolas MARTIGNOLE**, Principal Engineer at Back Market and Devoxx France's creator/organizer.
 
 You can reach Nicolas by email: [nicolas.martignole@devoxx.fr](mailto:nicolas.martignole@devoxx.fr)
-
-
-
-
 

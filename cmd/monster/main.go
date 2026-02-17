@@ -56,7 +56,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - Monster Manual - Bestiaire BFRPG
+	fmt.Println(`SkillsWeaver - Monster Manual - Bestiaire D&D 5e
 
 UTILISATION:
   sw-monster <commande> [arguments]
@@ -65,6 +65,7 @@ COMMANDES:
   show <id>                    Afficher la fiche complète d'un monstre
   search <terme>               Rechercher des monstres par nom ou type
   list [--type=<type>]         Lister tous les monstres (optionnel: par type)
+  list [--cr=<CR>]             Lister monstres par Challenge Rating (D&D 5e)
   encounter <table>            Générer une rencontre aléatoire
   encounter --level=<N>        Générer une rencontre pour un niveau de groupe
   roll <id> [--count=N]        Créer N instances avec PV aléatoires
@@ -75,24 +76,28 @@ COMMANDES:
 OPTIONS:
   --format=<md|json|short>     Format de sortie (défaut: md)
   --type=<type>                Filtrer par type (undead, humanoid, etc.)
+  --cr=<CR>                    Filtrer par Challenge Rating (0, 1/8, 1/4, 1/2, 1, 2, etc.)
   --level=<N>                  Niveau du groupe pour les rencontres
   --count=<N>                  Nombre de monstres à générer
 
 TYPES DE MONSTRES:
   animal, dragon, giant, humanoid, monstrosity, ooze, undead, vermin
 
+CHALLENGE RATING (D&D 5e):
+  0, 1/8, 1/4, 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10+
+
 TABLES DE RENCONTRES:
-  dungeon_level_1    Niveau 1 (faible)
-  dungeon_level_2    Niveau 2 (modéré)
-  dungeon_level_3    Niveau 3 (élevé)
-  dungeon_level_4    Niveau 4+ (très élevé)
-  forest             Forêt
-  undead_crypt       Crypte/Cimetière
+  dungeon_level_1    Niveau 1 (Easy/Medium)
+  dungeon_level_2    Niveau 2-3 (Medium/Hard)
+  undead             Morts-vivants
+  wilderness         Nature sauvage
 
 EXEMPLES:
   sw-monster show goblin                      # Fiche du gobelin
   sw-monster search dragon                    # Tous les dragons
   sw-monster list --type=undead               # Tous les morts-vivants
+  sw-monster list --cr=1/4                    # Monstres CR 1/4
+  sw-monster list --cr=2                      # Monstres CR 2
   sw-monster encounter dungeon_level_1        # Rencontre niveau 1
   sw-monster encounter --level=3              # Rencontre pour groupe niveau 3
   sw-monster roll orc --count=4               # 4 orcs avec PV aléatoires`)
@@ -169,16 +174,29 @@ func cmdList(b *monster.Bestiary, args []string) error {
 	opts := parseOptions(args)
 
 	var monsters []*monster.Monster
-	if opts["type"] != "" {
+	var header string
+
+	// Filter by CR (D&D 5e)
+	if opts["cr"] != "" {
+		monsters = b.ListByCR(opts["cr"])
+		if len(monsters) == 0 {
+			return fmt.Errorf("aucun monstre avec CR %s", opts["cr"])
+		}
+		header = fmt.Sprintf("## Monstres Challenge Rating %s\n\n", opts["cr"])
+	} else if opts["type"] != "" {
+		// Filter by type
 		monsters = b.ListByType(opts["type"])
 		if len(monsters) == 0 {
 			return fmt.Errorf("type inconnu: %s", opts["type"])
 		}
-		fmt.Printf("## Monstres de type '%s'\n\n", opts["type"])
+		header = fmt.Sprintf("## Monstres de type '%s'\n\n", opts["type"])
 	} else {
+		// All monsters
 		monsters = b.ListAll()
-		fmt.Print("## Tous les Monstres\n\n")
+		header = "## Tous les Monstres\n\n"
 	}
+
+	fmt.Print(header)
 
 	format := opts["format"]
 	if format == "" {

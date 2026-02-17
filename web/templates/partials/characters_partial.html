@@ -1,0 +1,30 @@
+{{define "characters_partial.html"}}
+<div class="characters-list">
+    {{range .Characters}}
+    <div class="character-card">
+        <div class="character-header">
+            <h4>{{.Name}}</h4>
+            <span class="character-level">Niv. {{.Level}}</span>
+        </div>
+        <div class="character-info">
+            <span class="character-race-class">{{.Species}} {{.Class}}</span>
+        </div>
+        <div class="character-stats">
+            <div class="stat">
+                <span class="stat-label">PV</span>
+                <span class="stat-value">{{.HP}}/{{.MaxHP}}</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">CA</span>
+                <span class="stat-value">{{.AC}}</span>
+            </div>
+        </div>
+        {{if .Appearance}}
+        <p class="character-appearance">{{.Appearance}}</p>
+        {{end}}
+    </div>
+    {{else}}
+    <p class="empty-characters">Aucun personnage dans le groupe</p>
+    {{end}}
+</div>
+{{end}}

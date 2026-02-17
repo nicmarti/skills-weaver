@@ -10,10 +10,10 @@
           "cities": [
             {
               "name": "Cordova",
-              "type": "port majeur",
+              "type": "capitale de royaume de type portuaire",
               "kingdom": "Valdorine",
               "population": "150 000 habitants",
-              "description": "Ville portuaire scintillante, commerce actif, contrebande tolérée. Capitale de Valdorine.",
+              "description": "Ville portuaire scintillante, commerces actifs, contrebande tolérée. Capitale de Valdorine.",
               "key_locations": [
                 "Taverne du Voile Écarlate (taverne populaire, Goruk tavernier)",
                 "Auberge du Crâne d'Or (auberge respectable, Marta aubergiste)",
@@ -33,17 +33,17 @@
               "type": "port industriel",
               "kingdom": "Valdorine",
               "population": "80 000 habitants",
-              "description": "Chantiers navals majeurs, construction de galères de guerre",
+              "description": "Chantiers navals majeurs, construction de galères de guerre, bourse d'échange",
               "distances": {
                 "Cordova": "5 jours par mer (150 km)"
               }
             },
             {
               "name": "Havre-d'Argent",
-              "type": "port financier",
+              "type": "ville fortifiée financière et mercantile",
               "kingdom": "Valdorine",
               "population": "50 000 habitants",
-              "description": "Centre bancaire, coffres royaux, change de monnaies",
+              "description": "Centre bancaire, coffres royaux, change de monnaies, marchés, armurerie",
               "distances": {
                 "Cordova": "7 jours par mer (200 km)"
               }
@@ -53,7 +53,7 @@
         {
           "name": "Collines de l'Ombre",
           "kingdom": "Valdorine",
-          "description": "Région montagneuse côtière, villages dispersés, cryptes anciennes",
+          "description": "Région montagneuse côtière, villages dispersés, cryptes anciennes, relais postaux",
           "cities": [
             {
               "name": "Pierrebrune",
@@ -82,18 +82,18 @@
               "type": "forteresse capitale",
               "kingdom": "Karvath",
               "population": "100 000 habitants",
-              "description": "Forteresse imprenable, casernes géantes, centre du pouvoir militaire",
+              "description": "Forteresse complexe située dans une vallée encaissée, imprenable, casernes géantes, centre du pouvoir militaire",
               "distances": {
                 "Cordova": "12 jours à pied (400 km)",
                 "Aurore-Sainte": "8 jours à pied (280 km, frontière contestée)"
               }
             },
             {
-              "name": "Porte-de-Fer",
+              "name": "Kermk",
               "type": "forteresse frontalière",
               "kingdom": "Karvath",
               "population": "60 000 habitants",
-              "description": "Base militaire avancée, frontière sud de Karvath",
+              "description": "Base militaire avancée, fonderies et armureries, chevaux, centre de formation militaire, situé à la frontière sud de Karvath",
               "distances": {
                 "Fer-de-Lance": "5 jours à pied (150 km)"
               }
@@ -103,7 +103,7 @@
               "type": "cité industrielle",
               "kingdom": "Karvath",
               "population": "70 000 habitants",
-              "description": "Production d'armes et armures, fumées constantes des forges",
+              "description": "Ville étendue et séparée par un fleuve, nombreux batiments de fabrications, production d'armes et armures, fumées constantes des forges, industriels, beaucoup de nains",
               "distances": {
                 "Fer-de-Lance": "3 jours à pied (100 km)"
               }
@@ -120,7 +120,7 @@
               "type": "capitale théocratique",
               "kingdom": "Lumenciel",
               "population": "120 000 habitants",
-              "description": "Cathédrale monumentale, monastères, siège du pouvoir religieux",
+              "description": "Nombreux édifices pour pélerins, clergé, centre théologique, deux cathédrales monumentales, monastères, siège du pouvoir religieux, ville basse pieuse et pauvre, ville haute pour le clergé",
               "key_locations": [
                 "Grande Cathédrale du Soleil Éternel",
                 "Cryptes secrètes (quartier général de l'Ordre de l'Aube Dorée)",

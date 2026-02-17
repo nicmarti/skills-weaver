@@ -49,7 +49,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - Treasure Generator - Générateur de Trésors BFRPG
+	fmt.Println(`SkillsWeaver - Treasure Generator - Générateur de Trésors D&D 5e
 
 UTILISATION:
   sw-treasure <commande> [arguments]
@@ -137,7 +137,7 @@ func cmdGenerate(gen *treasure.Generator, args []string) error {
 func cmdTypes(gen *treasure.Generator) error {
 	types := gen.GetTreasureTypes()
 
-	fmt.Print("## Types de Trésors BFRPG\n\n")
+	fmt.Print("## Types de Trésors D&D 5e\n\n")
 
 	fmt.Println("### Trésors de Repaire (A-H)")
 	fmt.Print("*Pour les repaires de groupes de monstres*\n\n")

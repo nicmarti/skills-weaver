@@ -5,32 +5,41 @@ import (
 	"os"
 	"path/filepath"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/image"
 )
 
 // GenerateImageTool generates fantasy images from prompts.
 type GenerateImageTool struct {
-	generator   *image.Generator
-	adventurePath string
+	adventure *adventure.Adventure
 }
 
 // NewGenerateImageTool creates a new image generation tool.
-func NewGenerateImageTool(adventurePath string) (*GenerateImageTool, error) {
-	// Create images directory within the adventure
-	imagesDir := filepath.Join(adventurePath, "images", "session-0")
-	if err := os.MkdirAll(imagesDir, 0755); err != nil {
-		return nil, fmt.Errorf("creating images directory: %w", err)
-	}
-
-	generator, err := image.NewGenerator(imagesDir)
-	if err != nil {
-		return nil, fmt.Errorf("creating generator: %w", err)
+func NewGenerateImageTool(adv *adventure.Adventure) (*GenerateImageTool, error) {
+	// Verify FAL_KEY is set
+	if os.Getenv("FAL_KEY") == "" {
+		return nil, fmt.Errorf("FAL_KEY environment variable not set")
 	}
 
 	return &GenerateImageTool{
-		generator:   generator,
-		adventurePath: adventurePath,
+		adventure: adv,
 	}, nil
+}
+
+// getSessionImagesDir returns the images directory for the current session.
+// Uses the active session number, or session-0 if no session is active.
+func (t *GenerateImageTool) getSessionImagesDir() (string, error) {
+	sessionNum := 0
+	if session, err := t.adventure.GetCurrentSession(); err == nil && session != nil {
+		sessionNum = session.ID
+	}
+
+	imagesDir := filepath.Join(t.adventure.BasePath(), "images", fmt.Sprintf("session-%d", sessionNum))
+	if err := os.MkdirAll(imagesDir, 0755); err != nil {
+		return "", fmt.Errorf("creating images directory: %w", err)
+	}
+
+	return imagesDir, nil
 }
 
 // Name returns the tool name.
@@ -79,8 +88,26 @@ func (t *GenerateImageTool) Execute(params map[string]interface{}) (interface{},
 		prompt = fmt.Sprintf("Epic fantasy art style: %s", prompt)
 	}
 
-	// Generate the image
-	result, err := t.generator.Generate(prompt)
+	// Get the images directory for the current session
+	imagesDir, err := t.getSessionImagesDir()
+	if err != nil {
+		return map[string]interface{}{
+			"success": false,
+			"error":   fmt.Sprintf("Failed to get images directory: %v", err),
+		}, nil
+	}
+
+	// Create generator with session-specific directory
+	generator, err := image.NewGenerator(imagesDir)
+	if err != nil {
+		return map[string]interface{}{
+			"success": false,
+			"error":   fmt.Sprintf("Failed to create image generator: %v", err),
+		}, nil
+	}
+
+	// Generate the image using flux-2-pro (state-of-the-art quality)
+	result, err := generator.Generate(prompt, image.WithModelInstance(image.ModelFlux2Pro))
 	if err != nil {
 		return map[string]interface{}{
 			"success": false,

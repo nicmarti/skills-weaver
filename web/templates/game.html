@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - SkillsWeaver</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/fantasy.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+<div class="game-container with-gallery">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="back-link">&larr; Retour</a>
+            <h2>{{.Adventure.Name}}</h2>
+        </div>
+
+        <!-- Session Status Indicator -->
+        <div class="session-status {{if .IsSessionActive}}active{{else}}inactive{{end}}"
+             id="session-status"
+             hx-get="/play/{{.Slug}}/session-status"
+             hx-trigger="refreshInfo from:body"
+             hx-swap="outerHTML">
+            {{if .IsSessionActive}}
+                <span class="status-indicator"></span>
+                <span class="status-text">Session {{.ActiveSessionID}} en cours</span>
+            {{else}}
+                <span class="status-indicator"></span>
+                <span class="status-text">Aucune session active</span>
+            {{end}}
+        </div>
+
+        <!-- Mini-map Section -->
+        <div class="minimap-section" id="minimap-section">
+            <h3>Carte</h3>
+            <div class="minimap-breadcrumb" id="minimap-breadcrumb">
+                <span class="breadcrumb-item active">{{.CurrentLocation}}</span>
+            </div>
+            <div class="minimap-container" id="minimap-container">
+                <div class="minimap-placeholder" id="minimap-placeholder">
+                    <span class="minimap-icon">🗺️</span>
+                    <p>Chargement...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="adventure-info" id="adventure-info"
+             hx-get="/play/{{.Slug}}/info"
+             hx-trigger="refreshInfo from:body"
+             hx-swap="innerHTML">
+            <div class="info-item">
+                <span class="info-label">Lieu</span>
+                <span class="info-value location">{{.CurrentLocation}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Or</span>
+                <span class="info-value gold">{{.Gold}} po</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Modele IA</span>
+                <select id="model-selector" class="model-select">
+                    <option value="sonnet" {{if eq .CurrentModel "sonnet"}}selected{{end}}>Sonnet 4.5</option>
+                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.5</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="party-section">
+            <h3>Groupe</h3>
+            <div class="party-list">
+                {{range .Party}}
+                <div class="party-member" data-character="{{.Name}}" title="Cliquez pour voir la fiche">
+                    <span class="member-name">{{.Name}}</span>
+                    <span class="member-info">{{.Species}} {{.Class}} Niv.{{.Level}}</span>
+                </div>
+                {{else}}
+                <p class="empty-party">Aucun personnage</p>
+                {{end}}
+            </div>
+        </div>
+
+        <div class="journal-section">
+            <h3>Journal Recent</h3>
+            <div class="journal-entries">
+                {{range .RecentJournal}}
+                <div class="journal-entry">
+                    <span class="entry-type">[{{.Type}}]</span>
+                    <span class="entry-content">{{.Content}}</span>
+                </div>
+                {{else}}
+                <p class="empty-journal">Aucune entree</p>
+                {{end}}
+            </div>
+        </div>
+    </aside>
+
+    <main class="game-main">
+        <div class="conversation" id="conversation">
+            <div class="welcome-message">
+                <h3>Bienvenue dans {{.Adventure.Name}}</h3>
+                <p>{{.Adventure.Description}}</p>
+                <p class="hint">Tapez votre action ci-dessous pour commencer l'aventure.</p>
+            </div>
+        </div>
+
+        <div class="tool-status hidden" id="tool-status">
+            <span class="tool-spinner"></span>
+            <span class="tool-name"></span>
+        </div>
+
+        <form id="message-form" class="message-form">
+            <input type="hidden" name="slug" value="{{.Slug}}">
+            <div class="input-wrapper">
+                <input type="text"
+                       name="message"
+                       id="message-input"
+                       placeholder="Que faites-vous ?"
+                       autocomplete="off"
+                       required>
+                <button type="submit" class="btn btn-send" id="send-btn">
+                    <span class="btn-text">Envoyer</span>
+                    <span class="btn-loading hidden">...</span>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <aside class="gallery-panel" id="gallery-panel">
+        <div class="gallery-header">
+            <h3>Galerie</h3>
+            <button class="gallery-toggle" id="gallery-toggle" title="Afficher/Masquer">
+                <span class="toggle-icon">&#9664;</span>
+            </button>
+        </div>
+        <div class="gallery-content" id="gallery-content">
+            <div class="gallery-tabs">
+                <button class="gallery-tab active" data-category="all">Tout</button>
+                <button class="gallery-tab" data-category="session">Sessions</button>
+                <button class="gallery-tab" data-category="map">Cartes</button>
+            </div>
+            <div class="gallery-grid" id="gallery-grid">
+                <div class="gallery-loading">Chargement...</div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Lightbox Modal -->
+<div class="lightbox" id="lightbox">
+    <div class="lightbox-overlay"></div>
+    <div class="lightbox-content">
+        <button class="lightbox-close" id="lightbox-close">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</button>
+        <img class="lightbox-image" id="lightbox-image" src="" alt="">
+        <button class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</button>
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+</div>
+
+<!-- Character Sheet Modal -->
+<div class="character-modal" id="character-modal">
+    <div class="character-modal-overlay"></div>
+    <div class="character-modal-wrapper">
+        <button class="character-modal-close" id="character-modal-close">&times;</button>
+        <div class="character-modal-content" id="character-modal-content">
+            <!-- Character sheet content loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+const slug = '{{.Slug}}';
+</script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

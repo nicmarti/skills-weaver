@@ -296,6 +296,30 @@ func (a *Adventure) SetMarchingOrder(order []string) error {
 	return a.SaveParty(party)
 }
 
+// SyncCharactersToGlobal copies adventure characters back to the global data/characters/ directory.
+// This preserves progression (XP, levels, stats, equipment) earned during the adventure.
+// Returns the list of synced character names.
+func (a *Adventure) SyncCharactersToGlobal(globalCharDir string) ([]string, error) {
+	if err := os.MkdirAll(globalCharDir, 0755); err != nil {
+		return nil, fmt.Errorf("creating global characters directory: %w", err)
+	}
+
+	characters, err := a.GetCharacters()
+	if err != nil {
+		return nil, fmt.Errorf("loading adventure characters: %w", err)
+	}
+
+	var synced []string
+	for _, char := range characters {
+		if err := char.Save(globalCharDir); err != nil {
+			return synced, fmt.Errorf("saving character %s: %w", char.Name, err)
+		}
+		synced = append(synced, char.Name)
+	}
+
+	return synced, nil
+}
+
 // Helper function to copy files
 func copyFile(src, dst string) error {
 	source, err := os.Open(src)

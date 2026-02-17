@@ -92,7 +92,7 @@ func (a *Adventure) GetEnrichmentContext(entry JournalEntry) (*EnrichmentContext
 	characters, _ := a.GetCharacters()
 	for _, c := range characters {
 		ctx.PartyMembers = append(ctx.PartyMembers,
-			fmt.Sprintf("%s (%s %s)", c.Name, c.Race, c.Class))
+			fmt.Sprintf("%s (%s %s)", c.Name, c.Species, c.Class))
 	}
 
 	// Get recent entries (last 5 before this one)

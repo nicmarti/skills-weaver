@@ -1,0 +1,23 @@
+{{define "adventure_list.html"}}
+{{if .Adventures}}
+    {{range .Adventures}}
+    <a href="/play/{{.Slug}}" class="adventure-card">
+        <div class="card-header">
+            <h3>{{.Name}}</h3>
+            <span class="status status-{{.Status}}">{{.Status}}</span>
+        </div>
+        <p class="card-description">{{.Description}}</p>
+        <div class="card-footer">
+            <span class="sessions">{{.SessionCount}} sessions</span>
+            <span class="last-played">Derniere session: {{.LastPlayed.Format "02/01/2006"}}</span>
+        </div>
+    </a>
+    {{end}}
+{{else}}
+    <div class="empty-state">
+        <div class="empty-icon">&#x1F3B2;</div>
+        <p>Aucune aventure pour le moment</p>
+        <p class="hint">Creez votre premiere aventure pour commencer</p>
+    </div>
+{{end}}
+{{end}}

@@ -26,8 +26,8 @@ func TestNew(t *testing.T) {
 	if c.Name != "Aldric" {
 		t.Errorf("Name = %q, want %q", c.Name, "Aldric")
 	}
-	if c.Race != "human" {
-		t.Errorf("Race = %q, want %q", c.Race, "human")
+	if c.Species != "human" {
+		t.Errorf("Species = %q, want %q", c.Species, "human")
 	}
 	if c.Class != "fighter" {
 		t.Errorf("Class = %q, want %q", c.Class, "fighter")
@@ -94,19 +94,19 @@ func TestApplyRacialModifiers(t *testing.T) {
 	gd := loadTestGameData(t)
 
 	tests := []struct {
-		race     string
-		checkDEX int // Expected change to DEX
-		checkCON int // Expected change to CON
+		species  string
+		checkDEX int // Expected change to DEX (D&D 5e)
+		checkCON int // Expected change to CON (D&D 5e)
 	}{
-		{"human", 0, 0},      // No modifiers
-		{"elf", 1, -1},       // +1 DEX, -1 CON
-		{"dwarf", 0, 1},      // +1 CON, -1 CHA
-		{"halfling", 1, 0},   // +1 DEX, -1 STR
+		{"human", 0, 0},      // No modifiers (variant human)
+		{"elf", 2, 0},        // +2 DEX (D&D 5e, no penalties)
+		{"dwarf", 0, 2},      // +2 CON (D&D 5e, no penalties)
+		{"halfling", 2, 0},   // +2 DEX (D&D 5e, no penalties)
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.race, func(t *testing.T) {
-			c := New("Test", tt.race, "fighter")
+		t.Run(tt.species, func(t *testing.T) {
+			c := New("Test", tt.species, "fighter")
 			// Set known base values
 			c.Abilities.Strength = 10
 			c.Abilities.Intelligence = 10
@@ -135,22 +135,23 @@ func TestCalculateModifiers(t *testing.T) {
 		score int
 		want  int
 	}{
-		{3, -3},
-		{4, -2},
-		{5, -2},
-		{6, -1},
-		{7, -1},
-		{8, -1},
-		{9, 0},
-		{10, 0},
-		{11, 0},
-		{12, 0},
-		{13, 1},
-		{14, 1},
-		{15, 1},
-		{16, 2},
-		{17, 2},
-		{18, 3},
+		// D&D 5e formula: (score - 10) / 2 (integer division in Go)
+		{3, -3},  // (3-10)/2 = -7/2 = -3
+		{4, -3},  // (4-10)/2 = -6/2 = -3
+		{5, -2},  // (5-10)/2 = -5/2 = -2
+		{6, -2},  // (6-10)/2 = -4/2 = -2
+		{7, -1},  // (7-10)/2 = -3/2 = -1
+		{8, -1},  // (8-10)/2 = -2/2 = -1
+		{9, 0},   // (9-10)/2 = -1/2 = 0
+		{10, 0},  // (10-10)/2 = 0/2 = 0
+		{11, 0},  // (11-10)/2 = 1/2 = 0
+		{12, 1},  // (12-10)/2 = 2/2 = 1
+		{13, 1},  // (13-10)/2 = 3/2 = 1
+		{14, 2},  // (14-10)/2 = 4/2 = 2
+		{15, 2},  // (15-10)/2 = 5/2 = 2
+		{16, 3},  // (16-10)/2 = 6/2 = 3
+		{17, 3},  // (17-10)/2 = 7/2 = 3
+		{18, 4},  // (18-10)/2 = 8/2 = 4
 	}
 
 	for _, tt := range tests {
@@ -171,12 +172,12 @@ func TestRollHitPointsMaxHP(t *testing.T) {
 
 	tests := []struct {
 		class  string
-		maxHP  int // Max possible HP at level 1
+		maxHP  int // Max possible HP at level 1 (D&D 5e)
 	}{
-		{"fighter", 8},    // d8
-		{"cleric", 6},     // d6
-		{"magic-user", 4}, // d4
-		{"thief", 4},      // d4
+		{"fighter", 10},  // d10
+		{"cleric", 8},    // d8
+		{"wizard", 6},    // d6
+		{"rogue", 8},     // d8
 	}
 
 	for _, tt := range tests {
@@ -208,10 +209,10 @@ func TestRollHitPointsRandomRoll(t *testing.T) {
 		minHP int // Minimum HP (1 on die + 0 CON)
 		maxHP int // Maximum HP (max die + 0 CON)
 	}{
-		{"fighter", 1, 8},    // d8: 1-8
-		{"cleric", 1, 6},     // d6: 1-6
-		{"magic-user", 1, 4}, // d4: 1-4
-		{"thief", 1, 4},      // d4: 1-4
+		{"fighter", 1, 10},  // d10: 1-10 (D&D 5e)
+		{"cleric", 1, 8},    // d8: 1-8 (D&D 5e)
+		{"wizard", 1, 6},    // d6: 1-6 (D&D 5e)
+		{"rogue", 1, 8},     // d8: 1-8 (D&D 5e)
 	}
 
 	for _, tt := range tests {
@@ -249,17 +250,17 @@ func TestRollHitPointsWithCON(t *testing.T) {
 		t.Fatalf("RollHitPoints() error = %v", err)
 	}
 
-	// Fighter d8 + 2 CON = 10 HP
-	if c.HitPoints != 10 {
-		t.Errorf("HP = %d, want 10", c.HitPoints)
+	// Fighter d10 + 2 CON = 12 HP (D&D 5e)
+	if c.HitPoints != 12 {
+		t.Errorf("HP = %d, want 12", c.HitPoints)
 	}
 }
 
 func TestRollHitPointsMinimumOneHP(t *testing.T) {
 	gd := loadTestGameData(t)
 
-	// Magic-user with very low CON
-	c := New("Test", "human", "magic-user")
+	// Wizard with very low CON (D&D 5e)
+	c := New("Test", "human", "wizard")
 	c.Modifiers.Constitution = -3 // -3 CON modifier
 
 	err := c.RollHitPoints(gd, true) // maxHP = true
@@ -267,19 +268,19 @@ func TestRollHitPointsMinimumOneHP(t *testing.T) {
 		t.Fatalf("RollHitPoints() error = %v", err)
 	}
 
-	// d4 (4) + (-3) = 1 minimum
-	if c.HitPoints != 1 {
-		t.Errorf("HP = %d, want 1 (minimum)", c.HitPoints)
+	// d6 (6) + (-3) = 3 HP (D&D 5e)
+	if c.HitPoints != 3 {
+		t.Errorf("HP = %d, want 3", c.HitPoints)
 	}
 }
 
 func TestRollHitPointsRandomWithLowCON(t *testing.T) {
 	gd := loadTestGameData(t)
 
-	// Magic-user with low CON, random roll
-	// d4 (1-4) + (-3) could result in -2 to +1, should clamp to 1
+	// Wizard with low CON, random roll (D&D 5e)
+	// d6 (1-6) + (-3) could result in -2 to +3, should clamp to 1
 	for i := 0; i < 20; i++ {
-		c := New("Test", "human", "magic-user")
+		c := New("Test", "human", "wizard")
 		c.Modifiers.Constitution = -3
 
 		err := c.RollHitPoints(gd, false)
@@ -299,18 +300,21 @@ func TestValidate(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		race    string
+		species string
 		class   string
 		wantErr bool
 	}{
+		// D&D 5e: No species/class restrictions - all combinations valid
 		{"Valid human fighter", "human", "fighter", false},
-		{"Valid elf magic-user", "elf", "magic-user", false},
+		{"Valid elf wizard", "elf", "wizard", false},
 		{"Valid dwarf cleric", "dwarf", "cleric", false},
-		{"Invalid elf cleric", "elf", "cleric", true},      // Elves can't be clerics
-		{"Invalid dwarf magic-user", "dwarf", "magic-user", true}, // Dwarves can't be magic-users
-		{"Invalid halfling cleric", "halfling", "cleric", true},
-		{"Unknown race", "orc", "fighter", true},
-		{"Unknown class", "human", "paladin", true},
+		{"Valid elf cleric", "elf", "cleric", false},      // Valid in D&D 5e
+		{"Valid dwarf wizard", "dwarf", "wizard", false}, // Valid in D&D 5e
+		{"Valid halfling cleric", "halfling", "cleric", false}, // Valid in D&D 5e
+		{"Valid orc fighter", "orc", "fighter", false},    // Orc is a valid species in D&D 5e
+		{"Valid human paladin", "human", "paladin", false}, // Paladin exists in D&D 5e
+		{"Unknown species", "drow", "fighter", true},      // Drow not in our 9 species
+		{"Unknown class", "human", "artificer", true},     // Artificer not in our 12 classes
 		{"Empty name", "", "human", true}, // Will be tested separately
 	}
 
@@ -320,7 +324,7 @@ func TestValidate(t *testing.T) {
 			if tt.name == "Empty name" {
 				charName = ""
 			}
-			c := New(charName, tt.race, tt.class)
+			c := New(charName, tt.species, tt.class)
 			err := c.Validate(gd)
 
 			if (err != nil) != tt.wantErr {
@@ -363,8 +367,8 @@ func TestSaveAndLoad(t *testing.T) {
 	if loaded.Name != c.Name {
 		t.Errorf("Name = %q, want %q", loaded.Name, c.Name)
 	}
-	if loaded.Race != c.Race {
-		t.Errorf("Race = %q, want %q", loaded.Race, c.Race)
+	if loaded.Species != c.Species {
+		t.Errorf("Species = %q, want %q", loaded.Species, c.Species)
 	}
 	if loaded.HitPoints != c.HitPoints {
 		t.Errorf("HitPoints = %d, want %d", loaded.HitPoints, c.HitPoints)
@@ -492,55 +496,55 @@ func TestCalculateArmorClass(t *testing.T) {
 			name:      "Unarmored DEX 10 (mod 0)",
 			dexMod:    0,
 			equipment: []string{},
-			wantAC:    11, // Base AC
+			wantAC:    10, // Base AC (D&D 5e)
 		},
 		{
 			name:      "Unarmored DEX 18 (mod +3)",
 			dexMod:    3,
 			equipment: []string{},
-			wantAC:    14, // 11 + 3
+			wantAC:    13, // 10 + 3 (D&D 5e)
 		},
 		{
 			name:      "Unarmored DEX 3 (mod -3)",
 			dexMod:    -3,
 			equipment: []string{},
-			wantAC:    8, // 11 - 3
+			wantAC:    7, // 10 - 3 (D&D 5e)
 		},
 		{
 			name:      "Leather armor DEX 10",
 			dexMod:    0,
 			equipment: []string{"leather"},
-			wantAC:    13, // 11 + 0 + 2
+			wantAC:    12, // 10 + 0 + 2 (D&D 5e)
 		},
 		{
 			name:      "Chainmail DEX 10",
 			dexMod:    0,
 			equipment: []string{"chainmail"},
-			wantAC:    15, // 11 + 0 + 4
+			wantAC:    14, // 10 + 0 + 4 (D&D 5e)
 		},
 		{
 			name:      "Plate mail DEX 10",
 			dexMod:    0,
 			equipment: []string{"plate"},
-			wantAC:    17, // 11 + 0 + 6
+			wantAC:    16, // 10 + 0 + 6 (D&D 5e)
 		},
 		{
 			name:      "Plate mail + shield DEX 10",
 			dexMod:    0,
 			equipment: []string{"plate", "shield"},
-			wantAC:    18, // 11 + 0 + 6 + 1
+			wantAC:    17, // 10 + 0 + 6 + 1 (D&D 5e)
 		},
 		{
 			name:      "Leather + shield DEX 14 (mod +1)",
 			dexMod:    1,
 			equipment: []string{"leather", "shield"},
-			wantAC:    15, // 11 + 1 + 2 + 1
+			wantAC:    14, // 10 + 1 + 2 + 1 (D&D 5e)
 		},
 		{
 			name:      "Plate + shield DEX 16 (mod +2)",
 			dexMod:    2,
 			equipment: []string{"plate", "shield"},
-			wantAC:    20, // 11 + 2 + 6 + 1
+			wantAC:    19, // 10 + 2 + 6 + 1 (D&D 5e)
 		},
 	}
 
@@ -569,9 +573,9 @@ func TestCalculateArmorClassWithNonArmorItems(t *testing.T) {
 
 	c.CalculateArmorClass(gd)
 
-	// Should only count leather armor (11 + 0 + 2 = 13)
-	if c.ArmorClass != 13 {
-		t.Errorf("CalculateArmorClass() with mixed items = %d, want 13", c.ArmorClass)
+	// Should only count leather armor (10 + 0 + 2 = 12) [D&D 5e]
+	if c.ArmorClass != 12 {
+		t.Errorf("CalculateArmorClass() with mixed items = %d, want 12", c.ArmorClass)
 	}
 }
 

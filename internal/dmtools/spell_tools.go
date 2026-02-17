@@ -4,35 +4,60 @@ import (
 	"fmt"
 	"strings"
 
+	"dungeons/internal/data"
 	"dungeons/internal/spell"
 )
 
-// NewGetSpellTool creates a tool to look up spell information.
-func NewGetSpellTool(spellBook *spell.SpellBook) *SimpleTool {
+// NewGetSpellTool creates a tool to look up spell information for D&D 5e.
+func NewGetSpellTool(manager *spell.Manager) *SimpleTool {
 	return &SimpleTool{
 		name:        "get_spell",
-		description: "Look up spell details (range, duration, effects, reversible forms). Use this when a player casts a spell to verify effects, or when planning magical encounters.",
+		description: "Look up D&D 5e spell details (level, school, components, duration, concentration, ritual). Use when players cast spells or when planning magical encounters.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"spell_id": map[string]interface{}{
 					"type":        "string",
-					"description": "The spell ID or name to look up (e.g., 'magic_missile', 'cure_light_wounds', 'sleep'). Case-insensitive.",
+					"description": "The spell ID or name to look up (e.g., 'projectile_magique', 'soin_des_blessures', 'sommeil'). Case-insensitive.",
 				},
 				"search": map[string]interface{}{
 					"type":        "string",
 					"description": "Optional: Search term to find spells by partial name match.",
 				},
 				"class": map[string]interface{}{
-					"type":        "string",
-					"description": "Optional: Filter by class ('cleric' or 'magic-user').",
-					"enum":        []string{"cleric", "magic-user"},
+					"type": "string",
+					"description": "Optional: Filter by class. Valid classes: wizard, sorcerer, cleric, druid, bard, warlock, paladin, ranger, fighter, rogue.",
+					"enum": []string{
+						"wizard", "magicien",
+						"sorcerer", "ensorceleur",
+						"cleric", "clerc",
+						"druid", "druide",
+						"bard", "barde",
+						"warlock", "occultiste",
+						"paladin",
+						"ranger", "rôdeur",
+						"fighter", "guerrier",
+						"rogue", "roublard",
+					},
 				},
 				"level": map[string]interface{}{
 					"type":        "integer",
-					"description": "Optional: Filter by spell level (1-6).",
-					"minimum":     1,
-					"maximum":     6,
+					"description": "Optional: Filter by spell level (0-9, where 0 = cantrips).",
+					"minimum":     0,
+					"maximum":     9,
+				},
+				"school": map[string]interface{}{
+					"type":        "string",
+					"description": "Optional: Filter by magic school.",
+					"enum":        []string{"abjuration", "conjuration", "divination", "enchantment", "evocation", "illusion", "necromancy", "transmutation"},
+				},
+				"concentration": map[string]interface{}{
+					"type":        "boolean",
+					"description": "Optional: Filter concentration spells only.",
+				},
+				"ritual": map[string]interface{}{
+					"type":        "boolean",
+					"description": "Optional: Filter ritual spells only.",
 				},
 			},
 		},
@@ -41,17 +66,20 @@ func NewGetSpellTool(spellBook *spell.SpellBook) *SimpleTool {
 			searchTerm, hasSearch := params["search"].(string)
 			class, hasClass := params["class"].(string)
 			level, hasLevel := params["level"].(float64)
+			school, hasSchool := params["school"].(string)
+			concentration, hasConcentration := params["concentration"].(bool)
+			ritual, hasRitual := params["ritual"].(bool)
 
 			// If spell_id is provided, look up specific spell
 			if hasID && spellID != "" {
-				s, err := spellBook.GetSpell(spellID)
+				s, err := manager.GetSpell(spellID)
 				if err != nil {
 					// Try to find by search
-					results := spellBook.SearchSpells(spellID)
+					results := manager.SearchSpells(spellID)
 					if len(results) > 0 {
 						suggestions := make([]string, 0, len(results))
 						for _, r := range results {
-							suggestions = append(suggestions, r.ToShortDescription())
+							suggestions = append(suggestions, spell.ToShortDescription(r))
 						}
 						return map[string]interface{}{
 							"success":     false,
@@ -67,14 +95,14 @@ func NewGetSpellTool(spellBook *spell.SpellBook) *SimpleTool {
 
 				return map[string]interface{}{
 					"success": true,
-					"spell":   formatSpell(s),
-					"display": s.ToMarkdown(),
+					"spell":   formatSpell5e(s),
+					"display": spell.ToMarkdown(s),
 				}, nil
 			}
 
 			// If search term is provided, search for spells
 			if hasSearch && searchTerm != "" {
-				results := spellBook.SearchSpells(searchTerm)
+				results := manager.SearchSpells(searchTerm)
 				if len(results) == 0 {
 					return map[string]interface{}{
 						"success": false,
@@ -84,70 +112,98 @@ func NewGetSpellTool(spellBook *spell.SpellBook) *SimpleTool {
 
 				spells := make([]map[string]interface{}, 0, len(results))
 				for _, s := range results {
-					spells = append(spells, formatSpell(s))
+					spells = append(spells, formatSpell5e(s))
 				}
 
 				return map[string]interface{}{
 					"success": true,
 					"count":   len(spells),
 					"spells":  spells,
-					"display": formatSpellList(results),
+					"display": formatSpellList5e(results),
 				}, nil
 			}
 
-			// If class and/or level is provided, list spells
-			if hasClass || hasLevel {
-				var results []*spell.Spell
+			// If filters are provided, list spells
+			if hasSchool {
+				results := manager.ListBySchool(school)
+				return formatResults(results)
+			}
 
-				if hasClass && hasLevel {
-					results = spellBook.ListByClassAndLevel(class, int(level))
-				} else if hasClass {
-					results = spellBook.ListByClass(class)
-				} else if hasLevel {
-					results = spellBook.ListByLevel(int(level))
-				}
+			if hasConcentration && concentration {
+				results := manager.ListConcentration()
+				return formatResults(results)
+			}
 
-				if len(results) == 0 {
-					return map[string]interface{}{
-						"success": false,
-						"error":   "No spells found with the given criteria",
-					}, nil
-				}
+			if hasRitual && ritual {
+				results := manager.ListRituals()
+				return formatResults(results)
+			}
 
-				spells := make([]map[string]interface{}, 0, len(results))
-				for _, s := range results {
-					spells = append(spells, formatSpell(s))
-				}
+			if hasClass && hasLevel {
+				results := manager.ListByClassAndLevel(class, int(level))
+				return formatResults(results)
+			}
 
-				return map[string]interface{}{
-					"success": true,
-					"count":   len(spells),
-					"spells":  spells,
-					"display": formatSpellList(results),
-				}, nil
+			if hasClass {
+				results := manager.ListByClass(class)
+				return formatResults(results)
+			}
+
+			if hasLevel {
+				results := manager.ListByLevel(int(level))
+				return formatResults(results)
 			}
 
 			return map[string]interface{}{
 				"success": false,
-				"error":   "Provide 'spell_id', 'search', or filter by 'class' and/or 'level'",
+				"error":   "Provide 'spell_id', 'search', or filter by 'class', 'level', 'school', 'concentration', or 'ritual'",
 			}, nil
 		},
 	}
 }
 
-// formatSpell converts a spell to a map.
-func formatSpell(s *spell.Spell) map[string]interface{} {
-	result := map[string]interface{}{
-		"id":          s.ID,
-		"name_fr":     s.NameFR,
-		"name_en":     s.NameEN,
-		"level":       s.Level,
-		"type":        s.Type,
-		"range":       s.Range,
-		"duration":    s.Duration,
-		"description": s.DescriptionFR,
+// formatResults formats a list of spells into the response.
+func formatResults(results []*data.Spell5e) (interface{}, error) {
+	if len(results) == 0 {
+		return map[string]interface{}{
+			"success": false,
+			"error":   "No spells found with the given criteria",
+		}, nil
 	}
 
+	spells := make([]map[string]interface{}, 0, len(results))
+	for _, s := range results {
+		spells = append(spells, formatSpell5e(s))
+	}
+
+	return map[string]interface{}{
+		"success": true,
+		"count":   len(spells),
+		"spells":  spells,
+		"display": formatSpellList5e(results),
+	}, nil
+}
+
+// formatSpell5e converts a D&D 5e spell to a map.
+func formatSpell5e(s *data.Spell5e) map[string]interface{}{
+	result := map[string]interface{}{
+		"id":           s.ID,
+		"name":         s.Name,
+		"level":        s.Level,
+		"school":       s.School,
+		"casting_time": s.CastingTime,
+		"range":        s.Range,
+		"components":   s.Components,
+		"duration":     s.Duration,
+		"concentration": s.Concentration,
+		"ritual":       s.Ritual,
+		"classes":      s.Classes,
+		"description":  s.DescriptionFR,
+	}
+
+	if s.Material != "" {
+		result["material"] = s.Material
+	}
 	if s.Save != "" {
 		result["save"] = s.Save
 	}
@@ -157,17 +213,15 @@ func formatSpell(s *spell.Spell) map[string]interface{} {
 	if s.Damage != "" {
 		result["damage"] = s.Damage
 	}
-	if s.Reversible {
-		result["reversible"] = true
-		result["reverse_name_fr"] = s.ReverseNameFR
-		result["reverse_name_en"] = s.ReverseNameEN
+	if s.Upcast != "" {
+		result["upcast"] = s.Upcast
 	}
 
 	return result
 }
 
-// formatSpellList formats a list of spells for display.
-func formatSpellList(spells []*spell.Spell) string {
+// formatSpellList5e formats a list of D&D 5e spells for display.
+func formatSpellList5e(spells []*data.Spell5e) string {
 	var sb strings.Builder
 	sb.WriteString("## Liste des sorts\n\n")
 
@@ -175,10 +229,14 @@ func formatSpellList(spells []*spell.Spell) string {
 	for _, s := range spells {
 		if s.Level != currentLevel {
 			currentLevel = s.Level
-			sb.WriteString(fmt.Sprintf("\n### Niveau %d\n\n", currentLevel))
+			levelName := fmt.Sprintf("Niveau %d", currentLevel)
+			if currentLevel == 0 {
+				levelName = "Cantrips"
+			}
+			sb.WriteString(fmt.Sprintf("\n### %s\n\n", levelName))
 		}
 		sb.WriteString("- ")
-		sb.WriteString(s.ToShortDescription())
+		sb.WriteString(spell.ToShortDescription(s))
 		sb.WriteString("\n")
 	}
 

@@ -1,0 +1,63 @@
+{
+  "id": "marcus-sanggo-001",
+  "name": "Marcus Sanggo",
+  "species": "human",
+  "class": "fighter",
+  "level": 4,
+  "xp": 4350,
+  "abilities": {
+    "strength": 17,
+    "intelligence": 11,
+    "wisdom": 13,
+    "dexterity": 14,
+    "constitution": 15,
+    "charisma": 12
+  },
+  "modifiers": {
+    "strength": 3,
+    "intelligence": 0,
+    "wisdom": 1,
+    "dexterity": 2,
+    "constitution": 2,
+    "charisma": 1
+  },
+  "hit_points": 31,
+  "max_hit_points": 31,
+  "armor_class": 16,
+  "gold": 150,
+  "equipment": [
+    "Cotte de mailles",
+    "Épée longue",
+    "Bouclier (emblème de régiment)",
+    "Paquetage de soldat"
+  ],
+  "background": "soldat",
+  "proficiency_bonus": 2,
+  "skills": {
+    "athletics": true,
+    "intimidation": true,
+    "perception": true
+  },
+  "saving_throw_profs": {
+    "constitution": true,
+    "strength": true
+  },
+  "hit_dice": 4,
+  "max_hit_dice": 4,
+  "appearance": {
+    "age": 39,
+    "gender": "homme",
+    "build": "musclé",
+    "height": "moyen",
+    "hair_color": "brun foncé strié de gris",
+    "hair_style": "coupe militaire courte",
+    "eye_color": "gris acier",
+    "skin_tone": "hâlé, tanné par les intempéries",
+    "facial_feature": "barbe courte avec cicatrices",
+    "distinctive_feature": "cicatrice de combat au sourcil gauche",
+    "armor_description": "Cotte de mailles usée avec insignes militaires",
+    "weapon_description": "Épée longue à la lame ébréchée",
+    "accessories": "Bouclier portant l'emblème de son ancien régiment"
+  },
+  "created_at": "2026-01-06T00:00:00Z"
+}

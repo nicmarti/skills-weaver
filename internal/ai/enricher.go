@@ -135,8 +135,8 @@ func (e *Enricher) EnrichMapPrompt(req MapPromptRequest, location *world.Locatio
 	if wordCount < 80 {
 		return nil, fmt.Errorf("prompt too short (%d words, minimum 80)", wordCount)
 	}
-	if wordCount > 250 {
-		return nil, fmt.Errorf("prompt too long (%d words, maximum 250)", wordCount)
+	if wordCount > 500 {
+		return nil, fmt.Errorf("prompt too long (%d words, maximum 500)", wordCount)
 	}
 
 	// Fill in metadata

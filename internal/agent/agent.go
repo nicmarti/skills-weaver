@@ -21,6 +21,10 @@ type Agent struct {
 	adventureCtx    *AdventureContext
 	outputHandler   OutputHandler
 	logger          *Logger
+	personaLoader   *PersonaLoader
+	agentManager    *AgentManager
+	personaMetadata *PersonaMetadata
+	systemGuidance  string // Hidden campaign/session briefing injected into system context
 }
 
 // New creates a new agent with the given configuration.
@@ -39,15 +43,14 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		option.WithAPIKey(apiKey),
 	)
 
-	// Initialize tool registry with adventure context
-	toolRegistry := NewToolRegistry(adventureCtx)
+	// Initialize persona loader
+	personaLoader := NewPersonaLoader()
 
-	// Register all tools - pass Adventure object for real persistence
-	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure); err != nil {
-		return nil, fmt.Errorf("failed to register tools: %w", err)
+	// Load persona metadata for version tracking
+	personaMetadata, _, err := personaLoader.LoadWithMetadata("dungeon-master")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load dungeon-master persona: %w", err)
 	}
-
-	conversationCtx := NewConversationContext()
 
 	// Initialize logger
 	logger, err := NewLogger(adventureCtx.BasePath())
@@ -56,15 +59,43 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		fmt.Printf("Warning: Could not create logger: %v\n", err)
 	}
 
-	return &Agent{
+	// Initialize agent manager
+	agentManager := NewAgentManager(apiKey, adventureCtx, logger, outputHandler, personaLoader)
+
+	// Initialize tool registry with adventure context
+	toolRegistry := NewToolRegistry(adventureCtx)
+
+	// Register all tools - pass Adventure object, agentManager, and outputHandler for real persistence
+	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure, agentManager, outputHandler); err != nil {
+		return nil, fmt.Errorf("failed to register tools: %w", err)
+	}
+
+	// Set the main tool registry in the agent manager for nested agent tool filtering
+	agentManager.SetMainToolRegistry(toolRegistry)
+
+	conversationCtx := NewConversationContext()
+
+	agent := &Agent{
 		client:          client,
-		model:           anthropic.ModelClaudeHaiku4_5,
+		model:           anthropic.ModelClaudeSonnet4_5,
 		toolRegistry:    toolRegistry,
 		conversationCtx: conversationCtx,
 		adventureCtx:    adventureCtx,
 		outputHandler:   outputHandler,
 		logger:          logger,
-	}, nil
+		personaLoader:   personaLoader,
+		agentManager:    agentManager,
+		personaMetadata: personaMetadata,
+	}
+
+	// Load agent states from previous sessions
+	statesPath := fmt.Sprintf("%s/agent-states.json", adventureCtx.BasePath())
+	if err := agentManager.LoadAgentStates(statesPath); err != nil {
+		// Non-fatal: log warning and continue with fresh state
+		fmt.Printf("Warning: Could not load agent states: %v\n", err)
+	}
+
+	return agent, nil
 }
 
 // ProcessUserMessage processes a user message and returns the agent's response.
@@ -78,7 +109,10 @@ func (a *Agent) ProcessUserMessage(message string) error {
 	a.conversationCtx.AddUserMessage(message)
 
 	// Build system prompt with DM persona and adventure context
-	systemPrompt := a.buildSystemPrompt()
+	systemPrompt, err := a.buildSystemPrompt()
+	if err != nil {
+		return fmt.Errorf("failed to build system prompt: %w", err)
+	}
 
 	// Prepare messages for API call
 	messages := a.conversationCtx.GetMessages()
@@ -106,6 +140,10 @@ func (a *Agent) ProcessUserMessage(message string) error {
 			// Add assistant response to conversation history
 			a.conversationCtx.AddAssistantMessage(assistantContent)
 			a.outputHandler.OnComplete()
+
+			// Save agent states after processing message
+			a.saveAgentStates()
+
 			return nil
 		}
 
@@ -126,11 +164,11 @@ func (a *Agent) ProcessUserMessage(message string) error {
 }
 
 // buildSystemPrompt constructs the system prompt with DM persona and adventure context.
-func (a *Agent) buildSystemPrompt() string {
-	// Load DM persona from file
-	dmPersona, err := os.ReadFile(".claude/agents/dungeon-master.md")
+func (a *Agent) buildSystemPrompt() (string, error) {
+	// Load DM persona using PersonaLoader (searches core_agents/agents/, then .claude/agents/)
+	dmPersona, err := a.personaLoader.Load("dungeon-master")
 	if err != nil {
-		dmPersona = []byte("Tu es le Maître du Donjon pour des parties de Basic Fantasy RPG.")
+		return "", fmt.Errorf("failed to load dungeon-master persona: %w", err)
 	}
 
 	// Build adventure context
@@ -141,42 +179,11 @@ func (a *Agent) buildSystemPrompt() string {
 %s
 
 **Groupe de PJ (contrôlés par le joueur)** : %s
-
-**RAPPEL CRITIQUE** :
-- "Que faites-vous ?" s'adresse au joueur pour ses PJ uniquement
-- Les PNJ (tous les autres personnages) sont contrôlés par TOI
-- Ne propose JAMAIS d'options numérotées (1, 2, 3...)
-- Ne demande JAMAIS ce que fait un PNJ au joueur
-
 **Or** : %d po
 **Lieu actuel** : %s
 
-**Journal récent** (5 dernières entrées) :
+**Journal récent** (jusqu'à 20 dernières entrées) :
 %s
-
-## Tools Disponibles
-
-Tu as accès aux tools suivants pour gérer la partie :
-
-- **roll_dice** : Lance des dés avec notation RPG (d20, 2d6+3, 4d6kh3)
-- **get_monster** : Consulte les stats d'un monstre par son ID
-- **log_event** : Enregistre un événement dans le journal de l'aventure
-- **add_gold** : Modifie l'or du groupe
-- **get_inventory** : Consulte l'inventaire partagé
-- **generate_treasure** : Génère un trésor selon les tables BFRPG
-- **generate_npc** : Crée un PNJ complet avec traits et personnalité
-- **generate_image** : Génère une image de style fantasy à partir d'un prompt détaillé
-
-## Instructions Importantes
-
-- Utilise **log_event** pour enregistrer les événements significatifs
-- Mets à jour l'or et l'inventaire quand approprié
-- Lance les dés pour tous les jets de hasard
-- Utilise **generate_image** pour créer des illustrations de scènes importantes
-- Reste dans le rôle du Maître du Jeu
-- Narre au présent, en français
-- Sois concis mais immersif
-- Termine TOUJOURS par "Que faites-vous ?" sans proposer d'options
 `,
 		a.adventureCtx.Adventure.Name,
 		a.adventureCtx.Adventure.Description,
@@ -186,15 +193,132 @@ Tu as accès aux tools suivants pour gérer la partie :
 		formatRecentJournal(a.adventureCtx),
 	)
 
-	return string(dmPersona) + "\n\n" + adventureInfo
+	// Post-journal reminder to counter recency bias
+	postJournalReminder := `
+=== RAPPEL CRITIQUE APRÈS LECTURE DU JOURNAL ===
+
+Le journal ci-dessus montre des événements PASSÉS de cette aventure.
+
+**TYPES D'ENTRÉES AUTOMATIQUES** (générées par tools) :
+  • [xp] : Créé automatiquement par add_xp
+  • [loot] : Créé automatiquement par generate_treasure
+  • [combat] : Certains créés automatiquement par update_hp
+
+**TYPES D'ENTRÉES MANUELLES** (TU DOIS appeler log_event) :
+  • [story] : Événements narratifs (dialogues, décisions, découvertes)
+  • [npc] : Rencontres de PNJ clés, alliances, trahisons
+  • [discovery] : Révélations importantes, indices critiques
+  • [quest] : Nouveaux objectifs, changements de plan
+
+⚠️ SANS log_event régulier pour événements narratifs, le contexte sera PERDU au rechargement.
+
+**APPELER log_event MAINTENANT si le joueur vient de** :
+  • Recevoir information critique d'un PNJ
+  • Prendre décision stratégique
+  • Découvrir indice ou lieu important
+  • Faire alliance ou trahison
+  • Terminer combat (même si update_hp a créé entrée automatique)
+
+========================
+`
+
+	// Load campaign plan directive (narrative guardrails, always present)
+	campaignDirective := a.buildCampaignDirective()
+	if campaignDirective != "" {
+		adventureInfo += "\n" + campaignDirective
+	}
+
+	systemPrompt := dmPersona + "\n\n" + adventureInfo + "\n" + postJournalReminder
+
+	// Add system guidance if available (campaign briefing, hidden from player)
+	if a.systemGuidance != "" {
+		systemPrompt += "\n\n" + a.systemGuidance
+	}
+
+	return systemPrompt, nil
+}
+
+// buildCampaignDirective loads the campaign plan and builds a compact narrative directive
+// that is always included in the system prompt. This ensures the DM never operates without
+// knowing the planned storyline, even if start_session is not called.
+func (a *Agent) buildCampaignDirective() string {
+	plan, err := a.adventureCtx.Adventure.LoadCampaignPlan()
+	if err != nil || plan == nil {
+		return ""
+	}
+
+	var b strings.Builder
+	b.WriteString("=== PLAN NARRATIF (OBLIGATOIRE - NE PAS DÉVIER) ===\n")
+
+	// Campaign objective
+	if plan.NarrativeStructure.Objective != "" {
+		b.WriteString(fmt.Sprintf("Objectif: %s\n", plan.NarrativeStructure.Objective))
+	}
+
+	// Current act
+	if act := plan.GetCurrentAct(); act != nil {
+		b.WriteString(fmt.Sprintf("Acte %d: %s — %s\n", act.Number, act.Title, act.Description))
+		if len(act.Goals) > 0 {
+			b.WriteString("Objectifs:\n")
+			for _, goal := range act.Goals {
+				b.WriteString(fmt.Sprintf("  • %s\n", goal))
+			}
+		}
+	}
+
+	// Antagonist
+	antag := plan.PlotElements.Antagonist
+	if antag.Name != "" {
+		b.WriteString(fmt.Sprintf("Antagoniste: %s (%s, %s)\n", antag.Name, antag.Role, antag.Motivation))
+	}
+
+	// Key locations
+	if len(plan.PlotElements.KeyLocations) > 0 {
+		names := make([]string, 0, len(plan.PlotElements.KeyLocations))
+		for _, loc := range plan.PlotElements.KeyLocations {
+			names = append(names, loc.Name)
+		}
+		b.WriteString(fmt.Sprintf("Lieux clés: %s\n", strings.Join(names, ", ")))
+	}
+
+	b.WriteString("\n⚠️ Tu DOIS suivre ce plan narratif. N'invente PAS de nouveaux antagonistes, cultes ou intrigues absents de ce plan.\n")
+	b.WriteString("===")
+
+	return b.String()
+}
+
+// AddSystemGuidance injects hidden campaign/session briefing into system context.
+// This is used for pre-session briefings from world-keeper that should guide DM narration
+// without being directly visible to players.
+func (a *Agent) AddSystemGuidance(guidance string) {
+	a.systemGuidance = guidance
+}
+
+// ClearSystemGuidance removes the current system guidance.
+// Useful when guidance is only relevant for current session.
+func (a *Agent) ClearSystemGuidance() {
+	a.systemGuidance = ""
 }
 
 // callAnthropicAPI calls the Anthropic API with streaming and returns tool uses if any.
 func (a *Agent) callAnthropicAPI(systemPrompt string, messages []anthropic.MessageParam, tools []anthropic.ToolUnionParam) ([]ToolUse, string, error) {
+	// Log system prompt to file (only on first call)
+	if len(a.conversationCtx.GetMessages()) == 1 {
+		if err := os.WriteFile("system-prompt.log", []byte(systemPrompt), 0644); err != nil {
+			// Non-fatal: just log to stderr
+			fmt.Fprintf(os.Stderr, "Warning: Could not write system prompt to log: %v\n", err)
+		}
+	}
+
+	// Log model being used for this API call
+	if a.logger != nil {
+		a.logger.LogInfo(fmt.Sprintf("API call using model: %s", GetModelDisplayName(a.model)))
+	}
+
 	// Create streaming message
 	stream := a.client.Messages.NewStreaming(context.Background(), anthropic.MessageNewParams{
 		Model:     a.model,
-		MaxTokens: 8192,
+		MaxTokens: 16384, // Haiku 4.5
 		System: []anthropic.TextBlockParam{
 			{
 				Type: "text",
@@ -275,6 +399,19 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 			a.logger.LogToolResult(use.Name, use.ID, result)
 		}
 
+		// Check for system_brief in tool result (hidden campaign guidance)
+		if resultMap, ok := result.(map[string]interface{}); ok {
+			if systemBrief, ok := resultMap["system_brief"].(string); ok && systemBrief != "" {
+				// Inject system briefing into agent context (hidden from player)
+				a.AddSystemGuidance(systemBrief)
+
+				// Log that guidance was injected
+				if a.logger != nil {
+					a.logger.LogInfo(fmt.Sprintf("[SYSTEM] Injected campaign briefing into agent context (%d chars)", len(systemBrief)))
+				}
+			}
+		}
+
 		// Convert result to JSON string
 		resultJSON := formatToolResult(result)
 		results = append(results, ToolResultMessage{
@@ -313,7 +450,7 @@ func formatParty(ctx *AdventureContext) string {
 		// Find character in loaded characters
 		for _, char := range ctx.Characters {
 			if char.Name == charName {
-				parts = append(parts, fmt.Sprintf("%s (%s %s)", char.Name, char.Race, char.Class))
+				parts = append(parts, fmt.Sprintf("%s (%s %s)", char.Name, char.Species, char.Class))
 				break
 			}
 		}
@@ -329,10 +466,10 @@ func formatRecentJournal(ctx *AdventureContext) string {
 	}
 
 	parts := []string{}
-	// Take last 5 entries
+	// Take last 20 entries (or all if less than 20)
 	start := 0
-	if len(ctx.RecentJournal) > 5 {
-		start = len(ctx.RecentJournal) - 5
+	if len(ctx.RecentJournal) > 20 {
+		start = len(ctx.RecentJournal) - 20
 	}
 
 	for i := start; i < len(ctx.RecentJournal); i++ {
@@ -346,9 +483,23 @@ func formatRecentJournal(ctx *AdventureContext) string {
 // isStateModifyingTool returns true if the tool modifies adventure state.
 func isStateModifyingTool(toolName string) bool {
 	modifyingTools := map[string]bool{
-		"log_event": true,
-		"add_gold":  true,
-		"add_item":  true,
+		"log_event":              true,
+		"add_gold":               true,
+		"add_item":               true,
+		"remove_item":            true,
+		"update_time":            true,
+		"update_location":        true,
+		"set_flag":               true,
+		"add_quest":              true,
+		"complete_quest":         true,
+		"set_variable":           true,
+		"update_hp":              true,
+		"use_spell_slot":         true,
+		"add_xp":                 true,
+		"generate_npc":            true,
+		"update_npc_importance":   true,
+		"update_character_stat":   true,
+		"long_rest":               true,
 	}
 	return modifyingTools[toolName]
 }
@@ -381,4 +532,54 @@ func formatToolResult(result interface{}) string {
 
 	// Fallback: return generic success
 	return `{"success": true}`
+}
+
+// saveAgentStates saves the current agent states to disk.
+// This is called after each user message to persist nested agent conversation history.
+func (a *Agent) saveAgentStates() {
+	if a.agentManager == nil {
+		return
+	}
+
+	statesPath := fmt.Sprintf("%s/agent-states.json", a.adventureCtx.BasePath())
+	if err := a.agentManager.SaveAgentStates(statesPath); err != nil {
+		// Non-fatal: log error but don't crash
+		fmt.Printf("Warning: Could not save agent states: %v\n", err)
+		if a.logger != nil {
+			a.logger.LogError("save_agent_states", err)
+		}
+	}
+}
+
+// SetModel changes the model used by the agent for API calls.
+func (a *Agent) SetModel(model anthropic.Model) {
+	oldModel := a.model
+	a.model = model
+	if a.logger != nil {
+		a.logger.LogInfo(fmt.Sprintf("Model changed: %s -> %s", GetModelDisplayName(oldModel), GetModelDisplayName(model)))
+	}
+}
+
+// GetModel returns the current model used by the agent.
+func (a *Agent) GetModel() anthropic.Model {
+	return a.model
+}
+
+// GetPersonaVersion returns the version of the loaded persona.
+func (a *Agent) GetPersonaVersion() string {
+	if a.personaMetadata == nil {
+		return "unknown"
+	}
+	if a.personaMetadata.Version == "" {
+		return "unversioned"
+	}
+	return a.personaMetadata.Version
+}
+
+// GetPersonaName returns the name of the loaded persona.
+func (a *Agent) GetPersonaName() string {
+	if a.personaMetadata == nil {
+		return "unknown"
+	}
+	return a.personaMetadata.Name
 }

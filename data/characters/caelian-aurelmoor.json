@@ -1,0 +1,94 @@
+{
+  "id": "caelian-aurelmoor-001",
+  "name": "Caelian Aurelmoor",
+  "species": "human",
+  "class": "bard",
+  "level": 4,
+  "xp": 4350,
+  "abilities": {
+    "strength": 9,
+    "intelligence": 12,
+    "wisdom": 11,
+    "dexterity": 14,
+    "constitution": 13,
+    "charisma": 16
+  },
+  "modifiers": {
+    "strength": -1,
+    "intelligence": 1,
+    "wisdom": 0,
+    "dexterity": 2,
+    "constitution": 1,
+    "charisma": 3
+  },
+  "hit_points": 22,
+  "max_hit_points": 22,
+  "armor_class": 13,
+  "gold": 120,
+  "equipment": [
+    "Armure de cuir",
+    "Rapière d'apparat",
+    "Violon elfique ancien",
+    "Composantes matérielles",
+    "Paquetage d'érudit (livres, parchemins, encre)",
+    "Tunique violette brodée d'argent (couleurs d'Astrène)",
+    "Cape noire avec insigne de l'Université d'Étoile-d'Automne"
+  ],
+  "background": "érudit",
+  "proficiency_bonus": 2,
+  "skills": {
+    "arcana": true,
+    "history": true,
+    "insight": true,
+    "investigation": true,
+    "performance": true,
+    "persuasion": true
+  },
+  "saving_throw_profs": {
+    "charisma": true,
+    "dexterity": true
+  },
+  "hit_dice": 4,
+  "max_hit_dice": 4,
+  "class_features": [
+    "Inspiration bardique (d6)",
+    "Chant reposant",
+    "Collège du Savoir",
+    "Compétences supplémentaires (3 maîtrises)",
+    "Mots cinglants"
+  ],
+  "spell_save_dc": 13,
+  "spell_attack_bonus": 5,
+  "known_spells": [
+    "Lumière",
+    "Moquerie cruelle",
+    "Soins",
+    "Charme-personne",
+    "Détection de la magie",
+    "Héroïsme"
+  ],
+  "spell_slots": {
+    "1": 4,
+    "2": 3
+  },
+  "spell_slots_used": {
+    "1": 0,
+    "2": 0
+  },
+  "appearance": {
+    "age": 27,
+    "gender": "homme",
+    "build": "élancé",
+    "height": "moyen",
+    "hair_color": "noir de jais",
+    "hair_style": "mi-long, soigné",
+    "eye_color": "violet profond (marque d'Astrène)",
+    "skin_tone": "pâle",
+    "facial_feature": "traits élégants d'érudit, barbe douce",
+    "distinctive_feature": "regard mélancolique, mains délicates de musicien",
+    "armor_description": "Tunique violette brodée d'argent, cape noire avec insigne universitaire",
+    "weapon_description": "Rapière d'apparat ornée",
+    "accessories": "Violon elfique ancien, sacoche de parchemins et livres"
+  },
+  "created_at": "2026-01-06T00:00:00Z"
+}

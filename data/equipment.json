@@ -265,6 +265,33 @@
       ],
       "armor_choices": ["leather", "chainmail"]
     },
+    "barbarian": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "rope_50ft", "torch"],
+      "weapon_choices": [
+        ["battle_axe", "hand_axe", "hand_axe"],
+        ["two_handed_sword"],
+        ["hand_axe", "hand_axe", "hand_axe", "hand_axe"]
+      ],
+      "armor_choices": ["leather"]
+    },
+    "paladin": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "holy_symbol", "holy_water"],
+      "weapon_choices": [
+        ["longsword", "shield"],
+        ["battle_axe", "shield"],
+        ["two_handed_sword"]
+      ],
+      "armor_choices": ["chainmail", "plate"]
+    },
+    "ranger": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "rope_50ft", "torch"],
+      "weapon_choices": [
+        ["longbow", "short_sword"],
+        ["longbow", "hand_axe", "hand_axe"],
+        ["shortbow", "short_sword"]
+      ],
+      "armor_choices": ["leather"]
+    },
     "cleric": {
       "required": ["backpack", "bedroll", "rations_iron", "waterskin", "holy_symbol", "holy_water"],
       "weapon_choices": [
@@ -274,7 +301,16 @@
       ],
       "armor_choices": ["leather", "chainmail"]
     },
-    "magic-user": {
+    "druid": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "holy_symbol"],
+      "weapon_choices": [
+        ["club", "shield"],
+        ["staff"],
+        ["spear", "shield"]
+      ],
+      "armor_choices": ["leather"]
+    },
+    "wizard": {
       "required": ["backpack", "bedroll", "rations_iron", "waterskin", "spellbook", "ink_quill"],
       "weapon_choices": [
         ["dagger"],
@@ -283,7 +319,33 @@
       ],
       "armor_choices": []
     },
-    "thief": {
+    "sorcerer": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "ink_quill"],
+      "weapon_choices": [
+        ["dagger", "dagger"],
+        ["staff"],
+        ["crossbow"]
+      ],
+      "armor_choices": []
+    },
+    "warlock": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin"],
+      "weapon_choices": [
+        ["dagger", "dagger"],
+        ["crossbow"],
+        ["staff"]
+      ],
+      "armor_choices": ["leather"]
+    },
+    "bard": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin"],
+      "weapon_choices": [
+        ["short_sword", "dagger"],
+        ["dagger", "dagger", "dagger"]
+      ],
+      "armor_choices": ["leather"]
+    },
+    "rogue": {
       "required": ["backpack", "bedroll", "rations_iron", "waterskin", "thieves_tools", "rope_50ft"],
       "weapon_choices": [
         ["short_sword", "dagger"],
@@ -291,6 +353,15 @@
         ["dagger", "dagger", "sling"]
       ],
       "armor_choices": ["leather"]
+    },
+    "monk": {
+      "required": ["backpack", "bedroll", "rations_iron", "waterskin", "rope_50ft"],
+      "weapon_choices": [
+        ["short_sword"],
+        ["spear"],
+        ["dart", "dart", "dart", "dart", "dart"]
+      ],
+      "armor_choices": []
     }
   },
   "ammunition": [

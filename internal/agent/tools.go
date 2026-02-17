@@ -114,3 +114,55 @@ type ToolResultMessage struct {
 func (tu ToolUse) String() string {
 	return fmt.Sprintf("ToolUse{name=%s, id=%s}", tu.Name, tu.ID)
 }
+
+// CreateFilteredRegistry creates a new registry containing only tools that pass the filter.
+// A tool is included if:
+// 1. Its name is in the allowed list (if allowed is non-empty)
+// 2. Its name is NOT in the forbidden list
+// If allowed is empty, all tools (except forbidden) are included.
+func (tr *ToolRegistry) CreateFilteredRegistry(allowed, forbidden []string) *ToolRegistry {
+	filtered := &ToolRegistry{
+		tools: make(map[string]Tool),
+	}
+
+	// Build lookup sets for efficiency
+	allowedSet := make(map[string]bool)
+	for _, name := range allowed {
+		allowedSet[name] = true
+	}
+
+	forbiddenSet := make(map[string]bool)
+	for _, name := range forbidden {
+		forbiddenSet[name] = true
+	}
+
+	for name, tool := range tr.tools {
+		// Skip forbidden tools
+		if forbiddenSet[name] {
+			continue
+		}
+
+		// If allowed list is specified, tool must be in it
+		if len(allowed) > 0 && !allowedSet[name] {
+			continue
+		}
+
+		filtered.tools[name] = tool
+	}
+
+	return filtered
+}
+
+// Count returns the number of tools in the registry.
+func (tr *ToolRegistry) Count() int {
+	return len(tr.tools)
+}
+
+// Names returns a slice of all tool names in the registry.
+func (tr *ToolRegistry) Names() []string {
+	names := make([]string, 0, len(tr.tools))
+	for name := range tr.tools {
+		names = append(names, name)
+	}
+	return names
+}

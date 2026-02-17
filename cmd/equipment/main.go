@@ -56,7 +56,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`SkillsWeaver - Equipment Browser - Catalogue d'Équipement BFRPG
+	fmt.Println(`SkillsWeaver - Equipment Browser - Catalogue d'Équipement D&D 5e
 
 UTILISATION:
   sw-equipment <commande> [arguments]

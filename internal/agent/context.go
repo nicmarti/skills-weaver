@@ -16,12 +16,18 @@ type ConversationContext struct {
 	maxTokens     int
 }
 
-// NewConversationContext creates a new conversation context.
+// NewConversationContext creates a new conversation context with default token limit (50K).
 func NewConversationContext() *ConversationContext {
+	return NewConversationContextWithLimit(50000)
+}
+
+// NewConversationContextWithLimit creates a new conversation context with a custom token limit.
+// This is useful for nested agents which have lower token limits (e.g., 20K).
+func NewConversationContextWithLimit(maxTokens int) *ConversationContext {
 	return &ConversationContext{
 		messages:      []anthropic.MessageParam{},
 		tokenEstimate: 0,
-		maxTokens:     50000, // Keep history under 50K tokens
+		maxTokens:     maxTokens,
 	}
 }
 
@@ -31,6 +37,16 @@ func (ctx *ConversationContext) AddUserMessage(content string) {
 		anthropic.NewTextBlock(content),
 	))
 	ctx.tokenEstimate += len(content) / 4 // Rough estimation
+	ctx.TruncateIfNeeded()
+}
+
+// AddUserMessageWithImage adds a user message containing text and a base64-encoded image.
+func (ctx *ConversationContext) AddUserMessageWithImage(content string, imageBase64 string, mediaType string) {
+	ctx.messages = append(ctx.messages, anthropic.NewUserMessage(
+		anthropic.NewTextBlock(content),
+		anthropic.NewImageBlockBase64(mediaType, imageBase64),
+	))
+	ctx.tokenEstimate += len(content)/4 + 1600 // ~1600 tokens for a 1536x1024 image
 	ctx.TruncateIfNeeded()
 }
 
@@ -180,10 +196,10 @@ func LoadAdventureContext(baseDir, adventureName string) (*AdventureContext, err
 	// Load recent journal entries
 	journal, err := adv.LoadJournal()
 	if err == nil {
-		// Get last 10 entries
+		// Get last 30 entries (provides context from previous sessions)
 		start := 0
-		if len(journal.Entries) > 10 {
-			start = len(journal.Entries) - 10
+		if len(journal.Entries) > 30 {
+			start = len(journal.Entries) - 30
 		}
 		ctx.RecentJournal = journal.Entries[start:]
 	} else {
@@ -208,6 +224,13 @@ func LoadAdventureContext(baseDir, adventureName string) (*AdventureContext, err
 
 // Reload reloads the adventure context after modifications.
 func (ctx *AdventureContext) Reload() error {
+	// Reload characters (to reflect level ups, HP changes, etc.)
+	characters, err := ctx.Adventure.GetCharacters()
+	if err != nil {
+		return fmt.Errorf("failed to reload characters: %w", err)
+	}
+	ctx.Characters = characters
+
 	// Reload inventory
 	inventory, err := ctx.Adventure.LoadInventory()
 	if err != nil {
@@ -221,10 +244,10 @@ func (ctx *AdventureContext) Reload() error {
 		return fmt.Errorf("failed to reload journal: %w", err)
 	}
 
-	// Get last 10 entries
+	// Get last 30 entries (provides context from previous sessions)
 	start := 0
-	if len(journal.Entries) > 10 {
-		start = len(journal.Entries) - 10
+	if len(journal.Entries) > 30 {
+		start = len(journal.Entries) - 30
 	}
 	ctx.RecentJournal = journal.Entries[start:]
 

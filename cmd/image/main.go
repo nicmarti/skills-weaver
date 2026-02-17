@@ -85,18 +85,19 @@ OPTIONS COMMUNES:
   --style=<style>              Style artistique (realistic, painted, illustrated, dark_fantasy, epic)
   --size=<size>                Taille d'image (square_hd, portrait_4_3, landscape_16_9, etc.)
   --format=<format>            Format de sortie (png, jpeg, webp)
+  --output=<dir>               Répertoire de sortie (défaut: data/images)
 
 OPTIONS JOURNAL:
   --types=<types>              Types à illustrer (combat,exploration,story,discovery,loot,session)
   --start-id=<n>               ID de départ pour reprendre depuis une entrée (optionnel)
   --max=<n>                    Nombre maximum d'images à générer
   --parallel=<n>               Nombre de générations en parallèle (défaut: 4)
-  --model=<model>              Modèle fal.ai (seedream, zimage) défaut: zimage
+  --model=<model>              Modèle fal.ai (seedream, zimage) défaut: seedream
   --dry-run                    Afficher les prompts sans générer
 
 MODÈLES JOURNAL:
+  seedream                     Seedream v4 - Haute qualité (~8s), ~$0.01/megapixel (DÉFAUT)
   zimage                       Z-Image Turbo - Rapide (~2s), ~$0.005/megapixel
-  seedream                     Seedream v4 - Haute qualité (~8s), ~$0.01/megapixel
 
 EXEMPLES:
   sw-image character "Aldric"
@@ -129,8 +130,14 @@ func cmdCharacter(args []string) error {
 		opts["model"] = "banana"
 	}
 
+	// Output directory (default: data/images, can be overridden with --output)
+	outDir := outputDir
+	if opts["output"] != "" {
+		outDir = opts["output"]
+	}
+
 	// Build character file path
-	charPath := fmt.Sprintf("%s/characters/%s.json", dataDir, strings.ToLower(strings.ReplaceAll(charName, " ", "_")))
+	charPath := fmt.Sprintf("%s/characters/%s.json", dataDir, character.SanitizeFilename(charName))
 
 	// Load character
 	char, err := character.Load(charPath)
@@ -138,8 +145,8 @@ func cmdCharacter(args []string) error {
 		return fmt.Errorf("chargement du personnage '%s': %w", charName, err)
 	}
 
-	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	// Create generator with specified output directory
+	gen, err := image.NewGenerator(outDir)
 	if err != nil {
 		return err
 	}
@@ -275,6 +282,11 @@ func cmdScene(args []string) error {
 	}
 	sceneType := opts["type"]
 	prompt := image.BuildScenePrompt(description, sceneType, style)
+
+	// Set default model for scenes
+	if opts["model"] == "" {
+		opts["model"] = "banana"
+	}
 
 	fmt.Printf("Génération de la scène...\n")
 	printGenerationInfo(opts, "landscape_16_9")
@@ -420,6 +432,11 @@ func cmdLocation(args []string) error {
 		opts["style"] = string(style)
 	}
 	prompt := image.BuildLocationPrompt(locationType, name, style)
+
+	// Set default model for locations (used for maps)
+	if opts["model"] == "" {
+		opts["model"] = "flux-pro-11"
+	}
 
 	fmt.Printf("Génération du lieu: %s...\n", locationType)
 	printGenerationInfo(opts, "landscape_16_9")
@@ -810,7 +827,7 @@ func cmdJournal(args []string) error {
 	journalModels := image.JournalModels()
 	modelName := opts["model"]
 	if modelName == "" {
-		modelName = "zimage" // Default: z-image turbo for fast generation
+		modelName = "flux-2-pro" // Default: FLUX.2 Pro for high quality journal illustrations
 	}
 
 	// Validate model is available for journal

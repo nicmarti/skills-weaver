@@ -1,0 +1,541 @@
+{
+  "monsters": [
+    {
+      "id": "guard",
+      "name": "Guard",
+      "name_fr": "Garde",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 16,
+      "hit_points_avg": 11,
+      "movement": 30,
+      "abilities": {
+        "strength": 13,
+        "dexterity": 12,
+        "constitution": 12,
+        "intelligence": 10,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "challenge_rating": "1/8",
+      "proficiency_bonus": 2,
+      "xp": 25,
+      "attacks": [
+        {
+          "name": "Spear",
+          "name_fr": "Lance",
+          "bonus": 3,
+          "damage": "1d6+1",
+          "damage_avg": 4,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "B",
+      "special": [],
+      "description_fr": "Les gardes patrouillent les rues des cités, protègent les nobles et maintiennent l'ordre. Ils portent une cotte de mailles et sont armés de lances."
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "name_fr": "Bandit",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 12,
+      "hit_points_avg": 11,
+      "movement": 30,
+      "abilities": {
+        "strength": 11,
+        "dexterity": 12,
+        "constitution": 12,
+        "intelligence": 10,
+        "wisdom": 10,
+        "charisma": 10
+      },
+      "challenge_rating": "1/8",
+      "proficiency_bonus": 2,
+      "xp": 25,
+      "attacks": [
+        {
+          "name": "Scimitar",
+          "name_fr": "Cimeterre",
+          "bonus": 3,
+          "damage": "1d6+1",
+          "damage_avg": 4,
+          "damage_type": "slashing"
+        },
+        {
+          "name": "Light Crossbow",
+          "name_fr": "Arbalète légère",
+          "bonus": 3,
+          "damage": "1d8+1",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "U",
+      "special": [],
+      "description_fr": "Les bandits sont des hors-la-loi qui attaquent les voyageurs sur les routes. Ils portent une armure de cuir et utilisent des armes légères."
+    },
+    {
+      "id": "cultist",
+      "name": "Cultist",
+      "name_fr": "Cultiste",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 12,
+      "hit_points_avg": 9,
+      "movement": 30,
+      "abilities": {
+        "strength": 11,
+        "dexterity": 12,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "challenge_rating": "1/8",
+      "proficiency_bonus": 2,
+      "xp": 25,
+      "attacks": [
+        {
+          "name": "Scimitar",
+          "name_fr": "Cimeterre",
+          "bonus": 3,
+          "damage": "1d6+1",
+          "damage_avg": 4,
+          "damage_type": "slashing"
+        }
+      ],
+      "treasure_type": "U",
+      "special": ["Dark Devotion: Avantage aux jets de sauvegarde contre charme et terreur"],
+      "description_fr": "Les cultistes suivent des entités sombres et participent à des rituels interdits. Fanatiques, ils ne craignent ni la mort ni la douleur."
+    },
+    {
+      "id": "acolyte",
+      "name": "Acolyte",
+      "name_fr": "Acolyte",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 10,
+      "hit_points_avg": 9,
+      "movement": 30,
+      "abilities": {
+        "strength": 10,
+        "dexterity": 10,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 14,
+        "charisma": 11
+      },
+      "challenge_rating": "1/4",
+      "proficiency_bonus": 2,
+      "xp": 50,
+      "attacks": [
+        {
+          "name": "Club",
+          "name_fr": "Gourdin",
+          "bonus": 2,
+          "damage": "1d4",
+          "damage_avg": 2,
+          "damage_type": "bludgeoning"
+        }
+      ],
+      "treasure_type": "U",
+      "special": [
+        "Sorts (Clerc niveau 1): 3 cantrips, 3 emplacements niveau 1",
+        "DD Sauvegarde: 12",
+        "Sorts préparés: Lumière, Thaumaturgie, Mot sacré, Sanctuaire, Bénédiction, Soins"
+      ],
+      "description_fr": "Les acolytes sont des prêtres débutants qui servent dans les temples. Ils possèdent des sorts divins basiques pour soigner et protéger."
+    },
+    {
+      "id": "noble",
+      "name": "Noble",
+      "name_fr": "Noble",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 15,
+      "hit_points_avg": 9,
+      "movement": 30,
+      "abilities": {
+        "strength": 11,
+        "dexterity": 12,
+        "constitution": 11,
+        "intelligence": 12,
+        "wisdom": 14,
+        "charisma": 16
+      },
+      "challenge_rating": "1/8",
+      "proficiency_bonus": 2,
+      "xp": 25,
+      "attacks": [
+        {
+          "name": "Rapier",
+          "name_fr": "Rapière",
+          "bonus": 3,
+          "damage": "1d8+1",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "V",
+      "special": ["Réactions: 3 serviteurs/gardes agissent en sa défense"],
+      "description_fr": "Les nobles sont des aristocrates privilégiés, habitués au luxe et au pouvoir. Ils portent des vêtements fins et des armures légères décoratives."
+    },
+    {
+      "id": "thug",
+      "name": "Thug",
+      "name_fr": "Voyou",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 11,
+      "hit_points_avg": 32,
+      "movement": 30,
+      "abilities": {
+        "strength": 15,
+        "dexterity": 11,
+        "constitution": 14,
+        "intelligence": 10,
+        "wisdom": 10,
+        "charisma": 11
+      },
+      "challenge_rating": "1/2",
+      "proficiency_bonus": 2,
+      "xp": 100,
+      "attacks": [
+        {
+          "name": "Mace",
+          "name_fr": "Masse d'armes",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "bludgeoning"
+        },
+        {
+          "name": "Heavy Crossbow",
+          "name_fr": "Arbalète lourde",
+          "bonus": 2,
+          "damage": "1d10",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "U",
+      "special": ["Tactique de meute: Avantage si allié adjacent à la cible"],
+      "description_fr": "Les voyous sont des brutes expérimentées qui utilisent l'intimidation et la violence. Plus dangereux que les bandits communs."
+    },
+    {
+      "id": "spy",
+      "name": "Spy",
+      "name_fr": "Espion",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 12,
+      "hit_points_avg": 27,
+      "movement": 30,
+      "abilities": {
+        "strength": 10,
+        "dexterity": 15,
+        "constitution": 10,
+        "intelligence": 12,
+        "wisdom": 14,
+        "charisma": 16
+      },
+      "challenge_rating": "1",
+      "proficiency_bonus": 2,
+      "xp": 200,
+      "attacks": [
+        {
+          "name": "Shortsword",
+          "name_fr": "Épée courte",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        },
+        {
+          "name": "Hand Crossbow",
+          "name_fr": "Arbalète de poing",
+          "bonus": 4,
+          "damage": "1d6+2",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "U",
+      "special": [
+        "Attaque sournoise: +2d6 dégâts si avantage",
+        "Ruse: Peut se désengager ou se cacher en action bonus"
+      ],
+      "description_fr": "Les espions sont des agents infiltrés experts en déguisement et manipulation. Ils collectent des informations pour leurs employeurs."
+    },
+    {
+      "id": "priest",
+      "name": "Priest",
+      "name_fr": "Prêtre",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 13,
+      "hit_points_avg": 27,
+      "movement": 25,
+      "abilities": {
+        "strength": 10,
+        "dexterity": 10,
+        "constitution": 12,
+        "intelligence": 13,
+        "wisdom": 16,
+        "charisma": 13
+      },
+      "challenge_rating": "2",
+      "proficiency_bonus": 2,
+      "xp": 450,
+      "attacks": [
+        {
+          "name": "Mace",
+          "name_fr": "Masse d'armes",
+          "bonus": 2,
+          "damage": "1d6",
+          "damage_avg": 3,
+          "damage_type": "bludgeoning"
+        }
+      ],
+      "treasure_type": "U",
+      "special": [
+        "Sorts (Clerc niveau 5): 3 cantrips, 4/3/2 emplacements niv 1/2/3",
+        "DD Sauvegarde: 13",
+        "Sorts préparés: Lumière, Flamme sacrée, Thaumaturgie, Soins (niv 1-2), Restauration partielle, Prière de guérison, Esprits gardiens"
+      ],
+      "description_fr": "Les prêtres sont des clercs expérimentés qui dirigent des temples et conseillent les fidèles. Leurs sorts divins peuvent guérir ou détruire."
+    },
+    {
+      "id": "bandit_captain",
+      "name": "Bandit Captain",
+      "name_fr": "Capitaine Bandit",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 15,
+      "hit_points_avg": 65,
+      "movement": 30,
+      "abilities": {
+        "strength": 15,
+        "dexterity": 16,
+        "constitution": 14,
+        "intelligence": 14,
+        "wisdom": 11,
+        "charisma": 14
+      },
+      "challenge_rating": "2",
+      "proficiency_bonus": 2,
+      "xp": 450,
+      "attacks": [
+        {
+          "name": "Scimitar",
+          "name_fr": "Cimeterre",
+          "bonus": 5,
+          "damage": "1d6+3",
+          "damage_avg": 6,
+          "damage_type": "slashing"
+        },
+        {
+          "name": "Dagger (thrown)",
+          "name_fr": "Dague (lancer)",
+          "bonus": 5,
+          "damage": "1d4+3",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "V",
+      "special": [
+        "Attaque multiple: 3 attaques par tour",
+        "Parade: Réaction pour +2 CA contre une attaque"
+      ],
+      "description_fr": "Les capitaines bandits dirigent des bandes de brigands avec autorité et tactique. Combattants aguerris, ils inspirent leurs troupes."
+    },
+    {
+      "id": "knight",
+      "name": "Knight",
+      "name_fr": "Chevalier",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 18,
+      "hit_points_avg": 52,
+      "movement": 30,
+      "abilities": {
+        "strength": 16,
+        "dexterity": 11,
+        "constitution": 14,
+        "intelligence": 11,
+        "wisdom": 11,
+        "charisma": 15
+      },
+      "challenge_rating": "3",
+      "proficiency_bonus": 2,
+      "xp": 700,
+      "attacks": [
+        {
+          "name": "Greatsword",
+          "name_fr": "Épée à deux mains",
+          "bonus": 5,
+          "damage": "2d6+3",
+          "damage_avg": 10,
+          "damage_type": "slashing"
+        },
+        {
+          "name": "Heavy Crossbow",
+          "name_fr": "Arbalète lourde",
+          "bonus": 2,
+          "damage": "1d10",
+          "damage_avg": 5,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "V",
+      "special": [
+        "Attaque multiple: 2 attaques par tour",
+        "Brave: Avantage aux JS contre terreur",
+        "Leadership (Recharge 5-6): Alliés à 30' gagnent +1d4 aux jets d'attaque et sauvegardes"
+      ],
+      "description_fr": "Les chevaliers sont des guerriers d'élite en armure lourde, liés par des serments de loyauté. Leur code d'honneur guide leurs actions."
+    },
+    {
+      "id": "veteran",
+      "name": "Veteran",
+      "name_fr": "Vétéran",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 17,
+      "hit_points_avg": 58,
+      "movement": 30,
+      "abilities": {
+        "strength": 16,
+        "dexterity": 13,
+        "constitution": 14,
+        "intelligence": 10,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "challenge_rating": "3",
+      "proficiency_bonus": 2,
+      "xp": 700,
+      "attacks": [
+        {
+          "name": "Longsword",
+          "name_fr": "Épée longue",
+          "bonus": 5,
+          "damage": "1d8+3",
+          "damage_avg": 7,
+          "damage_type": "slashing"
+        },
+        {
+          "name": "Shortsword",
+          "name_fr": "Épée courte",
+          "bonus": 5,
+          "damage": "1d6+3",
+          "damage_avg": 6,
+          "damage_type": "piercing"
+        },
+        {
+          "name": "Heavy Crossbow",
+          "name_fr": "Arbalète lourde",
+          "bonus": 3,
+          "damage": "1d10+1",
+          "damage_avg": 6,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "U",
+      "special": [
+        "Attaque multiple: 2 attaques par tour"
+      ],
+      "description_fr": "Les vétérans sont des soldats expérimentés ayant survécu à de nombreuses batailles. Leur maîtrise des armes est redoutable."
+    },
+    {
+      "id": "mage",
+      "name": "Mage",
+      "name_fr": "Mage",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 12,
+      "hit_points_avg": 40,
+      "movement": 30,
+      "abilities": {
+        "strength": 9,
+        "dexterity": 14,
+        "constitution": 11,
+        "intelligence": 17,
+        "wisdom": 12,
+        "charisma": 11
+      },
+      "challenge_rating": "6",
+      "proficiency_bonus": 3,
+      "xp": 2300,
+      "attacks": [
+        {
+          "name": "Dagger",
+          "name_fr": "Dague",
+          "bonus": 5,
+          "damage": "1d4+2",
+          "damage_avg": 4,
+          "damage_type": "piercing"
+        }
+      ],
+      "treasure_type": "V",
+      "special": [
+        "Sorts (Magicien niveau 9): 3 cantrips, 4/3/3/3/1 emplacements niv 1-5",
+        "DD Sauvegarde: 14",
+        "Sorts préparés: Trait de feu, Lumière, Prestidigitation, Projectile magique, Bouclier, Détection de la magie, Flou, Suggestion, Boule de feu, Contresort, Vol, Cône de froid"
+      ],
+      "description_fr": "Les mages sont des lanceurs de sorts accomplis qui ont étudié l'art arcane pendant des décennies. Leurs sorts peuvent dévaster des armées."
+    },
+    {
+      "id": "assassin",
+      "name": "Assassin",
+      "name_fr": "Assassin",
+      "type": "humanoid",
+      "size": "Medium",
+      "armor_class": 15,
+      "hit_points_avg": 78,
+      "movement": 30,
+      "abilities": {
+        "strength": 11,
+        "dexterity": 16,
+        "constitution": 14,
+        "intelligence": 13,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "challenge_rating": "8",
+      "proficiency_bonus": 3,
+      "xp": 3900,
+      "attacks": [
+        {
+          "name": "Shortsword",
+          "name_fr": "Épée courte",
+          "bonus": 6,
+          "damage": "1d6+3",
+          "damage_avg": 6,
+          "damage_type": "piercing",
+          "special": "Poison (DD 15 CON, 24 dégâts poison ou moitié)"
+        },
+        {
+          "name": "Light Crossbow",
+          "name_fr": "Arbalète légère",
+          "bonus": 6,
+          "damage": "1d8+3",
+          "damage_avg": 7,
+          "damage_type": "piercing",
+          "special": "Poison (DD 15 CON, 24 dégâts poison ou moitié)"
+        }
+      ],
+      "treasure_type": "V",
+      "special": [
+        "Attaque multiple: 2 attaques par tour",
+        "Assassinat: Avantage vs créatures n'ayant pas encore agi. Coup critique si surprise.",
+        "Attaque sournoise: +4d6 dégâts si avantage",
+        "Évasion: Aucun dégât si JS DEX réussie (moitié si échec)"
+      ],
+      "description_fr": "Les assassins sont des tueurs professionnels maîtrisant le poison et la discrétion. Ils éliminent leurs cibles sans laisser de traces."
+    }
+  ]
+}

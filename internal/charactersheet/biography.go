@@ -225,7 +225,7 @@ func (g *BiographyGenerator) buildBiographyPrompt(c *character.Character, advent
 		"fighter": "guerrier", "cleric": "clerc", "magic-user": "magicien", "thief": "voleur",
 	}
 
-	raceFr := raceNames[c.Race]
+	raceFr := raceNames[c.Species]
 	classFr := classNames[c.Class]
 
 	return fmt.Sprintf(`Tu es un écrivain spécialisé dans les biographies de personnages de jeux de rôle fantasy. Crée une biographie IMMERSIVE et PERSONNALISÉE pour ce personnage Basic Fantasy RPG.
@@ -307,7 +307,7 @@ func (g *BiographyGenerator) generateOrigin(c *character.Character) string {
 		}
 	}
 
-	switch c.Race {
+	switch c.Species {
 	case "dwarf":
 		origin = fmt.Sprintf("%s est issu des halls montagneux des nains, un guerrier %s forgé par la pierre et le fer.", c.Name, age)
 	case "elf":

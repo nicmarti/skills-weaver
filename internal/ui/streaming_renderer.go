@@ -71,7 +71,33 @@ func (r *StreamingMarkdownRenderer) Flush() string {
 
 // renderLine renders a complete line with markdown parsing
 func (r *StreamingMarkdownRenderer) renderLine(line string) string {
+	// Normalize excessive whitespace at the start of lines
+	line = normalizeIndentation(line)
 	return r.renderWithState(line)
+}
+
+// normalizeIndentation removes excessive leading whitespace while preserving list formatting
+func normalizeIndentation(line string) string {
+	// Trim all leading whitespace first
+	trimmed := strings.TrimLeft(line, " \t")
+
+	// If empty line, preserve it
+	if trimmed == "" {
+		return line
+	}
+
+	// If it's a list item (starts with - or *), add consistent 2-space indent
+	if strings.HasPrefix(trimmed, "-") || strings.HasPrefix(trimmed, "*") {
+		return "  " + trimmed
+	}
+
+	// For section headers (###, ##, #), no indent
+	if strings.HasPrefix(trimmed, "#") {
+		return trimmed
+	}
+
+	// For regular text, no leading spaces
+	return trimmed
 }
 
 // renderWithState maintains bold/italic state across chunks

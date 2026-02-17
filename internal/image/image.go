@@ -60,32 +60,52 @@ var (
 		MaxSteps: 8, // Fast model, max 8 steps
 		DefSteps: 8, // Default to maximum quality
 	}
+	// ModelFluxPro11 is FLUX.1.1 Pro for high-quality professional images
+	ModelFluxPro11 = Model{
+		ID:       "fal-ai/flux-pro/v1.1",
+		Short:    "flux-pro-11",
+		SyncURL:  "https://fal.run/fal-ai/flux-pro/v1.1",
+		QueueURL: "https://queue.fal.run/fal-ai/flux-pro/v1.1",
+		MaxSteps: 50, // Professional model supports more steps
+		DefSteps: 28, // Default to balanced quality/speed
+	}
+	// ModelFlux2Pro is FLUX.2 Pro for state-of-the-art image quality (~$0.03/megapixel)
+	// Zero-config: no inference steps or guidance scale needed
+	ModelFlux2Pro = Model{
+		ID:       "fal-ai/flux-2-pro",
+		Short:    "flux-2-pro",
+		SyncURL:  "https://fal.run/fal-ai/flux-2-pro",
+		QueueURL: "https://queue.fal.run/fal-ai/flux-2-pro",
+		MaxSteps: 0, // Not used by FLUX.2 Pro
+		DefSteps: 0, // Not used by FLUX.2 Pro
+	}
 )
 
 // AvailableModels returns all available models.
 func AvailableModels() map[string]Model {
 	return map[string]Model{
-		"schnell":  ModelSchnell,
-		"banana":   ModelNanoBanana,
-		"seedream": ModelSeedream,
-		"zimage":   ModelZImageTurbo,
+		"flux-2-pro":  ModelFlux2Pro,
+		"flux-pro-11": ModelFluxPro11,
+		"schnell":     ModelSchnell,
+		"banana":      ModelNanoBanana,
+		"seedream":    ModelSeedream,
+		"zimage":      ModelZImageTurbo,
 	}
 }
 
 // JournalModels returns models available for journal illustration.
 func JournalModels() map[string]Model {
 	return map[string]Model{
-		"seedream": ModelSeedream,    // High quality, slower
-		"zimage":   ModelZImageTurbo, // Fast generation
+		"flux-2-pro": ModelFlux2Pro, // State-of-the-art quality, default for journal
 	}
 }
 
-// GetModel returns a model by name, defaulting to schnell.
+// GetModel returns a model by name, defaulting to flux-pro-11.
 func GetModel(name string) Model {
 	if m, ok := AvailableModels()[name]; ok {
 		return m
 	}
-	return ModelSchnell
+	return ModelFluxPro11
 }
 
 // Generator handles image generation via fal.ai API.
@@ -173,12 +193,14 @@ func (g *Generator) Generate(prompt string, opts ...Option) (*GeneratedImage, er
 		outputFormat:  "png",
 		imageSize:     "landscape_16_9",
 		safetyChecker: true,
-		model:         ModelSchnell, // Default model
+		model:         ModelFluxPro11, // Default model - high quality
 	}
 
 	for _, opt := range opts {
 		opt(cfg)
 	}
+
+	fmt.Printf("Modele: %s\n", cfg.model.Short)
 
 	// Use model's default steps if not explicitly set
 	if cfg.steps == 0 {
@@ -267,7 +289,7 @@ func (g *Generator) GenerateAsync(prompt string, opts ...Option) (string, error)
 		outputFormat:  "png",
 		imageSize:     "landscape_16_9",
 		safetyChecker: true,
-		model:         ModelSchnell, // Default model
+		model:         ModelFluxPro11, // Default model - high quality
 	}
 
 	for _, opt := range opts {
@@ -493,14 +515,12 @@ func WithSafetyChecker(enabled bool) Option {
 	}
 }
 
-// WithSteps sets the number of inference steps (1-4 for schnell).
+// WithSteps sets the number of inference steps (model-dependent).
+// Steps will be automatically clamped to the model's maximum.
 func WithSteps(steps int) Option {
 	return func(c *config) {
 		if steps < 1 {
 			steps = 1
-		}
-		if steps > 4 {
-			steps = 4
 		}
 		c.steps = steps
 	}
@@ -515,10 +535,18 @@ func WithFilenamePrefix(prefix string) Option {
 }
 
 // WithModel sets the fal.ai model to use.
-// Available: "schnell" (fast), "dev" (quality), "pro", "pro11"
+// Available: "schnell" (fast), "banana", "seedream", "zimage", "flux-pro-11" (professional quality)
 func WithModel(modelName string) Option {
 	return func(c *config) {
 		c.model = GetModel(modelName)
+	}
+}
+
+// WithModelInstance sets the fal.ai model to use by passing a Model instance directly.
+// Prefer this over WithModel when using model constants (e.g., image.ModelFluxPro11).
+func WithModelInstance(model Model) Option {
+	return func(c *config) {
+		c.model = model
 	}
 }
 

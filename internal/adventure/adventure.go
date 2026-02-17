@@ -1,4 +1,4 @@
-// Package adventure provides adventure/campaign management for BFRPG.
+// Package adventure provides adventure/campaign management for D&D 5e.
 package adventure
 
 import (
@@ -172,6 +172,10 @@ func ListAdventures(baseDir string) ([]*Adventure, error) {
 		if !entry.IsDir() {
 			continue
 		}
+		// Skip directories prefixed with _ (e.g. _archived)
+		if strings.HasPrefix(entry.Name(), "_") {
+			continue
+		}
 
 		a, err := Load(filepath.Join(baseDir, entry.Name()))
 		if err != nil {
@@ -191,6 +195,129 @@ func Delete(baseDir, name string) error {
 	}
 
 	return os.RemoveAll(a.basePath)
+}
+
+// Archive moves an adventure to the _archived directory.
+// Characters are synced to data/characters/ before archiving to preserve progression.
+func Archive(baseDir, name string) error {
+	a, err := LoadByName(baseDir, name)
+	if err != nil {
+		return err
+	}
+
+	// Sync characters to global directory before archiving
+	globalCharDir := filepath.Join(filepath.Dir(baseDir), "characters")
+	if _, syncErr := a.SyncCharactersToGlobal(globalCharDir); syncErr != nil {
+		return fmt.Errorf("syncing characters before archive: %w", syncErr)
+	}
+
+	archivedDir := filepath.Join(baseDir, "_archived")
+	if err := os.MkdirAll(archivedDir, 0755); err != nil {
+		return fmt.Errorf("creating _archived directory: %w", err)
+	}
+
+	dest := filepath.Join(archivedDir, a.Slug)
+	if _, err := os.Stat(dest); err == nil {
+		return fmt.Errorf("archived adventure already exists: %s", a.Slug)
+	}
+
+	if err := os.Rename(a.basePath, dest); err != nil {
+		return fmt.Errorf("archiving adventure %s: %w", name, err)
+	}
+	return nil
+}
+
+// Unarchive restores an adventure from the _archived directory.
+func Unarchive(baseDir, name string) error {
+	slug := slugify(name)
+	archivedDir := filepath.Join(baseDir, "_archived")
+
+	src := filepath.Join(archivedDir, slug)
+	if _, err := os.Stat(src); os.IsNotExist(err) {
+		// Try iterating to find by name
+		entries, readErr := os.ReadDir(archivedDir)
+		if readErr != nil {
+			return fmt.Errorf("adventure not found in archive: %s", name)
+		}
+		found := false
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
+			}
+			a, loadErr := Load(filepath.Join(archivedDir, entry.Name()))
+			if loadErr != nil {
+				continue
+			}
+			if strings.EqualFold(a.Name, name) || a.Slug == slug {
+				src = filepath.Join(archivedDir, entry.Name())
+				slug = entry.Name()
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("adventure not found in archive: %s", name)
+		}
+	}
+
+	dest := filepath.Join(baseDir, slug)
+	if _, err := os.Stat(dest); err == nil {
+		return fmt.Errorf("active adventure already exists with slug: %s", slug)
+	}
+
+	if err := os.Rename(src, dest); err != nil {
+		return fmt.Errorf("unarchiving adventure %s: %w", name, err)
+	}
+	return nil
+}
+
+// ListArchived returns all archived adventures.
+func ListArchived(baseDir string) ([]*Adventure, error) {
+	archivedDir := filepath.Join(baseDir, "_archived")
+	entries, err := os.ReadDir(archivedDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []*Adventure{}, nil
+		}
+		return nil, fmt.Errorf("reading _archived directory: %w", err)
+	}
+
+	var adventures []*Adventure
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		a, err := Load(filepath.Join(archivedDir, entry.Name()))
+		if err != nil {
+			continue
+		}
+		adventures = append(adventures, a)
+	}
+
+	return adventures, nil
+}
+
+// PurgeMaps removes all files in data/maps/ and returns the count deleted.
+func PurgeMaps(dataDir string) (int, error) {
+	mapsDir := filepath.Join(dataDir, "maps")
+	entries, err := os.ReadDir(mapsDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("reading maps directory: %w", err)
+	}
+
+	count := 0
+	for _, entry := range entries {
+		path := filepath.Join(mapsDir, entry.Name())
+		if err := os.RemoveAll(path); err != nil {
+			return count, fmt.Errorf("removing %s: %w", entry.Name(), err)
+		}
+		count++
+	}
+
+	return count, nil
 }
 
 // LoadState loads the game state.

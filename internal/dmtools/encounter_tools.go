@@ -11,7 +11,7 @@ import (
 func NewGenerateEncounterTool(bestiary *monster.Bestiary) *SimpleTool {
 	return &SimpleTool{
 		name:        "generate_encounter",
-		description: "Generate a random encounter with monsters. Use this to create balanced combat encounters for the party. Returns monsters with rolled HP, ready for combat.",
+		description: "Generate a balanced combat encounter for the party using D&D 5e Challenge Rating (CR) and XP budgets. Returns monsters with rolled HP, CR, and XP values. Use this to create encounters appropriate for party level and size.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -21,9 +21,9 @@ func NewGenerateEncounterTool(bestiary *monster.Bestiary) *SimpleTool {
 				},
 				"level": map[string]interface{}{
 					"type":        "integer",
-					"description": "Alternative: Party level (1-10). System will select appropriate encounter table.",
+					"description": "Alternative: Party level (1-20). System will generate encounter based on XP budget for this level.",
 					"minimum":     1,
-					"maximum":     10,
+					"maximum":     20,
 				},
 			},
 		},
@@ -68,16 +68,16 @@ func NewGenerateEncounterTool(bestiary *monster.Bestiary) *SimpleTool {
 			monsters := make([]map[string]interface{}, 0, len(result.Monsters))
 			for i, inst := range result.Monsters {
 				monsters = append(monsters, map[string]interface{}{
-					"index":        i + 1,
-					"name":         inst.Monster.NameFR,
-					"id":           inst.Monster.ID,
-					"hp":           inst.HitPoints,
-					"max_hp":       inst.MaxHP,
-					"ac":           inst.Monster.ArmorClass,
-					"attacks":      formatAttacks(inst.Monster.Attacks),
-					"xp":           inst.Monster.XP,
-					"morale":       inst.Monster.Morale,
-					"treasure_type": inst.Monster.TreasureType,
+					"index":          i + 1,
+					"name":           inst.Monster.NameFR,
+					"id":             inst.Monster.ID,
+					"hp":             inst.HitPoints,
+					"max_hp":         inst.MaxHP,
+					"ac":             inst.Monster.ArmorClass,
+					"cr":             inst.Monster.ChallengeRating,
+					"attacks":        formatAttacks(inst.Monster.Attacks),
+					"xp":             inst.Monster.XP,
+					"treasure_type":  inst.Monster.TreasureType,
 				})
 			}
 
@@ -97,7 +97,7 @@ func NewGenerateEncounterTool(bestiary *monster.Bestiary) *SimpleTool {
 func NewRollMonsterHPTool(bestiary *monster.Bestiary) *SimpleTool {
 	return &SimpleTool{
 		name:        "roll_monster_hp",
-		description: "Create monster instances with individually rolled HP. Use this when you need specific monsters for combat, not a random encounter.",
+		description: "Create monster instances with individually rolled HP for D&D 5e. Returns CR, AC, attacks, and XP. Use this when you need specific monsters for combat, not a random encounter.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -173,15 +173,15 @@ func NewRollMonsterHPTool(bestiary *monster.Bestiary) *SimpleTool {
 			return map[string]interface{}{
 				"success": true,
 				"monster": map[string]interface{}{
-					"id":            m.ID,
-					"name":          m.NameFR,
-					"ac":            m.ArmorClass,
-					"hit_dice":      m.HitDice,
-					"attacks":       formatAttacks(m.Attacks),
-					"special":       m.Special,
-					"morale":        m.Morale,
-					"treasure_type": m.TreasureType,
-					"xp":            m.XP,
+					"id":                m.ID,
+					"name":              m.NameFR,
+					"ac":                m.ArmorClass,
+					"cr":                m.ChallengeRating,
+					"hit_dice":          m.HitDice,
+					"attacks":           formatAttacks(m.Attacks),
+					"special":           m.Special,
+					"treasure_type":     m.TreasureType,
+					"xp":                m.XP,
 				},
 				"instances": instances,
 				"total_xp":  totalXP,
@@ -223,7 +223,7 @@ func formatMonsterInstances(m *monster.Monster, hpList []int) string {
 	var sb strings.Builder
 
 	sb.WriteString(fmt.Sprintf("## %s × %d\n\n", m.NameFR, len(hpList)))
-	sb.WriteString(fmt.Sprintf("**CA** %d | **DV** %s | **Moral** %d | **Trésor** %s\n\n", m.ArmorClass, m.HitDice, m.Morale, m.TreasureType))
+	sb.WriteString(fmt.Sprintf("**CA** %d | **CR** %s | **XP** %d chacun | **Trésor** %s\n\n", m.ArmorClass, m.ChallengeRating, m.XP, m.TreasureType))
 
 	// Attacks
 	sb.WriteString("**Attaques** :\n")

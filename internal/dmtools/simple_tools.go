@@ -11,6 +11,12 @@ import (
 	"dungeons/internal/treasure"
 )
 
+// LocationUpdateNotifier is an interface for notifying about location changes.
+// This avoids import cycle with internal/agent package.
+type LocationUpdateNotifier interface {
+	OnLocationUpdate(location string)
+}
+
 // SimpleTool is a basic tool implementation.
 type SimpleTool struct {
 	name        string
@@ -194,7 +200,7 @@ func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
 
 	return &SimpleTool{
 		name:        "generate_treasure",
-		description: "Generate a treasure hoard according to BFRPG treasure types (A-U). Each monster type has an associated treasure type.",
+		description: "Generate a treasure hoard according to D&D 5e treasure types (A-U). Each monster type has an associated treasure type.",
 		schema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -259,6 +265,64 @@ func NewGenerateTreasureTool(dataDir string) (*SimpleTool, error) {
 			}, nil
 		},
 	}, nil
+}
+
+// NewUpdateLocationTool creates a tool to update the party's current location.
+func NewUpdateLocationTool(adv *adventure.Adventure, notifier LocationUpdateNotifier) *SimpleTool {
+	return &SimpleTool{
+		name:        "update_location",
+		description: "Update party's current location when they move to a new place. This triggers the mini-map to update in the web UI. Call this whenever the party enters a new region, city, village, or dungeon.",
+		schema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"location": map[string]interface{}{
+					"type":        "string",
+					"description": "New location name (e.g., 'Cordova', 'La Crypte des Ombres', 'Forêt de Valdorine')",
+				},
+			},
+			"required": []string{"location"},
+		},
+		execute: func(params map[string]interface{}) (interface{}, error) {
+			location := params["location"].(string)
+
+			// Load current state
+			state, err := adv.LoadState()
+			if err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   fmt.Sprintf("Failed to load state: %v", err),
+				}, nil
+			}
+
+			oldLocation := state.CurrentLocation
+			state.CurrentLocation = location
+
+			// Save updated state
+			if err := adv.SaveState(state); err != nil {
+				return map[string]interface{}{
+					"success": false,
+					"error":   fmt.Sprintf("Failed to save state: %v", err),
+				}, nil
+			}
+
+			// Trigger SSE event for web UI (if using web interface)
+			if notifier != nil {
+				notifier.OnLocationUpdate(location)
+			}
+
+			display := fmt.Sprintf("✓ Location updated: %s → %s", oldLocation, location)
+			if oldLocation == "" {
+				display = fmt.Sprintf("✓ Location set to: %s", location)
+			}
+
+			return map[string]interface{}{
+				"success":      true,
+				"old_location": oldLocation,
+				"new_location": location,
+				"display":      display,
+			}, nil
+		},
+	}
 }
 
 // NewGenerateNPCTool creates a tool to generate NPCs with automatic persistence.

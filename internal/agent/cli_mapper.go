@@ -16,6 +16,9 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 	case "log_event":
 		// No CLI equivalent - internal adventure operation
 		return ""
+	case "update_location":
+		// No CLI equivalent - internal adventure operation (updates game state)
+		return ""
 	case "add_gold":
 		return mapAddGold(params)
 	case "get_inventory":
@@ -54,6 +57,35 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapGenerateName(params)
 	case "generate_location_name":
 		return mapGenerateLocationName(params)
+	case "invoke_agent":
+		// No CLI equivalent - internal agent-to-agent communication
+		return ""
+	case "invoke_skill":
+		return mapInvokeSkill(params)
+	case "add_xp":
+		return mapAddXP(params)
+	case "update_hp":
+		return mapUpdateHP(params)
+	case "use_spell_slot":
+		return mapUseSpellSlot(params)
+	case "update_character_stat":
+		return mapUpdateCharacterStat(params)
+	case "long_rest":
+		return mapLongRest(params)
+	case "create_character":
+		return mapCreateCharacter(params)
+	case "update_time":
+		return mapUpdateTime(params)
+	case "set_flag":
+		return mapSetFlag(params)
+	case "add_quest":
+		return mapAddQuest(params)
+	case "complete_quest":
+		return mapCompleteQuest(params)
+	case "set_variable":
+		return mapSetVariable(params)
+	case "get_state":
+		return mapGetState(params)
 	default:
 		return ""
 	}
@@ -125,6 +157,17 @@ func mapGenerateNPC(params map[string]interface{}) string {
 }
 
 func mapGenerateImage(params map[string]interface{}) string {
+	// Handle direct prompt-based generation (new schema)
+	if prompt, ok := params["prompt"].(string); ok && prompt != "" {
+		style := ""
+		if s, ok := params["style"].(string); ok && s != "" {
+			style = fmt.Sprintf(" --style=%s", s)
+		}
+		// Note: The tool uses seedream model by default
+		return fmt.Sprintf("./sw-image custom \"%s\"%s --model=seedream", prompt, style)
+	}
+
+	// Handle type-based generation (legacy schema)
 	imageType, ok := params["type"].(string)
 	if !ok {
 		return ""
@@ -220,6 +263,10 @@ func mapGenerateMap(params map[string]interface{}) string {
 		parts = append(parts, fmt.Sprintf("--kingdom=%s", kingdom))
 	}
 
+	if style, ok := params["style"].(string); ok && style != "" {
+		parts = append(parts, fmt.Sprintf("--style=%s", style))
+	}
+
 	if scale, ok := params["scale"].(string); ok && scale != "" {
 		parts = append(parts, fmt.Sprintf("--scale=%s", scale))
 	}
@@ -259,6 +306,11 @@ func mapGenerateMap(params map[string]interface{}) string {
 	// Check if generate_image flag is present
 	if generateImage, ok := params["generate_image"].(bool); ok && generateImage {
 		parts = append(parts, "--generate-image")
+	}
+
+	// Add image_size if specified (only relevant when generate_image is true)
+	if imageSize, ok := params["image_size"].(string); ok && imageSize != "" {
+		parts = append(parts, fmt.Sprintf("--image-size=%s", imageSize))
 	}
 
 	return strings.Join(parts, " ")
@@ -376,4 +428,171 @@ func mapGenerateLocationName(params map[string]interface{}) string {
 		parts = append(parts, fmt.Sprintf("--count=%.0f", count))
 	}
 	return strings.Join(parts, " ")
+}
+
+func mapInvokeSkill(params map[string]interface{}) string {
+	// invoke_skill already contains the exact CLI command
+	command, ok := params["command"].(string)
+	if !ok {
+		return ""
+	}
+	return command
+}
+
+func mapAddXP(params map[string]interface{}) string {
+	amount, ok := params["amount"].(float64)
+	if !ok {
+		return ""
+	}
+
+	var parts []string
+	parts = append(parts, fmt.Sprintf("./sw-adventure add-xp \"<adventure>\" %.0f", amount))
+
+	if name, ok := params["character_name"].(string); ok && name != "" {
+		parts = append(parts, fmt.Sprintf("--character=\"%s\"", name))
+	}
+	if reason, ok := params["reason"].(string); ok && reason != "" {
+		parts = append(parts, fmt.Sprintf("--reason=\"%s\"", reason))
+	}
+
+	return strings.Join(parts, " ")
+}
+
+func mapUpdateHP(params map[string]interface{}) string {
+	name, ok := params["character_name"].(string)
+	if !ok {
+		return ""
+	}
+	amount, ok := params["amount"].(float64)
+	if !ok {
+		return ""
+	}
+
+	// No direct CLI equivalent - this is an internal adventure operation
+	// that modifies character JSON files directly
+	// Return a descriptive pseudo-command for logging purposes
+	reason := ""
+	if r, ok := params["reason"].(string); ok && r != "" {
+		reason = fmt.Sprintf(" --reason=\"%s\"", r)
+	}
+	return fmt.Sprintf("# update_hp \"%s\" %.0f%s (internal operation - modifies character JSON)", name, amount, reason)
+}
+
+func mapUseSpellSlot(params map[string]interface{}) string {
+	name, ok := params["character_name"].(string)
+	if !ok {
+		return ""
+	}
+	level, ok := params["spell_level"].(float64)
+	if !ok {
+		return ""
+	}
+
+	// No direct CLI equivalent - this is an internal adventure operation
+	// Return a descriptive pseudo-command for logging purposes
+	spellName := ""
+	if s, ok := params["spell_name"].(string); ok && s != "" {
+		spellName = fmt.Sprintf(" --spell=\"%s\"", s)
+	}
+	return fmt.Sprintf("# use_spell_slot \"%s\" level=%.0f%s (internal operation - modifies character JSON)", name, level, spellName)
+}
+
+func mapUpdateTime(params map[string]interface{}) string {
+	// No direct CLI equivalent - this is an internal adventure operation
+	day := ""
+	if d, ok := params["day"].(float64); ok {
+		day = fmt.Sprintf("day=%.0f ", d)
+	}
+	hour := ""
+	if h, ok := params["hour"].(float64); ok {
+		hour = fmt.Sprintf("hour=%.0f ", h)
+	}
+	minute := ""
+	if m, ok := params["minute"].(float64); ok {
+		minute = fmt.Sprintf("minute=%.0f", m)
+	}
+	return fmt.Sprintf("# update_time %s%s%s(internal operation - modifies state.json)", day, hour, minute)
+}
+
+func mapSetFlag(params map[string]interface{}) string {
+	flag, ok := params["flag"].(string)
+	if !ok {
+		return ""
+	}
+	value := "true"
+	if v, ok := params["value"].(bool); ok && !v {
+		value = "false"
+	}
+	return fmt.Sprintf("# set_flag \"%s\" value=%s (internal operation - modifies state.json)", flag, value)
+}
+
+func mapAddQuest(params map[string]interface{}) string {
+	name, ok := params["name"].(string)
+	if !ok {
+		return ""
+	}
+	desc := ""
+	if d, ok := params["description"].(string); ok && d != "" {
+		desc = fmt.Sprintf(" --description=\"%s\"", d)
+	}
+	return fmt.Sprintf("# add_quest \"%s\"%s (internal operation - modifies state.json)", name, desc)
+}
+
+func mapCompleteQuest(params map[string]interface{}) string {
+	name, ok := params["quest_name"].(string)
+	if !ok {
+		return ""
+	}
+	return fmt.Sprintf("# complete_quest \"%s\" (internal operation - modifies state.json)", name)
+}
+
+func mapSetVariable(params map[string]interface{}) string {
+	key, ok := params["key"].(string)
+	if !ok {
+		return ""
+	}
+	value := ""
+	if v, ok := params["value"].(string); ok {
+		value = fmt.Sprintf(" value=\"%s\"", v)
+	}
+	return fmt.Sprintf("# set_variable \"%s\"%s (internal operation - modifies state.json)", key, value)
+}
+
+func mapGetState(params map[string]interface{}) string {
+	// No parameters for get_state
+	return "# get_state (internal operation - reads state.json)"
+}
+
+func mapCreateCharacter(params map[string]interface{}) string {
+	name, _ := params["name"].(string)
+	species, _ := params["species"].(string)
+	class, _ := params["class"].(string)
+	return fmt.Sprintf("# create_character \"%s\" species=%s class=%s (internal operation - creates character JSON + updates party)", name, species, class)
+}
+
+func mapUpdateCharacterStat(params map[string]interface{}) string {
+	name, ok := params["character_name"].(string)
+	if !ok {
+		return ""
+	}
+	stat, ok := params["stat"].(string)
+	if !ok {
+		return ""
+	}
+	value, ok := params["value"].(float64)
+	if !ok {
+		return ""
+	}
+	reason := ""
+	if r, ok := params["reason"].(string); ok && r != "" {
+		reason = fmt.Sprintf(" --reason=\"%s\"", r)
+	}
+	return fmt.Sprintf("# update_character_stat \"%s\" %s=%.0f%s (internal operation - modifies character JSON)", name, stat, value, reason)
+}
+
+func mapLongRest(params map[string]interface{}) string {
+	if name, ok := params["character_name"].(string); ok && name != "" {
+		return fmt.Sprintf("# long_rest \"%s\" (internal operation - restores HP, spell slots, hit dice)", name)
+	}
+	return "# long_rest (internal operation - restores all characters)"
 }

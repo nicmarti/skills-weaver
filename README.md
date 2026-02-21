@@ -10,9 +10,55 @@ The engine is based on [Dungeon&Dragon v5.2 French version](https://media.dndbey
 
 You can watch a sample game session on [my YouTube channel](https://youtu.be/K5CCB7MmegM) - English subtitles available
 
+## 🆕 Recent Updates
+
+**February 2026:**
+- ✨ **Web Interface** (`sw-web`) - Create adventures and play in your browser
+- 📋 **Automatic Campaign Plans** - Generate 3-act structures with themes
+- 🎮 **Model Selector** - Switch between Haiku, Sonnet, Opus during gameplay
+- 🗺️ **Tactical Maps** - Display combat maps inline in web interface
+- 💎 **Auto-Treasure** - Automatic treasure generation after combat
+- 📈 **Level-Up Tools** - `update_character_stat` and `long_rest` for character progression
+- 🌍 **D&D 5e Only** - Complete transition from Basic Fantasy RPG to D&D 5e SRD
+
 ## How to Play
 
-**To play a game session:**
+SkillsWeaver offers two ways to play:
+
+### Option 1: Web Interface (Recommended for Beginners)
+
+The web interface (`sw-web`) provides the easiest way to create adventures and play:
+
+```bash
+# Build the tools
+make build
+
+# Set your Anthropic API key
+export ANTHROPIC_API_KEY="your_key"
+
+# Optional: Set fal.ai key for image generation
+export FAL_KEY="your_fal_key"
+
+# Launch the web server
+./sw-web
+
+# Open your browser at http://localhost:8085
+```
+
+**Features:**
+- 🌐 **Modern Web UI** with Dark Fantasy theme
+- 🎮 **Create adventures** directly from the browser
+- 🤖 **Automatic campaign plan generation** (3-act structure)
+- 👥 **Character management** with party overview
+- 💬 **Real-time streaming** responses via SSE
+- 🗺️ **Tactical maps** displayed inline
+- 📖 **Live journal** with session tracking
+- 🎨 **AI-generated images** shown during gameplay
+- 📱 **Model selector** - Switch between Haiku, Sonnet, Opus
+
+### Option 2: Command-Line Interface (Advanced)
+
+The CLI (`sw-dm`) provides a terminal-based REPL experience:
 
 ```bash
 # Build the tools
@@ -25,29 +71,73 @@ export ANTHROPIC_API_KEY="your_key"
 ./sw-dm
 ```
 
-The `sw-dm` application provides an immersive, interactive RPG experience with:
-- Streaming narrative responses
-- Automatic dice rolling and rule application
-- Adventure state management (party, inventory, journal)
-- Optional AI image generation during gameplay
+**Features:**
+- 🎭 **Streaming narrative** responses
+- 🎲 **Automatic dice rolling** and rule application
+- 📊 **Adventure state management** (party, inventory, journal)
+- 🎨 **Optional AI image generation** during gameplay
+- ⌨️ **Full readline support** with history
 
-> **Note:** While Claude Code can also orchestrate gameplay using the agents and skills in this repository, `sw-dm` provides a more streamlined and immersive experience for actual game sessions.
+> **Note:** While Claude Code can also orchestrate gameplay using the agents and skills in this repository, `sw-web` and `sw-dm` provide more streamlined and immersive experiences for actual game sessions.
 
 ## How to Create a New Adventure and Characters
 
-Before you can play with `sw-dm`, you need to create an adventure and characters. You can use **Claude Code** to guide you through this process interactively.
+You have three options to create adventures and characters:
 
-### Prerequisites
+### Option 1: Web Interface (Easiest - Recommended)
+
+The web interface makes adventure creation effortless:
 
 ```bash
-# Build the tools first
-make build
+# Start the web server
+./sw-web
 
-# Start Claude Code
-claude
+# Open http://localhost:8085 in your browser
 ```
 
-### Option 1: Interactive Guided Creation (Recommended)
+**Creating an Adventure:**
+
+1. **Click "New Adventure"** on the homepage
+2. **Fill in the form:**
+   - **Name:** e.g., "The Magic Sextant of Cordova"
+   - **Description:** Brief summary of the adventure
+   - **Theme (optional):** e.g., "A cursed sextant reveals the location of an ancient entity sealed beneath the lost city of Shasseth"
+3. **Click "Create"**
+
+**What happens automatically:**
+
+✅ **If theme is provided:**
+   - Generates a complete **3-act campaign plan** (beginning, twists, final confrontation)
+   - Creates **main antagonist** with motivations and arc
+   - Defines **2-3 critical foreshadows** linked to acts
+   - Plans **pacing** (estimated sessions, duration)
+   - Sets **MacGuffins** and important locations
+
+✅ **Copies existing characters** from `data/characters/` to the adventure
+✅ **Creates party.json** with all characters
+✅ **Initializes** inventory, journal, and session tracking
+
+**Starting a Game Session:**
+
+1. Click **"Play"** on the adventure card
+2. The **Dungeon Master** loads automatically with full context:
+   - Campaign plan briefing (hidden from players)
+   - Party composition
+   - Current location and gold
+   - Recent journal entries
+3. **Start chatting** with the DM via the message box
+4. **Real-time streaming** responses appear instantly
+5. **Images, maps, and tactical scenes** display inline
+
+**During Gameplay:**
+
+- **Left Panel:** Party status (HP, AC, level), shared inventory, recent journal
+- **Center:** Conversation with streaming DM responses
+- **Model Selector:** Switch between Haiku (fast), Sonnet (balanced), Opus (best)
+- **Images:** Generated images appear automatically in the chat
+- **Tactical Maps:** Combat maps display when generated
+
+### Option 2: Claude Code Interactive Creation
 
 Let Claude Code guide you through the entire process step by step:
 
@@ -112,7 +202,7 @@ Claude Code will:
 # The game begins!
 ```
 
-### Option 2: Manual CLI Creation (Advanced)
+### Option 3: Manual CLI Creation (Advanced)
 
 If you prefer direct control, use the CLI tools:
 
@@ -208,15 +298,17 @@ data/
 
 SkillsWeaver demonstrates how to build a complex, multi-tool AI application using Claude Code's skills and agents system. It includes:
 
-- **Autonomous Dungeon Master** (`sw-dm`) - Interactive REPL with full agent loop and tool use
-- **Dice rolling** with standard RPG notation (2d6+3, 4d6kh3, advantage/disadvantage)
-- **Character generation** following Dungeon&Dragon v5.2 rules
-- **Adventure management** with session tracking and automatic journaling
-- **NPC generation** with personalities, motivations, and secrets
-- **AI image generation** for characters, scenes, and monsters via fal.ai
-- **Monster manual** based on official D&D manual
-- **Treasure generation** 
-- **Journal illustration** - automatically generate images for adventure logs
+- **🌐 Web Interface** (`sw-web`) - Modern browser-based UI with automatic campaign planning
+- **🤖 Autonomous Dungeon Master** (`sw-dm`) - CLI REPL with full agent loop and tool use
+- **🎲 Dice rolling** with standard RPG notation (2d6+3, 4d6kh3, advantage/disadvantage)
+- **👤 Character generation** following D&D 5e rules (9 species, 12 classes)
+- **📖 Adventure management** with session tracking and automatic journaling
+- **🎭 NPC generation** with personalities, motivations, and secrets
+- **🎨 AI image generation** for characters, scenes, and monsters via fal.ai
+- **👹 Monster manual** based on official D&D 5e SRD (300+ monsters)
+- **💎 Treasure generation** following D&D 5e treasure tables
+- **🗺️ Map generation** with tactical, city, region, and dungeon maps
+- **⚔️ Equipment & Spells** catalogs with complete stats
 
 ## Prerequisites
 
@@ -276,6 +368,8 @@ make build
 Or manually:
 
 ```bash
+go build -o sw-web ./cmd/web              # Web interface
+go build -o sw-dm ./cmd/dm                # CLI Dungeon Master
 go build -o sw-dice ./cmd/dice
 go build -o sw-character ./cmd/character
 go build -o sw-adventure ./cmd/adventure
@@ -286,7 +380,6 @@ go build -o sw-monster ./cmd/monster
 go build -o sw-treasure ./cmd/treasure
 go build -o sw-equipment ./cmd/equipment  # Equipment browser
 go build -o sw-spell ./cmd/spell          # Spell reference
-go build -o sw-dm ./cmd/dm                # Autonomous Dungeon Master
 ```
 
 ### 2. Start Claude Code
@@ -304,9 +397,88 @@ Once in Claude Code, the skills are automatically discovered. Try:
 - *"Generate a portrait for Thorin"* → Uses image-generator skill
 - *"Start a new adventure called The Lost Mine"* → Uses adventure-manager skill
 
-## Autonomous Dungeon Master (sw-dm)
+## Web Interface (sw-web)
 
-The `sw-dm` binary is a standalone Go application that acts as an autonomous Dungeon Master using the Anthropic API directly. Unlike the Claude Code skills that require manual orchestration, `sw-dm` runs a complete **agent loop** with tool use.
+The `sw-web` binary provides a modern web interface for creating adventures and playing game sessions through your browser.
+
+### Features
+
+- **🌐 Web-Based UI**: No terminal required - play in your browser
+- **🎮 Adventure Creation**: Create adventures with automatic campaign plan generation
+- **📋 Campaign Plans**: Automatic 3-act structure with antagonists, foreshadows, and pacing
+- **👥 Party Management**: View party status (HP, AC, level) in real-time
+- **💬 Streaming Chat**: Real-time DM responses via Server-Sent Events (SSE)
+- **🎨 Inline Media**: Images, maps, and tactical scenes display directly in chat
+- **📖 Live Journal**: See events logged as they happen
+- **🔄 Model Selector**: Switch between Haiku (fast), Sonnet (balanced), Opus (best quality)
+- **📱 Responsive**: Works on desktop and tablet devices
+
+### Architecture
+
+```
+Browser (localhost:8085)
+    ↓ HTTP/SSE
+sw-web (Gin server)
+    ↓ Manage sessions
+SessionManager
+    ↓ Per-adventure
+Agent Loop (dungeon-master)
+    ↓ Tool calls
+Go Packages (dice, monster, treasure, etc.)
+```
+
+### Routes
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | Homepage with adventure list |
+| GET | `/adventures` | Get adventures (HTMX) |
+| POST | `/adventures` | Create new adventure |
+| GET | `/play/:slug` | Game interface |
+| POST | `/play/:slug/message` | Send message to DM |
+| GET | `/play/:slug/stream` | SSE endpoint for streaming |
+| GET | `/play/:slug/characters` | Party status (HTMX) |
+| GET | `/play/:slug/info` | Adventure info (HTMX) |
+| GET | `/play/:slug/images/*` | Generated images |
+
+### Session Management
+
+- **One session per adventure** (single-player focused)
+- **30-minute timeout** after last activity
+- **Automatic cleanup** of expired sessions
+- **State persistence** in adventure directory
+
+### Usage
+
+```bash
+# Build
+go build -o sw-web ./cmd/web
+
+# Run (default port 8085)
+./sw-web
+
+# Custom port
+./sw-web --port=3000
+
+# Debug mode (verbose logging)
+./sw-web --debug
+
+# Open browser
+open http://localhost:8085
+```
+
+### Prerequisites
+
+```bash
+export ANTHROPIC_API_KEY="your_key"  # Required
+export FAL_KEY="your_fal_key"        # Optional (for images)
+```
+
+---
+
+## Command-Line Dungeon Master (sw-dm)
+
+The `sw-dm` binary is a standalone Go application that acts as an autonomous Dungeon Master using the Anthropic API directly. Unlike the Claude Code skills that require manual orchestration, `sw-dm` runs a complete **agent loop** with tool use in a terminal REPL.
 
 ### Features
 
@@ -460,7 +632,8 @@ Specialized sub-agents for complex tasks:
 ### CLI Tools (`cmd/`)
 
 Go binaries that perform the actual work:
-- `sw-dm` - Autonomous Dungeon Master with full agent loop
+- `sw-web` - **Web interface** for adventure creation and gameplay (port 8085)
+- `sw-dm` - **Autonomous Dungeon Master** with full agent loop (CLI REPL)
 - `sw-dice` - Dice rolling engine
 - `sw-character` - Character management
 - `sw-adventure` - Adventure/campaign tracking
@@ -560,6 +733,8 @@ skillsweaver/
 │   ├── skills/              # Claude Code skills
 │   └── agents/              # Specialized sub-agents
 ├── cmd/                     # Go CLI source code
+│   ├── web/                 # sw-web (Web interface)
+│   ├── dm/                  # sw-dm (CLI Dungeon Master)
 │   ├── dice/                # sw-dice
 │   ├── character/           # sw-character
 │   ├── adventure/           # sw-adventure
@@ -569,15 +744,24 @@ skillsweaver/
 │   ├── monster/             # sw-monster
 │   ├── treasure/            # sw-treasure
 │   ├── equipment/           # sw-equipment
-│   ├── spell/               # sw-spell
-│   └── dm/                  # sw-dm (Autonomous DM)
+│   └── spell/               # sw-spell
 ├── internal/                # Go packages
+│   ├── web/                 # Web server (Gin, SSE, sessions)
+│   │   ├── server.go        # HTTP server config
+│   │   ├── handlers.go      # Request handlers
+│   │   ├── session.go       # Session management
+│   │   └── web_output.go    # SSE output handler
 │   ├── agent/               # Agent loop orchestration
 │   │   ├── agent.go         # Main agent loop
+│   │   ├── agent_manager.go # Nested agent invocation
+│   │   ├── persona_loader.go # Dynamic persona loading
 │   │   ├── tools.go         # Tool registry
 │   │   ├── context.go       # Context management
 │   │   └── streaming.go     # Event processing
 │   ├── dmtools/             # Tool implementations for DM
+│   │   ├── agent_invocation_tool.go # invoke_agent
+│   │   ├── skill_invocation_tool.go # invoke_skill
+│   │   └── ...
 │   ├── dice/                # Dice rolling logic
 │   ├── character/           # Character management
 │   ├── adventure/           # Adventure management
@@ -588,15 +772,32 @@ skillsweaver/
 │   ├── image/               # Image generation
 │   ├── equipment/           # Equipment catalog
 │   └── spell/               # Spell reference
+├── web/                     # Web assets
+│   ├── templates/           # HTML templates
+│   │   ├── index.html       # Homepage (adventure list)
+│   │   ├── game.html        # Game interface
+│   │   └── partials/        # Reusable components
+│   └── static/              # CSS and JavaScript
+│       ├── css/fantasy.css  # Dark Fantasy theme
+│       └── js/app.js        # SSE client
 ├── data/
 │   ├── characters/          # Saved characters (JSON)
 │   ├── adventures/          # Saved adventures (JSON)
 │   │   └── <adventure>/
-│   │       ├── adventure.json
-│   │       ├── party.json
-│   │       ├── inventory.json
-│   │       ├── journal-*.json
+│   │       ├── adventure.json      # Metadata
+│   │       ├── campaign-plan.json  # 3-act structure
+│   │       ├── party.json          # Party composition
+│   │       ├── inventory.json      # Shared inventory
+│   │       ├── agent-states.json   # Agent conversations
+│   │       ├── sessions.json       # Session history
+│   │       ├── journal-meta.json   # Journal metadata
+│   │       ├── journal-session-*.json
 │   │       └── images/
+│   │           └── session-*/      # Images by session
+│   ├── world/               # World data
+│   │   ├── factions.json    # 4 kingdoms
+│   │   ├── geography.json   # Regions and cities
+│   │   └── npcs.json        # World NPCs (promoted)
 │   ├── monsters.json        # Bestiary
 │   ├── treasure.json        # Treasure tables
 │   └── names.json           # Name dictionaries

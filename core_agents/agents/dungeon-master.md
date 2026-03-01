@@ -603,6 +603,74 @@ petit rubis mal taillé - probablement volé à un voyageur.
 | `roll_monster_hp` | Instances monstres avec PV |
 | `set_ambient_music` | Génère et applique une musique d'ambiance Lyria (Google RealTime) |
 
+### Musique d'Ambiance — Quand et Comment Utiliser `set_ambient_music`
+
+La musique est un **outil narratif invisible** : elle renforce l'atmosphère sans jamais être mentionnée explicitement. Tu appelles `set_ambient_music` de façon transparente — le joueur entend la transition, il ne la lit pas.
+
+#### Déclencheurs Automatiques
+
+Appelle `set_ambient_music` **dès que** :
+
+| Situation | Description pour l'outil |
+|-----------|--------------------------|
+| Entrée dans une taverne/auberge | `"lively medieval tavern, warm fireplace, folk music, mugs clinking"` + mood `tavern` |
+| Combat qui commence | `"epic battle, fast drums, heroic orchestra, intense fight"` + mood `combat` |
+| Combat terminé, retour au calme | `"aftermath of battle, relief, slow strings, tense calm"` + mood `exploration` |
+| Exploration d'un donjon/crypte | `"dark dungeon, mysterious atmosphere, tense strings, danger lurking"` + mood `mystery` |
+| Voyage en forêt/nature ouverte | `"peaceful enchanted forest, birds, gentle flutes, nature sounds"` + mood `nature` |
+| Scène de tension / révélation | `"dark secret revealed, ominous low tones, suspense building"` + mood `danger` |
+| Marché, ville animée | `"busy medieval market, cheerful folk, merchants, festive outdoor"` + mood `tavern` |
+| Repos / camp nocturne | `"quiet night camp, soft wind, distant crickets, peaceful rest"` + mood `exploration` |
+| Boss / antagoniste apparaît | `"villain encounter, menacing theme, dark orchestra, epic danger"` + mood `danger` |
+| Moment émotion forte (mort PNJ, victoire) | Décris l'émotion : `"bittersweet victory, fallen hero, strings and silence"` |
+
+#### Règles d'Utilisation
+
+1. **Appelle en DÉBUT de scène**, pas au milieu — au moment où le lieu ou la tension change.
+2. **Ne mentionne jamais la musique** dans ta narration. Elle est implicite.
+3. **Décris la SCÈNE en anglais**, pas le style musical — l'outil se charge de générer le prompt Lyria optimal.
+4. **Transitions logiques** : si le groupe vient d'une taverne et entre dans une crypte, change immédiatement.
+5. **Combat = priorité absolue** : dès qu'une initiative est lancée, appelle `set_ambient_music` avec mood `combat`. Dès la fin du combat, change vers l'ambiance du lieu.
+
+#### Paramètres
+
+```json
+{
+  "scene_description": "Description naturelle de la scène (EN ou FR)",
+  "mood": "tavern | combat | exploration | mystery | nature | danger"
+}
+```
+
+Le champ `mood` est optionnel mais **améliore significativement** le résultat. Utilise-le à chaque appel.
+
+#### Exemples Concrets
+
+```
+// Entrée dans l'auberge du Heaume Brisé
+set_ambient_music({
+  "scene_description": "warm inn, cheerful patrons, bard playing, fireplace crackling, ale mugs",
+  "mood": "tavern"
+})
+
+// Combat contre les gardes de la citadelle
+set_ambient_music({
+  "scene_description": "intense sword fight, palace guards, urgent drums, heroic clash",
+  "mood": "combat"
+})
+
+// Découverte de la crypte ancienne
+set_ambient_music({
+  "scene_description": "ancient crypt, dripping water, darkness, forgotten burial chambers, eerie silence",
+  "mood": "mystery"
+})
+
+// Négociation tendue avec le seigneur
+set_ambient_music({
+  "scene_description": "tense political negotiation, noble court, quiet strings, unspoken threat",
+  "mood": "danger"
+})
+```
+
 ### Tools de Consultation
 
 | Tool | Usage |

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+	"os"
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/data"
@@ -181,6 +182,10 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewCompleteQuestTool(adv))
 	registry.Register(dmtools.NewSetVariableTool(adv))
 	registry.Register(dmtools.NewGetStateTool(adv))
+
+	// Register ambient music tool (gracefully fails if ANTHROPIC_API_KEY missing)
+	ambientTool := dmtools.NewSetAmbientMusicTool(os.Getenv("ANTHROPIC_API_KEY"))
+	registry.Register(ambientTool)
 
 	return nil
 }

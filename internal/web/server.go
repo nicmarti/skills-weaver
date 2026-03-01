@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -19,6 +20,7 @@ type Server struct {
 	staticDir      string
 	port           int
 	apiKey         string // Anthropic API key for campaign plan generation
+	geminiKey      string // Google Gemini API key for Lyria ambient music
 }
 
 // Config holds server configuration.
@@ -43,6 +45,11 @@ func NewServer(cfg Config) *Server {
 		engine.Use(gin.Logger())
 	}
 
+	geminiKey := os.Getenv("GEMINI_API_KEY")
+	if geminiKey == "" {
+		fmt.Println("Warning: GEMINI_API_KEY not set — ambient music (Lyria RealTime) will not be available")
+	}
+
 	server := &Server{
 		engine:         engine,
 		sessionManager: NewSessionManager(cfg.APIKey),
@@ -50,6 +57,7 @@ func NewServer(cfg Config) *Server {
 		staticDir:      cfg.StaticDir,
 		port:           cfg.Port,
 		apiKey:         cfg.APIKey,
+		geminiKey:      geminiKey,
 	}
 
 	server.setupTemplates()
@@ -153,6 +161,10 @@ func (s *Server) setupRoutes() {
 
 	// Gallery routes
 	s.engine.GET("/play/:slug/gallery", s.handleGallery)
+
+	// Ambient music routes (Lyria RealTime)
+	s.engine.GET("/play/:slug/ambient/stream", s.handleAmbientStream)
+	s.engine.POST("/play/:slug/ambient/set", s.handleAmbientSet)
 }
 
 // handleAdventureImages serves images from adventure directories.

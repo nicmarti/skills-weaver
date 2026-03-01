@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -342,8 +343,8 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 <div class="info-item">
     <span class="info-label">Modele IA</span>
     <select id="model-selector" class="model-select">
-        <option value="sonnet"%s>Sonnet 4.5</option>
-        <option value="opus"%s>Opus 4.5</option>
+        <option value="sonnet"%s>Sonnet 4.6</option>
+        <option value="opus"%s>Opus 4.6</option>
     </select>
 </div>`,
 		session.AdventureCtx.State.CurrentLocation,
@@ -1625,4 +1626,151 @@ func (s *Server) copyGlobalCharactersToAdventure(adv *adventure.Adventure) error
 
 	fmt.Printf("✓ Copied %d character(s) to adventure '%s': %v\n", len(characterNames), adv.Name, characterNames)
 	return nil
+}
+
+// handleAmbientStream streams continuous WAV audio from Lyria to the browser.
+// It writes a streaming WAV header followed by raw PCM16 chunks.
+func (s *Server) handleAmbientStream(c *gin.Context) {
+	slug := c.Param("slug")
+
+	if s.geminiKey == "" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "GEMINI_API_KEY not set"})
+		return
+	}
+
+	session, exists := s.sessionManager.GetSession(slug)
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
+		return
+	}
+
+	mgr := session.GetOrCreateLyriaManager(s.geminiKey)
+	if mgr == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Lyria not available"})
+		return
+	}
+
+	// Subscribe to audio stream
+	_, audioCh, cancel := mgr.Subscribe()
+	defer cancel()
+
+	// Set streaming WAV headers
+	c.Header("Content-Type", "audio/wav")
+	c.Header("Cache-Control", "no-cache, no-store")
+	c.Header("Transfer-Encoding", "chunked")
+	c.Header("X-Content-Type-Options", "nosniff")
+
+	w := c.Writer
+
+	// Write streaming WAV header (RIFF with size=0xFFFFFFFF for live streaming)
+	writeStreamingWAVHeader(w)
+	w.(http.Flusher).Flush()
+
+	// Stream PCM chunks until client disconnects
+	clientGone := c.Request.Context().Done()
+	for {
+		select {
+		case <-clientGone:
+			return
+		case pcm, ok := <-audioCh:
+			if !ok {
+				return
+			}
+			if _, err := w.Write(pcm); err != nil {
+				return
+			}
+			w.(http.Flusher).Flush()
+		}
+	}
+}
+
+// handleAmbientSet applies a new scene to the Lyria manager.
+func (s *Server) handleAmbientSet(c *gin.Context) {
+	slug := c.Param("slug")
+
+	if s.geminiKey == "" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "GEMINI_API_KEY not set"})
+		return
+	}
+
+	var req struct {
+		LyriaPrompt string  `json:"lyria_prompt"`
+		BPM         int     `json:"bpm"`
+		Temperature float64 `json:"temperature"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON: " + err.Error()})
+		return
+	}
+
+	session, exists := s.sessionManager.GetSession(slug)
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
+		return
+	}
+
+	mgr := session.GetOrCreateLyriaManager(s.geminiKey)
+	if mgr == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Lyria not available"})
+		return
+	}
+
+	bpm := req.BPM
+	if bpm == 0 {
+		bpm = 100
+	}
+	temp := req.Temperature
+	if temp == 0 {
+		temp = 1.0
+	}
+
+	if err := mgr.SetScene(req.LyriaPrompt, bpm, temp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// writeStreamingWAVHeader writes a WAV header suitable for live/infinite streaming.
+// Uses RIFF chunk size 0xFFFFFFFF and data chunk size 0xFFFFFFFF to indicate streaming.
+// Format: PCM16, 44100 Hz, stereo (2 channels), 16-bit samples.
+func writeStreamingWAVHeader(w io.Writer) {
+	const (
+		sampleRate   = 44100
+		channels     = 2
+		bitsPerSample = 16
+		byteRate     = sampleRate * channels * bitsPerSample / 8
+		blockAlign   = channels * bitsPerSample / 8
+		infiniteSize = uint32(0xFFFFFFFF)
+	)
+
+	// RIFF chunk
+	w.Write([]byte("RIFF"))
+	writeUint32LE(w, infiniteSize) // file size - 8 (infinite)
+	w.Write([]byte("WAVE"))
+
+	// fmt chunk
+	w.Write([]byte("fmt "))
+	writeUint32LE(w, 16)            // chunk size
+	writeUint16LE(w, 1)             // PCM format
+	writeUint16LE(w, channels)
+	writeUint32LE(w, sampleRate)
+	writeUint32LE(w, byteRate)
+	writeUint16LE(w, blockAlign)
+	writeUint16LE(w, bitsPerSample)
+
+	// data chunk header
+	w.Write([]byte("data"))
+	writeUint32LE(w, infiniteSize) // data size (infinite)
+}
+
+func writeUint32LE(w io.Writer, v uint32) {
+	b := [4]byte{byte(v), byte(v >> 8), byte(v >> 16), byte(v >> 24)}
+	w.Write(b[:])
+}
+
+func writeUint16LE(w io.Writer, v uint16) {
+	b := [2]byte{byte(v), byte(v >> 8)}
+	w.Write(b[:])
 }

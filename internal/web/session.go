@@ -1,11 +1,13 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
 
 	"dungeons/internal/agent"
+	"dungeons/internal/ambient"
 )
 
 const (
@@ -131,6 +133,7 @@ type Session struct {
 	Agent          *agent.Agent
 	AdventureCtx   *agent.AdventureContext
 	outputRedirect *OutputRedirector
+	LyriaManager   *ambient.LyriaManager
 	LastActivity   time.Time
 	mu             sync.Mutex
 	processing     bool
@@ -223,6 +226,9 @@ func (sm *SessionManager) RemoveSession(slug string) {
 		if output := session.outputRedirect.GetTarget(); output != nil {
 			output.Close()
 		}
+		if session.LyriaManager != nil {
+			session.LyriaManager.Stop()
+		}
 		delete(sm.sessions, slug)
 	}
 }
@@ -253,6 +259,9 @@ func (sm *SessionManager) cleanupExpired() {
 			if output := session.outputRedirect.GetTarget(); output != nil {
 				output.Close()
 			}
+			if session.LyriaManager != nil {
+				session.LyriaManager.Stop()
+			}
 			delete(sm.sessions, slug)
 		}
 	}
@@ -267,7 +276,37 @@ func (sm *SessionManager) Stop() {
 		if output := session.outputRedirect.GetTarget(); output != nil {
 			output.Close()
 		}
+		if session.LyriaManager != nil {
+			session.LyriaManager.Stop()
+		}
 	}
+}
+
+// GetOrCreateLyriaManager lazily creates a LyriaManager for this session.
+// Returns nil if geminiKey is empty.
+func (s *Session) GetOrCreateLyriaManager(geminiKey string) *ambient.LyriaManager {
+	if geminiKey == "" {
+		return nil
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.LyriaManager != nil {
+		return s.LyriaManager
+	}
+
+	mgr := ambient.NewLyriaManager(geminiKey)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := mgr.Connect(ctx); err != nil {
+		fmt.Printf("Warning: Lyria connect failed: %v\n", err)
+		return nil
+	}
+
+	s.LyriaManager = mgr
+	return mgr
 }
 
 // IsProcessing returns whether the session is currently processing a message.

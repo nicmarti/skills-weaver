@@ -33,6 +33,17 @@
             {{end}}
         </div>
 
+        <!-- Ambient Music Player -->
+        <div id="ambient-player" class="ambient-player" style="display:none">
+            <span id="ambient-scene-name">🎵 Ambiance</span>
+            <div class="ambient-controls">
+                <input type="range" id="ambient-volume" min="0" max="1" step="0.05" value="0.7" title="Volume">
+                <button id="ambient-mute" title="Couper le son">🔊</button>
+            </div>
+        </div>
+        <button id="ambient-enable-btn" class="btn btn-ambient" title="Activer la musique d'ambiance Lyria">🎵 Musique</button>
+        <audio id="ambient-audio" preload="none" style="display:none"></audio>
+
         <!-- Mini-map Section -->
         <div class="minimap-section" id="minimap-section">
             <h3>Carte</h3>
@@ -62,8 +73,8 @@
             <div class="info-item">
                 <span class="info-label">Modele IA</span>
                 <select id="model-selector" class="model-select">
-                    <option value="sonnet" {{if eq .CurrentModel "sonnet"}}selected{{end}}>Sonnet 4.5</option>
-                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.5</option>
+                    <option value="sonnet" {{if eq .CurrentModel "sonnet"}}selected{{end}}>Sonnet 4.6</option>
+                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.6</option>
                 </select>
             </div>
         </div>

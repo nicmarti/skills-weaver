@@ -86,6 +86,8 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapSetVariable(params)
 	case "get_state":
 		return mapGetState(params)
+	case "set_ambient_music":
+		return mapSetAmbientMusic(params)
 	default:
 		return ""
 	}
@@ -595,4 +597,12 @@ func mapLongRest(params map[string]interface{}) string {
 		return fmt.Sprintf("# long_rest \"%s\" (internal operation - restores HP, spell slots, hit dice)", name)
 	}
 	return "# long_rest (internal operation - restores all characters)"
+}
+
+func mapSetAmbientMusic(params map[string]interface{}) string {
+	scene, ok := params["scene_description"].(string)
+	if !ok {
+		return ""
+	}
+	return fmt.Sprintf("# set_ambient_music: scene=%q (generates Lyria prompt via Claude)", scene)
 }

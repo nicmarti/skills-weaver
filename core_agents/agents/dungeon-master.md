@@ -601,6 +601,7 @@ petit rubis mal taillé - probablement volé à un voyageur.
 | `generate_map` | Carte 2D (toujours avec `generate_image: true`) |
 | `generate_encounter` | Rencontre équilibrée par niveau |
 | `roll_monster_hp` | Instances monstres avec PV |
+| `set_ambient_music` | Génère et applique une musique d'ambiance Lyria (Google RealTime) |
 
 ### Tools de Consultation
 

@@ -2128,3 +2128,73 @@ a:hover {
         font-size: 0.8rem;
     }
 }
+
+/* ============================================================
+   Ambient Music Player
+   ============================================================ */
+
+.ambient-player {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(139, 90, 43, 0.15);
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+}
+
+#ambient-scene-name {
+    font-size: 0.85rem;
+    color: var(--accent-gold);
+    font-family: var(--font-display);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ambient-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+#ambient-volume {
+    flex: 1;
+    height: 4px;
+    accent-color: var(--accent-gold);
+    cursor: pointer;
+}
+
+#ambient-mute {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+
+#ambient-mute:hover {
+    color: var(--accent-gold);
+}
+
+.btn-ambient {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(139, 90, 43, 0.2);
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-md);
+    color: var(--accent-gold);
+    font-size: 0.85rem;
+    font-family: var(--font-display);
+    cursor: pointer;
+    margin-bottom: var(--space-sm);
+    transition: background 0.2s;
+}
+
+.btn-ambient:hover {
+    background: rgba(139, 90, 43, 0.35);
+}

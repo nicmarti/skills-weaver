@@ -77,7 +77,7 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 
 	agent := &Agent{
 		client:          client,
-		model:           anthropic.ModelClaudeSonnet4_5,
+		model:           anthropic.ModelClaudeSonnet4_6,
 		toolRegistry:    toolRegistry,
 		conversationCtx: conversationCtx,
 		adventureCtx:    adventureCtx,

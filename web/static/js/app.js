@@ -20,6 +20,18 @@
     let currentDmMessage = null;
     let currentRawText = ''; // Accumulate raw text for markdown rendering
 
+    // Handle ambient music SSE event
+    function handleAmbientMusicEvent(e) {
+        try {
+            const data = JSON.parse(e.data);
+            if (data.lyria_prompt) {
+                applyAmbientScene(data.lyria_prompt, data.bpm || 100, data.temperature || 1.0, data.scene_name || '');
+            }
+        } catch (err) {
+            console.error('Error parsing ambient_music event:', err);
+        }
+    }
+
     // Initialize
     function init() {
         if (messageForm) {
@@ -27,6 +39,7 @@
         }
         initModelSelector();
         initMinimap();
+        initAmbientPlayer();
         scrollToBottom();
     }
 
@@ -279,6 +292,7 @@
         eventSource.addEventListener('image', handleImageEvent);
         eventSource.addEventListener('location_update', handleLocationUpdate);
         eventSource.addEventListener('map_generated', handleMapGenerated);
+        eventSource.addEventListener('ambient_music', handleAmbientMusicEvent);
         eventSource.addEventListener('error', handleErrorEvent);
         eventSource.addEventListener('complete', handleComplete);
         eventSource.addEventListener('done', handleDone);
@@ -694,6 +708,134 @@
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
+    }
+})();
+
+// ============================================================
+// Ambient Music Module (Lyria RealTime)
+// ============================================================
+(function() {
+    'use strict';
+
+    if (typeof slug === 'undefined') return;
+
+    const audio = document.getElementById('ambient-audio');
+    const enableBtn = document.getElementById('ambient-enable-btn');
+    const player = document.getElementById('ambient-player');
+    const sceneNameEl = document.getElementById('ambient-scene-name');
+    const volumeSlider = document.getElementById('ambient-volume');
+    const muteBtn = document.getElementById('ambient-mute');
+
+    let ambientEnabled = false;
+    let currentPrompt = null;
+    let currentBPM = 100;
+    let currentTemp = 1.0;
+    let muted = false;
+
+    // Initialize player controls
+    window.initAmbientPlayer = function() {
+        if (!enableBtn) return;
+
+        enableBtn.addEventListener('click', function() {
+            if (!ambientEnabled) {
+                enableAmbientMusic();
+            }
+        });
+
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', function() {
+                if (audio) {
+                    audio.volume = parseFloat(this.value);
+                }
+            });
+        }
+
+        if (muteBtn) {
+            muteBtn.addEventListener('click', function() {
+                muted = !muted;
+                if (audio) {
+                    audio.muted = muted;
+                }
+                muteBtn.textContent = muted ? '🔇' : '🔊';
+            });
+        }
+    };
+
+    // Enable ambient music - requires user gesture for autoplay policy
+    function enableAmbientMusic() {
+        if (!audio) return;
+
+        ambientEnabled = true;
+        if (enableBtn) enableBtn.style.display = 'none';
+        if (player) player.style.display = 'flex';
+
+        // Set initial volume
+        audio.volume = volumeSlider ? parseFloat(volumeSlider.value) : 0.7;
+
+        // If there's a pending scene, apply it now via applyAmbientScene
+        // so that /ambient/set is POSTed first (connects Lyria) before streaming
+        if (currentPrompt) {
+            applyAmbientScene(currentPrompt, currentBPM, currentTemp, '');
+        }
+
+        console.log('Ambient music enabled');
+    }
+
+    // Apply a new ambient scene from SSE event
+    window.applyAmbientScene = function(prompt, bpm, temp, sceneName) {
+        currentPrompt = prompt;
+        currentBPM = bpm;
+        currentTemp = temp;
+
+        if (sceneNameEl && sceneName) {
+            sceneNameEl.textContent = '🎵 ' + sceneName;
+        }
+
+        if (!ambientEnabled) {
+            // Store params, wait for user to click enable
+            return;
+        }
+
+        // POST to /ambient/set and start/update stream
+        fetch(`/play/${slug}/ambient/set`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lyria_prompt: prompt, bpm: bpm, temperature: temp })
+        }).then(r => {
+            if (!r.ok) {
+                console.error('Failed to set ambient scene:', r.status);
+                return;
+            }
+            startAudioStream(prompt, bpm, temp);
+        }).catch(err => {
+            console.error('Ambient set error:', err);
+        });
+    };
+
+    // Start or restart the audio stream
+    function startAudioStream(prompt, bpm, temp) {
+        if (!audio) return;
+
+        const streamUrl = `/play/${slug}/ambient/stream`;
+
+        // If already playing the same stream, just update via /ambient/set
+        if (!audio.paused && audio.src.endsWith(streamUrl)) {
+            // Stream already running, scene change was sent via /ambient/set
+            return;
+        }
+
+        // Start new stream
+        audio.src = streamUrl;
+        audio.volume = volumeSlider ? parseFloat(volumeSlider.value) : 0.7;
+        audio.muted = muted;
+
+        audio.play().catch(err => {
+            console.warn('Autoplay blocked:', err);
+            // Browser blocked autoplay - show enable button again
+            if (enableBtn) enableBtn.style.display = '';
+            if (player) player.style.display = 'none';
+            ambientEnabled = false;
+        });
     }
 })();
 

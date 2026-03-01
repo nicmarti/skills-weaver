@@ -114,6 +114,22 @@ func (w *WebOutput) OnToolComplete(toolName string, result interface{}) {
 				Data:  string(jsonData),
 			})
 		}
+		// Check if this is an ambient music result
+		if toolName == "set_ambient_music" {
+			if success, ok := m["success"].(bool); ok && success {
+				ambientData := map[string]interface{}{
+					"lyria_prompt": m["lyria_prompt"],
+					"bpm":          m["bpm"],
+					"temperature":  m["temperature"],
+					"scene_name":   m["scene_name"],
+				}
+				jsonData, _ := json.Marshal(ambientData)
+				w.sendEvent(SSEEvent{
+					Event: "ambient_music",
+					Data:  string(jsonData),
+				})
+			}
+		}
 	}
 
 	data := map[string]string{

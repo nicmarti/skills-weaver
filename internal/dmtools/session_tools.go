@@ -56,6 +56,16 @@ func NewStartSessionTool(adv *adventure.Adventure, agentManager AgentManager) *S
 				}
 			}
 
+			// Auto-update campaign plan: keep Progression.CurrentSession in sync with sessions.json.
+			// This ensures GetCriticalForeshadows() ages and UpdatePacing() use the real session number.
+			if cp, cpErr := adv.LoadCampaignPlan(); cpErr == nil && cp != nil {
+				if cp.Progression.CurrentSession != session.ID {
+					cp.Progression.CurrentSession = session.ID
+					cp.UpdatePacing()
+					adv.SaveCampaignPlan(cp) // best-effort, ignore error
+				}
+			}
+
 			// Check for stale foreshadows (legacy compatibility - still show for adventures without campaign plan)
 			staleForeshadows, err := adv.GetStaleForeshadows(3)
 			if err == nil && len(staleForeshadows) > 0 {

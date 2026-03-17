@@ -1,7 +1,12 @@
 package dmtools
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
+
+	"dungeons/internal/adventure"
+	"dungeons/internal/character"
 )
 
 func TestLevelForXP(t *testing.T) {
@@ -80,6 +85,92 @@ func TestXPToNextLevel(t *testing.T) {
 				t.Errorf("XPToNextLevel(%d) = %d, want %d", tt.currentXP, got, tt.expectedXP)
 			}
 		})
+	}
+}
+
+// setupTestAdventure creates a temp adventure with one character for integration tests.
+func setupTestAdventure(t *testing.T) (*adventure.Adventure, string) {
+	t.Helper()
+	tmpDir := t.TempDir()
+
+	adv := &adventure.Adventure{}
+	adv.SetBasePath(tmpDir)
+
+	// Create a character and save it in the adventure's characters dir
+	char := character.New("Thorin", "human", "guerrier")
+	charsDir := filepath.Join(tmpDir, "characters")
+	if err := os.MkdirAll(charsDir, 0755); err != nil {
+		t.Fatalf("failed to create characters dir: %v", err)
+	}
+	if err := char.Save(charsDir); err != nil {
+		t.Fatalf("failed to save character: %v", err)
+	}
+
+	// Create party with that character
+	party := &adventure.Party{
+		Characters: []string{"Thorin"},
+		Formation:  "travel",
+	}
+	if err := adv.SaveParty(party); err != nil {
+		t.Fatalf("failed to save party: %v", err)
+	}
+
+	return adv, tmpDir
+}
+
+func TestAddXPToolUpdatesSessionStats(t *testing.T) {
+	adv, _ := setupTestAdventure(t)
+
+	// Start a session
+	session, err := adv.StartSession()
+	if err != nil {
+		t.Fatalf("StartSession() error = %v", err)
+	}
+	sessionID := session.ID
+
+	// Execute the add_xp tool
+	tool := NewAddXPTool(adv)
+	result, err := tool.Execute(map[string]interface{}{
+		"amount": float64(500),
+		"reason": "Combat victory",
+	})
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+
+	resultMap := result.(map[string]interface{})
+	if success, ok := resultMap["success"].(bool); !ok || !success {
+		t.Fatalf("expected success=true, got: %v", resultMap)
+	}
+
+	// End session so it's findable via GetSession
+	adv.EndSession("test")
+
+	// Verify sessions.json was updated with XP
+	s, err := adv.GetSession(sessionID)
+	if err != nil {
+		t.Fatalf("GetSession() error = %v", err)
+	}
+	if s.XPAwarded != 500 {
+		t.Errorf("XPAwarded = %d, want 500", s.XPAwarded)
+	}
+}
+
+func TestAddXPToolNoActiveSession(t *testing.T) {
+	adv, _ := setupTestAdventure(t)
+
+	// No session started — tool should still succeed (stats silently skipped)
+	tool := NewAddXPTool(adv)
+	result, err := tool.Execute(map[string]interface{}{
+		"amount": float64(200),
+	})
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+
+	resultMap := result.(map[string]interface{})
+	if success, ok := resultMap["success"].(bool); !ok || !success {
+		t.Errorf("expected success=true even without active session, got: %v", resultMap)
 	}
 }
 

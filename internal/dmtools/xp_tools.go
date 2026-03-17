@@ -223,6 +223,11 @@ func NewAddXPTool(adv *adventure.Adventure) *SimpleTool {
 			}
 			adv.LogEvent("xp", logContent)
 
+			// Update session XP stats in sessions.json (best-effort)
+			if currentSession, sessionErr := adv.GetCurrentSession(); sessionErr == nil && currentSession != nil {
+				adv.AwardXP(currentSession.ID, amount) //nolint:errcheck
+			}
+
 			// Build display string
 			display := buildXPDisplay(results, amount, reason, levelUps)
 

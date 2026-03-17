@@ -126,6 +126,13 @@ func NewAddGoldTool(adv *adventure.Adventure) *SimpleTool {
 			}
 			adv.LogEvent("expense", logContent)
 
+			// Update session gold stats in sessions.json (best-effort, positive amounts only)
+			if amount > 0 {
+				if currentSession, sessionErr := adv.GetCurrentSession(); sessionErr == nil && currentSession != nil {
+					adv.RecordGoldFound(currentSession.ID, amount) //nolint:errcheck
+				}
+			}
+
 			verb := "ajouté"
 			displayAmount := amount
 			if amount < 0 {

@@ -261,7 +261,12 @@ func (g *Generator) generateOccupation(occType string) string {
 	case "adventurer", "aventurier":
 		pool = g.traits.Occupation.Adventurer
 	default:
-		// Random type with weights
+		// If a specific non-empty occupation was provided but not found in any list or category,
+		// use it directly as a free-form occupation (e.g. "messagère indépendante", "espion").
+		if occType != "" {
+			return occType
+		}
+		// Truly empty: pick random type with weights
 		types := [][]string{
 			g.traits.Occupation.Commoner,
 			g.traits.Occupation.Skilled,

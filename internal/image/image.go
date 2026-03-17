@@ -108,6 +108,23 @@ func GetModel(name string) Model {
 	return ModelFluxPro11
 }
 
+// GeneratorI is the common interface implemented by all image generators.
+type GeneratorI interface {
+	Generate(prompt string, opts ...Option) (*GeneratedImage, error)
+}
+
+// NewGeneratorAuto selects the provider automatically based on available API keys.
+// Priority: GEMINI_API_KEY (Google Imagen) > FAL_KEY (fal.ai)
+func NewGeneratorAuto(outputDir string) (GeneratorI, error) {
+	if os.Getenv("GEMINI_API_KEY") != "" {
+		return NewGoogleGenerator(outputDir)
+	}
+	if os.Getenv("FAL_KEY") != "" {
+		return NewGenerator(outputDir)
+	}
+	return nil, fmt.Errorf("aucune API key configurée (GEMINI_API_KEY ou FAL_KEY requis)")
+}
+
 // Generator handles image generation via fal.ai API.
 type Generator struct {
 	apiKey     string

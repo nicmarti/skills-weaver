@@ -95,7 +95,7 @@ MAP TYPES:
 - dungeon: Top-down floor plan with rooms, corridors, traps, and grid (no validation required)
 - tactical: Combat grid with terrain, cover, obstacles, and elevation (no validation required)
 
-The tool enriches prompts with Claude Haiku 3.5, caches results, and optionally generates images via fal.ai flux-2.`
+The tool enriches prompts with Claude Haiku 3.5, caches results, and optionally generates images via the configured image provider (Google Imagen or fal.ai).`
 }
 
 // InputSchema returns the JSON schema for tool input.
@@ -143,7 +143,7 @@ func (t *GenerateMapTool) InputSchema() map[string]interface{} {
 			},
 			"generate_image": map[string]interface{}{
 				"type":        "boolean",
-				"description": "If true, also generates the actual map image using fal.ai flux-2. Requires FAL_KEY environment variable. Default: false (prompt only).",
+				"description": "If true, also generates the actual map image using the configured provider (Google Imagen or fal.ai). Requires GEMINI_API_KEY or FAL_KEY environment variable. Default: false (prompt only).",
 			},
 		},
 		"required": []interface{}{"map_type", "name"},
@@ -343,8 +343,8 @@ func (t *GenerateMapTool) generateImage(prompt, name, mapType, scale string) (st
 		return "", "", fmt.Errorf("getting session images dir: %w", err)
 	}
 
-	// Create image generator
-	gen, err := image.NewGenerator(outputDir)
+	// Create image generator (auto-selects Google or FAL)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return "", "", fmt.Errorf("creating generator: %w", err)
 	}

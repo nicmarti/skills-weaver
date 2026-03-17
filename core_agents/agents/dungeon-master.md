@@ -735,6 +735,8 @@ Exemple : l'objectif "Localiser le Journal du Gouverneur" → `"found_governor_j
 
 Genere des images pour illustrer les scènes, les cartes, les lieux et les combats.
 
+**LANGUE : Écris TOUJOURS le `prompt` en français.** Contrairement à `set_ambient_music` (qui attend de l'anglais pour Lyria), les prompts d'image doivent être en français. Le modèle Google Imagen comprend le français parfaitement.
+
 Génère TOUJOURS une image pour ces situations :
 - démarrage d'une session, en rappelant le lieu, l'heure de la journée, les personnages
 - fin d'une session
@@ -745,13 +747,46 @@ Génère TOUJOURS une image pour ces situations :
 - Nouveau lieu mémorable
 - Illustration du journal
 
-**Types de scènes disponibles** : `tavern`, `dungeon`, `forest`, `castle`, `village`, `cave`, `battle`, `treasure`, `camp`, `ruins`
+#### Consistance visuelle des héros (IMPORTANT)
 
-**Exemples** :
+Utilise toujours les paramètres de personnages pour que les héros soient reconnaissables d'une image à l'autre.
+
+**Tout le groupe est présent** → `"include_party": true`
 ```json
-{"type": "battle", "description": "Combat contre un ogre dans une clairière brumeuse"}
-{"type": "tavern", "description": "Taverne du Voile Écarlate, ambiance enfumée, marins"}
-{"type": "dungeon", "description": "Crypte ancienne avec autels de pierre et lueur verdâtre"}
+{"prompt": "Le groupe entre dans la grande salle du château...", "include_party": true}
+```
+
+**Seulement certains personnages** → `"characters": ["Lyra"]` ou `["Lyra", "Marcus"]`
+```json
+{"prompt": "Lyra se faufile par la fenêtre de l'auberge...", "characters": ["Lyra"]}
+{"prompt": "Marcus et Una tiennent le pont contre les gardes...", "characters": ["Marcus", "Una"]}
+```
+
+Les descriptions physiques (genre, apparence, équipement) sont injectées automatiquement dans le prompt.
+Ne décris PAS les héros toi-même dans le prompt — le moteur le fait pour toi avec les vraies fiches.
+
+**Posture des armes (`combat_ready`)**
+
+| Scène | `combat_ready` | Résultat |
+|-------|----------------|---------|
+| Taverne, conseil, voyage, dialogue | `false` (défaut) | Armes rangées au fourreau |
+| Combat, embuscade, confrontation armée | `true` | Armes dégainées |
+
+Ne jamais mettre `combat_ready: true` pour une scène sociale ou d'exploration — les héros ne se baladent pas avec leurs armes à la main en permanence.
+
+**Exemples complets** :
+```json
+// Scène sociale — armes rangées par défaut
+{"prompt": "Salle du conseil du gouverneur, réunion politique tendue", "include_party": true}
+
+// Combat — armes dégainées
+{"prompt": "Clairière brumeuse, combat contre un ogre", "style": "dark_fantasy", "include_party": true, "combat_ready": true}
+
+// Personnage seul, exploration
+{"prompt": "Lyra fouille les caisses dans l'entrepôt plongé dans l'obscurité", "characters": ["Lyra"]}
+
+// Deux personnages, confrontation armée
+{"prompt": "Marcus et Una tiennent le pont contre les gardes", "characters": ["Marcus", "Una"], "combat_ready": true}
 ```
 
 **Autres usages** :

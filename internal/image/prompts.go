@@ -485,8 +485,59 @@ func BuildJournalEntryPromptWithCharacters(
 	return baseResult
 }
 
-// buildDetailedCharacterReference creates a rich description for a character in journal context
-func buildDetailedCharacterReference(char *character.Character) string {
+// genderedWord holds masculine and feminine forms of a French word.
+type genderedWord struct{ m, f string }
+
+// translateSpecies traduit le nom de race anglais en français avec accord de genre.
+func translateSpecies(s, gender string) string {
+	translations := map[string]genderedWord{
+		"human":      {"humain", "humaine"},
+		"elf":        {"elfe", "elfe"},
+		"dwarf":      {"nain", "naine"},
+		"halfling":   {"halfelin", "halfeline"},
+		"gnome":      {"gnome", "gnome"},
+		"tiefling":   {"tieffelin", "tieffeline"},
+		"dragonborn": {"drakéide", "drakéide"},
+		"orc":        {"orc", "orc"},
+		"goliath":    {"goliath", "goliath"},
+	}
+	if w, ok := translations[strings.ToLower(s)]; ok {
+		if strings.ToLower(gender) == "femme" || strings.ToLower(gender) == "female" {
+			return w.f
+		}
+		return w.m
+	}
+	return s
+}
+
+// translateClass traduit le nom de classe anglais en français avec accord de genre.
+func translateClass(s, gender string) string {
+	translations := map[string]genderedWord{
+		"fighter":   {"guerrier", "guerrière"},
+		"rogue":     {"roublard", "roublarde"},
+		"bard":      {"barde", "barde"},
+		"cleric":    {"clerc", "clerc"},
+		"wizard":    {"magicien", "magicienne"},
+		"sorcerer":  {"ensorceleur", "ensorceleusse"},
+		"warlock":   {"occultiste", "occultiste"},
+		"paladin":   {"paladin", "paladine"},
+		"ranger":    {"rôdeur", "rôdeuse"},
+		"barbarian": {"barbare", "barbare"},
+		"monk":      {"moine", "moine"},
+		"druid":     {"druide", "druide"},
+	}
+	if w, ok := translations[strings.ToLower(s)]; ok {
+		if strings.ToLower(gender) == "femme" || strings.ToLower(gender) == "female" {
+			return w.f
+		}
+		return w.m
+	}
+	return s
+}
+
+// buildDetailedCharacterReference creates a rich description for a character in journal context.
+// combatReady controls weapon posture: true = weapons drawn, false = weapons sheathed.
+func buildDetailedCharacterReference(char *character.Character, combatReady bool) string {
 	if char.Appearance == nil {
 		// Fallback to short snippet if no appearance data
 		return char.GetImagePromptSnippet()
@@ -501,14 +552,23 @@ func buildDetailedCharacterReference(char *character.Character) string {
 		genderPrefix = a.Gender + " "
 	}
 
-	// Name and age/class
+	// Nom, âge et classe — sans la race si vide pour éviter les doubles espaces
+	gender := ""
+	if a.Gender != "" {
+		gender = a.Gender
+	}
+	speciesPart := ""
+	if char.Species != "" {
+		speciesPart = translateSpecies(char.Species, gender) + " "
+	}
+	classFr := translateClass(char.Class, gender)
 	if a.Age > 0 {
-		parts = append(parts, fmt.Sprintf("%s, a %d-year-old %s%s %s", char.Name, a.Age, genderPrefix, char.Species, char.Class))
+		parts = append(parts, fmt.Sprintf("%s, %s%s%s de %d ans", char.Name, genderPrefix, speciesPart, classFr, a.Age))
 	} else {
-		parts = append(parts, fmt.Sprintf("%s, a %s%s %s", char.Name, genderPrefix, char.Species, char.Class))
+		parts = append(parts, fmt.Sprintf("%s, %s%s%s", char.Name, genderPrefix, speciesPart, classFr))
 	}
 
-	// Physical traits
+	// Morphologie
 	if a.Height != "" || a.Build != "" {
 		traits := []string{}
 		if a.Height != "" {
@@ -517,62 +577,76 @@ func buildDetailedCharacterReference(char *character.Character) string {
 		if a.Build != "" {
 			traits = append(traits, a.Build)
 		}
-		parts = append(parts, strings.Join(traits, " and "))
+		parts = append(parts, strings.Join(traits, " et "))
 	}
 
-	// Hair and eyes
+	// Cheveux et yeux
 	if a.HairColor != "" || a.EyeColor != "" {
 		features := []string{}
 		if a.HairColor != "" && a.HairStyle != "" {
-			features = append(features, fmt.Sprintf("%s %s", a.HairColor, a.HairStyle))
+			features = append(features, fmt.Sprintf("cheveux %s %s", a.HairColor, a.HairStyle))
 		} else if a.HairColor != "" {
-			features = append(features, a.HairColor)
+			features = append(features, fmt.Sprintf("cheveux %s", a.HairColor))
 		}
 		if a.EyeColor != "" {
-			features = append(features, fmt.Sprintf("%s eyes", a.EyeColor))
+			features = append(features, fmt.Sprintf("yeux %s", a.EyeColor))
 		}
 		if len(features) > 0 {
-			parts = append(parts, strings.Join(features, " and "))
+			parts = append(parts, strings.Join(features, ", "))
 		}
 	}
 
-	// Skin tone
+	// Teint
 	if a.SkinTone != "" {
 		parts = append(parts, a.SkinTone)
 	}
 
-	// Distinctive features
+	// Traits distinctifs
 	if a.DistinctiveFeature != "" {
-		parts = append(parts, fmt.Sprintf("with %s", a.DistinctiveFeature))
+		parts = append(parts, a.DistinctiveFeature)
 	}
 
-	// Equipment
-	equipment := []string{}
+	// Équipement : armure et accessoires toujours décrits
+	armor := []string{}
 	if a.ArmorDescription != "" {
-		equipment = append(equipment, a.ArmorDescription)
-	}
-	if a.WeaponDescription != "" {
-		equipment = append(equipment, a.WeaponDescription)
+		armor = append(armor, a.ArmorDescription)
 	}
 	if a.Accessories != "" {
-		equipment = append(equipment, a.Accessories)
+		armor = append(armor, a.Accessories)
 	}
-	if len(equipment) > 0 {
-		parts = append(parts, fmt.Sprintf("carrying %s", strings.Join(equipment, " and ")))
+	if len(armor) > 0 {
+		parts = append(parts, fmt.Sprintf("équipé de %s", strings.Join(armor, " et ")))
+	}
+
+	// Armes : posture selon le contexte de la scène
+	if a.WeaponDescription != "" {
+		if combatReady {
+			parts = append(parts, fmt.Sprintf("arme dégainée : %s", a.WeaponDescription))
+		} else {
+			parts = append(parts, fmt.Sprintf("%s rangé(e) au fourreau", a.WeaponDescription))
+		}
 	}
 
 	return strings.Join(parts, ", ")
 }
 
 // buildCharacterReferences creates detailed character list for journal prompts.
+// Uses combatReady=false by default (narrative/exploration context).
 func buildCharacterReferences(characters []*character.Character) string {
+	return BuildCharacterVisualDescriptions(characters, false)
+}
+
+// BuildCharacterVisualDescriptions returns a visual description string for a list of characters,
+// ready to be injected into an image generation prompt.
+// combatReady controls weapon posture: true = weapons drawn, false = weapons sheathed.
+func BuildCharacterVisualDescriptions(characters []*character.Character, combatReady bool) string {
 	if len(characters) == 0 {
 		return ""
 	}
 
 	refs := make([]string, 0, len(characters))
 	for _, c := range characters {
-		refs = append(refs, buildDetailedCharacterReference(c))
+		refs = append(refs, buildDetailedCharacterReference(c, combatReady))
 	}
 
 	return strings.Join(refs, "; ")

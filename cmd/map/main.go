@@ -363,11 +363,11 @@ func saveCachedPrompt(cacheFile string, result *MapPrompt) error {
 func generateMapImage(prompt, name, mapType, scale, imageSize string) error {
 	fmt.Println("\n⏳ Génération de l'image...")
 
-	// Create image generator
+	// Create image generator (auto-selects Google Imagen or fal.ai based on available keys)
 	outputDir := filepath.Join("data", "maps")
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
-		return fmt.Errorf("creating image generator: %w\nAstuce: Définissez FAL_KEY dans votre environnement", err)
+		return fmt.Errorf("creating image generator: %w\nAstuce: Définissez GEMINI_API_KEY ou FAL_KEY dans votre environnement", err)
 	}
 
 	// Generate unique filename (use hyphens for consistency)

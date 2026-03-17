@@ -107,7 +107,7 @@ EXEMPLES:
   sw-image journal "la-crypte-des-ombres" --model=zimage --start-id=60 --dry-run
 
 NOTES:
-  - Nécessite la variable d'environnement FAL_KEY
+  - Nécessite GEMINI_API_KEY (Google Imagen, prioritaire) ou FAL_KEY (fal.ai, fallback)
   - Les images sont sauvegardées dans data/images/ ou data/adventures/<nom>/images/`)
 }
 
@@ -146,7 +146,7 @@ func cmdCharacter(args []string) error {
 	}
 
 	// Create generator with specified output directory
-	gen, err := image.NewGenerator(outDir)
+	gen, err := image.NewGeneratorAuto(outDir)
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func cmdNPC(args []string) error {
 	fmt.Printf("PNJ généré: %s (%s %s, %s)\n\n", n.Name, n.Race, n.Gender, n.Occupation)
 
 	// Create image generator
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return err
 	}
@@ -269,7 +269,7 @@ func cmdScene(args []string) error {
 	opts := parseOptions(optArgs)
 
 	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func cmdMonster(args []string) error {
 	opts := parseOptions(args[1:])
 
 	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return err
 	}
@@ -367,7 +367,7 @@ func cmdItem(args []string) error {
 	opts := parseOptions(optArgs)
 
 	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return err
 	}
@@ -420,7 +420,7 @@ func cmdLocation(args []string) error {
 	opts := parseOptions(optArgs)
 
 	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ func cmdCustom(args []string) error {
 	prompt = prompt + ", " + image.BasePromptSuffix
 
 	// Create generator
-	gen, err := image.NewGenerator(outputDir)
+	gen, err := image.NewGeneratorAuto(outputDir)
 	if err != nil {
 		return err
 	}
@@ -823,21 +823,29 @@ func cmdJournal(args []string) error {
 		}
 	}
 
-	// Get model - journal command uses specific models only
-	journalModels := image.JournalModels()
-	modelName := opts["model"]
-	if modelName == "" {
-		modelName = "flux-2-pro" // Default: FLUX.2 Pro for high quality journal illustrations
-	}
-
-	// Validate model is available for journal
-	model, ok := journalModels[modelName]
-	if !ok {
-		availableModels := []string{}
-		for name := range journalModels {
-			availableModels = append(availableModels, name)
+	// Select model based on active provider
+	var model image.Model
+	if os.Getenv("GEMINI_API_KEY") != "" {
+		// Google Imagen active — skip FAL model validation
+		model = image.Model{Short: "imagen-4.0", ID: "imagen-4.0-generate-001"}
+		fmt.Printf("→ Provider: Google Imagen (imagen-4.0-generate-001)\n")
+	} else {
+		// FAL.ai model selection
+		journalModels := image.JournalModels()
+		modelName := opts["model"]
+		if modelName == "" {
+			modelName = "flux-2-pro" // Default: FLUX.2 Pro for high quality journal illustrations
 		}
-		return fmt.Errorf("modèle '%s' non disponible pour le journal. Modèles disponibles: %v", modelName, availableModels)
+
+		var ok bool
+		model, ok = journalModels[modelName]
+		if !ok {
+			availableModels := []string{}
+			for name := range journalModels {
+				availableModels = append(availableModels, name)
+			}
+			return fmt.Errorf("modèle '%s' non disponible pour le journal. Modèles disponibles: %v", modelName, availableModels)
+		}
 	}
 
 	// Dry run mode - just print prompts
@@ -917,7 +925,7 @@ func cmdJournal(args []string) error {
 				}
 
 				// Create generator for this session directory
-				gen, err := image.NewGenerator(sessionDir)
+				gen, err := image.NewGeneratorAuto(sessionDir)
 				if err != nil {
 					resultsChan <- result{entryID: job.prompt.EntryID, err: fmt.Errorf("création générateur: %w", err)}
 					continue

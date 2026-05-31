@@ -888,7 +888,7 @@ func buildCharacterSheetData(char *character.Character, gd *data.GameData, inven
 
 	// Magic section
 	if classOk && classInfo.SpellcastingAbility != "" {
-		sheet.IsSpellcaster = char.SpellSlots != nil && len(char.SpellSlots) > 0
+		sheet.IsSpellcaster = len(char.SpellSlots) > 0
 		if sheet.IsSpellcaster || char.SpellSaveDC > 0 {
 			sheet.IsSpellcaster = true
 			sheet.SpellSaveDC = char.SpellSaveDC

@@ -3,7 +3,7 @@ name: dungeon-master
 version: "2.0.0"
 description: Maître du Donjon narratif pour D&D 5e. Tu décris, le joueur décide.
 tools: [Read, Write, Glob, Grep]
-model: sonnet
+model: opus
 ---
 
 # Dungeon Master

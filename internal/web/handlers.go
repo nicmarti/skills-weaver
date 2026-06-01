@@ -436,7 +436,9 @@ func (s *Server) handleCoherence(c *gin.Context) {
 		"Layers": []gin.H{
 			layerView("Intégrité", report.Integrity),
 			layerView("Dérive (squelette ↔ déroulé)", report.Drift),
+			layerView("Qualité narrative (signaux)", report.Narrative),
 		},
+		"Brief": report.NarrativeBrief,
 	})
 }
 

@@ -97,8 +97,42 @@
     </div>
     {{end}}
 
+    {{with .Brief}}
+    <div class="layer-card">
+        <h2 class="layer-title">📖 Dossier narratif — {{.PlayedSessions}} session(s) jouée(s)</h2>
+        <div class="counts">Matière première pour le jugement IA (répétitions, stagnation, ce qui n'a pas fonctionné). Jugement IA branché à l'étape suivante.</div>
+        <table class="findings">
+            <thead><tr><th>Session</th><th>Entrées</th><th>Combat (lignes log)</th><th>Marqueurs prog.</th><th>Résumé</th></tr></thead>
+            <tbody>
+                {{range .Sessions}}
+                <tr>
+                    <td><b>{{.ID}}</b></td>
+                    <td>{{.EntryCount}}</td>
+                    <td>{{.CombatLogLines}}</td>
+                    <td>{{.ProgressionMarkers}}</td>
+                    <td>{{.Summary}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{if .OpenThreads}}<p class="legend">🧵 Fils narratifs actifs : {{range $i, $t := .OpenThreads}}{{if $i}}, {{end}}<span class="rule">{{$t}}</span>{{end}}</p>{{end}}
+        {{if .PendingForeshadows}}
+        <p class="legend">🎯 Foreshadows non résolus :</p>
+        <table class="findings">
+            <thead><tr><th>ID</th><th>Importance</th><th>Payoff prévu</th><th>Description</th></tr></thead>
+            <tbody>
+                {{range .PendingForeshadows}}
+                <tr><td class="rule">{{.ID}}</td><td>{{.Importance}}</td><td>{{if .TargetPayoffSession}}session {{.TargetPayoffSession}}{{else}}—{{end}}</td><td>{{.Description}}</td></tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{end}}
+        <p class="legend">⚠️ {{range $i, $n := .Notes}}{{if $i}} · {{end}}{{$n}}{{end}}</p>
+    </div>
+    {{end}}
+
     <p class="legend">
-        Couches : <b>intégrité</b> (données bien formées, déterministe). À venir : <b>drift</b> (squelette ↔ déroulé) et <b>qualité narrative</b> (jugée par l'IA).
+        Couches : <b>intégrité</b> (données bien formées) · <b>dérive</b> (squelette ↔ déroulé) · <b>qualité narrative</b> (signaux déterministes ; jugement délégué à l'IA — branchement à venir).
     </p>
 </div>
 </body>

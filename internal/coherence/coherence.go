@@ -88,11 +88,17 @@ type Report struct {
 	GeneratedAt   time.Time   `json:"generated_at"`
 	Integrity     LayerReport `json:"integrity"`
 	Drift         LayerReport `json:"drift"`
-	// The Narrative layer will be added in a later iteration.
+	Narrative     LayerReport `json:"narrative"`
+	// NarrativeBrief is the deterministic evidence dossier for an LLM to judge
+	// narrative quality (repetition, stagnation, what did not work). The actual
+	// AI judgment is wired on top of this in a later iteration.
+	NarrativeBrief *NarrativeBrief `json:"narrative_brief,omitempty"`
 }
 
 // HasErrors reports whether any layer contains an error-severity finding.
-// Front-ends (e.g. a CI gate) can use this for exit codes.
+// Front-ends (e.g. a CI gate) can use this for exit codes. The narrative layer
+// is deliberately excluded: narrative observations are never errors and must
+// not gate a pipeline.
 func (r *Report) HasErrors() bool {
 	return r.Integrity.HasErrors() || r.Drift.HasErrors()
 }
@@ -107,12 +113,22 @@ func Analyze(adv *adventure.Adventure) (*Report, error) {
 	if err != nil {
 		return nil, err
 	}
+	narrative, err := AnalyzeNarrative(adv)
+	if err != nil {
+		return nil, err
+	}
+	brief, err := BuildNarrativeBrief(adv)
+	if err != nil {
+		return nil, err
+	}
 	return &Report{
-		AdventureName: adv.Name,
-		AdventureSlug: adv.Slug,
-		GeneratedAt:   time.Now(),
-		Integrity:     integrity,
-		Drift:         drift,
+		AdventureName:  adv.Name,
+		AdventureSlug:  adv.Slug,
+		GeneratedAt:    time.Now(),
+		Integrity:      integrity,
+		Drift:          drift,
+		Narrative:      narrative,
+		NarrativeBrief: brief,
 	}, nil
 }
 

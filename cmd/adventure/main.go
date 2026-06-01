@@ -1526,6 +1526,31 @@ func printCoherenceReport(report *coherence.Report) {
 
 	printCoherenceLayer("Intégrité", report.Integrity)
 	printCoherenceLayer("Dérive (squelette ↔ déroulé)", report.Drift)
+	printCoherenceLayer("Qualité narrative (signaux)", report.Narrative)
+	printNarrativeBrief(report.NarrativeBrief)
+}
+
+// printNarrativeBrief renders a compact view of the evidence dossier. The full
+// dossier (for LLM judgment) is available via --json.
+func printNarrativeBrief(brief *coherence.NarrativeBrief) {
+	if brief == nil {
+		return
+	}
+	fmt.Printf("── Dossier narratif (%d session(s) jouée(s)) — jugement IA à venir, dossier complet via --json\n", brief.PlayedSessions)
+	for _, sd := range brief.Sessions {
+		fmt.Printf("   • Session %d : %d entrées (combat-log:%d, marqueurs-progression:%d)\n",
+			sd.ID, sd.EntryCount, sd.CombatLogLines, sd.ProgressionMarkers)
+		if sd.Summary != "" {
+			fmt.Printf("     résumé: %s\n", truncate(sd.Summary, 90))
+		}
+	}
+	if len(brief.OpenThreads) > 0 {
+		fmt.Printf("   Fils actifs: %s\n", strings.Join(brief.OpenThreads, ", "))
+	}
+	if len(brief.PendingForeshadows) > 0 {
+		fmt.Printf("   Foreshadows non résolus: %d\n", len(brief.PendingForeshadows))
+	}
+	fmt.Println()
 }
 
 // printCoherenceLayer renders a single layer's score and findings.

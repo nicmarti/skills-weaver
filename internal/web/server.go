@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"io"
@@ -10,7 +11,13 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
 )
+
+// markdownConverter renders Markdown to HTML. Raw HTML in the source is escaped
+// by default (no WithUnsafe), so LLM-produced content cannot inject markup.
+var markdownConverter = goldmark.New(goldmark.WithExtensions(extension.GFM))
 
 // Server represents the web server.
 type Server struct {
@@ -71,6 +78,14 @@ func (s *Server) setupTemplates() {
 	funcMap := template.FuncMap{
 		"safe": func(str string) template.HTML {
 			return template.HTML(str)
+		},
+		// markdown renders a Markdown string to safe HTML (raw HTML escaped).
+		"markdown": func(str string) template.HTML {
+			var buf bytes.Buffer
+			if err := markdownConverter.Convert([]byte(str), &buf); err != nil {
+				return template.HTML(template.HTMLEscapeString(str))
+			}
+			return template.HTML(buf.String())
 		},
 		"formatDuration": func(ms int64) string {
 			if ms < 1000 {

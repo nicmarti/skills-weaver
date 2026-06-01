@@ -76,6 +76,31 @@ func TestJudgeAssemblesThreeLensesAndSynthesis(t *testing.T) {
 	}
 }
 
+func TestJudgeReportsProgress(t *testing.T) {
+	inv := &fakeInvoker{}
+	var msgs []string
+	_, err := Judge(sampleBrief(), inv, func(m string) { msgs = append(msgs, m) })
+	if err != nil {
+		t.Fatalf("Judge() error = %v", err)
+	}
+	// start + (start/done per 3 lenses) + synthesis + done = 9 messages.
+	if len(msgs) < 8 {
+		t.Errorf("expected progress messages for each step, got %d: %v", len(msgs), msgs)
+	}
+	joined := strings.Join(msgs, "\n")
+	for _, want := range []string{"world-keeper", "rules-keeper", "scenario-critic", "Synthèse", "terminé"} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("progress missing %q in:\n%s", want, joined)
+		}
+	}
+}
+
+func TestJudgeNilProgressIsSafe(t *testing.T) {
+	if _, err := Judge(sampleBrief(), &fakeInvoker{}, nil); err != nil {
+		t.Errorf("nil progress callback should be safe, got %v", err)
+	}
+}
+
 func TestJudgePropagatesLensError(t *testing.T) {
 	inv := &fakeInvoker{failOn: "rules-keeper"}
 	_, err := Judge(sampleBrief(), inv)

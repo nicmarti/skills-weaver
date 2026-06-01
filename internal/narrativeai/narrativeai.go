@@ -45,21 +45,36 @@ var lenses = []lens{
 
 // Judge runs the three lenses over the brief plus a light synthesis and returns a
 // NarrativeJudgment. Each lens and the synthesis is a single InvokeAgentSilent call.
-func Judge(brief *coherence.NarrativeBrief, inv Invoker) (*coherence.NarrativeJudgment, error) {
+//
+// Optional progress callbacks are invoked with a human-readable message at each
+// step (lens start/done, synthesis, completion) so callers can log server-side
+// progress. They are best-effort and may be nil.
+func Judge(brief *coherence.NarrativeBrief, inv Invoker, progress ...func(string)) (*coherence.NarrativeJudgment, error) {
 	if brief == nil {
 		return nil, fmt.Errorf("nil narrative brief")
 	}
+	report := func(msg string) {
+		for _, p := range progress {
+			if p != nil {
+				p(msg)
+			}
+		}
+	}
+
+	report(fmt.Sprintf("Démarrage du jugement narratif — %d session(s), %d perspectives + synthèse", brief.PlayedSessions, len(lenses)))
 
 	j := &coherence.NarrativeJudgment{
 		GeneratedAt:    time.Now(),
 		PlayedSessions: brief.PlayedSessions,
 	}
 
-	for _, l := range lenses {
+	for i, l := range lenses {
+		report(fmt.Sprintf("(%d/%d) Consultation de %s — %s…", i+1, len(lenses), l.agent, l.label))
 		resp, err := inv.InvokeAgentSilent(l.agent, l.prompt(brief), nestedDepth)
 		if err != nil {
 			return nil, fmt.Errorf("lens %q (%s): %w", l.label, l.agent, err)
 		}
+		report(fmt.Sprintf("(%d/%d) %s a répondu (%d caractères)", i+1, len(lenses), l.agent, len(resp)))
 		j.Lenses = append(j.Lenses, coherence.LensVerdict{
 			Lens:       l.label,
 			Agent:      l.agent,
@@ -69,12 +84,14 @@ func Judge(brief *coherence.NarrativeBrief, inv Invoker) (*coherence.NarrativeJu
 
 	// Light cross-cutting synthesis, delegated to the scenario-critic (which owns
 	// the overall adventure view), given the three verdicts.
+	report("Synthèse transversale (scenario-critic)…")
 	syn, err := inv.InvokeAgentSilent("scenario-critic", synthesisPrompt(j.Lenses), nestedDepth)
 	if err != nil {
 		return nil, fmt.Errorf("synthesis: %w", err)
 	}
 	j.Synthesis = strings.TrimSpace(syn)
 
+	report("Jugement narratif terminé.")
 	return j, nil
 }
 

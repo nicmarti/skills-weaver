@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -489,11 +490,18 @@ func (s *Server) handleCoherenceAnalyze(c *gin.Context) {
 		return
 	}
 
-	judgment, err := narrativeai.Judge(brief, session.Agent.AgentManager())
+	log.Printf("[coherence-ai][%s] analyse demandée — lancement du jugement narratif (3 agents + synthèse)", slug)
+	start := time.Now()
+	progress := func(msg string) {
+		log.Printf("[coherence-ai][%s] %s", slug, msg)
+	}
+	judgment, err := narrativeai.Judge(brief, session.Agent.AgentManager(), progress)
 	if err != nil {
+		log.Printf("[coherence-ai][%s] ÉCHEC après %s: %v", slug, time.Since(start).Round(time.Second), err)
 		s.renderError(c, http.StatusInternalServerError, "Analyse IA échouée: "+err.Error())
 		return
 	}
+	log.Printf("[coherence-ai][%s] jugement terminé en %s (%d perspectives)", slug, time.Since(start).Round(time.Second), len(judgment.Lenses))
 
 	if err := coherence.SaveNarrativeJudgment(adv, judgment); err != nil {
 		s.renderError(c, http.StatusInternalServerError, "Sauvegarde du jugement: "+err.Error())

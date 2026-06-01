@@ -433,7 +433,10 @@ func (s *Server) handleCoherence(c *gin.Context) {
 		"Slug":          slug,
 		"AdventureName": report.AdventureName,
 		"GeneratedAt":   report.GeneratedAt.Format("02/01/2006 15:04"),
-		"Layers":        []gin.H{layerView("Intégrité", report.Integrity)},
+		"Layers": []gin.H{
+			layerView("Intégrité", report.Integrity),
+			layerView("Dérive (squelette ↔ déroulé)", report.Drift),
+		},
 	})
 }
 

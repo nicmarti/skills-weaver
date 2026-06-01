@@ -1525,6 +1525,7 @@ func printCoherenceReport(report *coherence.Report) {
 	fmt.Printf("   Généré le %s\n\n", report.GeneratedAt.Format("02/01/2006 15:04"))
 
 	printCoherenceLayer("Intégrité", report.Integrity)
+	printCoherenceLayer("Dérive (squelette ↔ déroulé)", report.Drift)
 }
 
 // printCoherenceLayer renders a single layer's score and findings.

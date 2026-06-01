@@ -87,19 +87,23 @@ type Report struct {
 	AdventureSlug string      `json:"adventure_slug"`
 	GeneratedAt   time.Time   `json:"generated_at"`
 	Integrity     LayerReport `json:"integrity"`
-	// Drift and Narrative layers will be added in later iterations.
+	Drift         LayerReport `json:"drift"`
+	// The Narrative layer will be added in a later iteration.
 }
 
 // HasErrors reports whether any layer contains an error-severity finding.
-// Front-ends (e.g. a CI sw-validate) can use this for exit codes.
+// Front-ends (e.g. a CI gate) can use this for exit codes.
 func (r *Report) HasErrors() bool {
-	return r.Integrity.HasErrors()
+	return r.Integrity.HasErrors() || r.Drift.HasErrors()
 }
 
 // Analyze runs every implemented layer over an adventure and returns a Report.
-// Today that is the integrity layer only.
 func Analyze(adv *adventure.Adventure) (*Report, error) {
 	integrity, err := AnalyzeIntegrity(adv)
+	if err != nil {
+		return nil, err
+	}
+	drift, err := AnalyzeDrift(adv)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +112,7 @@ func Analyze(adv *adventure.Adventure) (*Report, error) {
 		AdventureSlug: adv.Slug,
 		GeneratedAt:   time.Now(),
 		Integrity:     integrity,
+		Drift:         drift,
 	}, nil
 }
 

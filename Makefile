@@ -37,7 +37,7 @@ $(BINARY_PREFIX)-dice: cmd/dice/main.go internal/dice/*.go
 $(BINARY_PREFIX)-character: cmd/character/main.go internal/character/*.go internal/data/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/character
 
-$(BINARY_PREFIX)-adventure: cmd/adventure/main.go internal/adventure/*.go internal/ai/*.go internal/coherence/*.go
+$(BINARY_PREFIX)-adventure: cmd/adventure/main.go internal/adventure/*.go internal/ai/*.go internal/coherence/*.go internal/npcmanager/*.go internal/npc/*.go internal/names/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/adventure
 
 $(BINARY_PREFIX)-names: cmd/names/main.go internal/names/*.go
@@ -76,7 +76,7 @@ $(BINARY_PREFIX)-character-sheet: cmd/character-sheet/main.go internal/character
 $(BINARY_PREFIX)-map: cmd/map/main.go internal/map/*.go internal/world/*.go internal/ai/*.go internal/image/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/map
 
-$(BINARY_PREFIX)-web: cmd/web/main.go internal/web/*.go internal/agent/*.go internal/adventure/*.go
+$(BINARY_PREFIX)-web: cmd/web/main.go internal/web/*.go internal/agent/*.go internal/adventure/*.go internal/coherence/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/web
 
 # =============================================================================

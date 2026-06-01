@@ -18,6 +18,7 @@ type NarrativeBrief struct {
 	Sessions           []SessionDigest    `json:"sessions"`
 	OpenThreads        []string           `json:"open_threads"`        // plan active narrative threads
 	PendingForeshadows []ForeshadowDigest `json:"pending_foreshadows"` // active (unresolved) foreshadows
+	Behavior           *BehaviorProfile   `json:"behavior,omitempty"`  // log-derived DM behavior profile
 	Notes              []string           `json:"notes"`               // data caveats for the LLM interpreter
 }
 
@@ -87,6 +88,30 @@ func AnalyzeNarrative(adv *adventure.Adventure) (LayerReport, error) {
 		})
 	}
 
+	// Behavior signals — conservative, evidence-only (never errors). Only fire on a
+	// meaningful sample so they are reliable rather than noisy.
+	if b := brief.Behavior; b != nil && b.TotalRolls.Total >= 20 {
+		r := b.TotalRolls
+		if r.Social == 0 {
+			findings = append(findings, Finding{
+				Layer:    LayerNarrative,
+				Severity: SeverityInfo,
+				Rule:     "behavior.no_social_rolls",
+				Message:  fmt.Sprintf("Aucun jet social sur %d jets — interactions sociales peu mises à l'épreuve mécaniquement", r.Total),
+				Context:  map[string]any{"total": r.Total, "social": r.Social},
+			})
+		}
+		if r.Combat > 2*(r.Skill+r.Social) {
+			findings = append(findings, Finding{
+				Layer:    LayerNarrative,
+				Severity: SeverityInfo,
+				Rule:     "behavior.combat_skewed",
+				Message:  fmt.Sprintf("Jeu orienté combat : %d jets de combat vs %d compétence + %d social", r.Combat, r.Skill, r.Social),
+				Context:  map[string]any{"combat": r.Combat, "skill": r.Skill, "social": r.Social},
+			})
+		}
+	}
+
 	return newLayerReport(LayerNarrative, findings), nil
 }
 
@@ -146,6 +171,11 @@ func BuildNarrativeBrief(adv *adventure.Adventure) (*NarrativeBrief, error) {
 			}
 		}
 		brief.Sessions = append(brief.Sessions, digest)
+	}
+
+	// Log-derived DM behavior profile (best-effort; nil when no logs).
+	if bp, bErr := BuildBehaviorProfile(adv); bErr == nil && bp.SessionsAnalyzed > 0 {
+		brief.Behavior = bp
 	}
 
 	// Open narrative loops from the campaign plan (if any).

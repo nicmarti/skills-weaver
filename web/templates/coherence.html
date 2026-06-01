@@ -160,6 +160,36 @@
             </tbody>
         </table>
         {{end}}
+        {{with .Behavior}}
+        <p class="legend">🎲 Profil de jeu (depuis les logs, {{.SessionsAnalyzed}} session(s)) — preuve déterministe du comportement du DM :</p>
+        <table class="findings">
+            <thead><tr><th>Session</th><th>Jets</th><th>Combat</th><th>Compétence</th><th>Social</th><th>Sauveg.</th><th>Autre</th><th>Outils</th></tr></thead>
+            <tbody>
+                {{range .Sessions}}
+                <tr>
+                    <td><b>{{.SessionID}}</b></td>
+                    <td>{{.Rolls.Total}}</td>
+                    <td>{{.Rolls.Combat}}</td>
+                    <td>{{.Rolls.Skill}}</td>
+                    <td>{{.Rolls.Social}}</td>
+                    <td>{{.Rolls.Save}}</td>
+                    <td>{{.Rolls.Other}}</td>
+                    <td class="rule">{{len .ToolCalls}} types</td>
+                </tr>
+                {{end}}
+                <tr style="border-top:2px solid rgba(212,175,55,.35)">
+                    <td><b>Total</b></td>
+                    <td><b>{{.TotalRolls.Total}}</b></td>
+                    <td>{{.TotalRolls.Combat}}</td>
+                    <td>{{.TotalRolls.Skill}}</td>
+                    <td>{{.TotalRolls.Social}}</td>
+                    <td>{{.TotalRolls.Save}}</td>
+                    <td>{{.TotalRolls.Other}}</td>
+                    <td class="rule">—</td>
+                </tr>
+            </tbody>
+        </table>
+        {{end}}
         <p class="legend">⚠️ {{range $i, $n := .Notes}}{{if $i}} · {{end}}{{$n}}{{end}}</p>
     </div>
     {{end}}

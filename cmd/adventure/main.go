@@ -1644,6 +1644,11 @@ func printNarrativeBrief(brief *coherence.NarrativeBrief) {
 	if len(brief.PendingForeshadows) > 0 {
 		fmt.Printf("   Foreshadows non résolus: %d\n", len(brief.PendingForeshadows))
 	}
+	if b := brief.Behavior; b != nil {
+		r := b.TotalRolls
+		fmt.Printf("   Profil de jeu (%d sessions loggées) — jets: combat=%d, compétence=%d, social=%d, sauvegarde=%d, autre=%d (total %d)\n",
+			b.SessionsAnalyzed, r.Combat, r.Skill, r.Social, r.Save, r.Other, r.Total)
+	}
 	fmt.Println()
 }
 

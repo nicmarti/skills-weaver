@@ -136,6 +136,25 @@ func briefDigest(b *coherence.NarrativeBrief) string {
 		}
 	}
 
+	if bp := b.Behavior; bp != nil {
+		r := bp.TotalRolls
+		fmt.Fprintf(&sb, "\nProfil de jeu (depuis les logs, %d session(s)) :\n", bp.SessionsAnalyzed)
+		fmt.Fprintf(&sb, "  Jets de dés: total=%d (combat=%d, compétence=%d, social=%d, sauvegarde=%d, autre=%d)\n",
+			r.Total, r.Combat, r.Skill, r.Social, r.Save, r.Other)
+		if len(bp.TotalAgentConsults) > 0 {
+			sb.WriteString("  Consultations d'agents: ")
+			first := true
+			for ag, n := range bp.TotalAgentConsults {
+				if !first {
+					sb.WriteString(", ")
+				}
+				fmt.Fprintf(&sb, "%s:%d", ag, n)
+				first = false
+			}
+			sb.WriteString("\n")
+		}
+	}
+
 	if len(b.Notes) > 0 {
 		sb.WriteString("\nLimites des données (à respecter dans ton analyse):\n")
 		for _, n := range b.Notes {

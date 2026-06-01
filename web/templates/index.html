@@ -98,7 +98,8 @@
                             </div>
                         </a>
                         <div class="card-actions">
-                            <form action="/adventures/{{.Slug}}/archive" method="POST" style="display:inline">
+                            <form action="/adventures/{{.Slug}}/archive" method="POST" style="display:inline"
+                                  onsubmit="return confirm('Archiver « {{.Name}} » ? Elle disparaîtra de la liste (restaurable via : sw-adventure unarchive {{.Slug}}).');">
                                 <button type="submit" class="btn btn-small btn-secondary" title="Archiver">Archiver</button>
                             </form>
                         </div>

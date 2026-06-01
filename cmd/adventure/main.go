@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -10,6 +11,7 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/ai"
+	"dungeons/internal/coherence"
 )
 
 const (
@@ -87,6 +89,8 @@ func main() {
 		err = cmdInspectSessions(args)
 	case "repair":
 		err = cmdRepair(args)
+	case "coherence":
+		err = cmdCoherence(args)
 	case "help":
 		printUsage()
 	default:
@@ -157,6 +161,7 @@ COMMANDES MAINTENANCE:
   validate-journal <aventure>   Valider l'intégrité des journaux
   inspect-sessions <aventure>   Analyser les sessions pour détecter les problèmes
   repair <aventure> [--apply]   Canonicaliser le journal (fixes sûrs, dry-run par défaut)
+  coherence <aventure> [--json] Analyser la cohérence (exit≠0 si erreurs d'intégrité)
   clean-session <aventure> <session_id>  Supprimer une session invalide
 
 EXEMPLES:
@@ -1464,6 +1469,87 @@ func cmdRepair(args []string) error {
 	}
 
 	return nil
+}
+
+// cmdCoherence analyzes an adventure's coherence and prints a report.
+// With --json it emits the raw Report (the machine feed). The process exits
+// with a non-zero status when any layer contains an error-severity finding,
+// so it can gate a CI pipeline.
+func cmdCoherence(args []string) error {
+	jsonOut := false
+	var name string
+	for _, arg := range args {
+		switch arg {
+		case "--json":
+			jsonOut = true
+		default:
+			if name == "" {
+				name = arg
+			}
+		}
+	}
+	if name == "" {
+		return fmt.Errorf("usage: coherence <aventure> [--json]")
+	}
+
+	adv, err := adventure.LoadByName(adventuresDir, name)
+	if err != nil {
+		return fmt.Errorf("chargement aventure: %w", err)
+	}
+
+	report, err := coherence.Analyze(adv)
+	if err != nil {
+		return fmt.Errorf("analyse: %w", err)
+	}
+
+	if jsonOut {
+		data, err := json.MarshalIndent(report, "", "  ")
+		if err != nil {
+			return fmt.Errorf("encodage JSON: %w", err)
+		}
+		fmt.Println(string(data))
+	} else {
+		printCoherenceReport(report)
+	}
+
+	// Non-zero exit when any layer has errors (CI gate).
+	if report.HasErrors() {
+		os.Exit(1)
+	}
+	return nil
+}
+
+// printCoherenceReport renders a coherence report as readable text.
+func printCoherenceReport(report *coherence.Report) {
+	fmt.Printf("🔍 Cohérence: %s\n", report.AdventureName)
+	fmt.Printf("   Généré le %s\n\n", report.GeneratedAt.Format("02/01/2006 15:04"))
+
+	printCoherenceLayer("Intégrité", report.Integrity)
+}
+
+// printCoherenceLayer renders a single layer's score and findings.
+func printCoherenceLayer(title string, lr coherence.LayerReport) {
+	errs, warns, infos := lr.Counts()
+	fmt.Printf("── %s — score %d/100 (%d erreur(s), %d avertissement(s), %d info(s))\n",
+		title, lr.Score, errs, warns, infos)
+
+	if len(lr.Findings) == 0 {
+		fmt.Print("   ✓ Aucun problème détecté — données canoniques.\n\n")
+		return
+	}
+	for _, f := range lr.Findings {
+		icon := "•"
+		switch f.Severity {
+		case coherence.SeverityError:
+			icon = "✗"
+		case coherence.SeverityWarning:
+			icon = "⚠"
+		case coherence.SeverityInfo:
+			icon = "ℹ"
+		}
+		fmt.Printf("   %s [%s] %s: %s\n", icon, f.Severity, f.Rule, f.Message)
+	}
+	fmt.Println()
 }
 
 // copyFile copies a file from src to dst.

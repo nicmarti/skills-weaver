@@ -302,6 +302,8 @@ Le journal est organisé en fichiers séparés par session pour optimiser la per
 
 **Migration** : `sw-adventure migrate-journal <aventure>` pour convertir ancien journal.json monolithique.
 
+**⚠️ Limitation données connue** : dans les aventures existantes, `sessions.json` a souvent les champs `location`, `xp_awarded` et `gold_found` **vides/à zéro** (non peuplés par le moteur). Ne pas s'appuyer dessus pour l'analyse (lieu, progression, XP) — dériver ces infos du journal à la place. De même, les combats sont loggés **coup par coup** (une rencontre = plusieurs entrées `combat`) et les marqueurs de progression ("Plot point completed") sont rarement loggés : compter les entrées ne reflète donc ni le nombre de rencontres ni la progression réelle.
+
 ### 3. 🎭 Système de Planification Narrative de Campagne
 
 **Fichier** : `data/adventures/<nom>/campaign-plan.json`

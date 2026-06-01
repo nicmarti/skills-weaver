@@ -152,6 +152,15 @@ func TestBuildNarrativeBriefDigest(t *testing.T) {
 	}
 }
 
+func TestEngineVersionOrV0(t *testing.T) {
+	if engineVersionOrV0("") != "v0" {
+		t.Error("empty engine version should map to v0 (legacy)")
+	}
+	if engineVersionOrV0("abc123") != "abc123" {
+		t.Error("non-empty engine version should pass through")
+	}
+}
+
 func TestIsProgressionMarker(t *testing.T) {
 	cases := []struct {
 		entry adventure.JournalEntry

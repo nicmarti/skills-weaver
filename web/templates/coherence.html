@@ -135,11 +135,12 @@
         <h2 class="layer-title">📖 Dossier narratif — {{.PlayedSessions}} session(s) jouée(s)</h2>
         <div class="counts">Matière première pour le jugement IA (répétitions, stagnation, ce qui n'a pas fonctionné). Jugement IA branché à l'étape suivante.</div>
         <table class="findings">
-            <thead><tr><th>Session</th><th>Entrées</th><th>Combat (lignes log)</th><th>Marqueurs prog.</th><th>Résumé</th></tr></thead>
+            <thead><tr><th>Session</th><th>Version</th><th>Entrées</th><th>Combat (lignes log)</th><th>Marqueurs prog.</th><th>Résumé</th></tr></thead>
             <tbody>
                 {{range .Sessions}}
                 <tr>
                     <td><b>{{.ID}}</b></td>
+                    <td class="rule">{{.EngineVersion}}</td>
                     <td>{{.EntryCount}}</td>
                     <td>{{.CombatLogLines}}</td>
                     <td>{{.ProgressionMarkers}}</td>

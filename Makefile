@@ -19,7 +19,10 @@ GOFMT = $(GOCMD) fmt
 GOMOD = $(GOCMD) mod
 
 # Build flags
-LDFLAGS = -s -w
+# Engine version: short git hash (+ "-dirty" when the working tree is modified),
+# injected into internal/version.Version so sessions can be stamped at start.
+VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)$(shell git diff --quiet 2>/dev/null || echo -dirty)
+LDFLAGS = -s -w -X dungeons/internal/version.Version=$(VERSION)
 
 .PHONY: all build test test-verbose test-coverage lint fmt clean install tidy help
 

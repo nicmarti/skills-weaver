@@ -3,6 +3,8 @@ package adventure
 import (
 	"testing"
 	"time"
+
+	"dungeons/internal/version"
 )
 
 func TestLoadSessionsNonExistent(t *testing.T) {
@@ -43,6 +45,9 @@ func TestStartSession(t *testing.T) {
 	}
 	if session.StartedAt.IsZero() {
 		t.Errorf("Session StartedAt is zero")
+	}
+	if session.EngineVersion != version.Version {
+		t.Errorf("Session EngineVersion = %q, want %q", session.EngineVersion, version.Version)
 	}
 
 	// Verify we can get current session

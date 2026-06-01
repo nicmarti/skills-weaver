@@ -1632,8 +1632,8 @@ func printNarrativeBrief(brief *coherence.NarrativeBrief) {
 	}
 	fmt.Printf("── Dossier narratif (%d session(s) jouée(s)) — base du jugement IA (--ai), dossier complet via --json\n", brief.PlayedSessions)
 	for _, sd := range brief.Sessions {
-		fmt.Printf("   • Session %d : %d entrées (combat-log:%d, marqueurs-progression:%d)\n",
-			sd.ID, sd.EntryCount, sd.CombatLogLines, sd.ProgressionMarkers)
+		fmt.Printf("   • Session %d [%s] : %d entrées (combat-log:%d, marqueurs-progression:%d)\n",
+			sd.ID, sd.EngineVersion, sd.EntryCount, sd.CombatLogLines, sd.ProgressionMarkers)
 		if sd.Summary != "" {
 			fmt.Printf("     résumé: %s\n", truncate(sd.Summary, 90))
 		}

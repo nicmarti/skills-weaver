@@ -30,6 +30,7 @@ type SessionDigest struct {
 	CombatLogLines     int            `json:"combat_log_lines"`    // honest: blow-by-blow lines, NOT encounter count
 	ProgressionMarkers int            `json:"progression_markers"` // raw count; sparsely logged, do not over-read
 	Summary            string         `json:"summary"`             // DM recap from sessions.json
+	EngineVersion      string         `json:"engine_version"`      // engine build that played this session ("v0" = legacy)
 }
 
 // ForeshadowDigest is a compact view of an unresolved foreshadow.
@@ -131,8 +132,10 @@ func BuildNarrativeBrief(adv *adventure.Adventure) (*NarrativeBrief, error) {
 	}
 
 	summaries := make(map[int]string)
+	versions := make(map[int]string)
 	for _, s := range history.Sessions {
 		summaries[s.ID] = s.Summary
+		versions[s.ID] = engineVersionOrV0(s.EngineVersion)
 	}
 
 	brief := &NarrativeBrief{
@@ -156,10 +159,11 @@ func BuildNarrativeBrief(adv *adventure.Adventure) (*NarrativeBrief, error) {
 	for _, sid := range sids {
 		entries := perFile[sid]
 		digest := SessionDigest{
-			ID:         sid,
-			EntryCount: len(entries),
-			TypeCounts: map[string]int{},
-			Summary:    summaries[sid],
+			ID:            sid,
+			EntryCount:    len(entries),
+			TypeCounts:    map[string]int{},
+			Summary:       summaries[sid],
+			EngineVersion: engineVersionOrV0(versions[sid]),
 		}
 		for _, e := range entries {
 			digest.TypeCounts[e.Type]++
@@ -196,6 +200,14 @@ func BuildNarrativeBrief(adv *adventure.Adventure) (*NarrativeBrief, error) {
 	}
 
 	return brief, nil
+}
+
+// engineVersionOrV0 labels legacy (pre-versioning) sessions as "v0".
+func engineVersionOrV0(v string) string {
+	if v == "" {
+		return "v0"
+	}
+	return v
 }
 
 // isProgressionMarker reports whether an entry signals story progression.

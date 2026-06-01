@@ -7,26 +7,29 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
+
+	"dungeons/internal/version"
 )
 
 // Session represents a game session.
 type Session struct {
-	ID        int       `json:"id"`
-	StartedAt time.Time `json:"started_at"`
-	EndedAt   time.Time `json:"ended_at,omitempty"`
-	Duration  string    `json:"duration,omitempty"`
-	Summary   string    `json:"summary,omitempty"`
-	Location  string    `json:"location,omitempty"`  // Where the session took place in-game
-	Notes     string    `json:"notes,omitempty"`     // DM notes
-	XPAwarded int       `json:"xp_awarded,omitempty"`
-	GoldFound int       `json:"gold_found,omitempty"`
-	Status    string    `json:"status"` // active, completed, abandoned
+	ID            int       `json:"id"`
+	StartedAt     time.Time `json:"started_at"`
+	EndedAt       time.Time `json:"ended_at,omitempty"`
+	Duration      string    `json:"duration,omitempty"`
+	Summary       string    `json:"summary,omitempty"`
+	Location      string    `json:"location,omitempty"` // Where the session took place in-game
+	Notes         string    `json:"notes,omitempty"`    // DM notes
+	XPAwarded     int       `json:"xp_awarded,omitempty"`
+	GoldFound     int       `json:"gold_found,omitempty"`
+	Status        string    `json:"status"`                   // active, completed, abandoned
+	EngineVersion string    `json:"engine_version,omitempty"` // engine build that played this session ("" = legacy/pre-versioning -> v0)
 }
 
 // SessionHistory holds all sessions for an adventure.
 type SessionHistory struct {
-	Sessions      []Session `json:"sessions"`
-	CurrentSession *int     `json:"current_session,omitempty"` // ID of active session
+	Sessions       []Session `json:"sessions"`
+	CurrentSession *int      `json:"current_session,omitempty"` // ID of active session
 }
 
 // LoadSessions loads the session history.
@@ -77,9 +80,10 @@ func (a *Adventure) StartSession() (*Session, error) {
 	}
 
 	session := Session{
-		ID:        nextID,
-		StartedAt: time.Now(),
-		Status:    "active",
+		ID:            nextID,
+		StartedAt:     time.Now(),
+		Status:        "active",
+		EngineVersion: version.Version,
 	}
 
 	history.Sessions = append(history.Sessions, session)

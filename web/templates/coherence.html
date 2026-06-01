@@ -47,6 +47,19 @@
         .rule { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #b9a87e; }
         .clean { text-align: center; padding: 28px; color: #7fd18b; font-family: 'Cinzel', serif; }
         .legend { margin-top: 8px; font-size: 12px; color: #9c8f6e; }
+        .synthesis { background: rgba(124,92,255,.10); border: 1px solid rgba(124,92,255,.4);
+                     border-radius: 8px; padding: 16px 18px; margin: 12px 0 18px;
+                     white-space: pre-wrap; line-height: 1.5; }
+        .synthesis h3 { margin: 0 0 8px; font-family: 'Cinzel', serif; color: #b9a9ff; font-size: 15px; }
+        .lens { border-top: 1px solid rgba(212,175,55,.18); padding-top: 14px; margin-top: 14px; }
+        .lens-head { font-family: 'Cinzel', serif; font-size: 15px; color: #e8dcc0; }
+        .lens-agent { font-size: 11px; color: #9c8f6e; font-family: ui-monospace, Menlo, monospace; }
+        .lens-body { white-space: pre-wrap; line-height: 1.5; color: #ded2b6; margin-top: 6px; font-size: 14px; }
+        .ai-btn { font-family: 'Cinzel', serif; font-size: 13px; border: 1px solid rgba(124,92,255,.6);
+                  color: #e8dcc0; padding: 9px 16px; border-radius: 6px; background: rgba(124,92,255,.15);
+                  cursor: pointer; }
+        .ai-btn:hover { background: rgba(124,92,255,.28); }
+        .stale { color: #e6c259; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -131,8 +144,43 @@
     </div>
     {{end}}
 
+    <div class="layer-card">
+        <div class="coh-top" style="border:none;padding:0;margin-bottom:8px">
+            <div>
+                <h2 class="layer-title">🤖 Jugement narratif (IA — 3 perspectives)</h2>
+                <div class="counts">world-keeper (monde) · rules-keeper (règles &amp; compétences) · scenario-critic (scénario &amp; rebondissements)</div>
+            </div>
+            {{if .AIAvailable}}
+            <form action="/play/{{.Slug}}/coherence/analyze" method="POST" style="display:inline"
+                  onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='Analyse en cours… (3-4 appels IA)';">
+                <button type="submit" class="ai-btn">{{if .Judgment}}↻ Re-analyser avec l'IA{{else}}Analyser avec l'IA{{end}}</button>
+            </form>
+            {{else}}
+            <span class="stale">Clé API absente — jugement IA indisponible.</span>
+            {{end}}
+        </div>
+
+        {{if .Judgment}}
+            <div class="counts">Généré le {{.JudgmentTime}} (couvrait {{.Judgment.PlayedSessions}} session(s)).
+            {{if .JudgmentStale}}<span class="stale">⚠ De nouvelles sessions ont été jouées depuis — pense à re-analyser.</span>{{end}}</div>
+
+            {{with .Judgment.Synthesis}}
+            <div class="synthesis"><h3>Synthèse</h3>{{.}}</div>
+            {{end}}
+
+            {{range .Judgment.Lenses}}
+            <div class="lens">
+                <div class="lens-head">{{.Lens}} <span class="lens-agent">— {{.Agent}}</span></div>
+                <div class="lens-body">{{.Assessment}}</div>
+            </div>
+            {{end}}
+        {{else}}
+            <div class="counts">Aucune analyse IA pour l'instant. Le jugement lit le dossier ci-dessus (répétitions, stagnation, ce qui n'a pas fonctionné) sous trois angles.</div>
+        {{end}}
+    </div>
+
     <p class="legend">
-        Couches : <b>intégrité</b> (données bien formées) · <b>dérive</b> (squelette ↔ déroulé) · <b>qualité narrative</b> (signaux déterministes ; jugement délégué à l'IA — branchement à venir).
+        Couches : <b>intégrité</b> (données bien formées) · <b>dérive</b> (squelette ↔ déroulé) · <b>qualité narrative</b> (signaux déterministes) · <b>jugement IA</b> (3 agents + synthèse, à la demande).
     </p>
 </div>
 </body>

@@ -76,7 +76,7 @@ $(BINARY_PREFIX)-character-sheet: cmd/character-sheet/main.go internal/character
 $(BINARY_PREFIX)-map: cmd/map/main.go internal/map/*.go internal/world/*.go internal/ai/*.go internal/image/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/map
 
-$(BINARY_PREFIX)-web: cmd/web/main.go internal/web/*.go internal/agent/*.go internal/adventure/*.go internal/coherence/*.go
+$(BINARY_PREFIX)-web: cmd/web/main.go internal/web/*.go internal/agent/*.go internal/adventure/*.go internal/coherence/*.go internal/narrativeai/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/web
 
 # =============================================================================

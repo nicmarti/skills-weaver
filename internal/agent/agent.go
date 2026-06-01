@@ -534,6 +534,12 @@ func formatToolResult(result interface{}) string {
 	return `{"success": true}`
 }
 
+// AgentManager exposes the nested-agent manager so callers (e.g. the coherence
+// narrative judgment) can invoke specialist agents via InvokeAgentSilent.
+func (a *Agent) AgentManager() *AgentManager {
+	return a.agentManager
+}
+
 // saveAgentStates saves the current agent states to disk.
 // This is called after each user message to persist nested agent conversation history.
 func (a *Agent) saveAgentStates() {

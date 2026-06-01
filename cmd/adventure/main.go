@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/agent"
 	"dungeons/internal/ai"
 	"dungeons/internal/coherence"
+	"dungeons/internal/narrativeai"
 )
 
 const (
@@ -161,7 +163,7 @@ COMMANDES MAINTENANCE:
   validate-journal <aventure>   Valider l'intégrité des journaux
   inspect-sessions <aventure>   Analyser les sessions pour détecter les problèmes
   repair <aventure> [--apply]   Canonicaliser le journal (fixes sûrs, dry-run par défaut)
-  coherence <aventure> [--json] Analyser la cohérence (exit≠0 si erreurs d'intégrité)
+  coherence <aventure> [--json] [--ai]  Analyser la cohérence (--ai: jugement narratif 3 agents ; exit≠0 si erreurs)
   clean-session <aventure> <session_id>  Supprimer une session invalide
 
 EXEMPLES:
@@ -1472,16 +1474,20 @@ func cmdRepair(args []string) error {
 }
 
 // cmdCoherence analyzes an adventure's coherence and prints a report.
-// With --json it emits the raw Report (the machine feed). The process exits
-// with a non-zero status when any layer contains an error-severity finding,
-// so it can gate a CI pipeline.
+// With --json it emits the raw Report (the machine feed). With --ai it runs the
+// AI narrative judgment (3 lenses + synthesis, requires ANTHROPIC_API_KEY) and
+// caches it. The process exits with a non-zero status when any layer contains an
+// error-severity finding, so it can gate a CI pipeline.
 func cmdCoherence(args []string) error {
 	jsonOut := false
+	aiJudge := false
 	var name string
 	for _, arg := range args {
 		switch arg {
 		case "--json":
 			jsonOut = true
+		case "--ai":
+			aiJudge = true
 		default:
 			if name == "" {
 				name = arg
@@ -1489,7 +1495,7 @@ func cmdCoherence(args []string) error {
 		}
 	}
 	if name == "" {
-		return fmt.Errorf("usage: coherence <aventure> [--json]")
+		return fmt.Errorf("usage: coherence <aventure> [--json] [--ai]")
 	}
 
 	adv, err := adventure.LoadByName(adventuresDir, name)
@@ -1508,9 +1514,25 @@ func cmdCoherence(args []string) error {
 			return fmt.Errorf("encodage JSON: %w", err)
 		}
 		fmt.Println(string(data))
-	} else {
-		printCoherenceReport(report)
+		if report.HasErrors() {
+			os.Exit(1)
+		}
+		return nil
 	}
+
+	printCoherenceReport(report)
+
+	// Narrative judgment: run a fresh one with --ai, otherwise show the cached one.
+	var judgment *coherence.NarrativeJudgment
+	if aiJudge {
+		judgment, err = runNarrativeJudgment(adv, report.NarrativeBrief)
+		if err != nil {
+			return err
+		}
+	} else {
+		judgment, _ = coherence.LoadNarrativeJudgment(adv)
+	}
+	printNarrativeJudgment(judgment, report.NarrativeBrief.PlayedSessions, aiJudge)
 
 	// Non-zero exit when any layer has errors (CI gate).
 	if report.HasErrors() {
@@ -1518,6 +1540,78 @@ func cmdCoherence(args []string) error {
 	}
 	return nil
 }
+
+// runNarrativeJudgment builds an AgentManager outside a live session and runs the
+// 3-lens AI judgment, caching the result.
+func runNarrativeJudgment(adv *adventure.Adventure, brief *coherence.NarrativeBrief) (*coherence.NarrativeJudgment, error) {
+	apiKey := os.Getenv("ANTHROPIC_API_KEY")
+	if apiKey == "" {
+		return nil, fmt.Errorf("ANTHROPIC_API_KEY non définie — le jugement IA (--ai) est indisponible")
+	}
+
+	adventureCtx, err := agent.LoadAdventureContext(adventuresDir, adv.Name)
+	if err != nil {
+		return nil, fmt.Errorf("contexte d'aventure: %w", err)
+	}
+	dmAgent, err := agent.New(apiKey, adventureCtx, &cliAgentOutput{})
+	if err != nil {
+		return nil, fmt.Errorf("initialisation agent: %w", err)
+	}
+
+	fmt.Println("🤖 Jugement narratif IA en cours (3 perspectives + synthèse)…")
+	judgment, err := narrativeai.Judge(brief, dmAgent.AgentManager())
+	if err != nil {
+		return nil, fmt.Errorf("jugement IA: %w", err)
+	}
+	if err := coherence.SaveNarrativeJudgment(adv, judgment); err != nil {
+		return nil, fmt.Errorf("sauvegarde du jugement: %w", err)
+	}
+	return judgment, nil
+}
+
+// printNarrativeJudgment renders the AI judgment, or a hint when none is available.
+func printNarrativeJudgment(j *coherence.NarrativeJudgment, currentPlayed int, freshlyRun bool) {
+	if j == nil {
+		fmt.Println("── Jugement narratif IA : aucun. Lancez avec --ai pour l'analyser (3 agents + synthèse).")
+		fmt.Println()
+		return
+	}
+	fmt.Printf("══ Jugement narratif IA — généré le %s (couvrait %d session(s))\n",
+		j.GeneratedAt.Format("02/01/2006 15:04"), j.PlayedSessions)
+	if !freshlyRun && j.Stale(currentPlayed) {
+		fmt.Println("   ⚠ De nouvelles sessions ont été jouées depuis — relancez avec --ai pour rafraîchir.")
+	}
+	if j.Synthesis != "" {
+		fmt.Printf("\n   ◆ Synthèse :\n%s\n", indentBlock(j.Synthesis, "     "))
+	}
+	for _, v := range j.Lenses {
+		fmt.Printf("\n   ◆ %s (%s) :\n%s\n", v.Lens, v.Agent, indentBlock(v.Assessment, "     "))
+	}
+	fmt.Println()
+}
+
+// indentBlock prefixes every line of s with the given indent.
+func indentBlock(s, indent string) string {
+	lines := strings.Split(strings.TrimRight(s, "\n"), "\n")
+	for i, l := range lines {
+		lines[i] = indent + l
+	}
+	return strings.Join(lines, "\n")
+}
+
+// cliAgentOutput is a minimal OutputHandler that surfaces agent-invocation
+// progress on stderr and ignores the rest (no live session in CLI mode).
+type cliAgentOutput struct{}
+
+func (cliAgentOutput) OnTextChunk(string)                 {}
+func (cliAgentOutput) OnToolStart(string, string)         {}
+func (cliAgentOutput) OnToolComplete(string, interface{}) {}
+func (cliAgentOutput) OnAgentInvocationStart(agentName string) {
+	fmt.Fprintf(os.Stderr, "   → consultation %s…\n", agentName)
+}
+func (cliAgentOutput) OnAgentInvocationComplete(string, time.Duration) {}
+func (cliAgentOutput) OnError(error)                                   {}
+func (cliAgentOutput) OnComplete()                                     {}
 
 // printCoherenceReport renders a coherence report as readable text.
 func printCoherenceReport(report *coherence.Report) {
@@ -1536,7 +1630,7 @@ func printNarrativeBrief(brief *coherence.NarrativeBrief) {
 	if brief == nil {
 		return
 	}
-	fmt.Printf("── Dossier narratif (%d session(s) jouée(s)) — jugement IA à venir, dossier complet via --json\n", brief.PlayedSessions)
+	fmt.Printf("── Dossier narratif (%d session(s) jouée(s)) — base du jugement IA (--ai), dossier complet via --json\n", brief.PlayedSessions)
 	for _, sd := range brief.Sessions {
 		fmt.Printf("   • Session %d : %d entrées (combat-log:%d, marqueurs-progression:%d)\n",
 			sd.ID, sd.EntryCount, sd.CombatLogLines, sd.ProgressionMarkers)

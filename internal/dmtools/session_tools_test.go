@@ -1,6 +1,8 @@
 package dmtools
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -66,8 +68,10 @@ func TestPreSessionCoherenceGateAutoRepairs(t *testing.T) {
 	adv := adventure.New("Gate Repair Test", "")
 	adv.SetBasePath(t.TempDir())
 
-	// Empty categories => repair should auto-fix and the human summary should note it.
-	if err := adv.SaveJournalMetadata(&adventure.JournalMetadata{NextID: 2, Categories: []string{}}); err != nil {
+	// Empty categories on disk (legacy) => repair should auto-fix. SaveJournalMetadata
+	// now normalizes, so the corrupted state is written directly.
+	raw := `{"next_id":2,"categories":[],"last_update":"2026-01-01T00:00:00Z"}`
+	if err := os.WriteFile(filepath.Join(adv.BasePath(), "journal-meta.json"), []byte(raw), 0644); err != nil {
 		t.Fatal(err)
 	}
 	if err := adv.SaveSessionJournal(&adventure.SessionJournal{SessionID: 1, Entries: []adventure.JournalEntry{

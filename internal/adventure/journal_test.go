@@ -2,6 +2,7 @@ package adventure
 
 import (
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -23,6 +24,46 @@ func TestLoadJournalNonExistent(t *testing.T) {
 	}
 	if len(journal.Categories) == 0 {
 		t.Errorf("LoadJournal() categories is empty, want default categories")
+	}
+}
+
+func TestLogEventConcurrentIDsAreUnique(t *testing.T) {
+	baseDir := t.TempDir()
+	adv := New("Concurrent Test", "Test")
+	adv.SetBasePath(baseDir)
+
+	const n = 50
+	var wg sync.WaitGroup
+	wg.Add(n)
+	for i := 0; i < n; i++ {
+		go func() {
+			defer wg.Done()
+			_ = adv.LogEvent("note", "concurrent")
+		}()
+	}
+	wg.Wait()
+
+	entries, err := adv.GetJournalEntries()
+	if err != nil {
+		t.Fatalf("GetJournalEntries() error = %v", err)
+	}
+	if len(entries) != n {
+		t.Fatalf("expected %d entries, got %d (lost/overwritten under concurrency)", n, len(entries))
+	}
+	seen := make(map[int]bool)
+	maxID := 0
+	for _, e := range entries {
+		if seen[e.ID] {
+			t.Errorf("duplicate id %d allocated under concurrency", e.ID)
+		}
+		seen[e.ID] = true
+		if e.ID > maxID {
+			maxID = e.ID
+		}
+	}
+	journal, _ := adv.LoadJournal()
+	if journal.NextID != maxID+1 {
+		t.Errorf("NextID = %d, want %d (max id + 1)", journal.NextID, maxID+1)
 	}
 }
 

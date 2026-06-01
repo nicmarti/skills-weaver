@@ -1,6 +1,8 @@
 package coherence
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -132,11 +134,17 @@ func TestIntegrityNextIDDesyncIsWarning(t *testing.T) {
 
 func TestIntegrityCategoriesEmptyIsWarning(t *testing.T) {
 	adv := buildAdv(t,
-		&adventure.JournalMetadata{NextID: 2, Categories: []string{}},
+		&adventure.JournalMetadata{NextID: 2, Categories: []string{"story"}},
 		map[int][]adventure.JournalEntry{
 			1: {{ID: 1, SessionID: 1, Type: "story", Content: "a", Timestamp: ts(0)}},
 		},
 	)
+	// Simulate a legacy on-disk file with empty categories (SaveJournalMetadata
+	// now normalizes, so the corrupted state must be written directly).
+	raw := `{"next_id":2,"categories":[],"last_update":"2026-01-01T00:00:00Z"}`
+	if err := os.WriteFile(filepath.Join(adv.BasePath(), "journal-meta.json"), []byte(raw), 0644); err != nil {
+		t.Fatal(err)
+	}
 	lr := analyze(t, adv)
 	if findRule(lr, "journal.categories_empty") == nil {
 		t.Fatalf("expected journal.categories_empty, got %+v", lr.Findings)

@@ -1,11 +1,23 @@
 package adventure
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 )
+
+// writeRawEmptyCategoriesMeta writes a journal-meta.json with empty categories
+// directly, bypassing SaveJournalMetadata's normalization, to simulate a legacy
+// corrupted file on disk.
+func writeRawEmptyCategoriesMeta(t *testing.T, adv *Adventure, nextID int) {
+	t.Helper()
+	raw := fmt.Sprintf(`{"next_id":%d,"categories":[],"last_update":"2026-01-01T00:00:00Z"}`, nextID)
+	if err := os.WriteFile(filepath.Join(adv.BasePath(), "journal-meta.json"), []byte(raw), 0644); err != nil {
+		t.Fatal(err)
+	}
+}
 
 // newRepairAdv builds an adventure rooted in a temp dir for repair tests.
 func newRepairAdv(t *testing.T) *Adventure {
@@ -68,7 +80,7 @@ func TestRepairRepopulatesEmptyCategories(t *testing.T) {
 		{ID: 1, SessionID: 1, Type: "story", Content: "a", Timestamp: ts(0)},
 	}})
 	// Empty categories, correct next_id.
-	_ = adv.SaveJournalMetadata(&JournalMetadata{NextID: 2, Categories: []string{}})
+	writeRawEmptyCategoriesMeta(t, adv, 2)
 
 	report, err := adv.RepairJournal(RepairOptions{DryRun: false})
 	if err != nil {
@@ -179,7 +191,7 @@ func TestRepairDryRunWritesNothing(t *testing.T) {
 	_ = adv.SaveSessionJournal(&SessionJournal{SessionID: 1, Entries: []JournalEntry{
 		{ID: 5, SessionID: 1, Type: "story", Content: "a", Timestamp: ts(0)},
 	}})
-	_ = adv.SaveJournalMetadata(&JournalMetadata{NextID: 1, Categories: []string{}})
+	writeRawEmptyCategoriesMeta(t, adv, 1)
 
 	report, err := adv.RepairJournal(RepairOptions{DryRun: true})
 	if err != nil {
@@ -208,7 +220,7 @@ func TestRepairApplyCreatesBackup(t *testing.T) {
 	_ = adv.SaveSessionJournal(&SessionJournal{SessionID: 1, Entries: []JournalEntry{
 		{ID: 1, SessionID: 1, Type: "story", Content: "a", Timestamp: ts(0)},
 	}})
-	_ = adv.SaveJournalMetadata(&JournalMetadata{NextID: 1, Categories: []string{}})
+	writeRawEmptyCategoriesMeta(t, adv, 1)
 
 	report, err := adv.RepairJournal(RepairOptions{DryRun: false})
 	if err != nil {

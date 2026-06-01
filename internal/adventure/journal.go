@@ -7,8 +7,19 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
+
+// journalLocks serializes journal writes per adventure path so that id
+// allocation and entry persistence are atomic even when multiple goroutines
+// share (or duplicate) an Adventure pointing at the same directory.
+var journalLocks sync.Map // basePath -> *sync.Mutex
+
+func (a *Adventure) journalLock() *sync.Mutex {
+	m, _ := journalLocks.LoadOrStore(a.basePath, &sync.Mutex{})
+	return m.(*sync.Mutex)
+}
 
 // JournalEntry represents a single entry in the adventure journal.
 type JournalEntry struct {
@@ -174,14 +185,30 @@ func (a *Adventure) loadJournalMetadata() (*JournalMetadata, error) {
 		return nil, fmt.Errorf("parsing journal-meta.json: %w", err)
 	}
 
+	// NB: metadata is deliberately NOT normalized on load, so detection (coherence)
+	// and repair can still see legacy on-disk corruption (e.g. empty categories).
+	// SaveJournalMetadata normalizes on write, so any save self-heals the file.
 	return &meta, nil
 }
 
 // SaveJournalMetadata saves the journal metadata file.
 func (a *Adventure) SaveJournalMetadata(meta *JournalMetadata) error {
+	normalizeMetadata(meta)
 	meta.LastUpdate = time.Now()
 	path := filepath.Join(a.basePath, "journal-meta.json")
 	return a.saveJSON(path, meta)
+}
+
+// normalizeMetadata enforces journal-meta invariants correct-by-construction, so
+// no read or write path can produce empty categories or a sub-1 id counter (the
+// "empty categories[]" corruption class). Applied on both load and save.
+func normalizeMetadata(meta *JournalMetadata) {
+	if len(meta.Categories) == 0 {
+		meta.Categories = append([]string(nil), defaultCategories...)
+	}
+	if meta.NextID < 1 {
+		meta.NextID = 1
+	}
 }
 
 // loadSessionJournal loads the journal for a specific session.
@@ -249,105 +276,72 @@ func (a *Adventure) SaveJournalEntry(entry JournalEntry) error {
 
 // LogEvent adds an entry to the journal.
 func (a *Adventure) LogEvent(entryType, content string) error {
-	// Load metadata for NextID
-	meta, err := a.loadJournalMetadata()
-	if err != nil {
-		return err
-	}
-
-	// Get current session ID if any
-	sessionID := 0
-	if session, _ := a.GetCurrentSession(); session != nil {
-		sessionID = session.ID
-	}
-
-	// Create entry
-	entry := JournalEntry{
-		ID:        meta.NextID,
-		Timestamp: time.Now(),
-		SessionID: sessionID,
-		Type:      entryType,
-		Content:   content,
-	}
-
-	// Increment NextID and save metadata
-	meta.NextID++
-	if err := a.SaveJournalMetadata(meta); err != nil {
-		return fmt.Errorf("saving metadata: %w", err)
-	}
-
-	// Save entry to session-specific file
-	return a.SaveJournalEntry(entry)
+	return a.logEntry(JournalEntry{Type: entryType, Content: content})
 }
 
 // LogEventWithDescriptions adds an entry with bilingual descriptions to the journal.
 func (a *Adventure) LogEventWithDescriptions(eventType, content, description, descriptionFr string) error {
-	// Load metadata for NextID
-	meta, err := a.loadJournalMetadata()
-	if err != nil {
-		return err
-	}
-
-	// Get current session ID if any
-	sessionID := 0
-	if session, _ := a.GetCurrentSession(); session != nil {
-		sessionID = session.ID
-	}
-
-	// Create entry
-	entry := JournalEntry{
-		ID:            meta.NextID,
-		Timestamp:     time.Now(),
-		SessionID:     sessionID,
+	return a.logEntry(JournalEntry{
 		Type:          eventType,
 		Content:       content,
 		Description:   description,
 		DescriptionFr: descriptionFr,
-	}
-
-	// Increment NextID and save metadata
-	meta.NextID++
-	if err := a.SaveJournalMetadata(meta); err != nil {
-		return fmt.Errorf("saving metadata: %w", err)
-	}
-
-	// Save entry to session-specific file
-	return a.SaveJournalEntry(entry)
+	})
 }
 
 // LogImportantEvent adds an important entry to the journal.
 func (a *Adventure) LogImportantEvent(entryType, content string, tags []string) error {
-	// Load metadata for NextID
-	meta, err := a.loadJournalMetadata()
-	if err != nil {
-		return err
-	}
-
-	// Get current session ID if any
-	sessionID := 0
-	if session, _ := a.GetCurrentSession(); session != nil {
-		sessionID = session.ID
-	}
-
-	// Create entry
-	entry := JournalEntry{
-		ID:        meta.NextID,
-		Timestamp: time.Now(),
-		SessionID: sessionID,
+	return a.logEntry(JournalEntry{
 		Type:      entryType,
 		Content:   content,
 		Tags:      tags,
 		Important: true,
+	})
+}
+
+// logEntry is the single write path for new journal entries. The caller fills the
+// content fields (Type, Content, Description, Tags, Important); logEntry stamps the
+// id, timestamp and session, and persists the entry to its session-routed file.
+//
+// The whole operation runs under the per-adventure journal lock so id allocation
+// is atomic (no two concurrent writers can reuse the same id) and the session
+// file write cannot interleave with another. This is the correct-by-construction
+// guarantee that replaces hoping the data stays consistent.
+func (a *Adventure) logEntry(entry JournalEntry) error {
+	lock := a.journalLock()
+	lock.Lock()
+	defer lock.Unlock()
+
+	id, err := a.allocateEntryID()
+	if err != nil {
+		return err
 	}
 
-	// Increment NextID and save metadata
+	entry.ID = id
+	entry.Timestamp = time.Now()
+	// Route to the active session, or 0 (out-of-session) when none is active.
+	entry.SessionID = 0
+	if session, _ := a.GetCurrentSession(); session != nil {
+		entry.SessionID = session.ID
+	}
+
+	return a.SaveJournalEntry(entry)
+}
+
+// allocateEntryID reserves and persists the next entry id. It must be called with
+// the journal lock held. Metadata invariants (categories, counter floor) are
+// enforced by normalizeMetadata on load and save.
+func (a *Adventure) allocateEntryID() (int, error) {
+	meta, err := a.loadJournalMetadata()
+	if err != nil {
+		return 0, err
+	}
+	id := meta.NextID
 	meta.NextID++
 	if err := a.SaveJournalMetadata(meta); err != nil {
-		return fmt.Errorf("saving metadata: %w", err)
+		return 0, fmt.Errorf("saving metadata: %w", err)
 	}
-
-	// Save entry to session-specific file
-	return a.SaveJournalEntry(entry)
+	return id, nil
 }
 
 // GetJournalEntries returns all journal entries.

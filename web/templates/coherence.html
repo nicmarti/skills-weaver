@@ -1,0 +1,105 @@
+{{define "coherence.html"}}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cohérence - {{.AdventureName}} - SkillsWeaver</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/fantasy.css">
+    <style>
+        .coh-wrap { max-width: 980px; margin: 0 auto; padding: 32px 24px 80px; }
+        .coh-top { display: flex; align-items: baseline; justify-content: space-between;
+                   gap: 16px; border-bottom: 1px solid rgba(212,175,55,.35); padding-bottom: 16px; }
+        .coh-top h1 { font-family: 'Cinzel', serif; margin: 0; font-size: 26px; }
+        .coh-meta { color: #b9a87e; font-size: 13px; }
+        .coh-actions { display: flex; gap: 12px; align-items: center; }
+        .coh-btn { font-family: 'Cinzel', serif; font-size: 13px; text-decoration: none;
+                   border: 1px solid rgba(212,175,55,.5); color: #e8dcc0; padding: 7px 14px;
+                   border-radius: 6px; background: rgba(212,175,55,.08); }
+        .coh-btn:hover { background: rgba(212,175,55,.18); }
+        .layer-card { background: rgba(30,24,18,.6); border: 1px solid rgba(212,175,55,.25);
+                      border-radius: 10px; padding: 20px 22px; margin-top: 24px; }
+        .layer-head { display: flex; align-items: center; gap: 20px; }
+        .score-badge { width: 76px; height: 76px; border-radius: 50%; display: flex;
+                       flex-direction: column; align-items: center; justify-content: center;
+                       font-family: 'Cinzel', serif; flex-shrink: 0; border: 3px solid; }
+        .score-badge .num { font-size: 26px; line-height: 1; }
+        .score-badge .lbl { font-size: 9px; letter-spacing: .08em; opacity: .8; }
+        .score-good { color: #7fd18b; border-color: #3f8a4d; background: rgba(63,138,77,.12); }
+        .score-warn { color: #e6c259; border-color: #a98a1f; background: rgba(169,138,31,.12); }
+        .score-bad  { color: #e08a7a; border-color: #a8412f; background: rgba(168,65,47,.12); }
+        .layer-title { font-family: 'Cinzel', serif; font-size: 19px; margin: 0 0 4px; }
+        .counts { font-size: 13px; color: #c7b78c; }
+        .counts b { color: #e8dcc0; }
+        .findings { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14px; }
+        .findings th { text-align: left; font-family: 'Cinzel', serif; font-size: 11px;
+                       letter-spacing: .06em; text-transform: uppercase; color: #b9a87e;
+                       padding: 6px 10px; border-bottom: 1px solid rgba(212,175,55,.25); }
+        .findings td { padding: 9px 10px; border-bottom: 1px solid rgba(212,175,55,.10);
+                       vertical-align: top; color: #ded2b6; }
+        .sev { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+               white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
+        .sev-error   { background: rgba(168,65,47,.20); color: #e89486; }
+        .sev-warning { background: rgba(169,138,31,.20); color: #e6c259; }
+        .sev-info    { background: rgba(90,110,140,.20); color: #9fb6d6; }
+        .rule { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #b9a87e; }
+        .clean { text-align: center; padding: 28px; color: #7fd18b; font-family: 'Cinzel', serif; }
+        .legend { margin-top: 8px; font-size: 12px; color: #9c8f6e; }
+    </style>
+</head>
+<body>
+<div class="coh-wrap">
+    <div class="coh-top">
+        <div>
+            <h1>🔍 Analyse de cohérence</h1>
+            <div class="coh-meta">{{.AdventureName}} · généré le {{.GeneratedAt}}</div>
+        </div>
+        <div class="coh-actions">
+            <a class="coh-btn" href="/play/{{.Slug}}">&larr; Retour au jeu</a>
+            <a class="coh-btn" href="/play/{{.Slug}}/coherence?format=json" target="_blank">JSON</a>
+            <a class="coh-btn" href="/play/{{.Slug}}/coherence">↻ Re-analyser</a>
+        </div>
+    </div>
+
+    {{range .Layers}}
+    <div class="layer-card">
+        <div class="layer-head">
+            <div class="score-badge {{.ScoreClass}}">
+                <span class="num">{{.Score}}</span>
+                <span class="lbl">/ 100</span>
+            </div>
+            <div>
+                <h2 class="layer-title">{{.Title}}</h2>
+                <div class="counts">
+                    <b>{{.Errors}}</b> erreur(s) · <b>{{.Warnings}}</b> avertissement(s) · <b>{{.Infos}}</b> info(s)
+                </div>
+            </div>
+        </div>
+
+        {{if .Findings}}
+        <table class="findings">
+            <thead><tr><th>Sévérité</th><th>Règle</th><th>Détail</th></tr></thead>
+            <tbody>
+                {{range .Findings}}
+                <tr>
+                    <td><span class="sev sev-{{.Severity}}">{{.Severity}}</span></td>
+                    <td class="rule">{{.Rule}}</td>
+                    <td>{{.Message}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <div class="clean">✓ Aucun problème détecté — données canoniques.</div>
+        {{end}}
+    </div>
+    {{end}}
+
+    <p class="legend">
+        Couches : <b>intégrité</b> (données bien formées, déterministe). À venir : <b>drift</b> (squelette ↔ déroulé) et <b>qualité narrative</b> (jugée par l'IA).
+    </p>
+</div>
+</body>
+</html>{{end}}

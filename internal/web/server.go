@@ -144,6 +144,7 @@ func (s *Server) setupRoutes() {
 	s.engine.GET("/play/:slug/info", s.handleAdventureInfo)
 	s.engine.GET("/play/:slug/session-status", s.handleSessionStatus)
 	s.engine.GET("/play/:slug/minimap", s.handleMinimap)
+	s.engine.GET("/play/:slug/coherence", s.handleCoherence)
 
 	// Character images (served from data/characters/)
 	s.engine.GET("/characters/images/:filename", s.handleCharacterImages)

@@ -20,6 +20,7 @@ import (
 	"dungeons/internal/adventure"
 	"dungeons/internal/agent"
 	"dungeons/internal/character"
+	"dungeons/internal/coherence"
 	"dungeons/internal/data"
 	"dungeons/internal/npc"
 	"dungeons/internal/npcmanager"
@@ -395,6 +396,66 @@ func (s *Server) handleSessionStatus(c *gin.Context) {
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)
+}
+
+// handleCoherence renders the read-only coherence analysis of an adventure.
+// With ?format=json it returns the raw Report (the machine feed for Claude Code);
+// otherwise it renders the coherence dashboard page.
+func (s *Server) handleCoherence(c *gin.Context) {
+	slug := c.Param("slug")
+
+	adv, err := adventure.LoadByName(adventuresDir, slug)
+	if err != nil {
+		if c.Query("format") == "json" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "adventure not found"})
+		} else {
+			s.renderError(c, http.StatusNotFound, "Aventure introuvable: "+slug)
+		}
+		return
+	}
+
+	report, err := coherence.Analyze(adv)
+	if err != nil {
+		if c.Query("format") == "json" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		} else {
+			s.renderError(c, http.StatusInternalServerError, "Analyse impossible: "+err.Error())
+		}
+		return
+	}
+
+	if c.Query("format") == "json" {
+		c.JSON(http.StatusOK, report)
+		return
+	}
+
+	c.HTML(http.StatusOK, "coherence.html", gin.H{
+		"Slug":          slug,
+		"AdventureName": report.AdventureName,
+		"GeneratedAt":   report.GeneratedAt.Format("02/01/2006 15:04"),
+		"Layers":        []gin.H{layerView("Intégrité", report.Integrity)},
+	})
+}
+
+// layerView adapts a coherence LayerReport for the dashboard template.
+func layerView(title string, lr coherence.LayerReport) gin.H {
+	errs, warns, infos := lr.Counts()
+	scoreClass := "score-good"
+	switch {
+	case lr.Score < 70:
+		scoreClass = "score-bad"
+	case lr.Score < 90:
+		scoreClass = "score-warn"
+	}
+	return gin.H{
+		"Title":      title,
+		"Score":      lr.Score,
+		"ScoreClass": scoreClass,
+		"Errors":     errs,
+		"Warnings":   warns,
+		"Infos":      infos,
+		"Findings":   lr.Findings,
+	}
 }
 
 // handleMaps serves map images from data/maps/.

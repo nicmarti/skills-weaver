@@ -304,6 +304,8 @@ Le journal est organisé en fichiers séparés par session pour optimiser la per
 
 **⚠️ Limitation données connue** : dans les aventures existantes, `sessions.json` a souvent les champs `location`, `xp_awarded` et `gold_found` **vides/à zéro** (non peuplés par le moteur). Ne pas s'appuyer dessus pour l'analyse (lieu, progression, XP) — dériver ces infos du journal à la place. De même, les combats sont loggés **coup par coup** (une rencontre = plusieurs entrées `combat`) et les marqueurs de progression ("Plot point completed") sont rarement loggés : compter les entrées ne reflète donc ni le nombre de rencontres ni la progression réelle.
 
+**⚠️ Biais d'évaluation inter-aventures (comparaison de qualité d'agents)** : les aventures existantes ont été jouées sur des **versions différentes du moteur/des personas**. En particulier, `les-naufrages-du-pierre-lune` (~janv. 2026) précède `le-voyageur-de-tuncmor` (~févr.-mars 2026) d'environ un mois, avec des améliorations et correctifs entre les deux. **Ne pas conclure** qu'un écart de profil comportemental (ex. `les-naufrages` orienté combat vs `le-voyageur` équilibré) reflète la qualité *actuelle* des agents : c'est confondu avec la version du moteur. Pour évaluer la qualité des agents, **comparer des aventures jouées sur la même version**, ou **démarrer une nouvelle aventure de référence** sur la version courante et la rejouer. Idéalement, horodater chaque aventure/session avec la version moteur+personas (non implémenté à ce jour).
+
 ### 3. 🎭 Système de Planification Narrative de Campagne
 
 **Fichier** : `data/adventures/<nom>/campaign-plan.json`

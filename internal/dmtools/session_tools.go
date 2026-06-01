@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/coherence"
 )
 
 // NewStartSessionTool creates a tool to start a new game session.
@@ -29,7 +30,15 @@ func NewStartSessionTool(adv *adventure.Adventure, agentManager AgentManager) *S
 
 			display := fmt.Sprintf("✓ Session %d démarrée", session.ID)
 
-			// === NEW: LOAD CAMPAIGN PLAN AND GENERATE BRIEFING ===
+			// === PRE-SESSION COHERENCE GATE ===
+			// Deterministic prevention before play: auto-repair safe integrity issues,
+			// run the coherence diagnostic, and surface drift + the cached narrative
+			// synthesis to the DM. Read-only/idempotent and fast (no API calls), so it
+			// never slows the start. Best-effort: failures never block the session.
+			gateHuman, gateBrief := preSessionCoherenceGate(adv)
+			display += gateHuman
+
+			// === LOAD CAMPAIGN PLAN AND GENERATE BRIEFING ===
 			var systemBrief string
 
 			campaignPlan, err := adv.LoadCampaignPlan()
@@ -77,6 +86,15 @@ func NewStartSessionTool(adv *adventure.Adventure, agentManager AgentManager) *S
 				display += "\n\n💡 Utilisez list_foreshadows ou get_stale_foreshadows pour plus de détails."
 			}
 
+			// Fold the pre-session coherence guidance into the confidential brief.
+			if gateBrief != "" {
+				if systemBrief == "" {
+					systemBrief = "=== CAMPAIGN CONTEXT (CONFIDENTIAL - DO NOT QUOTE DIRECTLY) ===\n"
+				}
+				systemBrief += "\n=== DIAGNOSTIC DE COHÉRENCE PRÉ-SESSION (CONFIDENTIEL) ===\n" + gateBrief +
+					"\n• Tiens compte de ces points pour orienter la session ; n'en parle pas directement aux joueurs.\n===\n"
+			}
+
 			result := map[string]interface{}{
 				"success":    true,
 				"session_id": session.ID,
@@ -92,6 +110,51 @@ func NewStartSessionTool(adv *adventure.Adventure, agentManager AgentManager) *S
 			return result, nil
 		},
 	}
+}
+
+// preSessionCoherenceGate runs the deterministic prevention step at session start.
+// It returns a short human summary (appended to the start display) and a
+// confidential block for the DM brief (drift findings + cached narrative synthesis).
+// Everything here is best-effort: any error is swallowed so the session still starts.
+func preSessionCoherenceGate(adv *adventure.Adventure) (humanSummary, dmBrief string) {
+	var hs, db strings.Builder
+
+	// 1. Auto-repair safe, idempotent integrity issues (canonicalize before play).
+	if rep, err := adv.RepairJournal(adventure.RepairOptions{DryRun: false}); err == nil && rep.Changed() {
+		fmt.Fprintf(&hs, "\n🔧 Pré-session : %d correction(s) d'intégrité auto-appliquée(s).", len(rep.Actions))
+	}
+
+	// 2. Deterministic diagnostic (post-repair).
+	report, err := coherence.Analyze(adv)
+	if err != nil {
+		return hs.String(), db.String()
+	}
+	ie, iw, _ := report.Integrity.Counts()
+	de, dw, _ := report.Drift.Counts()
+	fmt.Fprintf(&hs, "\n🔍 Cohérence : intégrité %d/100 (%d err, %d warn) · dérive %d/100 (%d err, %d warn).",
+		report.Integrity.Score, ie, iw, report.Drift.Score, de, dw)
+	if report.Integrity.HasErrors() {
+		hs.WriteString("\n  ⚠️  Erreurs d'intégrité résiduelles — voir « sw-adventure coherence ».")
+	}
+
+	// 3. Drift findings → things to address THIS session.
+	if len(report.Drift.Findings) > 0 {
+		db.WriteString("\n**Dérive squelette↔déroulé (à traiter cette session)** :\n")
+		for _, f := range report.Drift.Findings {
+			fmt.Fprintf(&db, "  • [%s] %s\n", f.Severity, f.Message)
+		}
+	}
+
+	// 4. Cached narrative judgment synthesis → what did not work previously.
+	if j, _ := coherence.LoadNarrativeJudgment(adv); j != nil && j.Synthesis != "" {
+		stale := ""
+		if report.NarrativeBrief != nil && j.Stale(report.NarrativeBrief.PlayedSessions) {
+			stale = " (analyse des sessions précédentes)"
+		}
+		fmt.Fprintf(&db, "\n**Synthèse de l'analyse narrative%s** :\n%s\n", stale, j.Synthesis)
+	}
+
+	return hs.String(), db.String()
 }
 
 // buildCampaignContext constructs the briefing request for world-keeper.

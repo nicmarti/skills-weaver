@@ -44,7 +44,7 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	// Register session management tools (MUST be registered for proper session tracking)
 	// Pass agentManager to start_session for automatic campaign briefing
 	registry.Register(dmtools.NewStartSessionTool(adv, agentManager))
-	registry.Register(dmtools.NewEndSessionTool(adv))
+	registry.Register(dmtools.NewEndSessionTool(adv, agentManager))
 	registry.Register(dmtools.NewGetSessionInfoTool(adv))
 
 	// Register adventure tools - now passing Adventure object for real persistence

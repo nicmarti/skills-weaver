@@ -6,6 +6,7 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/coherence"
+	"dungeons/internal/narrativeai"
 )
 
 // NewStartSessionTool creates a tool to start a new game session.
@@ -253,7 +254,9 @@ func formatSystemBrief(plan *adventure.CampaignPlan, currentAct *adventure.Act, 
 }
 
 // NewEndSessionTool creates a tool to end the current game session.
-func NewEndSessionTool(adv *adventure.Adventure) *SimpleTool {
+// If agentManager is provided, it refreshes the AI narrative judgment so the
+// cached analysis is up to date for the next session's pre-session briefing.
+func NewEndSessionTool(adv *adventure.Adventure, agentManager AgentManager) *SimpleTool {
 	return &SimpleTool{
 		name:        "end_session",
 		description: "End the current game session with a summary. This MUST be called when players finish playing to properly close the session and organize the journal.",
@@ -279,15 +282,46 @@ func NewEndSessionTool(adv *adventure.Adventure) *SimpleTool {
 				}, nil
 			}
 
+			display := fmt.Sprintf("Session %d terminée - Durée: %s", session.ID, session.Duration)
+
+			// Refresh the AI narrative judgment so the next session's pre-session
+			// gate injects an up-to-date "what didn't work" synthesis. Best-effort:
+			// the session ends regardless of whether the judgment succeeds.
+			if note := refreshNarrativeJudgment(adv, agentManager); note != "" {
+				display += "\n" + note
+			}
+
 			return map[string]interface{}{
 				"success":    true,
 				"session_id": session.ID,
 				"duration":   session.Duration,
 				"summary":    session.Summary,
-				"display":    fmt.Sprintf("Session %d terminée - Durée: %s", session.ID, session.Duration),
+				"display":    display,
 			}, nil
 		},
 	}
+}
+
+// refreshNarrativeJudgment runs the 3-lens AI judgment over the just-ended
+// session and caches it. Returns a short status note for the end-session display.
+// Best-effort: any failure (no agent manager, no API key, API error) is reported
+// in the note but never blocks ending the session.
+func refreshNarrativeJudgment(adv *adventure.Adventure, agentManager AgentManager) string {
+	if agentManager == nil {
+		return ""
+	}
+	brief, err := coherence.BuildNarrativeBrief(adv)
+	if err != nil {
+		return fmt.Sprintf("⚠️  Analyse narrative non rafraîchie (dossier: %v).", err)
+	}
+	judgment, err := narrativeai.Judge(brief, agentManager)
+	if err != nil {
+		return fmt.Sprintf("⚠️  Analyse narrative non rafraîchie (%v).", err)
+	}
+	if err := coherence.SaveNarrativeJudgment(adv, judgment); err != nil {
+		return fmt.Sprintf("⚠️  Analyse narrative calculée mais non sauvegardée (%v).", err)
+	}
+	return fmt.Sprintf("🤖 Analyse narrative rafraîchie (%d perspectives) — disponible au prochain démarrage de session.", len(judgment.Lenses))
 }
 
 // NewGetSessionInfoTool creates a tool to get information about the current session.

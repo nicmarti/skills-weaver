@@ -85,6 +85,8 @@ func main() {
 		err = cmdCleanSession(args)
 	case "inspect-sessions":
 		err = cmdInspectSessions(args)
+	case "repair":
+		err = cmdRepair(args)
 	case "help":
 		printUsage()
 	default:
@@ -154,6 +156,7 @@ COMMANDES MAINTENANCE:
   migrate-journal <aventure>    Diviser journal.json en fichiers par session
   validate-journal <aventure>   Valider l'intégrité des journaux
   inspect-sessions <aventure>   Analyser les sessions pour détecter les problèmes
+  repair <aventure> [--apply]   Canonicaliser le journal (fixes sûrs, dry-run par défaut)
   clean-session <aventure> <session_id>  Supprimer une session invalide
 
 EXEMPLES:
@@ -1385,6 +1388,81 @@ func cmdValidateJournal(args []string) error {
 	}
 
 	fmt.Println("\n✅ Validation réussie - journal intègre!")
+	return nil
+}
+
+// cmdRepair canonicalizes an adventure's journal, applying only safe idempotent fixes.
+// Dry-run by default; pass --apply to write changes (originals are backed up first).
+func cmdRepair(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: repair <aventure> [--apply]")
+	}
+
+	apply := false
+	var name string
+	for _, arg := range args {
+		switch arg {
+		case "--apply":
+			apply = true
+		case "--dry-run":
+			apply = false
+		default:
+			if name == "" {
+				name = arg
+			}
+		}
+	}
+	if name == "" {
+		return fmt.Errorf("usage: repair <aventure> [--apply]")
+	}
+
+	adv, err := adventure.LoadByName(adventuresDir, name)
+	if err != nil {
+		return fmt.Errorf("chargement aventure: %w", err)
+	}
+
+	report, err := adv.RepairJournal(adventure.RepairOptions{DryRun: !apply})
+	if err != nil {
+		return fmt.Errorf("réparation: %w", err)
+	}
+
+	mode := "DRY-RUN (aucune écriture)"
+	if apply {
+		mode = "APPLIQUÉ"
+	}
+	fmt.Printf("🔧 Réparation du journal: %s [%s]\n\n", report.AdventureName, mode)
+	fmt.Printf("📊 Entrées analysées: %d\n\n", report.TotalEntries)
+
+	if len(report.Actions) == 0 {
+		fmt.Println("✅ Journal déjà canonique - aucune correction nécessaire.")
+	} else {
+		verb := "Corrections proposées"
+		if apply {
+			verb = "Corrections appliquées"
+		}
+		fmt.Printf("🛠️  %s (%d):\n", verb, len(report.Actions))
+		for _, a := range report.Actions {
+			fmt.Printf("   • [%s] %s — %s\n", a.Kind, a.Target, a.Detail)
+		}
+		fmt.Println()
+	}
+
+	if len(report.Anomalies) > 0 {
+		fmt.Printf("⚠️  Anomalies détectées (NON modifiées, jugement humain requis) (%d):\n", len(report.Anomalies))
+		for _, an := range report.Anomalies {
+			fmt.Printf("   • [%s] %s\n", an.Kind, an.Detail)
+		}
+		fmt.Println()
+	}
+
+	if apply && report.BackupDir != "" {
+		fmt.Printf("💾 Originaux sauvegardés dans: %s\n", report.BackupDir)
+	}
+
+	if !apply && report.Changed() {
+		fmt.Println("💡 Relancez avec --apply pour écrire les corrections (un backup sera créé).")
+	}
+
 	return nil
 }
 

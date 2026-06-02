@@ -1,0 +1,302 @@
+package agent
+
+import (
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func TestMapAdvisorModelToAnthropic(t *testing.T) {
+	cases := []struct {
+		in       string
+		wantOK   bool
+		wantOpus bool
+	}{
+		{"opus-4.7", true, true},
+		{"opus4.7", true, true},
+		{"opus-4-7", true, true},
+		{"opus", true, true},
+		{"OPUS-4.7", true, true},
+		{"  opus-4.7 ", true, true},
+		{"", false, false},
+		{"sonnet", false, false},
+		{"haiku", false, false},
+		{"opus-4.6", false, false},
+	}
+	for _, c := range cases {
+		got, ok := MapAdvisorModelToAnthropic(c.in)
+		if ok != c.wantOK {
+			t.Errorf("MapAdvisorModelToAnthropic(%q) ok=%v, want %v", c.in, ok, c.wantOK)
+		}
+		if c.wantOpus && got != anthropic.ModelClaudeOpus4_7 {
+			t.Errorf("MapAdvisorModelToAnthropic(%q) = %v, want Opus 4.7", c.in, got)
+		}
+	}
+}
+
+func TestIsValidAdvisorPair(t *testing.T) {
+	valid := []struct{ exec, adv anthropic.Model }{
+		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeOpus4_7},
+		{anthropic.ModelClaudeHaiku4_5, anthropic.ModelClaudeOpus4_7},
+		{anthropic.ModelClaudeOpus4_6, anthropic.ModelClaudeOpus4_7},
+		{anthropic.ModelClaudeOpus4_7, anthropic.ModelClaudeOpus4_7},
+	}
+	for _, p := range valid {
+		if !IsValidAdvisorPair(p.exec, p.adv) {
+			t.Errorf("IsValidAdvisorPair(%v, %v) = false, want true", p.exec, p.adv)
+		}
+	}
+
+	invalid := []struct{ exec, adv anthropic.Model }{
+		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeSonnet4_6}, // advisor must be Opus 4.7
+		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeOpus4_6},   // 4.6 not a valid advisor
+	}
+	for _, p := range invalid {
+		if IsValidAdvisorPair(p.exec, p.adv) {
+			t.Errorf("IsValidAdvisorPair(%v, %v) = true, want false", p.exec, p.adv)
+		}
+	}
+}
+
+func TestResolveAdvisorConfig(t *testing.T) {
+	meta := &PersonaMetadata{Advisor: "opus-4.7", AdvisorMaxUses: 3}
+
+	t.Run("disabled when flag off", func(t *testing.T) {
+		t.Setenv("SW_ADVISOR_ENABLED", "")
+		if _, _, ok := resolveAdvisorConfig(meta, anthropic.ModelClaudeSonnet4_6); ok {
+			t.Error("expected advisor disabled when SW_ADVISOR_ENABLED is unset")
+		}
+	})
+
+	t.Run("enabled with valid pair", func(t *testing.T) {
+		t.Setenv("SW_ADVISOR_ENABLED", "1")
+		model, maxUses, ok := resolveAdvisorConfig(meta, anthropic.ModelClaudeSonnet4_6)
+		if !ok {
+			t.Fatal("expected advisor enabled")
+		}
+		if model != anthropic.ModelClaudeOpus4_7 {
+			t.Errorf("advisor model = %v, want Opus 4.7", model)
+		}
+		if maxUses != 3 {
+			t.Errorf("maxUses = %d, want 3", maxUses)
+		}
+	})
+
+	t.Run("default max uses", func(t *testing.T) {
+		t.Setenv("SW_ADVISOR_ENABLED", "true")
+		m := &PersonaMetadata{Advisor: "opus-4.7"}
+		_, maxUses, ok := resolveAdvisorConfig(m, anthropic.ModelClaudeSonnet4_6)
+		if !ok || maxUses != defaultAdvisorMaxUses {
+			t.Errorf("maxUses = %d (ok=%v), want %d", maxUses, ok, defaultAdvisorMaxUses)
+		}
+	})
+
+	t.Run("disabled when no advisor field", func(t *testing.T) {
+		t.Setenv("SW_ADVISOR_ENABLED", "1")
+		if _, _, ok := resolveAdvisorConfig(&PersonaMetadata{}, anthropic.ModelClaudeSonnet4_6); ok {
+			t.Error("expected advisor disabled when no advisor configured")
+		}
+	})
+
+	t.Run("disabled when unrecognized advisor model", func(t *testing.T) {
+		t.Setenv("SW_ADVISOR_ENABLED", "1")
+		if _, _, ok := resolveAdvisorConfig(&PersonaMetadata{Advisor: "gpt-9"}, anthropic.ModelClaudeSonnet4_6); ok {
+			t.Error("expected advisor disabled for unrecognized model")
+		}
+	})
+}
+
+func TestToBetaMessages(t *testing.T) {
+	std := []anthropic.MessageParam{
+		anthropic.NewUserMessage(
+			anthropic.NewTextBlock("carte du monde"),
+			anthropic.NewImageBlockBase64("image/png", "ZmFrZQ=="),
+		),
+		anthropic.NewAssistantMessage(
+			anthropic.NewTextBlock("ok"),
+			anthropic.NewToolUseBlock("tu_1", map[string]any{"x": 1}, "get_party_info"),
+		),
+		anthropic.NewUserMessage(
+			anthropic.NewToolResultBlock("tu_1", `{"hp":30}`, false),
+		),
+	}
+	beta, err := toBetaMessages(std)
+	if err != nil {
+		t.Fatalf("toBetaMessages: %v", err)
+	}
+	if len(beta) != 3 {
+		t.Fatalf("got %d beta messages, want 3", len(beta))
+	}
+}
+
+// TestInvokeAgentSilent_AdvisorRouting verifies that an advisor-enabled persona
+// is routed through the beta Messages API and that advisor advice + token
+// metrics are captured.
+func TestInvokeAgentSilent_AdvisorRouting(t *testing.T) {
+	t.Setenv("SW_ADVISOR_ENABLED", "1")
+
+	tmpDir := t.TempDir()
+	personaDir := filepath.Join(tmpDir, "agents")
+	if err := os.MkdirAll(personaDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	persona := `---
+name: world-keeper
+description: World consistency guardian
+model: sonnet
+advisor: opus-4.7
+advisor_max_uses: 2
+---
+
+You maintain world consistency.`
+	if err := os.WriteFile(filepath.Join(personaDir, "world-keeper.md"), []byte(persona), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+	personaLoader := NewPersonaLoaderWithPaths([]string{personaDir})
+	logger, _ := NewLogger(tmpDir)
+
+	mockClient := NewMockAnthropicClient()
+	mockClient.GetMockMessagesService().SimulateAdvisorText = "Open cold on the city's wrongness; fold the fifth actor into the betrayer."
+	clientFactory := func(apiKey string) anthropicClient { return mockClient }
+
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+
+	resp, err := am.InvokeAgentSilent("world-keeper", "Brief me for the Shasseth session.", 1)
+	if err != nil {
+		t.Fatalf("InvokeAgentSilent: %v", err)
+	}
+	if resp == "" {
+		t.Fatal("expected non-empty briefing")
+	}
+
+	svc := mockClient.GetMockMessagesService()
+	if svc.BetaCallCount != 1 {
+		t.Errorf("BetaCallCount = %d, want 1 (advisor path should use beta API)", svc.BetaCallCount)
+	}
+
+	// Verify the beta request carried the advisor tool with the configured model.
+	if svc.LastBetaParams == nil {
+		t.Fatal("expected LastBetaParams to be set")
+	}
+	if len(svc.LastBetaParams.Tools) != 1 || svc.LastBetaParams.Tools[0].OfAdvisorTool20260301 == nil {
+		t.Fatalf("expected advisor tool in beta request, got %+v", svc.LastBetaParams.Tools)
+	}
+	if got := svc.LastBetaParams.Tools[0].OfAdvisorTool20260301.Model; got != anthropic.ModelClaudeOpus4_7 {
+		t.Errorf("advisor tool model = %v, want Opus 4.7", got)
+	}
+
+	state, ok := am.GetNestedAgentState("world-keeper")
+	if !ok {
+		t.Fatal("world-keeper state not tracked")
+	}
+	if state.metrics.AdvisorCalls != 1 {
+		t.Errorf("AdvisorCalls = %d, want 1", state.metrics.AdvisorCalls)
+	}
+	if state.metrics.AdvisorOutputTokens != 150 {
+		t.Errorf("AdvisorOutputTokens = %d, want 150 (from mock iterations)", state.metrics.AdvisorOutputTokens)
+	}
+	if state.metrics.AdvisorModelUsed != "claude-opus-4-7" {
+		t.Errorf("AdvisorModelUsed = %q, want claude-opus-4-7", state.metrics.AdvisorModelUsed)
+	}
+	// Executor tokens come from the two "message" iterations (10 + 40 output).
+	if state.metrics.TotalOutputTokens != 50 {
+		t.Errorf("executor TotalOutputTokens = %d, want 50", state.metrics.TotalOutputTokens)
+	}
+}
+
+// TestInvokeAgentSilent_NoAdvisorWhenFlagOff confirms the standard (non-beta)
+// path is used when the feature flag is off, even if the persona declares an advisor.
+func TestInvokeAgentSilent_NoAdvisorWhenFlagOff(t *testing.T) {
+	t.Setenv("SW_ADVISOR_ENABLED", "")
+
+	tmpDir := t.TempDir()
+	personaDir := filepath.Join(tmpDir, "agents")
+	if err := os.MkdirAll(personaDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	persona := `---
+name: world-keeper
+model: sonnet
+advisor: opus-4.7
+---
+
+You maintain world consistency.`
+	if err := os.WriteFile(filepath.Join(personaDir, "world-keeper.md"), []byte(persona), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+	personaLoader := NewPersonaLoaderWithPaths([]string{personaDir})
+	logger, _ := NewLogger(tmpDir)
+	mockClient := NewMockAnthropicClient()
+	clientFactory := func(apiKey string) anthropicClient { return mockClient }
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+
+	if _, err := am.InvokeAgentSilent("world-keeper", "Brief me.", 1); err != nil {
+		t.Fatalf("InvokeAgentSilent: %v", err)
+	}
+
+	svc := mockClient.GetMockMessagesService()
+	if svc.BetaCallCount != 0 {
+		t.Errorf("BetaCallCount = %d, want 0 (flag off → standard path)", svc.BetaCallCount)
+	}
+	if svc.CallCount != 1 {
+		t.Errorf("CallCount = %d, want 1 (standard path)", svc.CallCount)
+	}
+}
+
+// TestInvokeAgentSilent_AdvisorRealAPI exercises the full production advisor
+// path against the live beta Messages API. Gated: requires ANTHROPIC_API_KEY
+// and RUN_REAL_API_TESTS=1. Uses the real world-keeper persona on disk.
+func TestInvokeAgentSilent_AdvisorRealAPI(t *testing.T) {
+	if os.Getenv("ANTHROPIC_API_KEY") == "" || os.Getenv("RUN_REAL_API_TESTS") == "" {
+		t.Skip("Skipping real advisor API test: set ANTHROPIC_API_KEY and RUN_REAL_API_TESTS=1 to enable")
+	}
+	t.Setenv("SW_ADVISOR_ENABLED", "1")
+
+	tmpDir := t.TempDir()
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+	// Use the real persona dir so the on-disk world-keeper.md (with advisor) loads.
+	personaLoader := NewPersonaLoaderWithPaths([]string{"../../core_agents/agents"})
+	logger, _ := NewLogger(tmpDir)
+	am := NewAgentManager(os.Getenv("ANTHROPIC_API_KEY"), adventureCtx, logger, nil, personaLoader)
+
+	resp, err := am.InvokeAgentSilent("world-keeper",
+		"Brief stratégique: les PJ épuisés arrivent à la cité de Shasseth où l'antagoniste Vaskir prépare un rituel. Deux foreshadows critiques à payer. Comment ouvrir la session?", 1)
+	if err != nil {
+		t.Fatalf("real advisor API call failed: %v", err)
+	}
+	if resp == "" {
+		t.Fatal("expected non-empty briefing from real API")
+	}
+	t.Logf("Briefing (%d chars): %s", len(resp), resp)
+
+	state, _ := am.GetNestedAgentState("world-keeper")
+	t.Logf("Executor tokens: in=%d out=%d | Advisor calls=%d tokens in=%d out=%d (model=%s)",
+		state.metrics.TotalInputTokens, state.metrics.TotalOutputTokens,
+		state.metrics.AdvisorCalls, state.metrics.AdvisorInputTokens,
+		state.metrics.AdvisorOutputTokens, state.metrics.AdvisorModelUsed)
+
+	if state.metrics.AdvisorCalls == 0 {
+		t.Log("WARNING: advisor was not consulted by the executor this run")
+	}
+}
+
+func TestAdvisorFeatureEnabled(t *testing.T) {
+	for _, on := range []string{"1", "true", "TRUE", "yes", "on"} {
+		t.Setenv("SW_ADVISOR_ENABLED", on)
+		if !advisorFeatureEnabled() {
+			t.Errorf("advisorFeatureEnabled() = false for %q, want true", on)
+		}
+	}
+	for _, off := range []string{"", "0", "false", "no", "off", "garbage"} {
+		t.Setenv("SW_ADVISOR_ENABLED", off)
+		if advisorFeatureEnabled() {
+			t.Errorf("advisorFeatureEnabled() = true for %q, want false", off)
+		}
+	}
+}

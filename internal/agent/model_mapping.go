@@ -31,6 +31,42 @@ func MapPersonaModelToAnthropic(personaModel string) anthropic.Model {
 	}
 }
 
+// MapAdvisorModelToAnthropic converts a persona "advisor" model string to an
+// Anthropic SDK model constant suitable for the Advisor tool.
+//
+// The Advisor tool (beta) requires the advisor to be at least as capable as the
+// executor. With the current SDK only Opus 4.7 is available as an advisor model.
+// Supported values (case-insensitive): "opus-4.7", "opus4.7", "opus".
+// Returns ok=false if the string is empty or not a recognized advisor model.
+func MapAdvisorModelToAnthropic(advisorModel string) (anthropic.Model, bool) {
+	switch strings.ToLower(strings.TrimSpace(advisorModel)) {
+	case "opus-4.7", "opus4.7", "opus-4-7", "opus":
+		return anthropic.ModelClaudeOpus4_7, true
+	default:
+		return "", false
+	}
+}
+
+// IsValidAdvisorPair reports whether the given executor/advisor models form a
+// valid pair for the Advisor tool. The advisor must be at least as capable as
+// the executor. Per the Advisor tool docs, valid executors are Haiku 4.5,
+// Sonnet 4.6, and Opus 4.6/4.7; the advisor must be Opus 4.7 (or 4.8, not yet
+// in this SDK).
+func IsValidAdvisorPair(executor, advisor anthropic.Model) bool {
+	advisorOK := advisor == anthropic.ModelClaudeOpus4_7
+	if !advisorOK {
+		return false
+	}
+	switch executor {
+	case anthropic.ModelClaudeHaiku4_5, anthropic.ModelClaudeHaiku4_5_20251001,
+		anthropic.ModelClaudeSonnet4_6,
+		anthropic.ModelClaudeOpus4_6, anthropic.ModelClaudeOpus4_7:
+		return true
+	default:
+		return false
+	}
+}
+
 // GetModelDisplayName returns a human-readable name for an Anthropic model.
 func GetModelDisplayName(model anthropic.Model) string {
 	switch model {
@@ -42,6 +78,8 @@ func GetModelDisplayName(model anthropic.Model) string {
 		return "claude-haiku-4-5"
 	case anthropic.ModelClaudeOpus4_6:
 		return "claude-opus-4-6"
+	case anthropic.ModelClaudeOpus4_7:
+		return "claude-opus-4-7"
 	case anthropic.ModelClaudeOpus4_5, anthropic.ModelClaudeOpus4_5_20251101:
 		return "claude-opus-4-5"
 	default:

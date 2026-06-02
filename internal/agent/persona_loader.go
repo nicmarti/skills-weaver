@@ -22,6 +22,12 @@ type PersonaMetadata struct {
 	Description string   `yaml:"description"`
 	Tools       []string `yaml:"tools"`
 	Model       string   `yaml:"model"`
+	// Advisor, when set (e.g. "opus-4.7"), enables the Anthropic Advisor tool
+	// for this nested agent, pairing its executor model with a stronger advisor
+	// model consulted mid-generation. Empty = advisor disabled.
+	Advisor string `yaml:"advisor"`
+	// AdvisorMaxUses caps advisor calls per request (0 = unset → default 2).
+	AdvisorMaxUses int `yaml:"advisor_max_uses"`
 }
 
 // NewPersonaLoader creates a new PersonaLoader with default search paths.

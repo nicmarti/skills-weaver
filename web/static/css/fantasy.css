@@ -2429,6 +2429,69 @@ a:hover {
     animation: wizardSpin 1s linear infinite;
 }
 @keyframes wizardSpin { to { transform: rotate(360deg); } }
+
+/* Staged loading checklist (shown while the destiny is being woven) */
+.wizard-steps {
+    list-style: none;
+    margin: var(--space-lg) auto 0;
+    padding: 0;
+    display: inline-flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    text-align: left;
+}
+.wizard-step-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-body);
+    font-size: 1.02rem;
+    color: var(--text-muted);
+    opacity: 0.45;
+    transition: opacity 0.4s ease, color 0.4s ease;
+}
+.wizard-step-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    font-size: 1rem;
+    transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
+.wizard-step-item.is-pending { opacity: 0.4; }
+.wizard-step-item.is-active {
+    opacity: 1;
+    color: var(--accent-gold-light);
+}
+.wizard-step-item.is-active .wizard-step-icon {
+    border-color: var(--accent-gold-light);
+    box-shadow: 0 0 12px rgba(232, 197, 71, 0.5);
+    animation: wizardStepPulse 1.4s ease-in-out infinite;
+}
+.wizard-step-item.is-done {
+    opacity: 0.9;
+    color: var(--accent-gold);
+}
+.wizard-step-item.is-done .wizard-step-icon {
+    border-color: var(--accent-gold);
+    background: rgba(201, 162, 39, 0.18);
+}
+.wizard-step-item.is-done .wizard-step-label::after {
+    content: " ✓";
+    color: var(--accent-gold-light);
+}
+@keyframes wizardStepPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(232, 197, 71, 0.35); transform: scale(1); }
+    50%      { box-shadow: 0 0 16px rgba(232, 197, 71, 0.65); transform: scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .wizard-step-item.is-active .wizard-step-icon { animation: none; }
+}
+
 .destiny-card {
     max-width: 320px;
     width: 100%;

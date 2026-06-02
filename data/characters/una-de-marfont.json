@@ -38,8 +38,8 @@
     "medicine": true
   },
   "saving_throw_profs": {
-    "wisdom": true,
-    "charisma": true
+    "charisma": true,
+    "wisdom": true
   },
   "hit_dice": 4,
   "max_hit_dice": 4,

@@ -78,9 +78,10 @@ func toBetaMessages(messages []anthropic.MessageParam) ([]anthropic.BetaMessageP
 
 // advisorCallResult holds the parsed outcome of a single advisor-enabled beta call.
 type advisorCallResult struct {
-	text          string // executor's final text
-	advisorText   string // advice returned by the advisor (empty if not consulted)
-	advisorErr    string // advisor error_code (empty if none)
+	text          string    // executor's text this turn
+	toolUses      []ToolUse // client-side tool calls requested by the executor
+	advisorText   string    // advice returned by the advisor (empty if not consulted)
+	advisorErr    string    // advisor error_code (empty if none)
 	advisorCalled bool
 	execInTokens  int64
 	execOutTokens int64
@@ -89,10 +90,20 @@ type advisorCallResult struct {
 	advisorModel  string
 }
 
-// callWithAdvisor performs a single beta Messages call with the Advisor tool
-// enabled, using the nested agent's conversation context and the given system
-// prompt. The advisor resolves server-side within this one call.
-func (am *AgentManager) callWithAdvisor(ctx context.Context, nestedAgent *NestedAgentState, systemPrompt string) (advisorCallResult, error) {
+// advisorToolParam builds the Advisor tool definition for a nested agent.
+func advisorToolParam(nestedAgent *NestedAgentState) anthropic.BetaToolUnionParam {
+	return anthropic.BetaToolUnionParam{OfAdvisorTool20260301: &anthropic.BetaAdvisorTool20260301Param{
+		Model:   nestedAgent.advisorModel,
+		MaxUses: anthropic.Int(int64(nestedAgent.advisorMaxUses)),
+	}}
+}
+
+// doBetaCall performs a single beta Messages call with the given tools, parsing
+// the response into text, client-side tool uses, advisor advice, and a per-
+// iteration token breakdown. The Advisor tool (if present in tools) resolves
+// server-side within this one call; client-side tool uses are returned for the
+// caller to execute and loop.
+func (am *AgentManager) doBetaCall(ctx context.Context, nestedAgent *NestedAgentState, systemPrompt string, tools []anthropic.BetaToolUnionParam) (advisorCallResult, error) {
 	var res advisorCallResult
 
 	betaMessages, err := toBetaMessages(nestedAgent.conversationCtx.GetMessages())
@@ -100,23 +111,14 @@ func (am *AgentManager) callWithAdvisor(ctx context.Context, nestedAgent *Nested
 		return res, err
 	}
 
-	params := anthropic.BetaMessageNewParams{
+	msg, err := nestedAgent.client.GetMessages().NewBeta(ctx, anthropic.BetaMessageNewParams{
 		Model:     nestedAgent.model,
 		MaxTokens: 4096,
 		Betas:     []anthropic.AnthropicBeta{anthropic.AnthropicBetaAdvisorTool2026_03_01},
-		System: []anthropic.BetaTextBlockParam{
-			{Text: systemPrompt},
-		},
-		Tools: []anthropic.BetaToolUnionParam{
-			{OfAdvisorTool20260301: &anthropic.BetaAdvisorTool20260301Param{
-				Model:   nestedAgent.advisorModel,
-				MaxUses: anthropic.Int(int64(nestedAgent.advisorMaxUses)),
-			}},
-		},
-		Messages: betaMessages,
-	}
-
-	msg, err := nestedAgent.client.GetMessages().NewBeta(ctx, params)
+		System:    []anthropic.BetaTextBlockParam{{Text: systemPrompt}},
+		Tools:     tools,
+		Messages:  betaMessages,
+	})
 	if err != nil {
 		return res, err
 	}
@@ -125,6 +127,12 @@ func (am *AgentManager) callWithAdvisor(ctx context.Context, nestedAgent *Nested
 		switch b := block.AsAny().(type) {
 		case anthropic.BetaTextBlock:
 			res.text += b.Text
+		case anthropic.BetaToolUseBlock:
+			input := map[string]interface{}{}
+			if raw, mErr := json.Marshal(b.Input); mErr == nil {
+				_ = json.Unmarshal(raw, &input)
+			}
+			res.toolUses = append(res.toolUses, ToolUse{ID: b.ID, Name: b.Name, Input: input})
 		case anthropic.BetaAdvisorToolResultBlock:
 			res.advisorCalled = true
 			// The content union flattens variant fields; discriminate on Type.
@@ -159,6 +167,13 @@ func (am *AgentManager) callWithAdvisor(ctx context.Context, nestedAgent *Nested
 	}
 
 	return res, nil
+}
+
+// callWithAdvisor performs a single beta Messages call with ONLY the Advisor
+// tool enabled (no client-side tools). Used by the silent briefing path, where
+// the advisor resolves server-side within this one call.
+func (am *AgentManager) callWithAdvisor(ctx context.Context, nestedAgent *NestedAgentState, systemPrompt string) (advisorCallResult, error) {
+	return am.doBetaCall(ctx, nestedAgent, systemPrompt, []anthropic.BetaToolUnionParam{advisorToolParam(nestedAgent)})
 }
 
 // recordAdvisorMetrics folds an advisor call's token usage into the agent's

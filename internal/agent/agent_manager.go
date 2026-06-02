@@ -226,6 +226,17 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 		toolsParam = nestedAgent.toolRegistry.ToAnthropicToolsParam()
 	}
 
+	// Advisor-enabled agents run the loop through the beta Messages API with the
+	// Advisor tool alongside their read-only tools.
+	useAdvisor := nestedAgent.advisorModel != ""
+	var betaToolsParam []anthropic.BetaToolUnionParam
+	if useAdvisor {
+		if hasTools {
+			betaToolsParam = nestedAgent.toolRegistry.ToBetaToolsParam()
+		}
+		betaToolsParam = append(betaToolsParam, advisorToolParam(nestedAgent))
+	}
+
 	// Create API call context with timeout
 	// Use 80 seconds (1m20s) to give nested agents more time for complex queries
 	const invocationTimeout = 120 * time.Second
@@ -234,66 +245,95 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 
 	var finalResponseText string
 	var totalInputTokens, totalOutputTokens int64
+	// Advisor accumulators (folded into metrics after the loop).
+	var advInTokens, advOutTokens, advisorCallCount int64
+	var advisorModelUsed string
 
 	// Agent loop with tool execution
 	for iteration := 0; iteration < maxIterations; iteration++ {
-		// Build API request
-		params := anthropic.MessageNewParams{
-			Model:     nestedAgent.model,
-			MaxTokens: 4096,
-			System: []anthropic.TextBlockParam{
-				{
-					Type: "text",
-					Text: systemPrompt,
-				},
-			},
-			Messages: nestedAgent.conversationCtx.GetMessages(),
-		}
-
-		// Add tools if available
-		if hasTools {
-			params.Tools = toolsParam
-		}
-
-		// Call Anthropic API
-		response, err := nestedAgent.client.GetMessages().New(ctx, params)
-		if err != nil {
-			if ctx.Err() == context.DeadlineExceeded {
-				return "", &ErrAgentTimeout{
-					AgentName: agentName,
-					Timeout:   invocationTimeout,
-				}
-			}
-			return "", &AgentError{
-				AgentName: agentName,
-				Operation: "API call",
-				Err:       err,
-			}
-		}
-
-		// Track tokens
-		totalInputTokens += int64(response.Usage.InputTokens)
-		totalOutputTokens += int64(response.Usage.OutputTokens)
-
-		// Process response content
 		var textContent string
 		var toolUses []ToolUse
 
-		for _, block := range response.Content {
-			switch contentBlock := block.AsAny().(type) {
-			case anthropic.TextBlock:
-				textContent += contentBlock.Text
-			case anthropic.ToolUseBlock:
-				// Parse tool input
-				var input map[string]interface{}
-				if err := json.Unmarshal(contentBlock.Input, &input); err != nil {
-					input = make(map[string]interface{})
+		if useAdvisor {
+			// Beta path: Advisor tool resolves server-side; client tools loop.
+			res, callErr := am.doBetaCall(ctx, nestedAgent, systemPrompt, betaToolsParam)
+			if callErr != nil {
+				if ctx.Err() == context.DeadlineExceeded {
+					return "", &ErrAgentTimeout{AgentName: agentName, Timeout: invocationTimeout}
 				}
-				toolUses = append(toolUses, ToolUse{
-					ID:    contentBlock.ID,
-					Name:  contentBlock.Name,
-					Input: input,
-				})
+				return "", &AgentError{AgentName: agentName, Operation: "API call (advisor)", Err: callErr}
+			}
+			textContent = res.text
+			toolUses = res.toolUses
+			totalInputTokens += res.execInTokens
+			totalOutputTokens += res.execOutTokens
+			if res.advisorCalled {
+				advisorCallCount++
+				advInTokens += res.advInTokens
+				advOutTokens += res.advOutTokens
+				if res.advisorModel != "" {
+					advisorModelUsed = res.advisorModel
+				}
+			}
+			if res.advisorErr != "" && am.logger != nil {
+				am.logger.LogInfo(fmt.Sprintf("[%s] Advisor error (continuing): %s", agentName, res.advisorErr))
+			}
+		} else {
+			// Standard path.
+			params := anthropic.MessageNewParams{
+				Model:     nestedAgent.model,
+				MaxTokens: 4096,
+				System: []anthropic.TextBlockParam{
+					{
+						Type: "text",
+						Text: systemPrompt,
+					},
+				},
+				Messages: nestedAgent.conversationCtx.GetMessages(),
+			}
+
+			// Add tools if available
+			if hasTools {
+				params.Tools = toolsParam
+			}
+
+			// Call Anthropic API
+			response, callErr := nestedAgent.client.GetMessages().New(ctx, params)
+			if callErr != nil {
+				if ctx.Err() == context.DeadlineExceeded {
+					return "", &ErrAgentTimeout{
+						AgentName: agentName,
+						Timeout:   invocationTimeout,
+					}
+				}
+				return "", &AgentError{
+					AgentName: agentName,
+					Operation: "API call",
+					Err:       callErr,
+				}
+			}
+
+			// Track tokens
+			totalInputTokens += int64(response.Usage.InputTokens)
+			totalOutputTokens += int64(response.Usage.OutputTokens)
+
+			// Process response content
+			for _, block := range response.Content {
+				switch contentBlock := block.AsAny().(type) {
+				case anthropic.TextBlock:
+					textContent += contentBlock.Text
+				case anthropic.ToolUseBlock:
+					// Parse tool input
+					var input map[string]interface{}
+					if err := json.Unmarshal(contentBlock.Input, &input); err != nil {
+						input = make(map[string]interface{})
+					}
+					toolUses = append(toolUses, ToolUse{
+						ID:    contentBlock.ID,
+						Name:  contentBlock.Name,
+						Input: input,
+					})
+				}
 			}
 		}
 
@@ -342,6 +382,16 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	nestedAgent.metrics.TotalResponseTime += duration
 	nestedAgent.metrics.LastCallTokens = totalTokens
 	nestedAgent.metrics.LastCallDuration = duration
+
+	// Fold advisor metrics (Opus-billed, tracked separately from executor tokens).
+	if advisorCallCount > 0 {
+		nestedAgent.metrics.AdvisorCalls += advisorCallCount
+		nestedAgent.metrics.AdvisorInputTokens += advInTokens
+		nestedAgent.metrics.AdvisorOutputTokens += advOutTokens
+		if advisorModelUsed != "" {
+			nestedAgent.metrics.AdvisorModelUsed = advisorModelUsed
+		}
+	}
 
 	// Calculate averages
 	if nestedAgent.invocationCount > 0 {

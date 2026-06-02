@@ -108,6 +108,57 @@ func TestResolveAdvisorConfig(t *testing.T) {
 	})
 }
 
+// TestAdvisorMetricsPersistence verifies advisor metrics survive a save/load
+// round-trip through agent-states.json.
+func TestAdvisorMetricsPersistence(t *testing.T) {
+	t.Setenv("SW_ADVISOR_ENABLED", "1")
+
+	tmpDir := t.TempDir()
+	personaDir := filepath.Join(tmpDir, "agents")
+	if err := os.MkdirAll(personaDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	persona := "---\nname: world-keeper\nmodel: sonnet\nadvisor: opus-4.7\n---\n\nYou maintain world consistency."
+	if err := os.WriteFile(filepath.Join(personaDir, "world-keeper.md"), []byte(persona), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+	personaLoader := NewPersonaLoaderWithPaths([]string{personaDir})
+	logger, _ := NewLogger(tmpDir)
+	mockClient := NewMockAnthropicClient()
+	mockClient.GetMockMessagesService().SimulateAdvisorText = "advice"
+	clientFactory := func(apiKey string) anthropicClient { return mockClient }
+
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	if _, err := am.InvokeAgentSilent("world-keeper", "Brief.", 1); err != nil {
+		t.Fatalf("InvokeAgentSilent: %v", err)
+	}
+
+	statePath := filepath.Join(tmpDir, "agent-states.json")
+	if err := am.SaveAgentStates(statePath); err != nil {
+		t.Fatalf("SaveAgentStates: %v", err)
+	}
+
+	am2 := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	if err := am2.LoadAgentStates(statePath); err != nil {
+		t.Fatalf("LoadAgentStates: %v", err)
+	}
+	state, ok := am2.GetNestedAgentState("world-keeper")
+	if !ok {
+		t.Fatal("world-keeper not restored")
+	}
+	if state.metrics.AdvisorCalls != 1 {
+		t.Errorf("restored AdvisorCalls = %d, want 1", state.metrics.AdvisorCalls)
+	}
+	if state.metrics.AdvisorOutputTokens != 150 {
+		t.Errorf("restored AdvisorOutputTokens = %d, want 150", state.metrics.AdvisorOutputTokens)
+	}
+	if state.metrics.AdvisorModelUsed != "claude-opus-4-7" {
+		t.Errorf("restored AdvisorModelUsed = %q, want claude-opus-4-7", state.metrics.AdvisorModelUsed)
+	}
+}
+
 func TestToBetaMessages(t *testing.T) {
 	std := []anthropic.MessageParam{
 		anthropic.NewUserMessage(
@@ -249,6 +300,67 @@ You maintain world consistency.`
 	}
 }
 
+// TestInvokeAgent_AdvisorRouting verifies that the non-silent InvokeAgent tool
+// loop routes advisor-enabled agents through the beta API with the advisor tool.
+func TestInvokeAgent_AdvisorRouting(t *testing.T) {
+	t.Setenv("SW_ADVISOR_ENABLED", "1")
+
+	tmpDir := t.TempDir()
+	personaDir := filepath.Join(tmpDir, "agents")
+	if err := os.MkdirAll(personaDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	persona := `---
+name: world-keeper
+model: sonnet
+advisor: opus-4.7
+---
+
+You maintain world consistency.`
+	if err := os.WriteFile(filepath.Join(personaDir, "world-keeper.md"), []byte(persona), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+	personaLoader := NewPersonaLoaderWithPaths([]string{personaDir})
+	logger, _ := NewLogger(tmpDir)
+	mockClient := NewMockAnthropicClient()
+	mockClient.GetMockMessagesService().SimulateAdvisorText = "Cadre la cohérence avant tout."
+	clientFactory := func(apiKey string) anthropicClient { return mockClient }
+	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+
+	resp, err := am.InvokeAgent("world-keeper", "Vérifie la cohérence de Shasseth.", "", 1)
+	if err != nil {
+		t.Fatalf("InvokeAgent: %v", err)
+	}
+	if resp == "" {
+		t.Fatal("expected non-empty response")
+	}
+
+	svc := mockClient.GetMockMessagesService()
+	if svc.BetaCallCount == 0 {
+		t.Errorf("expected beta API to be used for advisor-enabled agent, BetaCallCount=0")
+	}
+	// Beta request must include the advisor tool (alongside any read-only tools).
+	if svc.LastBetaParams == nil {
+		t.Fatal("expected LastBetaParams to be set")
+	}
+	var hasAdvisorTool bool
+	for _, tool := range svc.LastBetaParams.Tools {
+		if tool.OfAdvisorTool20260301 != nil {
+			hasAdvisorTool = true
+		}
+	}
+	if !hasAdvisorTool {
+		t.Error("expected advisor tool in beta request tools")
+	}
+
+	state, _ := am.GetNestedAgentState("world-keeper")
+	if state.metrics.AdvisorCalls != 1 {
+		t.Errorf("AdvisorCalls = %d, want 1", state.metrics.AdvisorCalls)
+	}
+}
+
 // TestInvokeAgentSilent_AdvisorRealAPI exercises the full production advisor
 // path against the live beta Messages API. Gated: requires ANTHROPIC_API_KEY
 // and RUN_REAL_API_TESTS=1. Uses the real world-keeper persona on disk.
@@ -284,6 +396,63 @@ func TestInvokeAgentSilent_AdvisorRealAPI(t *testing.T) {
 	if state.metrics.AdvisorCalls == 0 {
 		t.Log("WARNING: advisor was not consulted by the executor this run")
 	}
+}
+
+// fakeTool is a minimal read-only Tool for exercising the combined
+// advisor+tools beta request against the real API.
+type fakeTool struct{}
+
+func (fakeTool) Name() string        { return "get_party_info" }
+func (fakeTool) Description() string { return "Returns a summary of the party." }
+func (fakeTool) InputSchema() map[string]interface{} {
+	return map[string]interface{}{"type": "object", "properties": map[string]interface{}{}}
+}
+func (fakeTool) Execute(params map[string]interface{}) (interface{}, error) {
+	return map[string]interface{}{"party": "Bob (Fighter, lvl 8, HP 30/64)"}, nil
+}
+
+// TestInvokeAgent_AdvisorWithToolsRealAPI exercises the combined advisor +
+// client-side tools beta request against the live API. Gated.
+func TestInvokeAgent_AdvisorWithToolsRealAPI(t *testing.T) {
+	if os.Getenv("ANTHROPIC_API_KEY") == "" || os.Getenv("RUN_REAL_API_TESTS") == "" {
+		t.Skip("Skipping real advisor+tools API test: set ANTHROPIC_API_KEY and RUN_REAL_API_TESTS=1 to enable")
+	}
+	t.Setenv("SW_ADVISOR_ENABLED", "1")
+
+	tmpDir := t.TempDir()
+	personaDir := filepath.Join(tmpDir, "agents")
+	if err := os.MkdirAll(personaDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	persona := "---\nname: world-keeper\ntools: [get_party_info]\nmodel: sonnet\nadvisor: opus-4.7\n---\n\nYou maintain world consistency. Use get_party_info if you need the party state."
+	if err := os.WriteFile(filepath.Join(personaDir, "world-keeper.md"), []byte(persona), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	adventureCtx := createTestAdventureContext(t, tmpDir)
+	personaLoader := NewPersonaLoaderWithPaths([]string{personaDir})
+	logger, _ := NewLogger(tmpDir)
+	am := NewAgentManager(os.Getenv("ANTHROPIC_API_KEY"), adventureCtx, logger, nil, personaLoader)
+
+	// Wire a main registry containing the allowed read-only tool so the nested
+	// agent's filtered registry is non-empty (combined advisor+tools path).
+	reg := NewToolRegistry(adventureCtx)
+	reg.Register(fakeTool{})
+	am.SetMainToolRegistry(reg)
+
+	resp, err := am.InvokeAgent("world-keeper",
+		"Combien de PV a le groupe et est-ce cohérent pour le niveau 8 ? Vérifie via tes outils si besoin.", "", 1)
+	if err != nil {
+		t.Fatalf("real advisor+tools API call failed: %v", err)
+	}
+	if resp == "" {
+		t.Fatal("expected non-empty response")
+	}
+	state, _ := am.GetNestedAgentState("world-keeper")
+	t.Logf("resp=%q | exec in=%d out=%d | advisor calls=%d in=%d out=%d (%s)",
+		resp, state.metrics.TotalInputTokens, state.metrics.TotalOutputTokens,
+		state.metrics.AdvisorCalls, state.metrics.AdvisorInputTokens,
+		state.metrics.AdvisorOutputTokens, state.metrics.AdvisorModelUsed)
 }
 
 func TestAdvisorFeatureEnabled(t *testing.T) {

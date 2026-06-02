@@ -37,6 +37,11 @@ type SerializedMetrics struct {
 	ModelUsed            string `json:"model_used"`
 	LastCallTokens       int64  `json:"last_call_tokens"`
 	LastCallDurationMS   int64  `json:"last_call_duration_ms"`
+	// Advisor tool metrics (Opus-billed, tracked separately from executor tokens).
+	AdvisorCalls        int64  `json:"advisor_calls,omitempty"`
+	AdvisorInputTokens  int64  `json:"advisor_input_tokens,omitempty"`
+	AdvisorOutputTokens int64  `json:"advisor_output_tokens,omitempty"`
+	AdvisorModelUsed    string `json:"advisor_model_used,omitempty"`
 }
 
 // SaveAgentStates saves all nested agent states to a JSON file.
@@ -66,6 +71,10 @@ func (am *AgentManager) SaveAgentStates(filePath string) error {
 			ModelUsed:            state.metrics.ModelUsed,
 			LastCallTokens:       state.metrics.LastCallTokens,
 			LastCallDurationMS:   state.metrics.LastCallDuration.Milliseconds(),
+			AdvisorCalls:         state.metrics.AdvisorCalls,
+			AdvisorInputTokens:   state.metrics.AdvisorInputTokens,
+			AdvisorOutputTokens:  state.metrics.AdvisorOutputTokens,
+			AdvisorModelUsed:     state.metrics.AdvisorModelUsed,
 		}
 
 		serialized := &SerializedAgent{
@@ -185,6 +194,10 @@ func (am *AgentManager) LoadAgentStates(filePath string) error {
 				ModelUsed:            serialized.Metrics.ModelUsed,
 				LastCallTokens:       serialized.Metrics.LastCallTokens,
 				LastCallDuration:     time.Duration(serialized.Metrics.LastCallDurationMS) * time.Millisecond,
+				AdvisorCalls:         serialized.Metrics.AdvisorCalls,
+				AdvisorInputTokens:   serialized.Metrics.AdvisorInputTokens,
+				AdvisorOutputTokens:  serialized.Metrics.AdvisorOutputTokens,
+				AdvisorModelUsed:     serialized.Metrics.AdvisorModelUsed,
 			}
 		} else {
 			// Initialize empty metrics if not present (backward compatibility)

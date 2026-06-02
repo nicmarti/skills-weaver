@@ -123,8 +123,9 @@ func TestGenerateNPCWithAllOptions(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	if npc.Race != "human" {
-		t.Errorf("Generate() race = %v, want %v", npc.Race, "human")
+	// Legacy English input "human" is normalized to the canonical French race.
+	if npc.Race != string(RaceHumain) {
+		t.Errorf("Generate() race = %v, want %v", npc.Race, RaceHumain)
 	}
 
 	if npc.Gender != "female" {

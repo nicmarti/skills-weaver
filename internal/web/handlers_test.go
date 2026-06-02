@@ -5,8 +5,10 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/character"
 	"dungeons/internal/data"
+	"dungeons/internal/npc"
 	"dungeons/internal/npcmanager"
 )
 
@@ -49,6 +51,60 @@ func TestNpcImportanceFromRole(t *testing.T) {
 			t.Errorf("npcImportanceFromRole(%q) = %q, want %q", role, got, want)
 		}
 	}
+}
+
+// TestApplyCampaignPlanNPCOverrides guards the fix for the longstanding bug
+// where a plan NPC's occupation (and motivation/secret) was discarded in favor
+// of the random generator's pick — producing records like an "Inquisiteur"
+// antagonist saved as a "caravan escort". Non-empty plan fields must win; empty
+// ones must preserve the generated flavor; a nil NPC must be safe.
+func TestApplyCampaignPlanNPCOverrides(t *testing.T) {
+	newNPC := func() *npc.NPC {
+		return &npc.NPC{
+			Occupation: "tanneur", // random pick contradicting the planned role
+			Motivation: npc.Motivation{Goal: "random goal", Fear: "le feu", Secret: "random secret"},
+		}
+	}
+
+	t.Run("non-empty plan fields override the generated ones", func(t *testing.T) {
+		n := newNPC()
+		applyCampaignPlanNPCOverrides(n, adventure.NPCDefinition{
+			Occupation: "capitaine de la garde",
+			Motivation: "venger ses compatriotes massacrés",
+			Secret:     "doute de la culpabilité de l'ennemi",
+		})
+		if n.Occupation != "capitaine de la garde" {
+			t.Errorf("occupation not overridden: got %q", n.Occupation)
+		}
+		if n.Motivation.Goal != "venger ses compatriotes massacrés" {
+			t.Errorf("motivation goal not overridden: got %q", n.Motivation.Goal)
+		}
+		if n.Motivation.Secret != "doute de la culpabilité de l'ennemi" {
+			t.Errorf("secret not overridden: got %q", n.Motivation.Secret)
+		}
+		// Fear is not part of the plan and must be left untouched.
+		if n.Motivation.Fear != "le feu" {
+			t.Errorf("fear should be preserved: got %q", n.Motivation.Fear)
+		}
+	})
+
+	t.Run("empty plan fields preserve the generated values", func(t *testing.T) {
+		n := newNPC()
+		applyCampaignPlanNPCOverrides(n, adventure.NPCDefinition{})
+		if n.Occupation != "tanneur" {
+			t.Errorf("empty occupation must not clobber: got %q", n.Occupation)
+		}
+		if n.Motivation.Goal != "random goal" {
+			t.Errorf("empty motivation must not clobber: got %q", n.Motivation.Goal)
+		}
+		if n.Motivation.Secret != "random secret" {
+			t.Errorf("empty secret must not clobber: got %q", n.Motivation.Secret)
+		}
+	})
+
+	t.Run("nil NPC does not panic", func(t *testing.T) {
+		applyCampaignPlanNPCOverrides(nil, adventure.NPCDefinition{Occupation: "x"})
+	})
 }
 
 // testGameData builds a minimal in-memory GameData covering one spellcasting

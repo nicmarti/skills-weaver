@@ -195,8 +195,8 @@ func (g *Generator) Generate(opts ...Option) (*NPC, error) {
 	// Generate occupation
 	occupation := g.generateOccupation(cfg.occupationType)
 
-	// Generate appearance
-	appearance := g.generateAppearance(race)
+	// Generate appearance (gender-aware: no facial hair on female NPCs)
+	appearance := g.generateAppearance(race, gender)
 
 	// Generate personality
 	personality := g.generatePersonality()
@@ -287,7 +287,7 @@ func (g *Generator) generateOccupation(occType string) string {
 	return g.randomChoice(pool)
 }
 
-func (g *Generator) generateAppearance(race string) Appearance {
+func (g *Generator) generateAppearance(race, gender string) Appearance {
 	app := Appearance{
 		Build:              g.randomChoice(g.traits.Appearance.Build),
 		Height:             g.randomChoice(g.traits.Appearance.Height),
@@ -295,7 +295,7 @@ func (g *Generator) generateAppearance(race string) Appearance {
 		HairStyle:          g.randomChoice(g.traits.Appearance.HairStyle),
 		EyeColor:           g.randomChoice(g.traits.Appearance.EyeColor),
 		Skin:               g.randomChoice(g.traits.Appearance.Skin),
-		FacialFeature:      g.randomChoice(g.traits.Appearance.FacialFeature),
+		FacialFeature:      g.randomChoice(facialFeaturePool(g.traits.Appearance.FacialFeature, gender)),
 		DistinctiveFeature: g.randomChoice(g.traits.Appearance.DistinctiveFeature),
 	}
 
@@ -316,6 +316,42 @@ func (g *Generator) generateAppearance(race string) Appearance {
 	}
 
 	return app
+}
+
+// facialHairKeywords identify facial-hair features that should not be assigned
+// to female NPCs (the trait pool mixes them with gender-neutral features).
+var facialHairKeywords = []string{"barbe", "moustache", "bouc", "favoris"}
+
+// isFacialHair reports whether a facial feature describes facial hair.
+func isFacialHair(feature string) bool {
+	f := strings.ToLower(feature)
+	for _, kw := range facialHairKeywords {
+		if strings.Contains(f, kw) {
+			return true
+		}
+	}
+	return false
+}
+
+// facialFeaturePool returns the facial features eligible for the given gender.
+// Facial hair (beard, moustache, goatee, sideburns) is filtered out for female
+// NPCs. Any non-female gender (including empty/unknown) keeps the full pool.
+// Falls back to the full pool if filtering would leave nothing.
+func facialFeaturePool(all []string, gender string) []string {
+	if strings.ToLower(gender) != "female" {
+		return all
+	}
+	filtered := make([]string, 0, len(all))
+	for _, f := range all {
+		if isFacialHair(f) {
+			continue
+		}
+		filtered = append(filtered, f)
+	}
+	if len(filtered) == 0 {
+		return all
+	}
+	return filtered
 }
 
 func (g *Generator) generatePersonality() Personality {

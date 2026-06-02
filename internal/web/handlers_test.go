@@ -5,7 +5,29 @@ import (
 
 	"dungeons/internal/character"
 	"dungeons/internal/data"
+	"dungeons/internal/npcmanager"
 )
+
+// TestNpcImportanceFromRole verifies the campaign-plan role -> importance
+// mapping, including legacy English aliases (normalized to French).
+func TestNpcImportanceFromRole(t *testing.T) {
+	cases := map[string]npcmanager.ImportanceLevel{
+		"antagoniste":      npcmanager.ImportanceKey,
+		"antagonist":       npcmanager.ImportanceKey, // legacy EN
+		"donneur_de_quete": npcmanager.ImportanceKey,
+		"quest_giver":      npcmanager.ImportanceKey, // legacy EN
+		"allie":            npcmanager.ImportanceRecurring,
+		"ally":             npcmanager.ImportanceRecurring, // legacy EN
+		"rival":            npcmanager.ImportanceRecurring,
+		"informateur":      npcmanager.ImportanceMentioned,
+		"inconnu":          npcmanager.ImportanceMentioned, // unknown -> default
+	}
+	for role, want := range cases {
+		if got := npcImportanceFromRole(role); got != want {
+			t.Errorf("npcImportanceFromRole(%q) = %q, want %q", role, got, want)
+		}
+	}
+}
 
 // testGameData builds a minimal in-memory GameData covering one spellcasting
 // class, one martial class and one species. No disk access required.

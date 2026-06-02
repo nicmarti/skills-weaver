@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/fantasy.css">
+    <link rel="stylesheet" href="/static/css/fantasy.css?v={{assetVer}}">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 <body>
@@ -111,10 +111,14 @@
 
     <main class="game-main">
         <div class="conversation" id="conversation">
-            <div class="welcome-message">
+            <div class="welcome-message" id="welcome-message">
                 <h3>Bienvenue dans {{.Adventure.Name}}</h3>
                 <p>{{.Adventure.Description}}</p>
+                {{if .AutoStart}}
+                <p class="hint">Les cartes ont parlé. L'aventure s'ouvre devant vous...</p>
+                {{else}}
                 <p class="hint">Tapez votre action ci-dessous pour commencer l'aventure.</p>
+                {{end}}
             </div>
         </div>
 
@@ -185,7 +189,8 @@
 
 <script>
 const slug = '{{.Slug}}';
+const autoStart = {{if .AutoStart}}true{{else}}false{{end}};
 </script>
-<script src="/static/js/app.js"></script>
+<script src="/static/js/app.js?v={{assetVer}}"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yuin/goldmark"
@@ -18,6 +19,12 @@ import (
 // markdownConverter renders Markdown to HTML. Raw HTML in the source is escaped
 // by default (no WithUnsafe), so LLM-produced content cannot inject markup.
 var markdownConverter = goldmark.New(goldmark.WithExtensions(extension.GFM))
+
+// assetVersion busts the browser cache for static assets (JS/CSS). It is fixed
+// for the process lifetime and changes on every restart, so a rebuilt server
+// always serves fresh assets without requiring a manual hard refresh. Exposed
+// to templates via the "assetVer" function (append as ?v={{assetVer}}).
+var assetVersion = fmt.Sprintf("%d", time.Now().Unix())
 
 // Server represents the web server.
 type Server struct {
@@ -94,6 +101,8 @@ func (s *Server) setupTemplates() {
 			return fmt.Sprintf("%.1fs", float64(ms)/1000)
 		},
 		"lower": strings.ToLower,
+		// assetVer returns the static-asset cache-busting token (see assetVersion).
+		"assetVer": func() string { return assetVersion },
 		// iterate creates a slice of integers from 0 to n-1 for range loops
 		"iterate": func(n int) []int {
 			result := make([]int, n)

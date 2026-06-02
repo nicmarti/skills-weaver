@@ -41,6 +41,58 @@
         initMinimap();
         initAmbientPlayer();
         scrollToBottom();
+        maybeAutoStart();
+    }
+
+    // Auto-start a freshly generated adventure: instead of dropping the player
+    // on an empty page with a "type something to begin" hint, fire the DM's
+    // opening turn automatically. The opening directive is a hidden stage
+    // direction — it is NOT echoed as a player message; only the DM's narration
+    // streams in. The server-side `autoStart` flag is true only when the
+    // adventure has never been played (no active/recorded session, empty journal).
+    async function maybeAutoStart() {
+        if (typeof autoStart === 'undefined' || !autoStart) return;
+
+        // Avoid re-firing if the page is reloaded while the opening is still
+        // being generated (same-tab guard).
+        const key = 'autostarted:' + slug;
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, '1');
+
+        const opening = "[Début de l'aventure] Ouvre une nouvelle session de jeu, " +
+            "puis plante le décor : décris une scène d'introduction immersive ancrée " +
+            "dans l'accroche de la campagne, présente la situation initiale au groupe, " +
+            "et termine en invitant les joueurs à agir.";
+
+        const hint = document.querySelector('#welcome-message .hint');
+        if (hint) hint.textContent = "L'aventure commence...";
+
+        setLoading(true);
+        try {
+            const response = await fetch(`/play/${slug}/message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `message=${encodeURIComponent(opening)}`
+            });
+
+            // Already processing (e.g. reloaded mid-generation): just attach to
+            // the running stream instead of starting a second turn.
+            if (response.status === 409) {
+                connectSSE();
+                return;
+            }
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                throw new Error(data.error || "Échec du démarrage de l'aventure");
+            }
+            connectSSE();
+        } catch (error) {
+            console.error('Auto-start error:', error);
+            // Let the player start manually if the auto-start failed.
+            if (hint) hint.textContent = "Tapez votre action ci-dessous pour commencer l'aventure.";
+            sessionStorage.removeItem(key);
+            setLoading(false);
+        }
     }
 
     // Model selector - uses event delegation to survive HTMX refreshes

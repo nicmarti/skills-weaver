@@ -179,6 +179,14 @@ func (s *Server) handleGame(c *gin.Context) {
 		}
 	}
 
+	// Auto-start: a freshly generated adventure has never been played (no active
+	// session, no recorded sessions, empty journal). The client kicks off the
+	// DM's opening narration so the player isn't dropped on an empty page with
+	// only a "type something to begin" hint.
+	autoStart := !isSessionActive &&
+		adv.SessionCount == 0 &&
+		len(session.AdventureCtx.RecentJournal) == 0
+
 	c.HTML(http.StatusOK, "game.html", gin.H{
 		"Title":           adv.Name,
 		"Adventure":       adv,
@@ -190,6 +198,7 @@ func (s *Server) handleGame(c *gin.Context) {
 		"IsSessionActive": isSessionActive,
 		"ActiveSessionID": activeSessionID,
 		"CurrentModel":    currentModel,
+		"AutoStart":       autoStart,
 	})
 }
 

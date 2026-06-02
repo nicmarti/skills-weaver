@@ -129,8 +129,10 @@ func (c WizardCoherence) PromptSection() string {
 		sb.WriteString("Histoires récentes dans ce même monde (reste vaguement cohérent en ton et en géographie, mais NE PAS poursuivre ni réutiliser leurs intrigues) :\n")
 		for _, a := range c.RecentAdventures {
 			desc := a.Description
-			if len(desc) > 240 {
-				desc = desc[:240] + "…"
+			// Rune-aware truncation: descriptions are French (accented multi-byte
+			// runes), so slicing by bytes could split a rune and emit invalid UTF-8.
+			if r := []rune(desc); len(r) > 240 {
+				desc = string(r[:240]) + "…"
 			}
 			fmt.Fprintf(&sb, "- « %s » : %s\n", a.Name, desc)
 		}

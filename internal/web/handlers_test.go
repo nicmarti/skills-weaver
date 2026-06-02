@@ -1,12 +1,34 @@
 package web
 
 import (
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"dungeons/internal/character"
 	"dungeons/internal/data"
 	"dungeons/internal/npcmanager"
 )
+
+// TestWizardCoherencePromptSectionUTF8 ensures the description truncation is
+// rune-aware: a long accented (multi-byte) description must not be split into
+// invalid UTF-8 in the generated prompt section.
+func TestWizardCoherencePromptSectionUTF8(t *testing.T) {
+	c := WizardCoherence{
+		RecentAdventures: []RecentAdventure{
+			// One ASCII char shifts the byte offsets so the 240-byte cut lands
+			// in the MIDDLE of a 2-byte rune (otherwise it'd hit a boundary).
+			{Name: "Test", Description: "a" + strings.Repeat("é", 300)},
+		},
+	}
+	out := c.PromptSection()
+	if !utf8.ValidString(out) {
+		t.Errorf("PromptSection produced invalid UTF-8 after truncation")
+	}
+	if !strings.Contains(out, "…") {
+		t.Errorf("expected the long description to be truncated with an ellipsis")
+	}
+}
 
 // TestNpcImportanceFromRole verifies the campaign-plan role -> importance
 // mapping, including legacy English aliases (normalized to French).

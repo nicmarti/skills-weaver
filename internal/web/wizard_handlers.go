@@ -410,6 +410,12 @@ func (s *Server) generateDestinyCard(adv *adventure.Adventure, title, tone strin
 // yet (404). The client polls this after the wizard POST returns.
 func (s *Server) handleDestinyCard(c *gin.Context) {
 	slug := c.Param("slug")
+	// Validate the slug resolves to a real adventure before touching the
+	// filesystem (avoids probing paths like ".." outside the adventures dir).
+	if _, err := adventure.LoadByName(adventuresDir, slug); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"ready": false})
+		return
+	}
 	if _, err := os.Stat(destinyCardPath(slug)); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"ready": false})
 		return

@@ -155,3 +155,83 @@ func TestGenerateNPCWithAllOptions(t *testing.T) {
 		t.Errorf("Generate() attitude = %v, not in friendly pool", npc.Attitude)
 	}
 }
+
+// TestFacialFeaturePoolFiltersFemaleFacialHair guards the gender-aware fix:
+// female NPCs must never be offered facial-hair features (beard, moustache,
+// goatee, sideburns), while other genders keep the full pool.
+func TestFacialFeaturePoolFiltersFemaleFacialHair(t *testing.T) {
+	pool := []string{
+		"une barbe fournie",
+		"une barbe soigneusement taillée",
+		"une moustache imposante",
+		"un bouc",
+		"des favoris",
+		"un nez aquilin",
+		"une cicatrice au visage",
+		"un grain de beauté",
+	}
+
+	female := facialFeaturePool(pool, "female")
+	for _, f := range female {
+		if isFacialHair(f) {
+			t.Errorf("female pool must not contain facial hair, found %q", f)
+		}
+	}
+	if len(female) != 3 {
+		t.Errorf("expected 3 non-facial-hair features, got %d: %v", len(female), female)
+	}
+
+	if got := facialFeaturePool(pool, "male"); len(got) != len(pool) {
+		t.Errorf("male pool should keep all %d features, got %d", len(pool), len(got))
+	}
+	if got := facialFeaturePool(pool, ""); len(got) != len(pool) {
+		t.Errorf("unknown gender should keep the full pool, got %d", len(got))
+	}
+
+	// Degenerate pool (only facial hair) must fall back to the full list rather
+	// than return an empty pool that would break randomChoice.
+	allHair := []string{"une barbe fournie", "un bouc"}
+	if got := facialFeaturePool(allHair, "female"); len(got) != len(allHair) {
+		t.Errorf("all-facial-hair pool should fall back to full, got %v", got)
+	}
+}
+
+// TestGenerateFemaleNPCHasNoFacialHair is an integration check on the generator:
+// over many samples, a female NPC never gets facial hair.
+func TestGenerateFemaleNPCHasNoFacialHair(t *testing.T) {
+	gen, err := NewGenerator("../../data")
+	if err != nil {
+		t.Fatalf("Failed to create generator: %v", err)
+	}
+	for i := 0; i < 300; i++ {
+		n, err := gen.Generate(WithGender("female"))
+		if err != nil {
+			t.Fatalf("Generate() error = %v", err)
+		}
+		if isFacialHair(n.Appearance.FacialFeature) {
+			t.Fatalf("female NPC #%d has facial hair: %q", i, n.Appearance.FacialFeature)
+		}
+	}
+}
+
+// TestGenerateMaleNPCCanHaveFacialHair ensures the fix does not over-filter:
+// males still draw from the full pool, so facial hair appears across samples.
+func TestGenerateMaleNPCCanHaveFacialHair(t *testing.T) {
+	gen, err := NewGenerator("../../data")
+	if err != nil {
+		t.Fatalf("Failed to create generator: %v", err)
+	}
+	found := false
+	for i := 0; i < 300 && !found; i++ {
+		n, err := gen.Generate(WithGender("male"))
+		if err != nil {
+			t.Fatalf("Generate() error = %v", err)
+		}
+		if isFacialHair(n.Appearance.FacialFeature) {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("expected at least one male NPC with facial hair across 300 samples")
+	}
+}

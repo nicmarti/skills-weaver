@@ -1292,6 +1292,8 @@ Génère %d à %d PNJ dans le tableau "npcs" de "plot_elements". Chaque PNJ doit
 - "narrative_context" : où et quand les joueurs le rencontrent pour la première fois (en français)
 - "narrative_integration" : {"introduction_session": N, "plot_role": "description en français", "linked_to_act": N}
 
+IMPORTANT — DIVERSITÉ : varie les races, genres et occupations des PNJ selon la région, le ton et le rôle de chacun, et ancre chaque métier dans le contexte de cette aventure. N'applique PAS de casting par défaut : évite en particulier les réflexes "informateur = contrebandier halfelin" et "rival = capitaine de la garde". Les exemples de structure ci-dessous ne sont QUE des gabarits de format : n'en recopie ni les races, ni les genres, ni les occupations.
+
 L'antagoniste de plot_elements.antagonist DOIT aussi figurer dans le tableau npcs avec le role "antagoniste".`,
 		dur.MaxNPCs-2, dur.MaxNPCs, npc.RoleEnumList(), npc.RaceEnumList())
 
@@ -1382,40 +1384,40 @@ Conserve les CLÉS JSON en anglais (ex. "narrative_structure", "role", "race", "
     "key_locations": [],
     "npcs": [
       {
-        "name": "Nom du PNJ",
+        "name": "<nom complet, inventé pour cette aventure>",
         "role": "donneur_de_quete",
-        "race": "humain",
-        "gender": "f",
-        "occupation": "aubergiste",
+        "race": "<race parmi la liste EXACTE ci-dessus>",
+        "gender": "m ou f",
+        "occupation": "<métier cohérent avec le rôle et la région>",
         "attitude": "positive",
-        "motivation": "Ce qui l'anime",
-        "secret": "Sa vérité cachée",
-        "narrative_context": "Où les joueurs la rencontrent",
-        "narrative_integration": {"introduction_session": 1, "plot_role": "Donne la quête", "linked_to_act": 1}
+        "motivation": "<ce qui anime ce PNJ>",
+        "secret": "<sa vérité cachée, mondaine>",
+        "narrative_context": "<où et quand les joueurs le rencontrent>",
+        "narrative_integration": {"introduction_session": 1, "plot_role": "<rôle dans l'intrigue>", "linked_to_act": 1}
       },
       {
-        "name": "Nom du PNJ",
+        "name": "<nom complet, inventé pour cette aventure>",
         "role": "informateur",
-        "race": "halfelin",
-        "gender": "m",
-        "occupation": "contrebandier",
+        "race": "<race parmi la liste EXACTE ci-dessus>",
+        "gender": "m ou f",
+        "occupation": "<métier cohérent avec le rôle et la région>",
         "attitude": "neutral",
-        "motivation": "Ce qui l'anime",
-        "secret": "Sa vérité cachée",
-        "narrative_context": "Où les joueurs le rencontrent",
-        "narrative_integration": {"introduction_session": 2, "plot_role": "Vend des informations", "linked_to_act": 1}
+        "motivation": "<ce qui anime ce PNJ>",
+        "secret": "<sa vérité cachée, mondaine>",
+        "narrative_context": "<où et quand les joueurs le rencontrent>",
+        "narrative_integration": {"introduction_session": 2, "plot_role": "<rôle dans l'intrigue>", "linked_to_act": 1}
       },
       {
-        "name": "Nom du PNJ",
+        "name": "<nom complet, inventé pour cette aventure>",
         "role": "rival",
-        "race": "elfe",
-        "gender": "f",
-        "occupation": "capitaine de la garde",
+        "race": "<race parmi la liste EXACTE ci-dessus>",
+        "gender": "m ou f",
+        "occupation": "<métier cohérent avec le rôle et la région>",
         "attitude": "negative",
-        "motivation": "Ce qui l'anime",
-        "secret": "Sa vérité cachée",
-        "narrative_context": "Où les joueurs la rencontrent",
-        "narrative_integration": {"introduction_session": 2, "plot_role": "Entrave les héros", "linked_to_act": 2}
+        "motivation": "<ce qui anime ce PNJ>",
+        "secret": "<sa vérité cachée, mondaine>",
+        "narrative_context": "<où et quand les joueurs le rencontrent>",
+        "narrative_integration": {"introduction_session": 2, "plot_role": "<rôle dans l'intrigue>", "linked_to_act": 1}
       }
     ]
   },
@@ -1639,6 +1641,27 @@ func (s *Server) buildPacingJSONTemplate(dur adventure.AdventureDuration) string
 }
 
 // generateAdventureNPCs generates real NPC records from the campaign plan's NPC definitions.
+// applyCampaignPlanNPCOverrides reconciles a randomly generated NPC with the
+// narrative facts defined in the campaign plan. The random generator picks an
+// occupation/motivation/secret unrelated to the planned role; without this the
+// saved record contradicts the plan (e.g. an "Inquisiteur" antagonist generated
+// as a "caravan escort", or a female ambassador given a beard). Only non-empty
+// plan fields override the generated ones, so a sparse plan keeps random flavor.
+func applyCampaignPlanNPCOverrides(n *npc.NPC, def adventure.NPCDefinition) {
+	if n == nil {
+		return
+	}
+	if def.Occupation != "" {
+		n.Occupation = def.Occupation
+	}
+	if def.Motivation != "" {
+		n.Motivation.Goal = def.Motivation
+	}
+	if def.Secret != "" {
+		n.Motivation.Secret = def.Secret
+	}
+}
+
 func (s *Server) generateAdventureNPCs(adv *adventure.Adventure) error {
 	// Load campaign plan
 	plan, err := adv.LoadCampaignPlan()
@@ -1682,13 +1705,10 @@ func (s *Server) generateAdventureNPCs(adv *adventure.Adventure) error {
 			continue
 		}
 
-		// Override motivation and secret from narrative plan for coherence
-		if npcDef.Motivation != "" {
-			generatedNPC.Motivation.Goal = npcDef.Motivation
-		}
-		if npcDef.Secret != "" {
-			generatedNPC.Motivation.Secret = npcDef.Secret
-		}
+		// Reconcile the random profile with the narrative facts from the plan
+		// (occupation/motivation/secret) so the saved record matches the role
+		// instead of the generator's unrelated random pick.
+		applyCampaignPlanNPCOverrides(generatedNPC, npcDef)
 
 		// Determine importance from role
 		importance := npcImportanceFromRole(npcDef.Role)

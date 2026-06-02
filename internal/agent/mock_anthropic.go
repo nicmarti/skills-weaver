@@ -30,11 +30,21 @@ type MockMessagesService struct {
 	// LastParams stores the last parameters passed to New()
 	LastParams *anthropic.MessageNewParams
 
+	// LastBetaParams stores the last parameters passed to NewBeta()
+	LastBetaParams *anthropic.BetaMessageNewParams
+
+	// BetaCallCount tracks number of beta API calls made (advisor path)
+	BetaCallCount int
+
 	// SimulateError when set to true, returns an error
 	SimulateError bool
 
 	// ErrorMessage is the error to return when SimulateError is true
 	ErrorMessage string
+
+	// SimulateAdvisorText, when non-empty, makes NewBeta emit an
+	// advisor_tool_result block with this advice text before the final text.
+	SimulateAdvisorText string
 }
 
 // NewMockAnthropicClient creates a new mock client with sensible defaults.
@@ -89,6 +99,57 @@ func (m *MockMessagesService) New(ctx context.Context, params anthropic.MessageN
 		return nil, fmt.Errorf("failed to create mock message: %w", err)
 	}
 
+	return &message, nil
+}
+
+// NewBeta implements the beta Messages.New method for testing the Advisor tool path.
+func (m *MockMessagesService) NewBeta(ctx context.Context, params anthropic.BetaMessageNewParams, opts ...option.RequestOption) (*anthropic.BetaMessage, error) {
+	m.CallCount++
+	m.BetaCallCount++
+	m.LastBetaParams = &params
+
+	if m.SimulateError {
+		errMsg := m.ErrorMessage
+		if errMsg == "" {
+			errMsg = "mock beta API error"
+		}
+		return nil, fmt.Errorf("%s", errMsg)
+	}
+
+	responseText := m.getResponse(fmt.Sprintf("Request #%d", m.CallCount))
+
+	// Build content blocks: optionally an advisor_tool_result, then final text.
+	// usage.iterations mirrors the real API so token aggregation can be tested.
+	var content string
+	var iterations string
+	if m.SimulateAdvisorText != "" {
+		content = fmt.Sprintf(`{"type":"server_tool_use","id":"srvtoolu_mock","name":"advisor","input":{}},
+			{"type":"advisor_tool_result","tool_use_id":"srvtoolu_mock","content":{"type":"advisor_result","text":%q}},
+			{"type":"text","text":%q}`, m.SimulateAdvisorText, responseText)
+		iterations = `,"iterations":[
+			{"type":"message","input_tokens":100,"output_tokens":10},
+			{"type":"advisor_message","model":"claude-opus-4-7","input_tokens":200,"output_tokens":150,"cache_creation_input_tokens":1000,"cache_read_input_tokens":500},
+			{"type":"message","input_tokens":250,"output_tokens":40}
+		]`
+	} else {
+		content = fmt.Sprintf(`{"type":"text","text":%q}`, responseText)
+		iterations = ""
+	}
+
+	messageJSON := fmt.Sprintf(`{
+		"id": "mock-beta-msg-%d",
+		"type": "message",
+		"role": "assistant",
+		"model": "claude-sonnet-4-6",
+		"content": [%s],
+		"usage": {"input_tokens": 100, "output_tokens": 50%s},
+		"stop_reason": "end_turn"
+	}`, m.BetaCallCount, content, iterations)
+
+	var message anthropic.BetaMessage
+	if err := json.Unmarshal([]byte(messageJSON), &message); err != nil {
+		return nil, fmt.Errorf("failed to create mock beta message: %w", err)
+	}
 	return &message, nil
 }
 
@@ -155,10 +216,13 @@ func (m *MockMessagesService) SetResponse(question, response string) {
 // Reset resets the mock state (call count, responses, etc.).
 func (m *MockMessagesService) Reset() {
 	m.CallCount = 0
+	m.BetaCallCount = 0
 	m.Responses = make(map[string]string)
 	m.LastParams = nil
+	m.LastBetaParams = nil
 	m.SimulateError = false
 	m.ErrorMessage = ""
+	m.SimulateAdvisorText = ""
 }
 
 // Helper functions for mock

@@ -11,8 +11,8 @@ import (
 
 // AgentStatesFile represents the JSON structure for persisting agent states.
 type AgentStatesFile struct {
-	SessionID   int                        `json:"session_id"`
-	LastUpdated string                     `json:"last_updated"`
+	SessionID   int                         `json:"session_id"`
+	LastUpdated string                      `json:"last_updated"`
 	Agents      map[string]*SerializedAgent `json:"agents"`
 }
 
@@ -28,15 +28,22 @@ type SerializedAgent struct {
 
 // SerializedMetrics represents serialized agent metrics.
 type SerializedMetrics struct {
-	TotalTokensUsed      int64  `json:"total_tokens_used"`
-	TotalInputTokens     int64  `json:"total_input_tokens"`
-	TotalOutputTokens    int64  `json:"total_output_tokens"`
-	TotalResponseTimeMS  int64  `json:"total_response_time_ms"`
-	AverageTokensPerCall int64  `json:"average_tokens_per_call"`
-	AverageResponseTimeMS int64 `json:"average_response_time_ms"`
-	ModelUsed            string `json:"model_used"`
-	LastCallTokens       int64  `json:"last_call_tokens"`
-	LastCallDurationMS   int64  `json:"last_call_duration_ms"`
+	TotalTokensUsed       int64  `json:"total_tokens_used"`
+	TotalInputTokens      int64  `json:"total_input_tokens"`
+	TotalOutputTokens     int64  `json:"total_output_tokens"`
+	TotalResponseTimeMS   int64  `json:"total_response_time_ms"`
+	AverageTokensPerCall  int64  `json:"average_tokens_per_call"`
+	AverageResponseTimeMS int64  `json:"average_response_time_ms"`
+	ModelUsed             string `json:"model_used"`
+	LastCallTokens        int64  `json:"last_call_tokens"`
+	LastCallDurationMS    int64  `json:"last_call_duration_ms"`
+	// Advisor tool metrics (Opus-billed, tracked separately from executor tokens).
+	AdvisorCalls               int64  `json:"advisor_calls,omitempty"`
+	AdvisorInputTokens         int64  `json:"advisor_input_tokens,omitempty"`
+	AdvisorOutputTokens        int64  `json:"advisor_output_tokens,omitempty"`
+	AdvisorCacheCreationTokens int64  `json:"advisor_cache_creation_tokens,omitempty"`
+	AdvisorCacheReadTokens     int64  `json:"advisor_cache_read_tokens,omitempty"`
+	AdvisorModelUsed           string `json:"advisor_model_used,omitempty"`
 }
 
 // SaveAgentStates saves all nested agent states to a JSON file.
@@ -57,15 +64,21 @@ func (am *AgentManager) SaveAgentStates(filePath string) error {
 
 		// Serialize metrics
 		serializedMetrics := &SerializedMetrics{
-			TotalTokensUsed:      state.metrics.TotalTokensUsed,
-			TotalInputTokens:     state.metrics.TotalInputTokens,
-			TotalOutputTokens:    state.metrics.TotalOutputTokens,
-			TotalResponseTimeMS:  state.metrics.TotalResponseTime.Milliseconds(),
-			AverageTokensPerCall: state.metrics.AverageTokensPerCall,
-			AverageResponseTimeMS: state.metrics.AverageResponseTime.Milliseconds(),
-			ModelUsed:            state.metrics.ModelUsed,
-			LastCallTokens:       state.metrics.LastCallTokens,
-			LastCallDurationMS:   state.metrics.LastCallDuration.Milliseconds(),
+			TotalTokensUsed:            state.metrics.TotalTokensUsed,
+			TotalInputTokens:           state.metrics.TotalInputTokens,
+			TotalOutputTokens:          state.metrics.TotalOutputTokens,
+			TotalResponseTimeMS:        state.metrics.TotalResponseTime.Milliseconds(),
+			AverageTokensPerCall:       state.metrics.AverageTokensPerCall,
+			AverageResponseTimeMS:      state.metrics.AverageResponseTime.Milliseconds(),
+			ModelUsed:                  state.metrics.ModelUsed,
+			LastCallTokens:             state.metrics.LastCallTokens,
+			LastCallDurationMS:         state.metrics.LastCallDuration.Milliseconds(),
+			AdvisorCalls:               state.metrics.AdvisorCalls,
+			AdvisorInputTokens:         state.metrics.AdvisorInputTokens,
+			AdvisorOutputTokens:        state.metrics.AdvisorOutputTokens,
+			AdvisorCacheCreationTokens: state.metrics.AdvisorCacheCreationTokens,
+			AdvisorCacheReadTokens:     state.metrics.AdvisorCacheReadTokens,
+			AdvisorModelUsed:           state.metrics.AdvisorModelUsed,
 		}
 
 		serialized := &SerializedAgent{
@@ -176,15 +189,21 @@ func (am *AgentManager) LoadAgentStates(filePath string) error {
 		// Restore metrics
 		if serialized.Metrics != nil {
 			agent.metrics = &AgentMetrics{
-				TotalTokensUsed:      serialized.Metrics.TotalTokensUsed,
-				TotalInputTokens:     serialized.Metrics.TotalInputTokens,
-				TotalOutputTokens:    serialized.Metrics.TotalOutputTokens,
-				TotalResponseTime:    time.Duration(serialized.Metrics.TotalResponseTimeMS) * time.Millisecond,
-				AverageTokensPerCall: serialized.Metrics.AverageTokensPerCall,
-				AverageResponseTime:  time.Duration(serialized.Metrics.AverageResponseTimeMS) * time.Millisecond,
-				ModelUsed:            serialized.Metrics.ModelUsed,
-				LastCallTokens:       serialized.Metrics.LastCallTokens,
-				LastCallDuration:     time.Duration(serialized.Metrics.LastCallDurationMS) * time.Millisecond,
+				TotalTokensUsed:            serialized.Metrics.TotalTokensUsed,
+				TotalInputTokens:           serialized.Metrics.TotalInputTokens,
+				TotalOutputTokens:          serialized.Metrics.TotalOutputTokens,
+				TotalResponseTime:          time.Duration(serialized.Metrics.TotalResponseTimeMS) * time.Millisecond,
+				AverageTokensPerCall:       serialized.Metrics.AverageTokensPerCall,
+				AverageResponseTime:        time.Duration(serialized.Metrics.AverageResponseTimeMS) * time.Millisecond,
+				ModelUsed:                  serialized.Metrics.ModelUsed,
+				LastCallTokens:             serialized.Metrics.LastCallTokens,
+				LastCallDuration:           time.Duration(serialized.Metrics.LastCallDurationMS) * time.Millisecond,
+				AdvisorCalls:               serialized.Metrics.AdvisorCalls,
+				AdvisorInputTokens:         serialized.Metrics.AdvisorInputTokens,
+				AdvisorOutputTokens:        serialized.Metrics.AdvisorOutputTokens,
+				AdvisorCacheCreationTokens: serialized.Metrics.AdvisorCacheCreationTokens,
+				AdvisorCacheReadTokens:     serialized.Metrics.AdvisorCacheReadTokens,
+				AdvisorModelUsed:           serialized.Metrics.AdvisorModelUsed,
 			}
 		} else {
 			// Initialize empty metrics if not present (backward compatibility)

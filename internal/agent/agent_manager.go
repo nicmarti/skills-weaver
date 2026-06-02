@@ -141,6 +141,21 @@ func (am *AgentManager) SetMainToolRegistry(registry *ToolRegistry) {
 	am.mainToolRegistry = registry
 }
 
+// NewAgentManagerWithTools builds an AgentManager with the full tool registry
+// wired, so nested agents get their policy-filtered read-only tools (the same
+// setup the main DM loop uses). Useful for tooling that invokes a nested agent
+// outside the main loop (e.g. the advisor A/B harness).
+func NewAgentManagerWithTools(apiKey string, adventureCtx *AdventureContext, logger *Logger, outputHandler OutputHandler) (*AgentManager, error) {
+	personaLoader := NewPersonaLoader()
+	am := NewAgentManager(apiKey, adventureCtx, logger, outputHandler, personaLoader)
+	registry := NewToolRegistry(adventureCtx)
+	if err := registerAllTools(registry, "data", adventureCtx.Adventure, am, outputHandler); err != nil {
+		return nil, fmt.Errorf("failed to register tools: %w", err)
+	}
+	am.SetMainToolRegistry(registry)
+	return am, nil
+}
+
 // NewAgentManagerWithClientFactory creates an AgentManager with a custom client factory.
 // This is primarily used for testing with mock clients.
 func NewAgentManagerWithClientFactory(
@@ -767,6 +782,11 @@ func (am *AgentManager) buildNestedAgentSystemPrompt(agent *NestedAgentState) st
 func (am *AgentManager) GetNestedAgentState(agentName string) (*NestedAgentState, bool) {
 	agent, exists := am.nestedAgents[agentName]
 	return agent, exists
+}
+
+// Metrics returns the agent's performance/cost metrics (read-only accessor).
+func (s *NestedAgentState) Metrics() *AgentMetrics {
+	return s.metrics
 }
 
 // ListNestedAgents returns a list of all active nested agent names.

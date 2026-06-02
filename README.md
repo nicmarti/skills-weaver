@@ -12,6 +12,13 @@ You can watch a sample game session on [my YouTube channel](https://youtu.be/K5C
 
 ## 🆕 Recent Updates
 
+**June 2026:**
+- 🔮 **Fortune-Teller Wizard** (`/adventure`) - A guided adventure creator where a seer has you draw tarot cards; each card secretly shapes the adventure (tone, antagonist, region, danger, pacing), grounded in the Four Kingdoms lore
+- 🃏 **Tarot deck & scene art** - Card and UI visuals generated via fal.ai (`sw-image tarot-deck`, `sw-image voyante-assets`)
+- 🧙 **Hero selector** - Pick a subset of your heroes for an adventure (not always the whole party)
+- ✍️ **Auto-suggested adventure name** - An evocative, editable title proposed from your reading
+- 🇫🇷 **French campaign-plan prompt** - Generation instructions and world geography reference fully in French for more coherent French output
+
 **February 2026:**
 - ✨ **Web Interface** (`sw-web`) - Create adventures and play in your browser
 - 📋 **Automatic Campaign Plans** - Generate 3-act structures with themes
@@ -95,27 +102,39 @@ The web interface makes adventure creation effortless:
 # Open http://localhost:8085 in your browser
 ```
 
-**Creating an Adventure:**
+**Creating an Adventure — two paths from the homepage:**
 
-1. **Click "New Adventure"** on the homepage
-2. **Fill in the form:**
-   - **Name:** e.g., "The Magic Sextant of Cordova"
-   - **Description:** Brief summary of the adventure
-   - **Theme (optional):** e.g., "A cursed sextant reveals the location of an ancient entity sealed beneath the lost city of Shasseth"
+**🔮 "Consult the fortune teller" (guided wizard, recommended)** — opens `/adventure`:
+
+1. A **seer** greets you, then asks **5 questions**; for each you **draw one of 3 tarot cards**.
+2. Each card silently sets a hidden parameter of the adventure — **tone, antagonist, region, danger, pacing** — woven into the Four Kingdoms lore. *You are never told what each card means* (inspired by Ultima IV's gypsy).
+3. **Pick which heroes** join (all selected by default; uncheck to play with just one or two).
+4. The seer **suggests an adventure name** (editable), you can add an optional free-text "intuition", then **"Consult the destiny"**.
+5. A unique **destiny card** is revealed, then you're taken into the game.
+
+> Tip: append `?debug=1` to `/adventure` to walk the draw and inspect the full generated prompt **without creating anything** (useful for development).
+>
+> The card art and scene visuals live under `web/static/cards/` and `web/static/voyante/`. Regenerate them with `./sw-image tarot-deck` and `./sw-image voyante-assets` (needs `FAL_KEY` or `GEMINI_API_KEY`).
+
+**⚡ "Quick create" (classic form):**
+
+1. **Click "Quick create"** on the homepage
+2. **Fill in the form:** Name, Description, Duration, Adventure type, optional Theme
 3. **Click "Create"**
 
-**What happens automatically:**
+**What happens automatically (both paths):**
 
-✅ **If theme is provided:**
+✅ **If a theme / reading is provided:**
    - Generates a complete **3-act campaign plan** (beginning, twists, final confrontation)
    - Creates **main antagonist** with motivations and arc
    - Defines **2-3 critical foreshadows** linked to acts
    - Plans **pacing** (estimated sessions, duration)
    - Sets **MacGuffins** and important locations
 
-✅ **Copies existing characters** from `data/characters/` to the adventure
-✅ **Creates party.json** with all characters
+✅ **Copies the chosen heroes** from `data/characters/` to the adventure (the wizard lets you pick a subset; quick-create copies all)
+✅ **Creates party.json** from those characters
 ✅ **Initializes** inventory, journal, and session tracking
+✅ **Keeps the new adventure coherent** with recent active adventures, avoiding reuse of their NPC names and plots
 
 **Starting a Game Session:**
 
@@ -404,7 +423,8 @@ The `sw-web` binary provides a modern web interface for creating adventures and 
 ### Features
 
 - **🌐 Web-Based UI**: No terminal required - play in your browser
-- **🎮 Adventure Creation**: Create adventures with automatic campaign plan generation
+- **🔮 Fortune-Teller Wizard**: Guided creation at `/adventure` — draw tarot cards that secretly shape the adventure, pick your heroes, get an auto-suggested name
+- **🎮 Adventure Creation**: Create adventures with automatic campaign plan generation (guided wizard or quick form)
 - **📋 Campaign Plans**: Automatic 3-act structure with antagonists, foreshadows, and pacing
 - **👥 Party Management**: View party status (HP, AC, level) in real-time
 - **💬 Streaming Chat**: Real-time DM responses via Server-Sent Events (SSE)
@@ -433,7 +453,11 @@ Go Packages (dice, monster, treasure, etc.)
 |--------|------|-------------|
 | GET | `/` | Homepage with adventure list |
 | GET | `/adventures` | Get adventures (HTMX) |
-| POST | `/adventures` | Create new adventure |
+| POST | `/adventures` | Create new adventure (quick form) |
+| GET | `/adventure` | Fortune-teller creation wizard (`?debug=1` to inspect without creating) |
+| POST | `/adventure` | Create adventure from the card reading |
+| POST | `/adventure/suggest-name` | Suggest an adventure name from the reading |
+| GET | `/adventure/destiny/:slug` | Poll for the generated destiny card |
 | GET | `/play/:slug` | Game interface |
 | POST | `/play/:slug/message` | Send message to DM |
 | GET | `/play/:slug/stream` | SSE endpoint for streaming |
@@ -713,6 +737,26 @@ data/adventures/my-adventure/images/
 ├── journal_015_discovery_schnell.png
 └── journal_029_session_schnell.png
 ```
+
+## Example: Generating the Fortune-Teller Art
+
+The `/adventure` wizard uses a static tarot deck and scene visuals. Generate them once (re-runs skip what already exists):
+
+```bash
+# Preview the prompts without generating
+./sw-image tarot-deck --dry-run
+
+# Generate the tarot deck into web/static/cards/ (use fal.ai explicitly)
+./sw-image tarot-deck --provider=fal --model=flux-2-pro
+
+# Generate the scene visuals (tent background, banner, seer portrait, velvet table)
+./sw-image voyante-assets --provider=fal
+
+# Force regeneration of everything
+./sw-image tarot-deck --force
+```
+
+`--provider` accepts `auto` (GEMINI then FAL), `fal`, or `google`.
 
 ## Available Models (fal.ai)
 

@@ -151,6 +151,12 @@ func (s *Server) setupRoutes() {
 	s.engine.GET("/", s.handleIndex)
 	s.engine.GET("/adventures", s.handleAdventuresList)
 	s.engine.POST("/adventures", s.handleCreateAdventure)
+
+	// Guided "fortune teller" adventure-creation wizard
+	s.engine.GET("/adventure", s.handleAdventureWizard)
+	s.engine.POST("/adventure", s.handleCreateAdventureWizard)
+	s.engine.POST("/adventure/suggest-name", s.handleSuggestAdventureName)
+	s.engine.GET("/adventure/destiny/:slug", s.handleDestinyCard)
 	s.engine.GET("/play/:slug", s.handleGame)
 	s.engine.POST("/play/:slug/message", s.handleMessage)
 	s.engine.GET("/play/:slug/stream", s.handleStream)

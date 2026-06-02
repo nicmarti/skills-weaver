@@ -1,0 +1,216 @@
+{
+  "questions": [
+    {
+      "id": "tone",
+      "prompt": "Approche ta main du jeu... Quelle ombre, ou quelle lumière, plane sur ton destin ?",
+      "axis": "tone",
+      "card_ids": ["le_soleil", "la_lune", "la_maison_dieu", "le_jugement"]
+    },
+    {
+      "id": "antagonist",
+      "prompt": "Une silhouette se dessine dans les volutes. Quelle puissance se dresse en travers de ta route ?",
+      "axis": "antagonist_nature",
+      "card_ids": ["l_empereur", "le_pape", "le_bateleur", "le_roi_deniers"]
+    },
+    {
+      "id": "region",
+      "prompt": "Les cartes tracent un chemin. Vers quelles terres le sort te porte-t-il ?",
+      "axis": "region",
+      "card_ids": ["l_etoile", "l_ermite", "la_papesse", "l_imperatrice", "le_mat"]
+    },
+    {
+      "id": "danger",
+      "prompt": "Je sens un poids sur ton coeur. Quel péril es-tu prêt à embrasser ?",
+      "axis": "danger_level",
+      "card_ids": ["la_mort", "la_force", "la_temperance", "l_amoureux"]
+    },
+    {
+      "id": "pacing",
+      "prompt": "Le fil du temps frémit entre mes doigts. À quelle vitesse le sort se dénouera-t-il ?",
+      "axis": "pacing",
+      "card_ids": ["le_chariot", "le_pendu", "la_justice", "la_roue"]
+    }
+  ],
+  "cards": [
+    {
+      "id": "le_soleil",
+      "name": "Le Soleil",
+      "art": "le_soleil.png",
+      "question": "tone",
+      "flavor": "L'aube triomphe des ténèbres ; un éclat d'or, de courage et d'espoir.",
+      "params": { "tone": "heroic" }
+    },
+    {
+      "id": "la_lune",
+      "name": "La Lune",
+      "art": "la_lune.png",
+      "question": "tone",
+      "flavor": "Des reflets trompeurs sur l'eau noire ; intrigues, secrets et doubles jeux.",
+      "params": { "tone": "mysterious" }
+    },
+    {
+      "id": "la_maison_dieu",
+      "name": "La Maison Dieu",
+      "art": "la_maison_dieu.png",
+      "question": "tone",
+      "flavor": "La foudre fend la tour ; les puissants tombent et le sang teinte la pierre.",
+      "params": { "tone": "grim" }
+    },
+    {
+      "id": "le_jugement",
+      "name": "Le Jugement",
+      "art": "le_jugement.png",
+      "question": "tone",
+      "flavor": "La trompette résonne ; une cause plus grande appelle les héros à se lever.",
+      "params": { "tone": "epic" }
+    },
+    {
+      "id": "l_empereur",
+      "name": "L'Empereur",
+      "art": "l_empereur.png",
+      "question": "antagonist",
+      "flavor": "Un trône de fer et de discipline ; nul ne défie sa volonté sans en payer le prix.",
+      "params": {
+        "antagonist_nature": "un commandant impitoyable de l'Empire de Karvath, l'honneur dévoyé en ambition (devise : Discipline, honneur, force) — menace martiale et mondaine, sans surnaturel",
+        "adventure_type": "defense"
+      }
+    },
+    {
+      "id": "le_pape",
+      "name": "Le Pape",
+      "art": "le_pape.png",
+      "question": "antagonist",
+      "flavor": "Un sourire de lumière, des mains jointes... et une ombre qui s'étend derrière l'autel.",
+      "params": {
+        "antagonist_nature": "un inquisiteur fanatique de la Théocratie de Lumenciel, la foi affichée du Soleil Éternel masquant infiltration et corruption — zélote humain, pas une secte surnaturelle",
+        "adventure_type": "mystery"
+      }
+    },
+    {
+      "id": "le_bateleur",
+      "name": "Le Bateleur",
+      "art": "le_bateleur.png",
+      "question": "antagonist",
+      "flavor": "Un escamoteur habile ; ce que tu cherches a déjà changé de main dans l'ombre des ports.",
+      "params": {
+        "antagonist_nature": "un trafiquant retors de la Guilde de l'Ombre, contrebande d'artefacts interdits et de reliques maudites dans les ports — réseau criminel, motivations mondaines",
+        "adventure_type": "heist"
+      }
+    },
+    {
+      "id": "le_roi_deniers",
+      "name": "Le Roi de Deniers",
+      "art": "le_roi_deniers.png",
+      "question": "antagonist",
+      "flavor": "Un trône d'or et de pièces sonnantes ; la richesse achète tout, jusqu'aux consciences.",
+      "params": {
+        "antagonist_nature": "un riche magnat de Valdorine rongé par la cupidité, corrupteur prêt à tout pour le profit (l'argent n'a pas d'odeur) — avidité humaine, aucun pacte surnaturel",
+        "adventure_type": "diplomacy"
+      }
+    },
+    {
+      "id": "l_etoile",
+      "name": "L'Étoile",
+      "art": "l_etoile.png",
+      "question": "region",
+      "flavor": "L'eau versée sous un ciel constellé ; le sel, les voiles et les quais t'appellent.",
+      "params": { "region": "la Côte Occidentale du Royaume de Valdorine, autour du grand port marchand de Cordova" }
+    },
+    {
+      "id": "l_ermite",
+      "name": "L'Ermite",
+      "art": "l_ermite.png",
+      "question": "region",
+      "flavor": "Une lanterne solitaire sur les cimes ; le froid et la pierre gardent leurs secrets.",
+      "params": { "region": "les Montagnes de Fer de l'Empire de Karvath, terres fortifiées et martiales autour de Fer-de-Lance" }
+    },
+    {
+      "id": "la_papesse",
+      "name": "La Papesse",
+      "art": "la_papesse.png",
+      "question": "region",
+      "flavor": "Un voile devant un savoir interdit ; les cloches d'Aurore-Sainte sonnent pour qui sait écouter.",
+      "params": { "region": "les Terres Saintes de la Théocratie de Lumenciel, forêts pieuses dominées par la cité-cathédrale d'Aurore-Sainte" }
+    },
+    {
+      "id": "l_imperatrice",
+      "name": "L'Impératrice",
+      "art": "l_imperatrice.png",
+      "question": "region",
+      "flavor": "Des jardins fanés et des fastes d'antan ; le Sud rêve encore de sa grandeur perdue.",
+      "params": { "region": "les Terres du Sud du Royaume d'Astrène, splendeur déclinante autour d'Étoile-d'Automne au palais en ruine" }
+    },
+    {
+      "id": "le_mat",
+      "name": "Le Mat",
+      "art": "le_mat.png",
+      "question": "region",
+      "flavor": "Le voyageur insouciant marche vers l'inconnu ; au-delà des lois, les ruines attendent.",
+      "params": { "region": "les Terres Brûlées, désert contesté de ruines anciennes sans maître ni loi, à l'est du continent" }
+    },
+    {
+      "id": "la_mort",
+      "name": "L'Arcane sans Nom",
+      "art": "la_mort.png",
+      "question": "danger",
+      "flavor": "La faux qui moissonne sans distinction ; tout peut basculer en un souffle.",
+      "params": { "danger_level": "deadly", "stakes": "kingdom" }
+    },
+    {
+      "id": "la_force",
+      "name": "La Force",
+      "art": "la_force.png",
+      "question": "danger",
+      "flavor": "Une main douce sur la gueule du lion ; un courage qui sera mis à l'épreuve.",
+      "params": { "danger_level": "high", "stakes": "regional" }
+    },
+    {
+      "id": "la_temperance",
+      "name": "Tempérance",
+      "art": "la_temperance.png",
+      "question": "danger",
+      "flavor": "L'eau qui passe d'un vase à l'autre ; l'équilibre prudent du voyageur.",
+      "params": { "danger_level": "moderate", "stakes": "local" }
+    },
+    {
+      "id": "l_amoureux",
+      "name": "L'Amoureux",
+      "art": "l_amoureux.png",
+      "question": "danger",
+      "flavor": "Un choix du coeur sous le regard du ciel ; l'enjeu est intime.",
+      "params": { "danger_level": "low", "stakes": "personal" }
+    },
+    {
+      "id": "le_chariot",
+      "name": "Le Chariot",
+      "art": "le_chariot.png",
+      "question": "pacing",
+      "flavor": "Les chevaux lancés au galop ; nul temps pour reprendre son souffle.",
+      "params": { "pacing": "breakneck" }
+    },
+    {
+      "id": "le_pendu",
+      "name": "Le Pendu",
+      "art": "le_pendu.png",
+      "question": "pacing",
+      "flavor": "Suspendu, tête en bas ; la vérité se révèle à qui sait attendre.",
+      "params": { "pacing": "slow_burn" }
+    },
+    {
+      "id": "la_justice",
+      "name": "La Justice",
+      "art": "la_justice.png",
+      "question": "pacing",
+      "flavor": "La balance et le glaive ; chaque acte pèse, mesuré, en son temps.",
+      "params": { "pacing": "steady" }
+    },
+    {
+      "id": "la_roue",
+      "name": "La Roue de Fortune",
+      "art": "la_roue.png",
+      "question": "pacing",
+      "flavor": "La roue tourne au gré des vents ; le rythme suit les caprices du sort.",
+      "params": { "pacing": "varied" }
+    }
+  ]
+}

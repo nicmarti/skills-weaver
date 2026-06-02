@@ -21,9 +21,12 @@
         <section class="adventures-section">
             <div class="section-header">
                 <h2>Aventures</h2>
-                <button class="btn btn-primary" onclick="toggleCreateForm()">
-                    + Nouvelle Aventure
-                </button>
+                <div class="section-header-actions">
+                    <a href="/adventure" class="btn btn-primary">🔮 Consulter la voyante</a>
+                    <button class="btn btn-secondary" onclick="toggleCreateForm()">
+                        + Création rapide
+                    </button>
+                </div>
             </div>
 
             <div id="create-form" class="create-form hidden">

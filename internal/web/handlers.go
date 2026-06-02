@@ -26,6 +26,7 @@ import (
 	"dungeons/internal/narrativeai"
 	"dungeons/internal/npc"
 	"dungeons/internal/npcmanager"
+	"dungeons/internal/tarot"
 	"dungeons/internal/world"
 )
 
@@ -1241,16 +1242,26 @@ func (s *Server) handleSetModel(c *gin.Context) {
 
 // generateCampaignPlan generates a campaign plan using the DM agent.
 // The plan adapts to the chosen duration (oneshot/short/campaign) and adventure type.
+// It is the backward-compatible entry point used by the quick-create form.
 func (s *Server) generateCampaignPlan(adv *adventure.Adventure, theme, duration, adventureType string) error {
-	if s.apiKey == "" {
-		return fmt.Errorf("ANTHROPIC_API_KEY not set")
-	}
+	return s.generateCampaignPlanWithBrief(adv, theme, duration, adventureType, nil)
+}
 
+// buildCampaignPlanRequest assembles the system persona + the full user prompt
+// for the campaign-plan generator, including the optional fortune-teller brief
+// and world-coherence guidance. It is shared by the real generator and by the
+// wizard debug endpoint so the two can never drift. It performs no API call.
+func (s *Server) buildCampaignPlanRequest(adv *adventure.Adventure, theme, duration, adventureType string, brief *tarot.CreativeBrief) (string, string, *agent.WorldResources, adventure.AdventureDuration, error) {
 	// Load DM persona
 	personaLoader := agent.NewPersonaLoader()
 	_, dmPersona, err := personaLoader.LoadWithMetadata("dungeon-master")
 	if err != nil {
-		return fmt.Errorf("failed to load DM persona: %w", err)
+		return "", "", nil, adventure.AdventureDuration{}, fmt.Errorf("failed to load DM persona: %w", err)
+	}
+
+	// If the form left the adventure type unset, let the reading decide.
+	if adventureType == "" && brief != nil && brief.AdventureType != "" {
+		adventureType = brief.AdventureType
 	}
 
 	// Get duration config
@@ -1297,6 +1308,13 @@ Use this detailed geographical description of the Four Kingdoms to place your ad
 %s
 
 `, worldResources.MapDescription)
+	}
+
+	// Append the fortune-teller's creative brief + world-coherence guidance.
+	// It rides on the same %s placeholder as the geography section, so the
+	// format string and argument list below stay untouched.
+	if brief != nil {
+		worldGeographySection += brief.PromptSection()
 	}
 
 	// Build prompt
@@ -1413,6 +1431,23 @@ CRITICAL: Return ONLY valid JSON matching this exact structure (no markdown, no 
 		dur.MaxSessions,
 		pacingJSON,
 	)
+
+	return prompt, dmPersona, worldResources, dur, nil
+}
+
+// generateCampaignPlanWithBrief builds the request, calls the model, then parses
+// and saves the JSON campaign plan. When brief is non-nil (the fortune-teller
+// wizard path) its creative constraints and world-coherence guidance are part of
+// the prompt. The output JSON schema is unchanged either way.
+func (s *Server) generateCampaignPlanWithBrief(adv *adventure.Adventure, theme, duration, adventureType string, brief *tarot.CreativeBrief) error {
+	if s.apiKey == "" {
+		return fmt.Errorf("ANTHROPIC_API_KEY not set")
+	}
+
+	prompt, dmPersona, worldResources, dur, err := s.buildCampaignPlanRequest(adv, theme, duration, adventureType, brief)
+	if err != nil {
+		return err
+	}
 
 	// Call Anthropic API with Sonnet for better narrative quality
 	client := anthropic.NewClient(option.WithAPIKey(s.apiKey))
@@ -1672,9 +1707,24 @@ func npcImportanceFromRole(role string) npcmanager.ImportanceLevel {
 	}
 }
 
-// copyGlobalCharactersToAdventure copies existing characters from data/characters/ to the new adventure.
+// copyGlobalCharactersToAdventure copies ALL existing global characters into the
+// new adventure. Backward-compatible wrapper used by the quick-create form.
 func (s *Server) copyGlobalCharactersToAdventure(adv *adventure.Adventure) error {
+	return s.copyGlobalCharactersToAdventureSelected(adv, nil)
+}
+
+// copyGlobalCharactersToAdventureSelected copies the chosen global characters
+// into the new adventure and writes party.json from that subset. A nil/empty
+// selected slice means "copy all" (matched case-insensitively on the JSON name).
+func (s *Server) copyGlobalCharactersToAdventureSelected(adv *adventure.Adventure, selected []string) error {
 	globalCharactersDir := filepath.Join("data", "characters")
+
+	selectedSet := make(map[string]bool, len(selected))
+	for _, name := range selected {
+		if n := strings.TrimSpace(name); n != "" {
+			selectedSet[strings.ToLower(n)] = true
+		}
+	}
 
 	// Check if global characters directory exists
 	if _, err := os.Stat(globalCharactersDir); os.IsNotExist(err) {
@@ -1726,7 +1776,12 @@ func (s *Server) copyGlobalCharactersToAdventure(adv *adventure.Adventure) error
 			continue
 		}
 
-		if name, ok := charData["name"].(string); ok && name != "" {
+		name, _ := charData["name"].(string)
+		// Skip characters the player did not pick (when a selection was made).
+		if len(selectedSet) > 0 && !selectedSet[strings.ToLower(strings.TrimSpace(name))] {
+			continue
+		}
+		if name != "" {
 			characterNames = append(characterNames, name)
 		}
 

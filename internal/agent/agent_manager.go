@@ -60,10 +60,10 @@ type AgentManager struct {
 	logger           *Logger
 	outputHandler    OutputHandler
 	personaLoader    *PersonaLoader
-	mainToolRegistry *ToolRegistry      // Main agent's tool registry, used to create filtered registries
-	maxDepth         int                // Maximum nesting depth (always 1 for now)
-	clientFactory    ClientFactory      // Factory for creating Anthropic clients (allows mocking)
-	worldResources   *WorldResources    // World map description + image for world-keeper
+	mainToolRegistry *ToolRegistry   // Main agent's tool registry, used to create filtered registries
+	maxDepth         int             // Maximum nesting depth (always 1 for now)
+	clientFactory    ClientFactory   // Factory for creating Anthropic clients (allows mocking)
+	worldResources   *WorldResources // World map description + image for world-keeper
 }
 
 // NestedAgentState represents a nested agent with its own conversation context.
@@ -75,33 +75,36 @@ type NestedAgentState struct {
 	conversationCtx *ConversationContext
 	lastInvoked     time.Time
 	invocationCount int
-	client          anthropicClient  // Changed to interface for testability
+	client          anthropicClient // Changed to interface for testability
 	tokenLimit      int
 	metrics         *AgentMetrics
-	model           anthropic.Model  // Model to use for this agent (from persona)
-	toolRegistry    *ToolRegistry    // Filtered tool registry for this agent
-	toolPolicy      *ToolAccessPolicy // Tool access policy for this agent
-	advisorModel    anthropic.Model  // Advisor model (empty = advisor disabled)
-	advisorMaxUses  int              // Max advisor calls per request
+	model           anthropic.Model                        // Model to use for this agent (from persona)
+	toolRegistry    *ToolRegistry                          // Filtered tool registry for this agent
+	toolPolicy      *ToolAccessPolicy                      // Tool access policy for this agent
+	advisorModel    anthropic.Model                        // Advisor model (empty = advisor disabled)
+	advisorMaxUses  int                                    // Max advisor calls per request
+	advisorCaching  anthropic.BetaCacheControlEphemeralTTL // Advisor prompt cache TTL ("" = off)
 }
 
 // AgentMetrics tracks performance metrics for an agent.
 type AgentMetrics struct {
-	TotalTokensUsed    int64         `json:"total_tokens_used"`
-	TotalInputTokens   int64         `json:"total_input_tokens"`
-	TotalOutputTokens  int64         `json:"total_output_tokens"`
-	TotalResponseTime  time.Duration `json:"total_response_time"`
-	AverageTokensPerCall int64       `json:"average_tokens_per_call"`
+	TotalTokensUsed      int64         `json:"total_tokens_used"`
+	TotalInputTokens     int64         `json:"total_input_tokens"`
+	TotalOutputTokens    int64         `json:"total_output_tokens"`
+	TotalResponseTime    time.Duration `json:"total_response_time"`
+	AverageTokensPerCall int64         `json:"average_tokens_per_call"`
 	AverageResponseTime  time.Duration `json:"average_response_time"`
-	ModelUsed          string        `json:"model_used"`
-	LastCallTokens     int64         `json:"last_call_tokens"`
-	LastCallDuration   time.Duration `json:"last_call_duration"`
+	ModelUsed            string        `json:"model_used"`
+	LastCallTokens       int64         `json:"last_call_tokens"`
+	LastCallDuration     time.Duration `json:"last_call_duration"`
 	// Advisor tool metrics (billed at the advisor model's rates, tracked
 	// separately from executor tokens above).
-	AdvisorCalls        int64  `json:"advisor_calls,omitempty"`
-	AdvisorInputTokens  int64  `json:"advisor_input_tokens,omitempty"`
-	AdvisorOutputTokens int64  `json:"advisor_output_tokens,omitempty"`
-	AdvisorModelUsed    string `json:"advisor_model_used,omitempty"`
+	AdvisorCalls               int64  `json:"advisor_calls,omitempty"`
+	AdvisorInputTokens         int64  `json:"advisor_input_tokens,omitempty"`
+	AdvisorOutputTokens        int64  `json:"advisor_output_tokens,omitempty"`
+	AdvisorCacheCreationTokens int64  `json:"advisor_cache_creation_tokens,omitempty"`
+	AdvisorCacheReadTokens     int64  `json:"advisor_cache_read_tokens,omitempty"`
+	AdvisorModelUsed           string `json:"advisor_model_used,omitempty"`
 }
 
 // defaultClientFactory creates a real Anthropic client.
@@ -125,8 +128,8 @@ func NewAgentManager(
 		logger:           logger,
 		outputHandler:    outputHandler,
 		personaLoader:    personaLoader,
-		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
-		maxDepth:         1,   // Nested agents cannot invoke other agents
+		mainToolRegistry: nil,                  // Will be set via SetMainToolRegistry
+		maxDepth:         1,                    // Nested agents cannot invoke other agents
 		clientFactory:    defaultClientFactory, // Use real client by default
 		worldResources:   LoadWorldResources(),
 	}
@@ -247,6 +250,7 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	var totalInputTokens, totalOutputTokens int64
 	// Advisor accumulators (folded into metrics after the loop).
 	var advInTokens, advOutTokens, advisorCallCount int64
+	var advCacheCreate, advCacheRead int64
 	var advisorModelUsed string
 
 	// Agent loop with tool execution
@@ -271,6 +275,8 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 				advisorCallCount++
 				advInTokens += res.advInTokens
 				advOutTokens += res.advOutTokens
+				advCacheCreate += res.advCacheCreate
+				advCacheRead += res.advCacheRead
 				if res.advisorModel != "" {
 					advisorModelUsed = res.advisorModel
 				}
@@ -388,6 +394,8 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 		nestedAgent.metrics.AdvisorCalls += advisorCallCount
 		nestedAgent.metrics.AdvisorInputTokens += advInTokens
 		nestedAgent.metrics.AdvisorOutputTokens += advOutTokens
+		nestedAgent.metrics.AdvisorCacheCreationTokens += advCacheCreate
+		nestedAgent.metrics.AdvisorCacheReadTokens += advCacheRead
 		if advisorModelUsed != "" {
 			nestedAgent.metrics.AdvisorModelUsed = advisorModelUsed
 		}
@@ -654,10 +662,14 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 	modelDisplayName := GetModelDisplayName(model)
 
 	// Resolve optional Advisor tool config (feature-flagged, off by default).
-	advisorModel, advisorMaxUses, advisorOK := resolveAdvisorConfig(metadata, model)
+	advisorModel, advisorMaxUses, advisorCaching, advisorOK := resolveAdvisorConfig(metadata, model)
 	if advisorOK && am.logger != nil {
-		am.logger.LogInfo(fmt.Sprintf("[%s] Advisor tool enabled: executor=%s advisor=%s maxUses=%d",
-			agentName, modelDisplayName, GetModelDisplayName(advisorModel), advisorMaxUses))
+		cachingDesc := "off"
+		if advisorCaching != "" {
+			cachingDesc = string(advisorCaching)
+		}
+		am.logger.LogInfo(fmt.Sprintf("[%s] Advisor tool enabled: executor=%s advisor=%s maxUses=%d caching=%s",
+			agentName, modelDisplayName, GetModelDisplayName(advisorModel), advisorMaxUses, cachingDesc))
 	}
 
 	// Get tool access policy for this agent
@@ -693,6 +705,7 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		toolPolicy:      policy,
 		advisorModel:    advisorModel,
 		advisorMaxUses:  advisorMaxUses,
+		advisorCaching:  advisorCaching,
 		metrics: &AgentMetrics{
 			ModelUsed: modelDisplayName, // Use actual model from persona
 		},
@@ -784,19 +797,19 @@ func (am *AgentManager) GetStatistics() map[string]interface{} {
 	agentStats := make(map[string]map[string]interface{})
 	for name, agent := range am.nestedAgents {
 		agentStats[name] = map[string]interface{}{
-			"invocation_count":        agent.invocationCount,
-			"last_invoked":           agent.lastInvoked.Format(time.RFC3339),
-			"message_count":          len(agent.conversationCtx.GetMessages()),
-			"token_estimate":         agent.conversationCtx.tokenEstimate,
-			"total_tokens_used":      agent.metrics.TotalTokensUsed,
-			"total_input_tokens":     agent.metrics.TotalInputTokens,
-			"total_output_tokens":    agent.metrics.TotalOutputTokens,
-			"average_tokens_per_call": agent.metrics.AverageTokensPerCall,
-			"total_response_time_ms": agent.metrics.TotalResponseTime.Milliseconds(),
+			"invocation_count":         agent.invocationCount,
+			"last_invoked":             agent.lastInvoked.Format(time.RFC3339),
+			"message_count":            len(agent.conversationCtx.GetMessages()),
+			"token_estimate":           agent.conversationCtx.tokenEstimate,
+			"total_tokens_used":        agent.metrics.TotalTokensUsed,
+			"total_input_tokens":       agent.metrics.TotalInputTokens,
+			"total_output_tokens":      agent.metrics.TotalOutputTokens,
+			"average_tokens_per_call":  agent.metrics.AverageTokensPerCall,
+			"total_response_time_ms":   agent.metrics.TotalResponseTime.Milliseconds(),
 			"average_response_time_ms": agent.metrics.AverageResponseTime.Milliseconds(),
-			"model_used":             agent.metrics.ModelUsed,
-			"last_call_tokens":       agent.metrics.LastCallTokens,
-			"last_call_duration_ms":  agent.metrics.LastCallDuration.Milliseconds(),
+			"model_used":               agent.metrics.ModelUsed,
+			"last_call_tokens":         agent.metrics.LastCallTokens,
+			"last_call_duration_ms":    agent.metrics.LastCallDuration.Milliseconds(),
 		}
 	}
 	stats["agents"] = agentStats
@@ -812,4 +825,3 @@ func (am *AgentManager) GetAgentMetrics(agentName string) (*AgentMetrics, bool) 
 	}
 	return agent.metrics, true
 }
-

@@ -128,7 +128,7 @@ func (m *MockMessagesService) NewBeta(ctx context.Context, params anthropic.Beta
 			{"type":"text","text":%q}`, m.SimulateAdvisorText, responseText)
 		iterations = `,"iterations":[
 			{"type":"message","input_tokens":100,"output_tokens":10},
-			{"type":"advisor_message","model":"claude-opus-4-7","input_tokens":200,"output_tokens":150},
+			{"type":"advisor_message","model":"claude-opus-4-7","input_tokens":200,"output_tokens":150,"cache_creation_input_tokens":1000,"cache_read_input_tokens":500},
 			{"type":"message","input_tokens":250,"output_tokens":40}
 		]`
 	} else {

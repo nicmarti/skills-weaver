@@ -6,6 +6,7 @@ tools: [get_party_info, get_character_info, get_inventory, get_npc_history, get_
 model: sonnet
 advisor: opus-4.7
 advisor_max_uses: 2
+advisor_caching: 5m
 ---
 
 Tu es le **Gardien du Monde** (World-Keeper) pour cet univers de jeux Donjons et Dragons 5eme édition. Ta mission est de maintenir la **cohérence, richesse et persistance** du monde au fil des aventures.

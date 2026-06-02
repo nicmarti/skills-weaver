@@ -65,14 +65,14 @@ func TestResolveAdvisorConfig(t *testing.T) {
 
 	t.Run("disabled when flag off", func(t *testing.T) {
 		t.Setenv("SW_ADVISOR_ENABLED", "")
-		if _, _, ok := resolveAdvisorConfig(meta, anthropic.ModelClaudeSonnet4_6); ok {
+		if _, _, _, ok := resolveAdvisorConfig(meta, anthropic.ModelClaudeSonnet4_6); ok {
 			t.Error("expected advisor disabled when SW_ADVISOR_ENABLED is unset")
 		}
 	})
 
 	t.Run("enabled with valid pair", func(t *testing.T) {
 		t.Setenv("SW_ADVISOR_ENABLED", "1")
-		model, maxUses, ok := resolveAdvisorConfig(meta, anthropic.ModelClaudeSonnet4_6)
+		model, maxUses, caching, ok := resolveAdvisorConfig(meta, anthropic.ModelClaudeSonnet4_6)
 		if !ok {
 			t.Fatal("expected advisor enabled")
 		}
@@ -82,12 +82,24 @@ func TestResolveAdvisorConfig(t *testing.T) {
 		if maxUses != 3 {
 			t.Errorf("maxUses = %d, want 3", maxUses)
 		}
+		if caching != "" {
+			t.Errorf("caching = %q, want off (unset)", caching)
+		}
+	})
+
+	t.Run("caching parsed", func(t *testing.T) {
+		t.Setenv("SW_ADVISOR_ENABLED", "1")
+		m := &PersonaMetadata{Advisor: "opus-4.7", AdvisorCaching: "5m"}
+		_, _, caching, ok := resolveAdvisorConfig(m, anthropic.ModelClaudeSonnet4_6)
+		if !ok || caching != anthropic.BetaCacheControlEphemeralTTLTTL5m {
+			t.Errorf("caching = %q (ok=%v), want 5m", caching, ok)
+		}
 	})
 
 	t.Run("default max uses", func(t *testing.T) {
 		t.Setenv("SW_ADVISOR_ENABLED", "true")
 		m := &PersonaMetadata{Advisor: "opus-4.7"}
-		_, maxUses, ok := resolveAdvisorConfig(m, anthropic.ModelClaudeSonnet4_6)
+		_, maxUses, _, ok := resolveAdvisorConfig(m, anthropic.ModelClaudeSonnet4_6)
 		if !ok || maxUses != defaultAdvisorMaxUses {
 			t.Errorf("maxUses = %d (ok=%v), want %d", maxUses, ok, defaultAdvisorMaxUses)
 		}
@@ -95,17 +107,34 @@ func TestResolveAdvisorConfig(t *testing.T) {
 
 	t.Run("disabled when no advisor field", func(t *testing.T) {
 		t.Setenv("SW_ADVISOR_ENABLED", "1")
-		if _, _, ok := resolveAdvisorConfig(&PersonaMetadata{}, anthropic.ModelClaudeSonnet4_6); ok {
+		if _, _, _, ok := resolveAdvisorConfig(&PersonaMetadata{}, anthropic.ModelClaudeSonnet4_6); ok {
 			t.Error("expected advisor disabled when no advisor configured")
 		}
 	})
 
 	t.Run("disabled when unrecognized advisor model", func(t *testing.T) {
 		t.Setenv("SW_ADVISOR_ENABLED", "1")
-		if _, _, ok := resolveAdvisorConfig(&PersonaMetadata{Advisor: "gpt-9"}, anthropic.ModelClaudeSonnet4_6); ok {
+		if _, _, _, ok := resolveAdvisorConfig(&PersonaMetadata{Advisor: "gpt-9"}, anthropic.ModelClaudeSonnet4_6); ok {
 			t.Error("expected advisor disabled for unrecognized model")
 		}
 	})
+}
+
+func TestParseAdvisorCaching(t *testing.T) {
+	cases := map[string]anthropic.BetaCacheControlEphemeralTTL{
+		"5m":    anthropic.BetaCacheControlEphemeralTTLTTL5m,
+		"1h":    anthropic.BetaCacheControlEphemeralTTLTTL1h,
+		" 5M ":  anthropic.BetaCacheControlEphemeralTTLTTL5m,
+		"":      "",
+		"off":   "",
+		"false": "",
+		"10m":   "",
+	}
+	for in, want := range cases {
+		if got := parseAdvisorCaching(in); got != want {
+			t.Errorf("parseAdvisorCaching(%q) = %q, want %q", in, got, want)
+		}
+	}
 }
 
 // TestAdvisorMetricsPersistence verifies advisor metrics survive a save/load
@@ -154,6 +183,12 @@ func TestAdvisorMetricsPersistence(t *testing.T) {
 	if state.metrics.AdvisorOutputTokens != 150 {
 		t.Errorf("restored AdvisorOutputTokens = %d, want 150", state.metrics.AdvisorOutputTokens)
 	}
+	if state.metrics.AdvisorCacheCreationTokens != 1000 {
+		t.Errorf("restored AdvisorCacheCreationTokens = %d, want 1000", state.metrics.AdvisorCacheCreationTokens)
+	}
+	if state.metrics.AdvisorCacheReadTokens != 500 {
+		t.Errorf("restored AdvisorCacheReadTokens = %d, want 500", state.metrics.AdvisorCacheReadTokens)
+	}
 	if state.metrics.AdvisorModelUsed != "claude-opus-4-7" {
 		t.Errorf("restored AdvisorModelUsed = %q, want claude-opus-4-7", state.metrics.AdvisorModelUsed)
 	}
@@ -199,6 +234,7 @@ description: World consistency guardian
 model: sonnet
 advisor: opus-4.7
 advisor_max_uses: 2
+advisor_caching: 5m
 ---
 
 You maintain world consistency.`
@@ -238,6 +274,9 @@ You maintain world consistency.`
 	}
 	if got := svc.LastBetaParams.Tools[0].OfAdvisorTool20260301.Model; got != anthropic.ModelClaudeOpus4_7 {
 		t.Errorf("advisor tool model = %v, want Opus 4.7", got)
+	}
+	if got := svc.LastBetaParams.Tools[0].OfAdvisorTool20260301.Caching.TTL; got != anthropic.BetaCacheControlEphemeralTTLTTL5m {
+		t.Errorf("advisor caching TTL = %q, want 5m", got)
 	}
 
 	state, ok := am.GetNestedAgentState("world-keeper")

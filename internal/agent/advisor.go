@@ -38,26 +38,46 @@ func advisorFeatureEnabled() bool {
 	}
 }
 
-// resolveAdvisorConfig derives the advisor model and max-uses for a nested
-// agent from its persona metadata, validating the executor/advisor pair.
+// parseAdvisorCaching maps a persona advisor_caching string to a cache TTL for
+// the advisor's own prompt. Recognized: "5m", "1h". Anything else (including
+// "", "off", "false") disables advisor-side caching.
+//
+// Advisor-side caching writes a cache entry on each advisor call so later calls
+// in the same conversation read the stable prefix. Per the Advisor tool docs it
+// breaks even at roughly three advisor calls; enable it for agents with a large
+// stable context (e.g. world-keeper's world-map prefix) or long loops, and keep
+// it off for short one-shot consultations.
+func parseAdvisorCaching(s string) anthropic.BetaCacheControlEphemeralTTL {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "5m":
+		return anthropic.BetaCacheControlEphemeralTTLTTL5m
+	case "1h":
+		return anthropic.BetaCacheControlEphemeralTTLTTL1h
+	default:
+		return ""
+	}
+}
+
+// resolveAdvisorConfig derives the advisor model, max-uses, and cache TTL for a
+// nested agent from its persona metadata, validating the executor/advisor pair.
 // Returns ok=false (advisor disabled) when the feature flag is off, no advisor
 // is configured, the advisor model is unrecognized, or the pair is invalid.
-func resolveAdvisorConfig(metadata *PersonaMetadata, executor anthropic.Model) (model anthropic.Model, maxUses int, ok bool) {
+func resolveAdvisorConfig(metadata *PersonaMetadata, executor anthropic.Model) (model anthropic.Model, maxUses int, caching anthropic.BetaCacheControlEphemeralTTL, ok bool) {
 	if !advisorFeatureEnabled() {
-		return "", 0, false
+		return "", 0, "", false
 	}
 	if metadata == nil || strings.TrimSpace(metadata.Advisor) == "" {
-		return "", 0, false
+		return "", 0, "", false
 	}
 	advisor, recognized := MapAdvisorModelToAnthropic(metadata.Advisor)
 	if !recognized || !IsValidAdvisorPair(executor, advisor) {
-		return "", 0, false
+		return "", 0, "", false
 	}
 	maxUses = metadata.AdvisorMaxUses
 	if maxUses <= 0 {
 		maxUses = defaultAdvisorMaxUses
 	}
-	return advisor, maxUses, true
+	return advisor, maxUses, parseAdvisorCaching(metadata.AdvisorCaching), true
 }
 
 // toBetaMessages converts standard MessageParam values into BetaMessageParam
@@ -78,24 +98,31 @@ func toBetaMessages(messages []anthropic.MessageParam) ([]anthropic.BetaMessageP
 
 // advisorCallResult holds the parsed outcome of a single advisor-enabled beta call.
 type advisorCallResult struct {
-	text          string    // executor's text this turn
-	toolUses      []ToolUse // client-side tool calls requested by the executor
-	advisorText   string    // advice returned by the advisor (empty if not consulted)
-	advisorErr    string    // advisor error_code (empty if none)
-	advisorCalled bool
-	execInTokens  int64
-	execOutTokens int64
-	advInTokens   int64
-	advOutTokens  int64
-	advisorModel  string
+	text           string    // executor's text this turn
+	toolUses       []ToolUse // client-side tool calls requested by the executor
+	advisorText    string    // advice returned by the advisor (empty if not consulted)
+	advisorErr     string    // advisor error_code (empty if none)
+	advisorCalled  bool
+	execInTokens   int64
+	execOutTokens  int64
+	advInTokens    int64
+	advOutTokens   int64
+	advCacheCreate int64 // advisor prompt tokens written to cache (billed ~1.25x)
+	advCacheRead   int64 // advisor prompt tokens served from cache (billed ~0.1x)
+	advisorModel   string
 }
 
 // advisorToolParam builds the Advisor tool definition for a nested agent.
 func advisorToolParam(nestedAgent *NestedAgentState) anthropic.BetaToolUnionParam {
-	return anthropic.BetaToolUnionParam{OfAdvisorTool20260301: &anthropic.BetaAdvisorTool20260301Param{
+	tool := &anthropic.BetaAdvisorTool20260301Param{
 		Model:   nestedAgent.advisorModel,
 		MaxUses: anthropic.Int(int64(nestedAgent.advisorMaxUses)),
-	}}
+	}
+	// Enable advisor-side prompt caching when configured (stable-prefix reuse).
+	if nestedAgent.advisorCaching != "" {
+		tool.Caching = anthropic.BetaCacheControlEphemeralParam{TTL: nestedAgent.advisorCaching}
+	}
+	return anthropic.BetaToolUnionParam{OfAdvisorTool20260301: tool}
 }
 
 // doBetaCall performs a single beta Messages call with the given tools, parsing
@@ -156,6 +183,8 @@ func (am *AgentManager) doBetaCall(ctx context.Context, nestedAgent *NestedAgent
 		case anthropic.BetaAdvisorMessageIterationUsage:
 			res.advInTokens += v.InputTokens
 			res.advOutTokens += v.OutputTokens
+			res.advCacheCreate += v.CacheCreationInputTokens
+			res.advCacheRead += v.CacheReadInputTokens
 			res.advisorModel = string(v.Model)
 		}
 	}
@@ -191,6 +220,8 @@ func recordAdvisorMetrics(m *AgentMetrics, res advisorCallResult, duration time.
 		m.AdvisorCalls++
 		m.AdvisorInputTokens += res.advInTokens
 		m.AdvisorOutputTokens += res.advOutTokens
+		m.AdvisorCacheCreationTokens += res.advCacheCreate
+		m.AdvisorCacheReadTokens += res.advCacheRead
 		if res.advisorModel != "" {
 			m.AdvisorModelUsed = res.advisorModel
 		}

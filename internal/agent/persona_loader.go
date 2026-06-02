@@ -28,6 +28,10 @@ type PersonaMetadata struct {
 	Advisor string `yaml:"advisor"`
 	// AdvisorMaxUses caps advisor calls per request (0 = unset → default 2).
 	AdvisorMaxUses int `yaml:"advisor_max_uses"`
+	// AdvisorCaching enables advisor-side prompt caching: "5m" or "1h"
+	// (empty/other = off). Worth enabling for agents with a large stable
+	// context prefix or long advisor loops.
+	AdvisorCaching string `yaml:"advisor_caching"`
 }
 
 // NewPersonaLoader creates a new PersonaLoader with default search paths.
@@ -85,14 +89,15 @@ func (pl *PersonaLoader) LoadWithMetadata(agentName string) (*PersonaMetadata, s
 
 // ParseFrontmatter extracts YAML frontmatter from markdown content.
 // Expected format:
-//   ---
-//   name: agent-name
-//   description: Agent description
-//   tools: [Read, Write, Glob, Grep]
-//   model: sonnet
-//   ---
 //
-//   Markdown body content...
+//	---
+//	name: agent-name
+//	description: Agent description
+//	tools: [Read, Write, Glob, Grep]
+//	model: sonnet
+//	---
+//
+//	Markdown body content...
 //
 // Returns the parsed metadata, body content (without frontmatter), and any error.
 func (pl *PersonaLoader) ParseFrontmatter(content string) (*PersonaMetadata, string, error) {

@@ -183,7 +183,8 @@
             debug: DEBUG,
         };
 
-        showOverlay(DEBUG ? "Lecture des cartes (mode debug)..." : "La voyante interprète les cartes...");
+        showOverlay(DEBUG ? "Lecture des cartes (mode debug)..." : "La voyante consulte le destin...");
+        if (!DEBUG) startPhaseA();
 
         let res;
         try {
@@ -211,7 +212,9 @@
     }
 
     function renderDebug(data) {
+        clearStepTimers();
         document.getElementById("wizard-spinner").hidden = true;
+        document.getElementById("wizard-steps").hidden = true;
         document.getElementById("destiny-card").hidden = true;
         document.getElementById("wizard-overlay-text").textContent =
             "🔮 Lecture des cartes (aucune aventure créée)";
@@ -273,6 +276,89 @@
         panel.appendChild(actions);
     }
 
+    // --- staged loading ----------------------------------------------------
+    // The creation request is a single opaque blocking call (campaign plan +
+    // NPCs), so we can't get real sub-progress from it. Instead we surface the
+    // work as a narrative checklist with two REAL sync points: the POST
+    // returning (steps 0-2 done) and the destiny image being ready (step 3).
+    const LOADING_STEPS = [
+        { icon: "🔮", label: "La voyante mêle les cartes du destin" },
+        { icon: "📜", label: "Les fils de ton histoire se tissent" },
+        { icon: "🎭", label: "Les visages que tu croiseras s'éveillent" },
+        { icon: "🎴", label: "Le destin prend forme dans la boule de cristal" },
+        { icon: "✨", label: "Ton destin est scellé" },
+    ];
+    // Steps 0..PHASE_A_LAST resolve when the POST returns; step 3 when the
+    // image is ready; step 4 is the final sealed state.
+    const PHASE_A_LAST = 2;
+
+    let stepTimers = [];
+
+    function clearStepTimers() {
+        stepTimers.forEach((t) => clearTimeout(t));
+        stepTimers = [];
+    }
+
+    function renderSteps() {
+        const list = document.getElementById("wizard-steps");
+        list.innerHTML = "";
+        LOADING_STEPS.forEach((step, i) => {
+            const li = document.createElement("li");
+            li.className = "wizard-step-item is-pending";
+            li.id = "wizard-step-" + i;
+
+            const icon = document.createElement("span");
+            icon.className = "wizard-step-icon";
+            icon.textContent = step.icon;
+
+            const label = document.createElement("span");
+            label.className = "wizard-step-label";
+            label.textContent = step.label;
+
+            li.appendChild(icon);
+            li.appendChild(label);
+            list.appendChild(li);
+        });
+        list.hidden = false;
+    }
+
+    // Steps before `active` are done, `active` is active, the rest pending.
+    function paintSteps(active, allDone) {
+        LOADING_STEPS.forEach((_, i) => {
+            const li = document.getElementById("wizard-step-" + i);
+            if (!li) return;
+            li.classList.remove("is-pending", "is-active", "is-done");
+            if (allDone || i < active) {
+                li.classList.add("is-done");
+            } else if (i === active) {
+                li.classList.add("is-active");
+            } else {
+                li.classList.add("is-pending");
+            }
+        });
+    }
+
+    // Walk the active marker through phase-A beats. Never advances past
+    // PHASE_A_LAST while the POST is still in flight, so we never claim a step
+    // "done" before the server has actually finished it.
+    function startPhaseA() {
+        renderSteps();
+        paintSteps(0, false);
+        stepTimers.push(setTimeout(() => paintSteps(1, false), 1800));
+        stepTimers.push(setTimeout(() => paintSteps(PHASE_A_LAST, false), 9000));
+    }
+
+    // POST returned: phase A is genuinely complete — move to the vision.
+    function enterVision() {
+        clearStepTimers();
+        paintSteps(3, false);
+    }
+
+    function sealDestiny() {
+        clearStepTimers();
+        paintSteps(LOADING_STEPS.length, true);
+    }
+
     // --- overlay / destiny card -------------------------------------------
 
     function showOverlay(text) {
@@ -283,8 +369,10 @@
     }
 
     function failOverlay(text) {
+        clearStepTimers();
         const errEl = document.getElementById("wizard-error");
         document.getElementById("wizard-overlay").hidden = true;
+        document.getElementById("wizard-steps").hidden = true;
         errEl.textContent = text;
         errEl.hidden = false;
         showStep("final");
@@ -295,6 +383,7 @@
     }
 
     async function revealDestiny(slug, redirect) {
+        enterVision(); // POST returned: plan + NPCs are done, now awaiting the image.
         document.getElementById("wizard-overlay-text").textContent = "Le destin se révèle...";
 
         const deadline = Date.now() + 15000;
@@ -308,15 +397,19 @@
                         img.src = j.url;
                         img.hidden = false;
                         document.getElementById("wizard-spinner").hidden = true;
+                        sealDestiny();
                         document.getElementById("wizard-overlay-text").textContent =
                             "Ton destin est scellé.";
                         await sleep(2800);
-                        break;
+                        window.location = redirect;
+                        return;
                     }
                 }
             } catch (e) { /* keep polling */ }
             await sleep(1500);
         }
+        // Image not ready in time — seal the checklist anyway and continue.
+        sealDestiny();
         window.location = redirect;
     }
 

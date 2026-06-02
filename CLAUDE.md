@@ -461,6 +461,42 @@ cat data/adventures/<nom>/agent-states.json | jq '.agents'
 
 **Documentation complète** : Voir `docs/optional-features-summary.md` pour détails techniques et exemples.
 
+#### 5. Outil Advisor (Conseiller) pour Agents Imbriqués
+
+**Fichiers** : `internal/agent/advisor.go`, `internal/agent/agent_manager.go`, `internal/agent/model_mapping.go`
+
+L'**outil Advisor** (Anthropic, beta `advisor-tool-2026-03-01`) permet à un agent imbriqué (modèle *exécuteur*) de consulter un modèle *conseiller* plus puissant en cours de génération. C'est un **outil server-side** : il se résout en un seul appel beta (la réponse contient déjà le conseil et le texte final), donc pas de boucle d'outils supplémentaire côté client.
+
+**Activation (par défaut DÉSACTIVÉ)** :
+- Variable d'environnement `SW_ADVISOR_ENABLED` (`1`/`true`/`yes`/`on` = activé). Sans elle, comportement strictement inchangé.
+- Configuration **par persona** dans le frontmatter YAML (`core_agents/agents/<agent>.md`) :
+
+```yaml
+advisor: opus-4.7          # modèle conseiller (requis pour activer). Valeurs: opus-4.7, opus
+advisor_max_uses: 2        # plafond d'appels conseiller par requête (défaut 2)
+advisor_caching: 5m        # cache du prompt conseiller: 5m | 1h | (vide = off)
+```
+
+**Contraintes** :
+- L'outil n'existe que sur l'**API beta** (`client.Beta.Messages.New`). Le chemin agents imbriqués bascule sur beta quand l'advisor est actif ; le main agent (DM, streaming) reste sur l'API standard.
+- Le conseiller doit être **au moins aussi capable** que l'exécuteur. Paires validées par `IsValidAdvisorPair` : exécuteur Haiku 4.5 / Sonnet 4.6 / Opus 4.6-4.7 → conseiller **Opus 4.7** (SDK v1.38 ; 4.8 non disponible). Paire invalide ⇒ advisor silencieusement désactivé.
+- Les erreurs advisor (`overloaded`, `max_uses_exceeded`, etc.) **ne cassent pas** la requête : loggées, l'exécuteur continue sans conseil.
+
+**Pilote actuel** : seul `world-keeper` est configuré (Sonnet 4.6 + advisor Opus 4.7, caching 5m), sur les chemins `InvokeAgent` (boucle d'outils) **et** `InvokeAgentSilent` (briefings de campagne).
+
+**Caching** : `advisor_caching` met en cache le prompt du conseiller (préfixe stable réutilisé entre appels). Rentable à partir de ~3 appels conseiller, ou plus tôt quand le préfixe est gros et stable (cas de `world-keeper`, dont la **carte du monde** ~40k tokens domine le coût). À laisser **off** pour des consultations ponctuelles courtes.
+
+**Métriques** : les tokens conseiller (facturés au tarif Opus) sont trackés **séparément** des tokens exécuteur dans `AgentMetrics` / `agent-states.json` :
+```bash
+cat data/adventures/<nom>/agent-states.json | jq '.agents[].metrics | {advisor_calls, advisor_input_tokens, advisor_output_tokens, advisor_cache_creation_tokens, advisor_cache_read_tokens, advisor_model_used}'
+```
+
+⚠️ **Lecture des coûts avec caching activé** : quand `advisor_caching` est actif, le gros préfixe stable bascule de `advisor_input_tokens` vers `advisor_cache_creation_tokens` (1er appel, ~1.25x) puis `advisor_cache_read_tokens` (appels suivants, ~0.1x). Pour estimer le coût réel du conseiller, **sommer les trois** champs d'input, pas seulement `advisor_input_tokens` (qui chute alors près de zéro).
+
+**Tests** : `internal/agent/advisor_test.go` (unitaires via mock). Les tests réels sont *gated* par `RUN_REAL_API_TESTS=1` + `ANTHROPIC_API_KEY`.
+
+**Limite assumée (v1)** : les blocs `advisor_tool_result` ne sont pas round-trippés entre invocations (chaque consultation replanifie à neuf) — acceptable car les briefings sont des snapshots indépendants, et évite de persister des blocs beta dans `agent-states.json`.
+
 ### Agent State Persistence
 
 **Fichier** : `data/adventures/<nom>/agent-states.json`

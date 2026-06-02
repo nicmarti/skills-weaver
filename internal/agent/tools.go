@@ -96,6 +96,41 @@ func (tr *ToolRegistry) ToAnthropicToolsParam() []anthropic.ToolUnionParam {
 	return tools
 }
 
+// ToBetaToolsParam converts the registry to BetaToolUnionParam format for the
+// beta Messages API (required when combining client-side tools with the
+// server-side Advisor tool).
+func (tr *ToolRegistry) ToBetaToolsParam() []anthropic.BetaToolUnionParam {
+	tools := make([]anthropic.BetaToolUnionParam, 0, len(tr.tools))
+
+	for _, tool := range tr.tools {
+		schema := tool.InputSchema()
+
+		properties := schema["properties"]
+		required := []string{}
+		if req, ok := schema["required"].([]string); ok {
+			required = req
+		} else if req, ok := schema["required"].([]interface{}); ok {
+			for _, r := range req {
+				if str, ok := r.(string); ok {
+					required = append(required, str)
+				}
+			}
+		}
+
+		betaTool := anthropic.BetaToolParam{
+			Name:        tool.Name(),
+			Description: param.NewOpt(tool.Description()),
+			InputSchema: anthropic.BetaToolInputSchemaParam{
+				Properties: properties,
+				Required:   required,
+			},
+		}
+		tools = append(tools, anthropic.BetaToolUnionParam{OfTool: &betaTool})
+	}
+
+	return tools
+}
+
 // ToolUse represents a tool call from Claude.
 type ToolUse struct {
 	ID    string

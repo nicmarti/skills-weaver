@@ -352,8 +352,8 @@ func NewGenerateNPCTool(dataDir string, adv *adventure.Adventure) (*SimpleTool, 
 				},
 				"race": map[string]interface{}{
 					"type":        "string",
-					"enum":        []string{"human", "elf", "dwarf", "halfling"},
-					"description": "NPC race (optional, defaults to random)",
+					"enum":        npc.RaceStrings(),
+					"description": "Race du PNJ (optionnel, aléatoire par défaut) : humain, nain, elfe, halfelin",
 				},
 				"gender": map[string]interface{}{
 					"type":        "string",

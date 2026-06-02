@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - SkillsWeaver</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/fantasy.css">
+</head>
+<body class="voyante-page">
+<div id="deck-data" data-deck="{{.DeckJSON}}" hidden></div>
+
+<div class="voyante-veil"></div>
+
+<div class="wizard-tent">
+    <a href="/" class="wizard-back">← Retour</a>
+
+    <header class="voyante-banner">
+        <img src="/static/voyante/header_banner.png" alt="" class="voyante-banner-img"
+             onerror="this.classList.add('asset-missing')">
+        <div class="voyante-banner-text">
+            <h1 class="voyante-banner-title">La Voyante</h1>
+        </div>
+    </header>
+    <p class="voyante-tagline">Laisse les cartes révéler l'aventure qui t'attend...</p>
+
+    <main class="wizard-main">
+        <!-- Intro -->
+        <section class="wizard-step voyante-intro" data-step="intro">
+            <div class="voyante-portrait-frame intro-portrait">
+                <img src="/static/voyante/voyante_portrait.png" alt="La voyante"
+                     class="voyante-portrait-img" onerror="this.classList.add('asset-missing')">
+            </div>
+            <div class="voyante-bubble voyante-speech">
+                <p>« Approche, voyageur. Le brouillard du destin se dissipe pour qui ose regarder.
+                   Je vais te poser quelques questions, et à chacune tu tireras une carte.
+                   Ne crains rien : les cartes savent des choses que les mots ignorent. »</p>
+                <button class="btn btn-primary voyante-cta" id="wizard-start">Commencer la lecture</button>
+            </div>
+        </section>
+
+        <!-- Question steps (filled by JS) -->
+        <section class="wizard-step voyante-stage" data-step="questions" hidden>
+            <aside class="voyante-aside">
+                <div class="voyante-portrait-frame">
+                    <img src="/static/voyante/voyante_portrait.png" alt="La voyante"
+                         class="voyante-portrait-img" onerror="this.classList.add('asset-missing')">
+                </div>
+                <div class="voyante-bubble voyante-speech">
+                    <p class="voyante-prompt" id="question-prompt"></p>
+                </div>
+            </aside>
+            <div class="voyante-table">
+                <div class="wizard-progress" id="question-progress"></div>
+                <div class="voyante-table-surface">
+                    <div class="card-row" id="card-row"></div>
+                </div>
+                <p class="voyante-hint">Choisis la carte qui t'appelle.</p>
+            </div>
+        </section>
+
+        <!-- Character selection -->
+        <section class="wizard-step voyante-panel" data-step="characters" hidden>
+            <div class="voyante-bubble voyante-speech centered">
+                <p>« Qui répondra à l'appel ? Choisis les héros qui partageront ce destin. »</p>
+            </div>
+            <div class="hero-grid">
+                {{if .Characters}}
+                    {{range .Characters}}
+                    <label class="hero-card">
+                        <input type="checkbox" class="hero-check" value="{{.Name}}" checked>
+                        <div class="hero-portrait">
+                            {{if .HasPortrait}}
+                            <img src="{{.PortraitURL}}" alt="{{.Name}}">
+                            {{else}}
+                            <div class="hero-portrait-placeholder">{{.Name}}</div>
+                            {{end}}
+                        </div>
+                        <div class="hero-info">
+                            <span class="hero-name">{{.Name}}</span>
+                            <span class="hero-meta">{{.Species}} {{.Class}} · niv. {{.Level}}</span>
+                        </div>
+                    </label>
+                    {{end}}
+                {{else}}
+                    <p class="form-hint">Aucun héros global dans <code>data/characters/</code>.
+                       Tu pourras en créer plus tard.</p>
+                {{end}}
+            </div>
+            <div class="wizard-actions">
+                <button class="btn btn-primary" id="characters-next">Continuer</button>
+            </div>
+        </section>
+
+        <!-- Final naming -->
+        <section class="wizard-step voyante-panel" data-step="final" hidden>
+            <div class="voyante-bubble voyante-speech centered">
+                <p>« Le tableau est presque complet. Donne un nom à cette histoire, et le destin fera le reste. »</p>
+            </div>
+            <div class="adventure-form voyante-form">
+                <div class="form-group">
+                    <label for="wizard-name">Nom de l'aventure</label>
+                    <div class="name-suggest-row">
+                        <input type="text" id="wizard-name" required placeholder="Ex: L'Ombre sur Cordova">
+                        <button type="button" class="btn btn-secondary btn-suggest" id="wizard-name-suggest"
+                                title="La voyante propose un autre nom">🔮</button>
+                    </div>
+                    <small class="form-hint" id="wizard-name-hint" hidden>La voyante murmure un nom...</small>
+                </div>
+                <div class="form-group">
+                    <label for="wizard-duration">Durée</label>
+                    <select id="wizard-duration" class="form-select">
+                        <option value="oneshot">One-shot (1-2 sessions)</option>
+                        <option value="short" selected>Courte aventure (3-5 sessions)</option>
+                        <option value="campaign">Campagne (8-12 sessions)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="wizard-theme">Une intuition à confier à la voyante ? (optionnel)</label>
+                    <textarea id="wizard-theme" rows="2"
+                              placeholder="Un détail, une ambiance, un lieu qui te tient à coeur..."></textarea>
+                    <small class="form-hint">La voyante en tiendra compte sans rien dévoiler de ce qui t'attend.</small>
+                </div>
+                <div class="form-error" id="wizard-error" hidden></div>
+            </div>
+            <div class="wizard-actions">
+                <button class="btn btn-primary" id="wizard-submit">Consulter le destin</button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Spinner / destiny overlay -->
+<div class="wizard-overlay" id="wizard-overlay" hidden>
+    <div class="wizard-overlay-inner">
+        <div class="wizard-spinner" id="wizard-spinner"></div>
+        <p class="wizard-overlay-text" id="wizard-overlay-text">La voyante interprète les cartes...</p>
+        <img class="destiny-card" id="destiny-card" hidden alt="Carte du destin">
+        <div class="wizard-debug" id="wizard-debug" hidden></div>
+    </div>
+</div>
+
+<script src="/static/js/wizard.js"></script>
+</body>
+</html>

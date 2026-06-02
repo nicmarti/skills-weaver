@@ -9,7 +9,7 @@ import (
 
 // WorldResources holds the world map description and image for injection into agents.
 type WorldResources struct {
-	MapDescription    string // Detailed text from ai/world-map-prompt.md
+	MapDescription    string // French geography reference from ai/world-map-prompt.md (layout + distances)
 	MapImageBase64    string // Base64-encoded PNG image
 	MapImageMediaType string // "image/png"
 }
@@ -46,8 +46,14 @@ func LoadWorldResources() *WorldResources {
 	return worldResourcesInstance
 }
 
-// loadMapDescription extracts the detailed version from the world-map-prompt.md file.
-// It extracts content between the "VERSION DETAILLEE" code block markers.
+// loadMapDescription extracts the FRENCH geography reference from
+// world-map-prompt.md — the "Schema de disposition geographique" section
+// (ASCII layout + key points + travel distances) through the end of the file.
+//
+// This is intentionally NOT the English "VERSION DETAILLEE" block, which is an
+// image-generation prompt full of drawing directives irrelevant to writing or
+// reasoning about the world. The French section is more useful for the campaign
+// generator and the world-keeper, and keeps every LLM context in French.
 func loadMapDescription(path string) (string, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -56,36 +62,15 @@ func loadMapDescription(path string) (string, error) {
 
 	text := string(content)
 
-	// Find the "VERSION DETAILLEE" section and extract its code block
-	marker := "### VERSION DETAILLEE"
+	// Extract from the French geography section to the end of the file.
+	marker := "## Schema de disposition geographique"
 	idx := strings.Index(text, marker)
 	if idx == -1 {
 		// Fallback: return the full file content
 		return text, nil
 	}
 
-	// Find the opening ``` after the marker
-	rest := text[idx:]
-	startTick := strings.Index(rest, "```")
-	if startTick == -1 {
-		return text, nil
-	}
-
-	// Skip past the opening ``` line
-	afterStart := rest[startTick+3:]
-	newline := strings.Index(afterStart, "\n")
-	if newline == -1 {
-		return text, nil
-	}
-	blockContent := afterStart[newline+1:]
-
-	// Find the closing ```
-	endTick := strings.Index(blockContent, "```")
-	if endTick == -1 {
-		return text, nil
-	}
-
-	return strings.TrimSpace(blockContent[:endTick]), nil
+	return strings.TrimSpace(text[idx:]), nil
 }
 
 // ResetWorldResources resets the cached world resources (for testing).

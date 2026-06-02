@@ -122,8 +122,8 @@ type Location struct {
 // NPCDefinition represents an NPC defined in the campaign plan, ready to be generated.
 type NPCDefinition struct {
 	Name                 string            `json:"name"`
-	Role                 string            `json:"role"` // quest_giver|antagonist|ally|rival|informant
-	Race                 string            `json:"race"`
+	Role                 string            `json:"role"` // donneur_de_quete|antagoniste|allie|rival|informateur (FR canonique ; alias EN tolérés via npc.NormalizeRole)
+	Race                 string            `json:"race"` // humain|nain|elfe|halfelin (FR canonique ; alias EN tolérés via npc.NormalizeRace)
 	Gender               string            `json:"gender"`
 	Occupation           string            `json:"occupation"`
 	Attitude             string            `json:"attitude"` // positive|neutral|negative

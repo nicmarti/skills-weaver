@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"dungeons/internal/character"
 	"dungeons/internal/image"
 	"dungeons/internal/npc"
+	"dungeons/internal/tarot"
 )
 
 const (
@@ -47,6 +49,10 @@ func main() {
 		err = cmdCustom(args)
 	case "journal":
 		err = cmdJournal(args)
+	case "tarot-deck":
+		err = cmdTarotDeck(args)
+	case "voyante-assets":
+		err = cmdVoyanteAssets(args)
 	case "list":
 		err = cmdList(args)
 	case "help":
@@ -78,6 +84,8 @@ COMMANDES:
   location <type> [nom]        Générer une vue de lieu
   custom <prompt>              Générer avec un prompt personnalisé
   journal <aventure>           Illustrer le journal d'une aventure (parallèle)
+  tarot-deck                   Générer le jeu de cartes de la Voyante (wizard de création)
+  voyante-assets               Générer les visuels d'interface de la scène de la Voyante
   list [styles|scenes|...]     Lister les options
   help                         Afficher cette aide
 
@@ -99,12 +107,26 @@ MODÈLES JOURNAL:
   seedream                     Seedream v4 - Haute qualité (~8s), ~$0.01/megapixel (DÉFAUT)
   zimage                       Z-Image Turbo - Rapide (~2s), ~$0.005/megapixel
 
+OPTIONS TAROT-DECK:
+  --provider=<auto|fal|google> Fournisseur d'images (défaut: auto = GEMINI puis FAL)
+  --model=<model>              Modèle (honoré par fal.ai ; ignoré par Google Imagen)
+  --output=<dir>               Dossier de sortie (défaut: web/static/cards)
+  --deck=<path>                Fichier deck (défaut: data/tarot-deck.json)
+  --force                      Régénérer même les cartes déjà présentes
+  --dry-run                    Afficher les prompts sans générer
+  (par défaut, les cartes déjà générées sont ignorées lors d'une ré-exécution)
+
 EXEMPLES:
   sw-image character "Aldric"
   sw-image journal "la-crypte-des-ombres"
   sw-image journal "la-crypte-des-ombres" --start-id=60
   sw-image journal "la-crypte-des-ombres" --model=seedream --max=5
   sw-image journal "la-crypte-des-ombres" --model=zimage --start-id=60 --dry-run
+  sw-image tarot-deck --dry-run
+  sw-image tarot-deck --provider=fal --model=flux-2-pro
+  sw-image tarot-deck --provider=google
+  sw-image voyante-assets --provider=fal
+  sw-image voyante-assets --dry-run
 
 NOTES:
   - Nécessite GEMINI_API_KEY (Google Imagen, prioritaire) ou FAL_KEY (fal.ai, fallback)
@@ -500,6 +522,297 @@ func cmdCustom(args []string) error {
 	fmt.Printf("Image générée: %s\n", result.LocalPath)
 	fmt.Printf("Dimensions: %dx%d\n", result.Width, result.Height)
 
+	return nil
+}
+
+// newImageProvider selects an image generator. fal.ai honors --model; Google
+// Imagen ignores it. "auto"/"" keeps the GEMINI > FAL priority.
+func newImageProvider(provider, outDir string) (image.GeneratorI, error) {
+	switch provider {
+	case "fal":
+		return image.NewGenerator(outDir)
+	case "google", "gemini":
+		return image.NewGoogleGenerator(outDir)
+	case "auto", "":
+		return image.NewGeneratorAuto(outDir)
+	default:
+		return nil, fmt.Errorf("fournisseur inconnu %q (attendu: auto, fal, google)", provider)
+	}
+}
+
+// buildTarotPrompt builds the art prompt for a tarot card from the wizard deck.
+func buildTarotPrompt(card tarot.Card) string {
+	return fmt.Sprintf(
+		"Tarot card illustration titled '%s', ornate art-nouveau border with gold filigree, "+
+			"mystical symbolism: %s, vertical card composition, single central figure, "+
+			"painted fantasy style, high detail, %s",
+		card.Name, card.Flavor, image.BasePromptSuffix)
+}
+
+// stableSeed derives a deterministic seed from a card id so re-runs of the deck
+// reproduce the same art.
+func stableSeed(id string) int {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(id))
+	return int(h.Sum32() % 1_000_000)
+}
+
+// cmdTarotDeck generates the static fortune-teller card deck into web/static/cards/.
+// Re-runs skip cards whose art already exists (use --force to regenerate them).
+// Flags: --output=<dir> --model=<name> --deck=<path> --provider=<auto|fal|google> --force --dry-run
+func cmdTarotDeck(args []string) error {
+	outDir := filepath.Join("web", "static", "cards")
+	modelName := "flux-2-pro"
+	deckPath := tarot.DefaultDeckPath
+	provider := "auto"
+	dryRun := false
+	force := false
+
+	for _, arg := range args {
+		switch {
+		case strings.HasPrefix(arg, "--output="):
+			outDir = strings.TrimPrefix(arg, "--output=")
+		case strings.HasPrefix(arg, "--model="):
+			modelName = strings.TrimPrefix(arg, "--model=")
+		case strings.HasPrefix(arg, "--deck="):
+			deckPath = strings.TrimPrefix(arg, "--deck=")
+		case strings.HasPrefix(arg, "--provider="):
+			provider = strings.ToLower(strings.TrimPrefix(arg, "--provider="))
+		case arg == "--force":
+			force = true
+		case arg == "--dry-run":
+			dryRun = true
+		default:
+			return fmt.Errorf("argument inconnu: %s", arg)
+		}
+	}
+
+	deck, err := tarot.LoadDeck(deckPath)
+	if err != nil {
+		return err
+	}
+	model := image.GetModel(modelName)
+
+	fmt.Printf("Jeu de la Voyante: %d cartes, modèle=%s, fournisseur=%s, sortie=%s\n",
+		len(deck.Cards), model.Short, provider, outDir)
+
+	if dryRun {
+		for _, card := range deck.Cards {
+			fmt.Printf("\n[%s] %s -> %s\n  %s\n", card.ID, card.Name, card.Art, buildTarotPrompt(card))
+		}
+		fmt.Println("\n(dry-run: aucune image générée)")
+		return nil
+	}
+
+	if err := os.MkdirAll(outDir, 0755); err != nil {
+		return fmt.Errorf("création du dossier de sortie: %w", err)
+	}
+
+	// A card's art already exists on disk?
+	cardExists := func(card tarot.Card) bool {
+		_, statErr := os.Stat(filepath.Join(outDir, card.Art))
+		return statErr == nil
+	}
+
+	// Pre-scan: skip already-generated cards unless --force. If nothing is left
+	// to do we return before touching any provider (no API key needed).
+	pending := 0
+	for _, card := range deck.Cards {
+		if force || !cardExists(card) {
+			pending++
+		}
+	}
+	if pending == 0 {
+		fmt.Printf("✓ Les %d cartes sont déjà présentes dans %s — rien à générer (--force pour régénérer).\n",
+			len(deck.Cards), outDir)
+		return nil
+	}
+	fmt.Printf("%d carte(s) à générer (%d déjà présente(s)).\n", pending, len(deck.Cards)-pending)
+
+	// Select the image provider. fal.ai honors --model (flux-2-pro, schnell, ...);
+	// Google Imagen ignores the model. "auto" keeps the GEMINI > FAL priority.
+	gen, err := newImageProvider(provider, outDir)
+	if err != nil {
+		return err
+	}
+
+	var failures, skipped, generated int
+	for i, card := range deck.Cards {
+		dest := filepath.Join(outDir, card.Art)
+		if !force && cardExists(card) {
+			fmt.Printf("[%d/%d] %s (%s) — déjà présent, ignoré\n", i+1, len(deck.Cards), card.Name, card.ID)
+			skipped++
+			continue
+		}
+		fmt.Printf("[%d/%d] %s (%s)...\n", i+1, len(deck.Cards), card.Name, card.ID)
+		result, err := gen.Generate(buildTarotPrompt(card),
+			image.WithModelInstance(model),
+			image.WithImageSize("portrait_4_3"),
+			image.WithFilenamePrefix(card.ID+"_raw"),
+			image.WithSeed(stableSeed(card.ID)),
+			image.WithOutputFormat("png"),
+		)
+		if err != nil {
+			fmt.Printf("  ⚠ échec: %v\n", err)
+			failures++
+			continue
+		}
+		// Normalize to the bare art filename referenced by the deck (e.g. le_soleil.png).
+		if result.LocalPath != dest {
+			if err := os.Rename(result.LocalPath, dest); err != nil {
+				fmt.Printf("  ⚠ renommage échoué: %v\n", err)
+				failures++
+				continue
+			}
+		}
+		generated++
+		fmt.Printf("  ✓ %s\n", dest)
+	}
+
+	fmt.Printf("Bilan: %d générée(s), %d ignorée(s), %d échec(s).\n", generated, skipped, failures)
+	if failures > 0 {
+		return fmt.Errorf("%d carte(s) en échec", failures)
+	}
+	return nil
+}
+
+// voyanteAsset describes one UI visual for the fortune-teller wizard scene.
+type voyanteAsset struct {
+	ID     string
+	File   string
+	Size   string
+	Prompt string
+}
+
+// voyanteAssetList is the set of "La Tente de la Voyante" UI visuals (warm
+// candle-lit tent, burgundy + gold). Prompts ask for no text/no people where
+// HTML overlays the content.
+func voyanteAssetList() []voyanteAsset {
+	s := image.BasePromptSuffix
+	return []voyanteAsset{
+		{
+			ID: "tent_background", File: "tent_background.png", Size: "landscape_16_9",
+			Prompt: "Interior of a mystical fortune-teller's tent at night, warm candlelight, deep burgundy velvet drapes, hanging brass lanterns, drifting incense smoke, ornate patterned rugs, golden tassels, dark atmospheric vignette in the corners suitable for overlaying text, no people, no text, cinematic depth, painted, " + s,
+		},
+		{
+			ID: "header_banner", File: "header_banner.png", Size: "landscape_16_9",
+			Prompt: "Ornate carved dark-wood and antique-gold signboard, art-nouveau filigree and scrollwork, blank empty smooth center panel, fortune-teller aesthetic, deep burgundy and gold, isolated decorative horizontal header element on plain dark background, no text, no letters, painted, " + s,
+		},
+		{
+			ID: "voyante_portrait", File: "voyante_portrait.png", Size: "portrait_4_3",
+			Prompt: "Portrait of a mysterious female fortune teller, hooded embroidered shawl, golden hoop earrings and jewelry, candlelit face half in shadow, faint glowing crystal ball, deep burgundy and gold tones, tarot cards on the table before her, enigmatic knowing expression, painted fantasy character portrait, " + s,
+		},
+		{
+			ID: "velvet_table", File: "velvet_table.png", Size: "landscape_16_9",
+			Prompt: "Top-down view of a dark burgundy velvet tablecloth with gold-embroidered border and hanging tassels, soft warm candlelight glow, empty cleared surface, rich fabric folds, seamless horizontal runner, painted texture, no people, no text, " + s,
+		},
+	}
+}
+
+// cmdVoyanteAssets generates the wizard scene UI visuals into web/static/voyante/.
+// Re-runs skip already-present assets (use --force to regenerate).
+// Flags: --output=<dir> --model=<name> --provider=<auto|fal|google> --force --dry-run
+func cmdVoyanteAssets(args []string) error {
+	outDir := filepath.Join("web", "static", "voyante")
+	modelName := "flux-2-pro"
+	provider := "auto"
+	dryRun := false
+	force := false
+
+	for _, arg := range args {
+		switch {
+		case strings.HasPrefix(arg, "--output="):
+			outDir = strings.TrimPrefix(arg, "--output=")
+		case strings.HasPrefix(arg, "--model="):
+			modelName = strings.TrimPrefix(arg, "--model=")
+		case strings.HasPrefix(arg, "--provider="):
+			provider = strings.ToLower(strings.TrimPrefix(arg, "--provider="))
+		case arg == "--force":
+			force = true
+		case arg == "--dry-run":
+			dryRun = true
+		default:
+			return fmt.Errorf("argument inconnu: %s", arg)
+		}
+	}
+
+	assets := voyanteAssetList()
+	model := image.GetModel(modelName)
+
+	fmt.Printf("Visuels de la Voyante: %d éléments, modèle=%s, fournisseur=%s, sortie=%s\n",
+		len(assets), model.Short, provider, outDir)
+
+	if dryRun {
+		for _, a := range assets {
+			fmt.Printf("\n[%s] -> %s (%s)\n  %s\n", a.ID, a.File, a.Size, a.Prompt)
+		}
+		fmt.Println("\n(dry-run: aucune image générée)")
+		return nil
+	}
+
+	if err := os.MkdirAll(outDir, 0755); err != nil {
+		return fmt.Errorf("création du dossier de sortie: %w", err)
+	}
+
+	assetExists := func(a voyanteAsset) bool {
+		_, statErr := os.Stat(filepath.Join(outDir, a.File))
+		return statErr == nil
+	}
+
+	pending := 0
+	for _, a := range assets {
+		if force || !assetExists(a) {
+			pending++
+		}
+	}
+	if pending == 0 {
+		fmt.Printf("✓ Les %d visuels sont déjà présents dans %s — rien à générer (--force pour régénérer).\n",
+			len(assets), outDir)
+		return nil
+	}
+	fmt.Printf("%d visuel(s) à générer (%d déjà présent(s)).\n", pending, len(assets)-pending)
+
+	gen, err := newImageProvider(provider, outDir)
+	if err != nil {
+		return err
+	}
+
+	var failures, skipped, generated int
+	for i, a := range assets {
+		dest := filepath.Join(outDir, a.File)
+		if !force && assetExists(a) {
+			fmt.Printf("[%d/%d] %s — déjà présent, ignoré\n", i+1, len(assets), a.ID)
+			skipped++
+			continue
+		}
+		fmt.Printf("[%d/%d] %s...\n", i+1, len(assets), a.ID)
+		result, err := gen.Generate(a.Prompt,
+			image.WithModelInstance(model),
+			image.WithImageSize(a.Size),
+			image.WithFilenamePrefix(a.ID+"_raw"),
+			image.WithSeed(stableSeed(a.ID)),
+			image.WithOutputFormat("png"),
+		)
+		if err != nil {
+			fmt.Printf("  ⚠ échec: %v\n", err)
+			failures++
+			continue
+		}
+		if result.LocalPath != dest {
+			if err := os.Rename(result.LocalPath, dest); err != nil {
+				fmt.Printf("  ⚠ renommage échoué: %v\n", err)
+				failures++
+				continue
+			}
+		}
+		generated++
+		fmt.Printf("  ✓ %s\n", dest)
+	}
+
+	fmt.Printf("Bilan: %d généré(s), %d ignoré(s), %d échec(s).\n", generated, skipped, failures)
+	if failures > 0 {
+		return fmt.Errorf("%d visuel(s) en échec", failures)
+	}
 	return nil
 }
 

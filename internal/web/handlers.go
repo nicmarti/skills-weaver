@@ -26,6 +26,7 @@ import (
 	"dungeons/internal/narrativeai"
 	"dungeons/internal/npc"
 	"dungeons/internal/npcmanager"
+	"dungeons/internal/tarot"
 	"dungeons/internal/world"
 )
 
@@ -1241,16 +1242,26 @@ func (s *Server) handleSetModel(c *gin.Context) {
 
 // generateCampaignPlan generates a campaign plan using the DM agent.
 // The plan adapts to the chosen duration (oneshot/short/campaign) and adventure type.
+// It is the backward-compatible entry point used by the quick-create form.
 func (s *Server) generateCampaignPlan(adv *adventure.Adventure, theme, duration, adventureType string) error {
-	if s.apiKey == "" {
-		return fmt.Errorf("ANTHROPIC_API_KEY not set")
-	}
+	return s.generateCampaignPlanWithBrief(adv, theme, duration, adventureType, nil)
+}
 
+// buildCampaignPlanRequest assembles the system persona + the full user prompt
+// for the campaign-plan generator, including the optional fortune-teller brief
+// and world-coherence guidance. It is shared by the real generator and by the
+// wizard debug endpoint so the two can never drift. It performs no API call.
+func (s *Server) buildCampaignPlanRequest(adv *adventure.Adventure, theme, duration, adventureType string, brief *tarot.CreativeBrief) (string, string, *agent.WorldResources, adventure.AdventureDuration, error) {
 	// Load DM persona
 	personaLoader := agent.NewPersonaLoader()
 	_, dmPersona, err := personaLoader.LoadWithMetadata("dungeon-master")
 	if err != nil {
-		return fmt.Errorf("failed to load DM persona: %w", err)
+		return "", "", nil, adventure.AdventureDuration{}, fmt.Errorf("failed to load DM persona: %w", err)
+	}
+
+	// If the form left the adventure type unset, let the reading decide.
+	if adventureType == "" && brief != nil && brief.AdventureType != "" {
+		adventureType = brief.AdventureType
 	}
 
 	// Get duration config
@@ -1266,22 +1277,23 @@ func (s *Server) generateCampaignPlan(adv *adventure.Adventure, theme, duration,
 		typeSection = fmt.Sprintf("\n%s\n", advType.PromptGuide)
 	}
 
-	// Build NPC section based on duration
+	// Build NPC section based on duration. The role/race value lists are
+	// generated from the npc taxonomy enums (single source of truth).
 	npcSection := fmt.Sprintf(`
-Generate %d-%d NPCs in the "npcs" array inside "plot_elements". Each NPC must have:
-- "name": Full name
-- "role": one of "quest_giver", "antagonist", "ally", "rival", "informant"
-- "race": one of "human", "dwarf", "elf", "halfling"
-- "gender": "m" or "f"
-- "occupation": type of work (merchant, guard, noble, artisan, etc.)
-- "attitude": "positive", "neutral", or "negative"
-- "motivation": What drives this NPC
-- "secret": A hidden truth about this NPC (mundane, not supernatural)
-- "narrative_context": Where and when the players first meet this NPC
-- "narrative_integration": {"introduction_session": N, "plot_role": "description", "linked_to_act": N}
+Génère %d à %d PNJ dans le tableau "npcs" de "plot_elements". Chaque PNJ doit avoir :
+- "name" : nom complet (en français)
+- "role" : l'une de ces valeurs EXACTES : %s
+- "race" : l'une de ces valeurs EXACTES : %s
+- "gender" : "m" ou "f"
+- "occupation" : métier en français, varié (ex. marchand, garde, noble, artisan, aubergiste, prêtre, capitaine de navire, contrebandier, mercenaire, érudit, forgeron, herboriste, batelier, mendiant, espion, chasseur, fermier, scribe, ménestrel, mineur)
+- "attitude" : valeur EXACTE "positive", "neutral" ou "negative"
+- "motivation" : ce qui anime ce PNJ (en français)
+- "secret" : une vérité cachée sur ce PNJ (mondaine, pas surnaturelle, en français)
+- "narrative_context" : où et quand les joueurs le rencontrent pour la première fois (en français)
+- "narrative_integration" : {"introduction_session": N, "plot_role": "description en français", "linked_to_act": N}
 
-The antagonist from plot_elements.antagonist MUST also appear in the npcs array with role "antagonist".`,
-		dur.MaxNPCs-2, dur.MaxNPCs)
+L'antagoniste de plot_elements.antagonist DOIT aussi figurer dans le tableau npcs avec le role "antagoniste".`,
+		dur.MaxNPCs-2, dur.MaxNPCs, npc.RoleEnumList(), npc.RaceEnumList())
 
 	// Load world resources for geography context
 	worldResources := agent.LoadWorldResources()
@@ -1290,71 +1302,79 @@ The antagonist from plot_elements.antagonist MUST also appear in the npcs array 
 	worldGeographySection := ""
 	if worldResources != nil && worldResources.MapDescription != "" {
 		worldGeographySection = fmt.Sprintf(`
-## World Geography Reference
+## Référence géographique du monde
 
-Use this detailed geographical description of the Four Kingdoms to place your adventure in coherent locations with correct distances, trade routes, and kingdom borders:
+Utilise cette description géographique des Quatre Royaumes pour situer l'aventure dans des lieux cohérents, avec des distances, routes commerciales et frontières exactes :
 
 %s
 
 `, worldResources.MapDescription)
 	}
 
+	// Append the fortune-teller's creative brief + world-coherence guidance.
+	// It rides on the same %s placeholder as the geography section, so the
+	// format string and argument list below stay untouched.
+	if brief != nil {
+		worldGeographySection += brief.PromptSection()
+	}
+
 	// Build prompt
-	prompt := fmt.Sprintf(`Generate a D&D 5e campaign plan for this adventure:
+	prompt := fmt.Sprintf(`Génère un plan de campagne D&D 5e pour cette aventure :
 
-**Adventure Name**: %s
-**Description**: %s
-**Theme**: %s
-**Duration**: %d-%d sessions, 3 hours each
-**Number of acts**: %d
+**Nom de l'aventure** : %s
+**Description** : %s
+**Thème** : %s
+**Durée** : %d à %d sessions de 3 heures chacune
+**Nombre d'actes** : %d
 %s
-Create a campaign plan with:
-1. Campaign title and compelling objective
-2. %d act(s) with titles, descriptions, key events, and goals
-3. Primary antagonist with MUNDANE motivation and arc
-4. %d-%d key locations with danger levels
-5. 0-%d foreshadows linked to acts (only if duration allows)
-6. %d-%d NPCs with defined roles
-
-%s
+Crée un plan de campagne comprenant :
+1. Un titre de campagne et un objectif captivant
+2. %d acte(s) avec titres, descriptions, événements clés et objectifs
+3. Un antagoniste principal à la motivation MONDAINE et à l'arc narratif
+4. %d à %d lieux clés avec niveaux de danger
+5. 0 à %d présages (foreshadows) liés aux actes (seulement si la durée le permet)
+6. %d à %d PNJ aux rôles définis
 
 %s
 
 %s
-CRITICAL: Return ONLY valid JSON matching this exact structure (no markdown, no explanation):
+
+%s
+IMPÉRATIF : Réponds UNIQUEMENT par du JSON valide respectant EXACTEMENT cette structure (aucun markdown, aucune explication).
+Conserve les CLÉS JSON en anglais (ex. "narrative_structure", "role", "race", "status"...) et les valeurs d'énumération techniques de "status"/"attitude"/"gender" et le "role" de l'antagoniste en anglais ("pending", "primary", "positive", "neutral", "negative", "m", "f"). Les valeurs de "role" et "race" des PNJ sont en FRANÇAIS (voir les listes EXACTES ci-dessus). Rédige en FRANÇAIS tout le reste (titres, descriptions, motivations, etc.) :
 {
   "version": "1.0.0",
   "metadata": {
-    "campaign_title": "Title here",
-    "theme": "Theme description",
+    "campaign_title": "Titre de la campagne",
+    "theme": "Description du thème",
     "target_duration": {"sessions": %d, "hours_per_session": 3},
     "created_at": "2026-02-14T12:00:00Z",
     "generated_by": "dungeon-master",
     "last_updated": "2026-02-14T12:00:00Z"
   },
   "narrative_structure": {
-    "objective": "Main campaign objective",
-    "hook": "Opening hook that draws players in",
+    "objective": "Objectif principal de la campagne",
+    "hook": "Accroche d'ouverture qui happe les joueurs",
     "acts": %s,
     "climax": {
-      "description": "The climactic confrontation",
+      "description": "La confrontation décisive",
       "target_session": %d,
-      "stakes": "What's at stake if heroes fail"
+      "stakes": "Ce qui est en jeu en cas d'échec des héros"
     },
     "resolution": {
-      "success_scenario": "What happens if heroes succeed",
-      "failure_scenario": "What happens if heroes fail",
-      "epilogue_notes": "How the story concludes"
+      "success_scenario": "Ce qui se passe si les héros réussissent",
+      "failure_scenario": "Ce qui se passe si les héros échouent",
+      "epilogue_notes": "Comment l'histoire se conclut"
     }
   },
   "plot_elements": {
     "antagonist": {
-      "name": "Antagonist Name",
+      "name": "Nom de l'antagoniste",
       "role": "primary",
-      "motivation": "Why they do what they do (MUNDANE motivation)",
+      "motivation": "Pourquoi il agit ainsi (motivation MONDAINE)",
       "introduction_session": 1,
       "final_confrontation_session": %d,
-      "arc": "How they evolve"
+      "arc": "Comment il évolue"
     },
     "secondary_antagonists": [],
     "supporting_characters": [],
@@ -1362,16 +1382,40 @@ CRITICAL: Return ONLY valid JSON matching this exact structure (no markdown, no 
     "key_locations": [],
     "npcs": [
       {
-        "name": "NPC Name",
-        "role": "quest_giver",
-        "race": "human",
-        "gender": "m",
-        "occupation": "merchant",
+        "name": "Nom du PNJ",
+        "role": "donneur_de_quete",
+        "race": "humain",
+        "gender": "f",
+        "occupation": "aubergiste",
         "attitude": "positive",
-        "motivation": "What drives them",
-        "secret": "Their hidden truth",
-        "narrative_context": "Where players meet them",
-        "narrative_integration": {"introduction_session": 1, "plot_role": "Gives the quest", "linked_to_act": 1}
+        "motivation": "Ce qui l'anime",
+        "secret": "Sa vérité cachée",
+        "narrative_context": "Où les joueurs la rencontrent",
+        "narrative_integration": {"introduction_session": 1, "plot_role": "Donne la quête", "linked_to_act": 1}
+      },
+      {
+        "name": "Nom du PNJ",
+        "role": "informateur",
+        "race": "halfelin",
+        "gender": "m",
+        "occupation": "contrebandier",
+        "attitude": "neutral",
+        "motivation": "Ce qui l'anime",
+        "secret": "Sa vérité cachée",
+        "narrative_context": "Où les joueurs le rencontrent",
+        "narrative_integration": {"introduction_session": 2, "plot_role": "Vend des informations", "linked_to_act": 1}
+      },
+      {
+        "name": "Nom du PNJ",
+        "role": "rival",
+        "race": "elfe",
+        "gender": "f",
+        "occupation": "capitaine de la garde",
+        "attitude": "negative",
+        "motivation": "Ce qui l'anime",
+        "secret": "Sa vérité cachée",
+        "narrative_context": "Où les joueurs la rencontrent",
+        "narrative_integration": {"introduction_session": 2, "plot_role": "Entrave les héros", "linked_to_act": 2}
       }
     ]
   },
@@ -1390,9 +1434,9 @@ CRITICAL: Return ONLY valid JSON matching this exact structure (no markdown, no 
   },
   "pacing": %s,
   "dm_notes": {
-    "themes": ["theme1", "theme2"],
-    "tone": "Dark fantasy with hope",
-    "player_agency": "Notes on player choices",
+    "themes": ["thème1", "thème2"],
+    "tone": "Dark fantasy teintée d'espoir",
+    "player_agency": "Notes sur les choix des joueurs",
     "memorable_moments": []
   }
 }`,
@@ -1413,6 +1457,23 @@ CRITICAL: Return ONLY valid JSON matching this exact structure (no markdown, no 
 		dur.MaxSessions,
 		pacingJSON,
 	)
+
+	return prompt, dmPersona, worldResources, dur, nil
+}
+
+// generateCampaignPlanWithBrief builds the request, calls the model, then parses
+// and saves the JSON campaign plan. When brief is non-nil (the fortune-teller
+// wizard path) its creative constraints and world-coherence guidance are part of
+// the prompt. The output JSON schema is unchanged either way.
+func (s *Server) generateCampaignPlanWithBrief(adv *adventure.Adventure, theme, duration, adventureType string, brief *tarot.CreativeBrief) error {
+	if s.apiKey == "" {
+		return fmt.Errorf("ANTHROPIC_API_KEY not set")
+	}
+
+	prompt, dmPersona, worldResources, dur, err := s.buildCampaignPlanRequest(adv, theme, duration, adventureType, brief)
+	if err != nil {
+		return err
+	}
 
 	// Call Anthropic API with Sonnet for better narrative quality
 	client := anthropic.NewClient(option.WithAPIKey(s.apiKey))
@@ -1502,13 +1563,13 @@ func (s *Server) buildActsJSONTemplate(dur adventure.AdventureDuration) string {
 		return fmt.Sprintf(`[
       {
         "number": 1,
-        "title": "Act 1 Title",
-        "description": "What happens in this act",
+        "title": "Titre de l'acte 1",
+        "description": "Ce qui se passe dans cet acte",
         "target_sessions": %s,
         "status": "pending",
-        "key_events": ["Event 1", "Event 2"],
-        "goals": ["Goal 1", "Goal 2"],
-        "completion_criteria": {"milestone": "What marks act completion"}
+        "key_events": ["Événement 1", "Événement 2"],
+        "goals": ["Objectif 1", "Objectif 2"],
+        "completion_criteria": {"milestone": "Ce qui marque la fin de l'acte"}
       }
     ]`, sessions)
 	}
@@ -1537,13 +1598,13 @@ func (s *Server) buildActsJSONTemplate(dur adventure.AdventureDuration) string {
 		}
 		acts += fmt.Sprintf(`      {
         "number": %d,
-        "title": "Act %d Title",
-        "description": "What happens in this act",
+        "title": "Titre de l'acte %d",
+        "description": "Ce qui se passe dans cet acte",
         "target_sessions": %s,
         "status": "pending",
-        "key_events": ["Event 1"],
-        "goals": ["Goal 1"],
-        "completion_criteria": {"milestone": "What marks act completion"}
+        "key_events": ["Événement 1"],
+        "goals": ["Objectif 1"],
+        "completion_criteria": {"milestone": "Ce qui marque la fin de l'acte"}
       }`, a, a, sessions)
 		start += count
 	}
@@ -1661,20 +1722,36 @@ func (s *Server) generateAdventureNPCs(adv *adventure.Adventure) error {
 }
 
 // npcImportanceFromRole maps a campaign plan NPC role to an importance level.
+// The role is normalized (FR canonical, legacy EN tolerated) before matching.
 func npcImportanceFromRole(role string) npcmanager.ImportanceLevel {
-	switch role {
-	case "antagonist", "quest_giver":
+	switch npc.NormalizeRole(role) {
+	case npc.RoleAntagoniste, npc.RoleDonneurDeQuete:
 		return npcmanager.ImportanceKey
-	case "ally", "rival":
+	case npc.RoleAllie, npc.RoleRival:
 		return npcmanager.ImportanceRecurring
 	default:
 		return npcmanager.ImportanceMentioned
 	}
 }
 
-// copyGlobalCharactersToAdventure copies existing characters from data/characters/ to the new adventure.
+// copyGlobalCharactersToAdventure copies ALL existing global characters into the
+// new adventure. Backward-compatible wrapper used by the quick-create form.
 func (s *Server) copyGlobalCharactersToAdventure(adv *adventure.Adventure) error {
+	return s.copyGlobalCharactersToAdventureSelected(adv, nil)
+}
+
+// copyGlobalCharactersToAdventureSelected copies the chosen global characters
+// into the new adventure and writes party.json from that subset. A nil/empty
+// selected slice means "copy all" (matched case-insensitively on the JSON name).
+func (s *Server) copyGlobalCharactersToAdventureSelected(adv *adventure.Adventure, selected []string) error {
 	globalCharactersDir := filepath.Join("data", "characters")
+
+	selectedSet := make(map[string]bool, len(selected))
+	for _, name := range selected {
+		if n := strings.TrimSpace(name); n != "" {
+			selectedSet[strings.ToLower(n)] = true
+		}
+	}
 
 	// Check if global characters directory exists
 	if _, err := os.Stat(globalCharactersDir); os.IsNotExist(err) {
@@ -1726,7 +1803,12 @@ func (s *Server) copyGlobalCharactersToAdventure(adv *adventure.Adventure) error
 			continue
 		}
 
-		if name, ok := charData["name"].(string); ok && name != "" {
+		name, _ := charData["name"].(string)
+		// Skip characters the player did not pick (when a selection was made).
+		if len(selectedSet) > 0 && !selectedSet[strings.ToLower(strings.TrimSpace(name))] {
+			continue
+		}
+		if name != "" {
 			characterNames = append(characterNames, name)
 		}
 

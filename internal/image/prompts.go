@@ -175,12 +175,13 @@ func buildDetailedCharacterPrompt(char *character.Character, style PromptStyle) 
 func BuildNPCPrompt(n *npc.NPC, style PromptStyle) string {
 	var parts []string
 
-	// Race description
-	raceDesc := map[string]string{
-		"human":    "human",
-		"elf":      "elven, pointed ears",
-		"dwarf":    "dwarven, stocky",
-		"halfling": "halfling, small",
+	// Race description (keyed by canonical French race; English visual
+	// descriptors are kept on purpose — this feeds the English image model)
+	raceDesc := map[npc.Race]string{
+		npc.RaceHumain:   "human",
+		npc.RaceElfe:     "elven, pointed ears",
+		npc.RaceNain:     "dwarven, stocky",
+		npc.RaceHalfelin: "halfling, small",
 	}
 
 	// Gender
@@ -192,7 +193,7 @@ func BuildNPCPrompt(n *npc.NPC, style PromptStyle) string {
 	// Build base description
 	parts = append(parts, fmt.Sprintf("Portrait of a %s %s %s",
 		gender,
-		raceDesc[n.Race],
+		raceDesc[npc.NormalizeRace(n.Race)],
 		n.Occupation))
 
 	// Add appearance details

@@ -152,11 +152,15 @@ func (g *Generator) Generate(opts ...Option) (*NPC, error) {
 		opt(cfg)
 	}
 
-	// Determine race (random if not specified)
+	// Determine race (random if not specified). Canonical values are French.
 	race := cfg.race
 	if race == "" {
-		races := []string{"human", "dwarf", "elf", "halfling"}
-		weights := []int{60, 15, 15, 10} // Humans more common
+		races := make([]string, len(raceWeights))
+		weights := make([]int, len(raceWeights))
+		for i, rw := range raceWeights {
+			races[i] = string(rw.Race)
+			weights[i] = rw.Weight
+		}
 		race = g.weightedChoice(races, weights)
 	}
 
@@ -295,17 +299,17 @@ func (g *Generator) generateAppearance(race string) Appearance {
 		DistinctiveFeature: g.randomChoice(g.traits.Appearance.DistinctiveFeature),
 	}
 
-	// Adjust for race
-	switch race {
-	case "dwarf":
+	// Adjust for race (normalize so legacy English values still match)
+	switch NormalizeRace(race) {
+	case RaceNain:
 		// Dwarves are typically shorter and stockier
 		app.Height = g.randomChoice([]string{"très petit", "petit", "petit"})
 		app.Build = g.randomChoice([]string{"trapu", "musclé", "robuste", "râblé"})
-	case "elf":
+	case RaceElfe:
 		// Elves are typically tall and slender
 		app.Height = g.randomChoice([]string{"grand", "très grand", "de taille moyenne"})
 		app.Build = g.randomChoice([]string{"mince", "svelte", "élancé"})
-	case "halfling":
+	case RaceHalfelin:
 		// Halflings are very small
 		app.Height = g.randomChoice([]string{"très petit", "très petit", "petit"})
 		app.Build = g.randomChoice([]string{"mince", "bedonnant", "râblé"})
@@ -401,12 +405,12 @@ func (n *NPC) ToMarkdown() string {
 	if n.Gender == "female" {
 		genderFr = "Femme"
 	}
-	raceFr := map[string]string{
-		"human":    "Humain",
-		"dwarf":    "Nain",
-		"elf":      "Elfe",
-		"halfling": "Halfelin",
-	}[n.Race]
+	raceFr := map[Race]string{
+		RaceHumain:   "Humain",
+		RaceNain:     "Nain",
+		RaceElfe:     "Elfe",
+		RaceHalfelin: "Halfelin",
+	}[NormalizeRace(n.Race)]
 
 	sb.WriteString(fmt.Sprintf("**%s %s** - %s\n\n", raceFr, genderFr, n.Occupation))
 
@@ -447,12 +451,12 @@ func (n *NPC) ToShortDescription() string {
 	if n.Gender == "female" {
 		genderFr = "femme"
 	}
-	raceFr := map[string]string{
-		"human":    "humain",
-		"dwarf":    "nain",
-		"elf":      "elfe",
-		"halfling": "halfelin",
-	}[n.Race]
+	raceFr := map[Race]string{
+		RaceHumain:   "humain",
+		RaceNain:     "nain",
+		RaceElfe:     "elfe",
+		RaceHalfelin: "halfelin",
+	}[NormalizeRace(n.Race)]
 
 	return fmt.Sprintf("%s - %s %s, %s (%s, %s)",
 		n.Name, raceFr, genderFr, n.Occupation,
@@ -488,10 +492,15 @@ func WithName(name string) Option {
 	}
 }
 
-// WithRace sets the NPC's race.
+// WithRace sets the NPC's race, normalized to the canonical French value
+// (legacy English spellings are accepted). Empty input is ignored so the
+// generator falls back to a weighted-random race.
 func WithRace(race string) Option {
 	return func(c *config) {
-		c.race = strings.ToLower(race)
+		if strings.TrimSpace(race) == "" {
+			return
+		}
+		c.race = string(NormalizeRace(race))
 	}
 }
 

@@ -44,4 +44,4 @@ CE QUI N'A PAS FONCTIONNÉ : <le point faible majeur, direct>
 RECOMMANDATION : <1 à 3 pistes concrètes d'amélioration>
 ```
 
-Reste concis (max ~350 mots). Tu es une référence d'analyse, pas un générateur de contenu.
+Reste concis (max ~500 mots). Tu es une référence d'analyse, pas un générateur de contenu.

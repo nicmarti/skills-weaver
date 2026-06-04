@@ -125,6 +125,17 @@ func extractContentBlock(block anthropic.ContentBlockParamUnion, msg *Serializab
 
 		msg.ToolResults = append(msg.ToolResults, toolResult)
 
+	case "image":
+		// Image blocks (e.g. the world map injected into world-keeper) are not
+		// persisted: the base64 payload is large (megabytes) and is re-injected
+		// fresh whenever the agent is recreated with its world resources, so
+		// storing it in agent-states.json would only bloat the file. We keep a
+		// lightweight marker so the message stays coherent and never serializes
+		// to an empty content array (which DeserializeMessage rejects).
+		if msg.TextContent == "" {
+			msg.TextContent = "[image non persistée]"
+		}
+
 	default:
 		// Unknown or unsupported block type - log but don't fail
 		fmt.Printf("Warning: Unknown content block type: %s\n", blockType)

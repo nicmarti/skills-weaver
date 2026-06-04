@@ -1994,6 +1994,23 @@ func (s *Server) handleAmbientSet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
+// handleAmbientStop stops Lyria music generation for the session. The audio
+// stream ends (subscribers disconnect) and the WebSocket to Lyria is closed.
+// A later /ambient/set reconnects a fresh manager, so playback can be resumed.
+func (s *Server) handleAmbientStop(c *gin.Context) {
+	slug := c.Param("slug")
+
+	session, exists := s.sessionManager.GetSession(slug)
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
+		return
+	}
+
+	stopped := session.StopLyriaManager()
+	fmt.Printf("[ambient] stop requested for %s (stopped=%v)\n", slug, stopped)
+	c.JSON(http.StatusOK, gin.H{"success": true, "stopped": stopped})
+}
+
 // writeStreamingWAVHeader writes a WAV header suitable for live/infinite streaming.
 // Uses RIFF chunk size 0xFFFFFFFF and data chunk size 0xFFFFFFFF to indicate streaming.
 // Format: PCM16, 44100 Hz, stereo (2 channels), 16-bit samples.

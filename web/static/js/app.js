@@ -40,6 +40,7 @@
         initModelSelector();
         initMinimap();
         initAmbientPlayer();
+        initTechToggle();
         scrollToBottom();
         maybeAutoStart();
     }
@@ -391,12 +392,9 @@
             const data = JSON.parse(e.data);
             showToolStatus(data.tool_name);
 
-            // Add tool notification to conversation
+            // Add tool notification into the message's (collapsible) drawer
             if (currentDmMessage) {
-                const notification = document.createElement('div');
-                notification.className = 'tool-notification';
-                notification.textContent = `[${data.tool_name}...]`;
-                currentDmMessage.appendChild(notification);
+                addTechNotification(currentDmMessage, `[${data.tool_name}...]`);
                 scrollToBottom();
             }
         } catch (err) {
@@ -430,12 +428,9 @@
             const data = JSON.parse(e.data);
             showToolStatus(`Consulting ${data.agent_name}...`);
 
-            // Add agent notification
+            // Add agent notification into the message's (collapsible) drawer
             if (currentDmMessage) {
-                const notification = document.createElement('div');
-                notification.className = 'tool-notification agent';
-                notification.textContent = `[Consulting ${data.agent_name}...]`;
-                currentDmMessage.appendChild(notification);
+                addTechNotification(currentDmMessage, `[Consulting ${data.agent_name}...]`, 'agent');
                 scrollToBottom();
             }
         } catch (err) {
@@ -750,6 +745,100 @@
         return messageEl;
     }
 
+    // --- Coulisses (technical drawer) ---------------------------------------
+    // Dice rolls, tool results and agent consultations are tucked into a
+    // collapsible <details> drawer per DM message so the narration stays
+    // immersive. The drawer is created lazily (messages with no tool activity
+    // stay clean) and is collapsed by default; the global "Coulisses" toggle
+    // (body.show-tech) opens every drawer at once.
+
+    // Lazily fetch or create the technical drawer for a DM message.
+    function getTechDrawer(messageEl) {
+        let drawer = messageEl.querySelector(':scope > .tech-drawer');
+        if (drawer) return drawer;
+
+        drawer = document.createElement('details');
+        drawer.className = 'tech-drawer';
+        if (document.body.classList.contains('show-tech')) {
+            drawer.open = true;
+        }
+
+        const summary = document.createElement('summary');
+        summary.className = 'tech-summary';
+        const label = document.createElement('span');
+        label.className = 'tech-summary-label';
+        label.textContent = '⚙ Coulisses';
+        const counts = document.createElement('span');
+        counts.className = 'tech-summary-counts';
+        summary.appendChild(label);
+        summary.appendChild(counts);
+        drawer.appendChild(summary);
+
+        const body = document.createElement('div');
+        body.className = 'tech-drawer-body';
+        drawer.appendChild(body);
+
+        messageEl.appendChild(drawer);
+        return drawer;
+    }
+
+    // Append a technical notification into a message's drawer and return it.
+    // extraClass lets callers tag agent consultations (e.g. "agent").
+    function addTechNotification(messageEl, text, extraClass) {
+        const drawer = getTechDrawer(messageEl);
+        const body = drawer.querySelector('.tech-drawer-body');
+        const notification = document.createElement('div');
+        notification.className = 'tool-notification' + (extraClass ? ' ' + extraClass : '');
+        notification.textContent = text;
+        body.appendChild(notification);
+        updateTechCounts(drawer);
+        return notification;
+    }
+
+    // Refresh the "🎲 N actions · 🧠 M consultations" badge in the summary.
+    function updateTechCounts(drawer) {
+        const body = drawer.querySelector('.tech-drawer-body');
+        const tools = body.querySelectorAll('.tool-notification:not(.agent)').length;
+        const agents = body.querySelectorAll('.tool-notification.agent').length;
+        const parts = [];
+        if (tools) parts.push(`\u{1F3B2} ${tools} action${tools > 1 ? 's' : ''}`);
+        if (agents) parts.push(`\u{1F9E0} ${agents} consultation${agents > 1 ? 's' : ''}`);
+        const countsEl = drawer.querySelector('.tech-summary-counts');
+        if (countsEl) countsEl.textContent = parts.length ? ' · ' + parts.join(' · ') : '';
+    }
+
+    // Global immersion / coulisses toggle. Persisted in localStorage so the
+    // preference survives reloads. When active (body.show-tech), every existing
+    // drawer is opened and new ones default to open.
+    function initTechToggle() {
+        const btn = document.getElementById('tech-toggle');
+        if (!btn) return;
+
+        const STORAGE_KEY = 'sw:show-tech';
+        const labelEl = btn.querySelector('.tech-toggle-label');
+        const iconEl = btn.querySelector('.tech-toggle-icon');
+
+        function apply(show) {
+            document.body.classList.toggle('show-tech', show);
+            btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+            btn.classList.toggle('active', show);
+            if (labelEl) labelEl.textContent = show ? 'Coulisses' : 'Immersion';
+            if (iconEl) iconEl.textContent = show ? '\u{1F3B2}' : '\u{1F441}';
+            // Sync every drawer currently in the conversation.
+            document.querySelectorAll('.tech-drawer').forEach(d => { d.open = show; });
+        }
+
+        let show = false;
+        try { show = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { /* ignore */ }
+        apply(show);
+
+        btn.addEventListener('click', () => {
+            show = !show;
+            try { localStorage.setItem(STORAGE_KEY, show ? '1' : '0'); } catch (e) { /* ignore */ }
+            apply(show);
+        });
+    }
+
     // Add error message
     function addErrorMessage(text) {
         const messageEl = document.createElement('div');
@@ -821,6 +910,7 @@
     const sceneNameEl = document.getElementById('ambient-scene-name');
     const volumeSlider = document.getElementById('ambient-volume');
     const muteBtn = document.getElementById('ambient-mute');
+    const stopBtn = document.getElementById('ambient-stop');
 
     let ambientEnabled = false;
     let currentPrompt = null;
@@ -855,7 +945,35 @@
                 muteBtn.textContent = muted ? '🔇' : '🔊';
             });
         }
+
+        if (stopBtn) {
+            stopBtn.addEventListener('click', stopAmbientMusic);
+        }
     };
+
+    // Stop ambient music: halt the audio stream AND the server-side Lyria
+    // generation, then revert the UI to the "enable" state so the player can
+    // restart it manually. Incoming scene SSE events will be stored but not
+    // auto-played until the player re-enables music.
+    function stopAmbientMusic() {
+        // 1. Stop the browser stream (cancels the /ambient/stream request,
+        //    which disconnects the subscriber server-side).
+        if (audio) {
+            audio.pause();
+            audio.removeAttribute('src');
+            audio.load();
+        }
+
+        // 2. Stop Lyria generation server-side.
+        fetch(`/play/${slug}/ambient/stop`, { method: 'POST' })
+            .catch(err => console.error('Ambient stop error:', err));
+
+        // 3. Revert UI: hide the player, show the enable button.
+        ambientEnabled = false;
+        if (player) player.style.display = 'none';
+        if (enableBtn) enableBtn.style.display = '';
+        console.log('Ambient music stopped');
+    }
 
     // Enable ambient music - requires user gesture for autoplay policy
     function enableAmbientMusic() {

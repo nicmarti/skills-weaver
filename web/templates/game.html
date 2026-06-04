@@ -40,6 +40,7 @@
             <div class="ambient-controls">
                 <input type="range" id="ambient-volume" min="0" max="1" step="0.05" value="0.7" title="Volume">
                 <button id="ambient-mute" title="Couper le son">🔊</button>
+                <button id="ambient-stop" title="Arrêter la musique (Lyria)">⏹</button>
             </div>
         </div>
         <button id="ambient-enable-btn" class="btn btn-ambient" title="Activer la musique d'ambiance Lyria">🎵 Musique</button>
@@ -110,6 +111,14 @@
     </aside>
 
     <main class="game-main">
+        <div class="conversation-toolbar">
+            <button id="tech-toggle" class="tech-toggle" type="button"
+                    aria-pressed="false"
+                    title="Afficher les coulisses (jets de dés, résultats d'outils, consultations d'agents)">
+                <span class="tech-toggle-icon">&#128065;</span>
+                <span class="tech-toggle-label">Immersion</span>
+            </button>
+        </div>
         <div class="conversation" id="conversation">
             <div class="welcome-message" id="welcome-message">
                 <h3>Bienvenue dans {{.Adventure.Name}}</h3>

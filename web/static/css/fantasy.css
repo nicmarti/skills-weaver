@@ -964,6 +964,105 @@ a:hover {
     border-color: var(--accent-purple);
 }
 
+/* Conversation toolbar (immersion / coulisses toggle) */
+.conversation-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: var(--space-xs) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.tech-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs) var(--space-sm);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.tech-toggle:hover {
+    color: var(--text-secondary);
+    border-color: var(--accent-purple);
+}
+
+.tech-toggle.active {
+    color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    background: color-mix(in srgb, var(--accent-purple) 12%, var(--bg-tertiary));
+}
+
+.tech-toggle-icon {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+/* Per-message collapsible "coulisses" drawer */
+.tech-drawer {
+    margin-top: var(--space-sm);
+}
+
+.tech-summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-sm);
+    user-select: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tech-summary::-webkit-details-marker {
+    display: none;
+}
+
+.tech-summary::before {
+    content: "\25B8"; /* ▸ */
+    display: inline-block;
+    transition: transform 0.15s ease;
+    color: var(--text-muted);
+}
+
+.tech-drawer[open] > .tech-summary::before {
+    transform: rotate(90deg);
+}
+
+.tech-summary:hover {
+    color: var(--text-secondary);
+    border-color: var(--accent-purple);
+}
+
+.tech-summary-counts {
+    color: var(--text-muted);
+    opacity: 0.85;
+}
+
+.tech-drawer-body {
+    margin-top: var(--space-xs);
+    padding-left: var(--space-sm);
+    border-left: 2px solid var(--border-color);
+}
+
+/* Inside the drawer the notifications sit tighter than when inline */
+.tech-drawer-body .tool-notification {
+    margin: var(--space-xs) 0;
+    font-size: 0.75rem;
+}
+
 /* Characters List */
 .characters-list {
     display: flex;
@@ -2203,6 +2302,21 @@ a:hover {
 
 #ambient-mute:hover {
     color: var(--accent-gold);
+}
+
+#ambient-stop {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+
+#ambient-stop:hover {
+    color: var(--accent-red-light);
 }
 
 .btn-ambient {

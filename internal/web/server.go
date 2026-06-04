@@ -197,6 +197,7 @@ func (s *Server) setupRoutes() {
 	// Ambient music routes (Lyria RealTime)
 	s.engine.GET("/play/:slug/ambient/stream", s.handleAmbientStream)
 	s.engine.POST("/play/:slug/ambient/set", s.handleAmbientSet)
+	s.engine.POST("/play/:slug/ambient/stop", s.handleAmbientStop)
 }
 
 // handleAdventureImages serves images from adventure directories.

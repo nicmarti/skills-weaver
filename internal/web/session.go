@@ -309,6 +309,22 @@ func (s *Session) GetOrCreateLyriaManager(geminiKey string) *ambient.LyriaManage
 	return mgr
 }
 
+// StopLyriaManager stops the session's Lyria music generation and clears the
+// manager so a subsequent GetOrCreateLyriaManager reconnects a fresh one.
+// Safe to call when no manager exists. Returns true if a manager was stopped.
+func (s *Session) StopLyriaManager() bool {
+	s.mu.Lock()
+	mgr := s.LyriaManager
+	s.LyriaManager = nil
+	s.mu.Unlock()
+
+	if mgr == nil {
+		return false
+	}
+	mgr.Stop()
+	return true
+}
+
 // IsProcessing returns whether the session is currently processing a message.
 func (s *Session) IsProcessing() bool {
 	s.mu.Lock()

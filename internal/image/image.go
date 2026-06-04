@@ -114,15 +114,76 @@ type GeneratorI interface {
 }
 
 // NewGeneratorAuto selects the provider automatically based on available API keys.
-// Priority: GEMINI_API_KEY (Google Imagen) > FAL_KEY (fal.ai)
+// Priority: GEMINI_API_KEY (Google Imagen) > FAL_KEY (fal.ai).
+//
+// When BOTH keys are configured, it returns a FallbackGenerator that uses Google
+// Imagen as the primary provider and transparently falls back to fal.ai when
+// Google fails (e.g. an HTTP 429 "RESOURCE_EXHAUSTED" quota error during a live
+// session). With only one key set, it returns that single provider directly.
 func NewGeneratorAuto(outputDir string) (GeneratorI, error) {
-	if os.Getenv("GEMINI_API_KEY") != "" {
+	hasGemini := os.Getenv("GEMINI_API_KEY") != ""
+	hasFal := os.Getenv("FAL_KEY") != ""
+
+	switch {
+	case hasGemini && hasFal:
+		google, err := NewGoogleGenerator(outputDir)
+		if err != nil {
+			return nil, err
+		}
+		fal, err := NewGenerator(outputDir)
+		if err != nil {
+			return nil, err
+		}
+		return &FallbackGenerator{
+			primary:       google,
+			primaryName:   "Google Imagen",
+			secondary:     fal,
+			secondaryName: "fal.ai",
+		}, nil
+	case hasGemini:
 		return NewGoogleGenerator(outputDir)
-	}
-	if os.Getenv("FAL_KEY") != "" {
+	case hasFal:
 		return NewGenerator(outputDir)
+	default:
+		return nil, fmt.Errorf("aucune API key configurée (GEMINI_API_KEY ou FAL_KEY requis)")
 	}
-	return nil, fmt.Errorf("aucune API key configurée (GEMINI_API_KEY ou FAL_KEY requis)")
+}
+
+// FallbackGenerator wraps two image generators and falls back from the primary
+// to the secondary when the primary returns an error. This keeps image
+// generation working during a live session when the primary provider runs out
+// of quota (HTTP 429) or is otherwise unavailable.
+type FallbackGenerator struct {
+	primary       GeneratorI
+	primaryName   string
+	secondary     GeneratorI
+	secondaryName string
+}
+
+// Generate tries the primary generator first; on any error it logs the failure
+// and retries with the secondary generator. If both fail, it returns an error
+// describing both failures.
+func (f *FallbackGenerator) Generate(prompt string, opts ...Option) (*GeneratedImage, error) {
+	img, err := f.primary.Generate(prompt, opts...)
+	if err == nil {
+		return img, nil
+	}
+
+	if f.secondary == nil {
+		return nil, err
+	}
+
+	fmt.Printf("[image] primary provider (%s) failed: %v\n", f.primaryName, err)
+	fmt.Printf("[image] falling back to secondary provider (%s)\n", f.secondaryName)
+
+	img, ferr := f.secondary.Generate(prompt, opts...)
+	if ferr != nil {
+		return nil, fmt.Errorf("primary (%s) failed: %v; fallback (%s) also failed: %w",
+			f.primaryName, err, f.secondaryName, ferr)
+	}
+
+	fmt.Printf("[image] fallback provider (%s) succeeded\n", f.secondaryName)
+	return img, nil
 }
 
 // Generator handles image generation via fal.ai API.

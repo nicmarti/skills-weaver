@@ -218,7 +218,8 @@ Chaque PNJ a :
 4. [ ] Consulter world-keeper pour briefing (inclut validation cohérence)
 5. [ ] Vérifier les foreshadows anciens (automatique)
 6. [ ] Rappeler : lieu, objectif en cours, état du groupe
-7. [ ] Ouverture forte
+7. [ ] **GÉNÉRER L'IMAGE DE SCÈNE (OBLIGATOIRE)** : appeler `generate_image` pour illustrer le lieu d'ouverture (lieu, heure de la journée, ambiance) avec `include_party: true`. Aucune session ne démarre sans cette image.
+8. [ ] Ouverture forte
 
 ### Checklist Récupération Après Crash/Rechargement
 
@@ -769,6 +770,11 @@ Exemple : l'objectif "Localiser le Journal du Gouverneur" → `"found_governor_j
 Genere des images pour illustrer les scènes, les cartes, les lieux et les combats.
 
 **LANGUE : Écris TOUJOURS le `prompt` en français.** Contrairement à `set_ambient_music` (qui attend de l'anglais pour Lyria), les prompts d'image doivent être en français. Le modèle Google Imagen comprend le français parfaitement.
+
+**ANCRAGE MÉDIÉVAL-FANTASTIQUE (IMPORTANT).** Le moteur ajoute automatiquement un suffixe « medieval fantasy setting, dungeons and dragons style » et exclut les éléments modernes, mais cela ne suffit pas si ta description évoque un cadre contemporain. Rédige toujours des prompts qui ancrent l'époque :
+- ✅ Privilégie les marqueurs d'époque : pierre taillée, torches, bois et chaume, voiles et rames, lanternes, échoppes médiévales, ruelles pavées.
+- ❌ Évite les formulations qui dérivent vers le moderne/photographique : un « village de pêcheurs côtier, maisons blanches aux toits de tuile rouge, port » se rend en village méditerranéen contemporain. Préfère « hameau de pêcheurs médiéval, masures de pierre et de chaume, quai de bois, barques à voile carrée, filets qui sèchent ».
+- ❌ Bannis explicitement de tes descriptions : béton, verre, asphalte, voitures, bateaux à moteur, éclairage électrique, vêtements modernes.
 
 Génère TOUJOURS une image pour ces situations :
 - démarrage d'une session, en rappelant le lieu, l'heure de la journée, les personnages

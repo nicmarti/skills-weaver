@@ -131,6 +131,17 @@ func (t *GenerateImageTool) Execute(params map[string]interface{}) (interface{},
 		prompt = fmt.Sprintf("Epic fantasy art style: %s", prompt)
 	}
 
+	// Anchor every prompt in the medieval-fantasy aesthetic. The CLI path appends
+	// image.BasePromptSuffix for consistency, but the tool path historically did
+	// not — which let the image model drift toward modern/photographic renders
+	// (e.g. a contemporary Mediterranean port instead of a medieval fishing
+	// village). Neither the Google Imagen nor the FAL backend exposes a negative
+	// prompt here, so we fold the base suffix plus an explicit anti-modern clause
+	// directly into the prompt text. This makes the era unambiguous regardless of
+	// how the DM phrased the prompt.
+	prompt = fmt.Sprintf("%s. %s, no modern elements, no contemporary buildings, no cars, no electricity, no modern clothing",
+		strings.TrimRight(strings.TrimSpace(prompt), "."), image.BasePromptSuffix)
+
 	// Get the images directory for the current session
 	imagesDir, err := t.getSessionImagesDir()
 	if err != nil {

@@ -206,11 +206,13 @@ func SerializeConversationContextWithOptimization(ctx *ConversationContext, maxT
 			continue
 		}
 
-		// Check if we've exceeded token limit
+		// Check if we've exceeded the save budget. This trims the history that
+		// gets persisted to agent-states.json — it does NOT affect the live
+		// in-session context. It is expected and harmless, so log it as info.
 		if maxTokens > 0 && totalTokens+msg.TokenEstimate > maxTokens {
 			// Stop adding older messages
-			fmt.Printf("Token limit reached: %d tokens (limit: %d). Truncating %d older messages.\n",
-				totalTokens, maxTokens, i+1)
+			fmt.Printf("[agent-state] saved history trimmed to ~%d/%d-token budget (older messages dropped from disk only, live context unaffected)\n",
+				totalTokens, maxTokens)
 			break
 		}
 

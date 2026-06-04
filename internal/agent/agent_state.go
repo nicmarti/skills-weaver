@@ -52,10 +52,17 @@ func (am *AgentManager) SaveAgentStates(filePath string) error {
 	agents := make(map[string]*SerializedAgent)
 
 	for name, state := range am.nestedAgents {
-		// Serialize conversation with token optimization (keep last 15K tokens)
+		// Persist up to the agent's own live token limit so the restored history
+		// matches what the agent actually used during the session. Previously a
+		// hardcoded 15K trimmed nested agents (20K live), silently dropping ~5K of
+		// context on restore. Fall back to 15K only if the limit is unset (0).
+		saveBudget := state.tokenLimit
+		if saveBudget <= 0 {
+			saveBudget = 15000
+		}
 		conversationHistory, err := SerializeConversationContextWithOptimization(
 			state.conversationCtx,
-			15000, // Keep up to 15K tokens in saved history
+			saveBudget,
 		)
 		if err != nil {
 			fmt.Printf("Warning: Failed to serialize conversation for %s: %v\n", name, err)

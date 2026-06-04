@@ -403,7 +403,7 @@ World-Keeper Briefing:
 **Fichier** : `internal/agent/message_serialization.go`
 
 - ✅ Sérialisation complète : texte, tool uses, tool results
-- ✅ Optimisation : conserve seulement les 15K derniers tokens
+- ✅ Optimisation : l'historique **sauvegardé** est tronqué à la limite de tokens propre à chaque agent (`state.tokenLimit`, soit **20K** pour les agents imbriqués ; repli à 15K si la limite est non définie). Auparavant codé en dur à 15K, ce qui rognait ~5K de contexte des agents imbriqués à la restauration. ⚠️ Cette troncature ne concerne **que** ce qui est écrit dans `agent-states.json` — le contexte **live** en session n'est jamais affecté (DM principal 50K, imbriqués 20K). Le log `[agent-state] saved history trimmed…` est purement informatif.
 - ✅ Persistance : sauvegardé dans `agent-states.json`
 - ✅ Restauration : conversation continuée entre sessions
 

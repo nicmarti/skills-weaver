@@ -344,6 +344,7 @@
         eventSource.addEventListener('image', handleImageEvent);
         eventSource.addEventListener('location_update', handleLocationUpdate);
         eventSource.addEventListener('map_generated', handleMapGenerated);
+        eventSource.addEventListener('image_failed', handleImageFailed);
         eventSource.addEventListener('ambient_music', handleAmbientMusicEvent);
         eventSource.addEventListener('error', handleErrorEvent);
         eventSource.addEventListener('complete', handleComplete);
@@ -532,6 +533,49 @@
             addErrorMessage('An error occurred');
         }
         hideToolStatus();
+    }
+
+    // Handle image/map generation failure SSE event.
+    // Non-fatal: the story continues, but the player should see that an
+    // illustration could not be produced (e.g. provider 429 / out of capacity).
+    function handleImageFailed(e) {
+        let data = {};
+        try {
+            data = JSON.parse(e.data);
+        } catch (err) {
+            data = {};
+        }
+
+        const rawError = (data.error || '').toString();
+        const isCapacity = /429|RESOURCE_EXHAUSTED|capacity|overloaded|rate limit/i.test(rawError);
+        const what = data.tool_name === 'generate_map' ? 'la carte' : "l'illustration";
+
+        const label = isCapacity
+            ? `Génération d'image indisponible — service saturé (réessaie dans un instant). ${what} n'a pas pu être créée.`
+            : `Échec de génération de ${what}.`;
+
+        // Build via DOM API so the raw provider error (which may contain quotes)
+        // is safely set as the tooltip without HTML/attribute injection.
+        const messageEl = document.createElement('div');
+        messageEl.className = 'message message-dm';
+
+        const toast = document.createElement('div');
+        toast.className = 'image-failed-toast';
+        if (rawError) toast.title = rawError;
+
+        const icon = document.createElement('span');
+        icon.className = 'image-failed-icon';
+        icon.textContent = '\u{1F5BC}';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'image-failed-text';
+        textSpan.textContent = label;
+
+        toast.appendChild(icon);
+        toast.appendChild(textSpan);
+        messageEl.appendChild(toast);
+        conversationEl.appendChild(messageEl);
+        scrollToBottom();
     }
 
     // Handle complete event

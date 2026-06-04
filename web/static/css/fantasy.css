@@ -416,6 +416,30 @@ a:hover {
     gap: var(--space-sm);
 }
 
+/* Image-generation failure notice (non-fatal: amber warning, not red error) */
+.image-failed-toast {
+    background: rgba(201, 162, 39, 0.12);
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold-light);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.9rem;
+    cursor: help;
+}
+
+.image-failed-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    opacity: 0.85;
+}
+
+.image-failed-text {
+    flex: 1;
+}
+
 /* ========================= */
 /* Game Interface            */
 /* ========================= */

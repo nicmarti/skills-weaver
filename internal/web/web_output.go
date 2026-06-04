@@ -114,6 +114,23 @@ func (w *WebOutput) OnToolComplete(toolName string, result interface{}) {
 				Data:  string(jsonData),
 			})
 		}
+		// Check if an image/map generation failed (e.g. provider 429 /
+		// out-of-capacity). The tool returns {success:false, error:...} with a
+		// nil Go error, so this is the only place the UI can learn about it.
+		if toolName == "generate_image" || toolName == "generate_map" {
+			if success, ok := m["success"].(bool); ok && !success {
+				errMsg, _ := m["error"].(string)
+				failData := map[string]string{
+					"tool_name": toolName,
+					"error":     errMsg,
+				}
+				jsonData, _ := json.Marshal(failData)
+				w.sendEvent(SSEEvent{
+					Event: "image_failed",
+					Data:  string(jsonData),
+				})
+			}
+		}
 		// Check if this is an ambient music result
 		if toolName == "set_ambient_music" {
 			if success, ok := m["success"].(bool); ok && success {

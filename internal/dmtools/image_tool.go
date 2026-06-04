@@ -149,14 +149,25 @@ func (t *GenerateImageTool) Execute(params map[string]interface{}) (interface{},
 		}, nil
 	}
 
-	// Generate the image
+	// Generate the image. Log to the server console so failures (e.g. provider
+	// 429 / out-of-capacity) are visible during a live session instead of being
+	// silently swallowed into the tool result.
+	promptPreview := prompt
+	if len(promptPreview) > 120 {
+		promptPreview = promptPreview[:120] + "…"
+	}
+	fmt.Printf("[generate_image] start model=%s dir=%s prompt=%q\n", image.ModelFlux2Pro.Short, imagesDir, promptPreview)
+
 	result, err := generator.Generate(prompt, image.WithModelInstance(image.ModelFlux2Pro))
 	if err != nil {
+		fmt.Printf("[generate_image] FAILED: %v\n", err)
 		return map[string]interface{}{
 			"success": false,
 			"error":   fmt.Sprintf("Failed to generate image: %v", err),
 		}, nil
 	}
+
+	fmt.Printf("[generate_image] OK -> %s\n", result.LocalPath)
 
 	response := map[string]interface{}{
 		"success":  true,

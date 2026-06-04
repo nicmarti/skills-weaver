@@ -653,7 +653,26 @@ type GalleryImage struct {
 	Thumbnail string `json:"thumbnail"`
 	Title     string `json:"title"`
 	Category  string `json:"category"`
-	Session   int    `json:"session,omitempty"`
+	// Session is always serialized (no omitempty) so session-0 images render as
+	// "S0" in the badge instead of "Sundefined".
+	Session int `json:"session"`
+}
+
+// mapTypeTokens identify in-game generated maps by filename convention
+// ({name}_{maptype}_{scale}_{model}.png). Used to categorize an adventure
+// session image as a "map" (Cartes tab) versus a "session" scene.
+var mapTypeTokens = []string{"_region_", "_city_", "_dungeon_", "_tactical_"}
+
+// isMapFilename reports whether a session-dir image was produced by the map
+// generator, based on its filename tokens.
+func isMapFilename(name string) bool {
+	lower := strings.ToLower(name)
+	for _, tok := range mapTypeTokens {
+		if strings.Contains(lower, tok) {
+			return true
+		}
+	}
+	return false
 }
 
 // handleGallery returns the list of available images for the gallery.
@@ -676,11 +695,18 @@ func (s *Server) handleGallery(c *gin.Context) {
 					for _, file := range files {
 						if !file.IsDir() && isImageFile(file.Name()) {
 							title := formatImageTitle(file.Name())
+							// In-game maps follow the {name}_{maptype}_{scale} naming
+							// convention and belong in the Cartes tab; everything else
+							// is a session scene/portrait.
+							category := "session"
+							if isMapFilename(file.Name()) {
+								category = "map"
+							}
 							images = append(images, GalleryImage{
 								URL:       fmt.Sprintf("/play/%s/images/%s", slug, filepath.Join(entry.Name(), file.Name())),
 								Thumbnail: fmt.Sprintf("/play/%s/images/%s", slug, filepath.Join(entry.Name(), file.Name())),
 								Title:     title,
-								Category:  "session",
+								Category:  category,
 								Session:   sessionNum,
 							})
 						}
@@ -690,21 +716,11 @@ func (s *Server) handleGallery(c *gin.Context) {
 		}
 	}
 
-	// 2. Get maps from data/maps/ (only those related to this adventure or global)
-	mapsDir := filepath.Join("data", "maps")
-	if entries, err := os.ReadDir(mapsDir); err == nil {
-		for _, entry := range entries {
-			if !entry.IsDir() && isImageFile(entry.Name()) {
-				title := formatImageTitle(entry.Name())
-				images = append(images, GalleryImage{
-					URL:       fmt.Sprintf("/maps/%s", entry.Name()),
-					Thumbnail: fmt.Sprintf("/maps/%s", entry.Name()),
-					Title:     title,
-					Category:  "map",
-				})
-			}
-		}
-	}
+	// Note: the global data/maps/ pool is intentionally NOT listed here. It is a
+	// shared scratch directory for the standalone sw-map CLI with no adventure
+	// association, so listing it leaked maps from unrelated adventures into the
+	// gallery. Maps generated in-game (via generate_map) are saved into the
+	// adventure's images/session-N/ directory and are picked up above.
 
 	// Sort: session images first (by session number desc), then maps
 	sort.Slice(images, func(i, j int) bool {

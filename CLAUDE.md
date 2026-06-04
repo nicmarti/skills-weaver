@@ -472,14 +472,14 @@ L'**outil Advisor** (Anthropic, beta `advisor-tool-2026-03-01`) permet à un age
 - Configuration **par persona** dans le frontmatter YAML (`core_agents/agents/<agent>.md`) :
 
 ```yaml
-advisor: opus-4.7          # modèle conseiller (requis pour activer). Valeurs: opus-4.7, opus
+advisor: opus-4.7          # modèle conseiller (requis pour activer). Valeurs: opus-4.8, opus-4.7, opus
 advisor_max_uses: 2        # plafond d'appels conseiller par requête (défaut 2)
 advisor_caching: 5m        # cache du prompt conseiller: 5m | 1h | (vide = off)
 ```
 
 **Contraintes** :
 - L'outil n'existe que sur l'**API beta** (`client.Beta.Messages.New`). Le chemin agents imbriqués bascule sur beta quand l'advisor est actif ; le main agent (DM, streaming) reste sur l'API standard.
-- Le conseiller doit être **au moins aussi capable** que l'exécuteur. Paires validées par `IsValidAdvisorPair` : exécuteur Haiku 4.5 / Sonnet 4.6 / Opus 4.6-4.7 → conseiller **Opus 4.7** (SDK v1.38 ; 4.8 non disponible). Paire invalide ⇒ advisor silencieusement désactivé.
+- Le conseiller doit être **au moins aussi capable** que l'exécuteur. Paires validées par `IsValidAdvisorPair` : exécuteur Haiku 4.5 / Sonnet 4.6 / Opus 4.6-4.8 → conseiller **Opus 4.7 ou Opus 4.8** (SDK v1.46). Un exécuteur Opus 4.8 exige un conseiller Opus 4.8. Paire invalide ⇒ advisor silencieusement désactivé.
 - Les erreurs advisor (`overloaded`, `max_uses_exceeded`, etc.) **ne cassent pas** la requête : loggées, l'exécuteur continue sans conseil.
 
 **Pilote actuel** : seul `world-keeper` est configuré (Sonnet 4.6 + advisor Opus 4.7, caching 5m), sur les chemins `InvokeAgent` (boucle d'outils) **et** `InvokeAgentSilent` (briefings de campagne).

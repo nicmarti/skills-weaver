@@ -10,28 +10,31 @@ import (
 
 func TestMapAdvisorModelToAnthropic(t *testing.T) {
 	cases := []struct {
-		in       string
-		wantOK   bool
-		wantOpus bool
+		in        string
+		wantOK    bool
+		wantModel anthropic.Model
 	}{
-		{"opus-4.7", true, true},
-		{"opus4.7", true, true},
-		{"opus-4-7", true, true},
-		{"opus", true, true},
-		{"OPUS-4.7", true, true},
-		{"  opus-4.7 ", true, true},
-		{"", false, false},
-		{"sonnet", false, false},
-		{"haiku", false, false},
-		{"opus-4.6", false, false},
+		{"opus-4.7", true, anthropic.ModelClaudeOpus4_7},
+		{"opus4.7", true, anthropic.ModelClaudeOpus4_7},
+		{"opus-4-7", true, anthropic.ModelClaudeOpus4_7},
+		{"opus", true, anthropic.ModelClaudeOpus4_7},
+		{"OPUS-4.7", true, anthropic.ModelClaudeOpus4_7},
+		{"  opus-4.7 ", true, anthropic.ModelClaudeOpus4_7},
+		{"opus-4.8", true, anthropic.ModelClaudeOpus4_8},
+		{"opus4.8", true, anthropic.ModelClaudeOpus4_8},
+		{"opus-4-8", true, anthropic.ModelClaudeOpus4_8},
+		{"", false, ""},
+		{"sonnet", false, ""},
+		{"haiku", false, ""},
+		{"opus-4.6", false, ""},
 	}
 	for _, c := range cases {
 		got, ok := MapAdvisorModelToAnthropic(c.in)
 		if ok != c.wantOK {
 			t.Errorf("MapAdvisorModelToAnthropic(%q) ok=%v, want %v", c.in, ok, c.wantOK)
 		}
-		if c.wantOpus && got != anthropic.ModelClaudeOpus4_7 {
-			t.Errorf("MapAdvisorModelToAnthropic(%q) = %v, want Opus 4.7", c.in, got)
+		if c.wantOK && got != c.wantModel {
+			t.Errorf("MapAdvisorModelToAnthropic(%q) = %v, want %v", c.in, got, c.wantModel)
 		}
 	}
 }
@@ -42,6 +45,8 @@ func TestIsValidAdvisorPair(t *testing.T) {
 		{anthropic.ModelClaudeHaiku4_5, anthropic.ModelClaudeOpus4_7},
 		{anthropic.ModelClaudeOpus4_6, anthropic.ModelClaudeOpus4_7},
 		{anthropic.ModelClaudeOpus4_7, anthropic.ModelClaudeOpus4_7},
+		{anthropic.ModelClaudeOpus4_8, anthropic.ModelClaudeOpus4_8}, // 4.8 executor advised by 4.8
+		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeOpus4_8},
 	}
 	for _, p := range valid {
 		if !IsValidAdvisorPair(p.exec, p.adv) {
@@ -50,8 +55,9 @@ func TestIsValidAdvisorPair(t *testing.T) {
 	}
 
 	invalid := []struct{ exec, adv anthropic.Model }{
-		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeSonnet4_6}, // advisor must be Opus 4.7
+		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeSonnet4_6}, // advisor must be Opus 4.7/4.8
 		{anthropic.ModelClaudeSonnet4_6, anthropic.ModelClaudeOpus4_6},   // 4.6 not a valid advisor
+		{anthropic.ModelClaudeOpus4_8, anthropic.ModelClaudeOpus4_7},     // advisor less capable than executor
 	}
 	for _, p := range invalid {
 		if IsValidAdvisorPair(p.exec, p.adv) {

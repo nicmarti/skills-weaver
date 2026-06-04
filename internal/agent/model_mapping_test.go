@@ -8,17 +8,17 @@ import (
 
 func TestMapPersonaModelToAnthropic(t *testing.T) {
 	tests := []struct {
-		name        string
+		name         string
 		personaModel string
-		want        anthropic.Model
+		want         anthropic.Model
 	}{
 		{"sonnet lowercase", "sonnet", anthropic.ModelClaudeSonnet4_6},
 		{"SONNET uppercase", "SONNET", anthropic.ModelClaudeSonnet4_6},
 		{"Sonnet mixed case", "Sonnet", anthropic.ModelClaudeSonnet4_6},
 		{"haiku lowercase", "haiku", anthropic.ModelClaudeHaiku4_5},
 		{"HAIKU uppercase", "HAIKU", anthropic.ModelClaudeHaiku4_5},
-		{"opus lowercase", "opus", anthropic.ModelClaudeOpus4_6},
-		{"OPUS uppercase", "OPUS", anthropic.ModelClaudeOpus4_6},
+		{"opus lowercase", "opus", anthropic.ModelClaudeOpus4_8},
+		{"OPUS uppercase", "OPUS", anthropic.ModelClaudeOpus4_8},
 		{"empty string defaults to sonnet", "", DefaultNestedAgentModel},
 		{"unknown model defaults to sonnet", "gpt-4", DefaultNestedAgentModel},
 		{"whitespace is trimmed", "  sonnet  ", anthropic.ModelClaudeSonnet4_6},
@@ -45,6 +45,8 @@ func TestGetModelDisplayName(t *testing.T) {
 		{"sonnet 4.5 dated", anthropic.ModelClaudeSonnet4_5_20250929, "claude-sonnet-4-5"},
 		{"haiku 4.5", anthropic.ModelClaudeHaiku4_5, "claude-haiku-4-5"},
 		{"haiku 4.5 dated", anthropic.ModelClaudeHaiku4_5_20251001, "claude-haiku-4-5"},
+		{"opus 4.8", anthropic.ModelClaudeOpus4_8, "claude-opus-4-8"},
+		{"opus 4.7", anthropic.ModelClaudeOpus4_7, "claude-opus-4-7"},
 		{"opus 4.6", anthropic.ModelClaudeOpus4_6, "claude-opus-4-6"},
 		{"opus 4.5", anthropic.ModelClaudeOpus4_5, "claude-opus-4-5"},
 		{"opus 4.5 dated", anthropic.ModelClaudeOpus4_5_20251101, "claude-opus-4-5"},

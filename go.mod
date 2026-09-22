@@ -1,8 +1,9 @@
 module dungeons
 
-go 1.25.0
+go 1.25.10
 
 require (
+	github.com/OpenRouterTeam/go-sdk v0.8.17
 	github.com/anthropics/anthropic-sdk-go v1.46.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/chzyer/readline v1.5.1
@@ -47,6 +48,7 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/spyzhov/ajson v0.8.0 // indirect
 	github.com/standard-webhooks/standard-webhooks/libraries v0.0.1 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect

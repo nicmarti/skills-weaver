@@ -168,6 +168,7 @@ func (s *Server) handleGame(c *gin.Context) {
 	}
 
 	// Determine current model for the selector
+	// TODO : to be migrated to openrouter models like "anthropic/claude-sonnet-5" for now
 	currentModel := "sonnet" // default
 	if session.Agent != nil {
 		modelStr := agent.GetModelDisplayName(session.Agent.GetModel())
@@ -822,12 +823,12 @@ type CharacterSheetData struct {
 	Background  string
 
 	// Combat
-	HP              int
-	MaxHP           int
-	AC              int
-	Speed           int
-	HitDice         string
-	Initiative      string
+	HP               int
+	MaxHP            int
+	AC               int
+	Speed            int
+	HitDice          string
+	Initiative       string
 	ProficiencyBonus int
 
 	// Abilities
@@ -840,12 +841,12 @@ type CharacterSheetData struct {
 	ClassFeatures []string
 
 	// Magic
-	IsSpellcaster      bool
-	SpellSaveDC        int
-	SpellAttackBonus   string
+	IsSpellcaster       bool
+	SpellSaveDC         int
+	SpellAttackBonus    string
 	SpellcastingAbility string
-	SpellSlots         []CharacterSheetSpellSlot
-	KnownSpells        []string
+	SpellSlots          []CharacterSheetSpellSlot
+	KnownSpells         []string
 
 	// Equipment
 	PersonalEquipment []string
@@ -861,8 +862,8 @@ type CharacterSheetData struct {
 	Biography string
 
 	// Portrait image
-	HasPortrait  bool
-	PortraitURL  string
+	HasPortrait bool
+	PortraitURL string
 }
 
 // D&D 5e skills with their associated abilities
@@ -1171,7 +1172,6 @@ func getAbilityNameFR(ability string) string {
 		return ability
 	}
 }
-
 
 // handleArchiveAdventure archives an adventure and redirects to home.
 func (s *Server) handleArchiveAdventure(c *gin.Context) {
@@ -2016,12 +2016,12 @@ func (s *Server) handleAmbientStop(c *gin.Context) {
 // Format: PCM16, 44100 Hz, stereo (2 channels), 16-bit samples.
 func writeStreamingWAVHeader(w io.Writer) {
 	const (
-		sampleRate   = 44100
-		channels     = 2
+		sampleRate    = 44100
+		channels      = 2
 		bitsPerSample = 16
-		byteRate     = sampleRate * channels * bitsPerSample / 8
-		blockAlign   = channels * bitsPerSample / 8
-		infiniteSize = uint32(0xFFFFFFFF)
+		byteRate      = sampleRate * channels * bitsPerSample / 8
+		blockAlign    = channels * bitsPerSample / 8
+		infiniteSize  = uint32(0xFFFFFFFF)
 	)
 
 	// RIFF chunk
@@ -2031,8 +2031,8 @@ func writeStreamingWAVHeader(w io.Writer) {
 
 	// fmt chunk
 	w.Write([]byte("fmt "))
-	writeUint32LE(w, 16)            // chunk size
-	writeUint16LE(w, 1)             // PCM format
+	writeUint32LE(w, 16) // chunk size
+	writeUint16LE(w, 1)  // PCM format
 	writeUint16LE(w, channels)
 	writeUint32LE(w, sampleRate)
 	writeUint32LE(w, byteRate)

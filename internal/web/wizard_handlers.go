@@ -158,6 +158,9 @@ func (s *Server) generateAdventureName(brief tarot.CreativeBrief, theme string) 
 		return "", err
 	}
 
+	// Idee : utiliser JEV pour voir si le titre de l'aventure est réaliste ou non
+	// JEV pourrait traiter une dizaine de propositions de noms et déterminer le plus réaliste pour un jeu de rôle médieval fantastique
+
 	var txt string
 	for _, block := range resp.Content {
 		if tb, ok := block.AsAny().(anthropic.TextBlock); ok {

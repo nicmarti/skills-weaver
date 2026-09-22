@@ -3,17 +3,21 @@ package dmtools
 import (
 	"fmt"
 
+	"dungeons/internal/adventure"
 	"dungeons/internal/ambient"
 )
 
 // SetAmbientMusicTool generates an optimized Lyria music prompt from a scene description.
 type SetAmbientMusicTool struct {
 	anthropicKey string
+	adv          *adventure.Adventure // canonical state, used to gate combat/danger cues
 }
 
-// NewSetAmbientMusicTool creates a new ambient music tool.
-func NewSetAmbientMusicTool(anthropicKey string) *SetAmbientMusicTool {
-	return &SetAmbientMusicTool{anthropicKey: anthropicKey}
+// NewSetAmbientMusicTool creates a new ambient music tool. adv supplies the
+// canonical combat state used by the anti-spoil guardrail; it may be nil (the
+// guardrail then simply lets every mood through).
+func NewSetAmbientMusicTool(anthropicKey string, adv *adventure.Adventure) *SetAmbientMusicTool {
+	return &SetAmbientMusicTool{anthropicKey: anthropicKey, adv: adv}
 }
 
 // Name returns the tool name.
@@ -45,7 +49,7 @@ func (t *SetAmbientMusicTool) InputSchema() map[string]interface{} {
 	}
 }
 
-// Execute runs the tool: generates Lyria parameters via Claude Haiku and returns them.
+// Execute runs the tool: generates Lyria parameters via Claude Sonnet and returns them.
 func (t *SetAmbientMusicTool) Execute(params map[string]interface{}) (interface{}, error) {
 	sceneDesc, ok := params["scene_description"].(string)
 	if !ok || sceneDesc == "" {
@@ -55,12 +59,28 @@ func (t *SetAmbientMusicTool) Execute(params map[string]interface{}) (interface{
 		}, nil
 	}
 
+	mood, _ := params["mood"].(string)
+
+	// Anti-spoil guardrail: combat/danger ambiance is gated on the canonical
+	// engine combat state. If the DM asks for a combat/danger cue while no combat
+	// is active, suppress it — the music must not reveal a hidden threat before
+	// the fiction does. Combat music is meant to be triggered through start_combat
+	// (at the initiative roll), not through free-form prose here.
+	if (mood == "combat" || mood == "danger") && t.adv != nil && !t.adv.IsCombatActive() {
+		return map[string]interface{}{
+			"success":    true,
+			"suppressed": true,
+			"note":       "Cue combat/danger ignoré : aucun combat actif. Appelle start_combat au jet d'initiative pour déclencher la musique de combat (anti-spoil).",
+			"display":    "🔇 (musique de combat ignorée hors combat)",
+		}, nil
+	}
+
 	// Add mood hint if provided
-	if mood, ok := params["mood"].(string); ok && mood != "" {
+	if mood != "" {
 		sceneDesc = fmt.Sprintf("%s (mood: %s)", sceneDesc, mood)
 	}
 
-	// Generate Lyria parameters via Claude Haiku
+	// Generate Lyria parameters via Claude Sonnet
 	lyriaParams, err := ambient.GenerateLyriaPrompt(t.anthropicKey, sceneDesc)
 	if err != nil {
 		return map[string]interface{}{

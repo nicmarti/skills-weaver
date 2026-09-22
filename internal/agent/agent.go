@@ -27,6 +27,13 @@ type Agent struct {
 	systemGuidance  string // Hidden campaign/session briefing injected into system context
 }
 
+// mainAgentContextTokenLimit is the local conversation-history budget for the main
+// DM agent. Opus 4.8 exposes a 1M-token context window at standard pricing (no
+// long-context premium), so we keep ~900K of live history before TruncateIfNeeded
+// drops the oldest turns — leaving headroom for the system prompt, tool schemas,
+// and output within the 1M window.
+const mainAgentContextTokenLimit = 900000
+
 // New creates a new agent with the given configuration.
 func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHandler) (*Agent, error) {
 	if apiKey == "" {
@@ -73,11 +80,13 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 	// Set the main tool registry in the agent manager for nested agent tool filtering
 	agentManager.SetMainToolRegistry(toolRegistry)
 
-	conversationCtx := NewConversationContext()
+	conversationCtx := NewConversationContextWithLimit(mainAgentContextTokenLimit)
 
 	agent := &Agent{
-		client:          client,
-		model:           anthropic.ModelClaudeSonnet4_6,
+		client: client,
+		// Honor the persona's declared model (dungeon-master = "opus" → Opus 4.8)
+		// rather than hardcoding Sonnet. SetModel can still override at runtime.
+		model:           MapPersonaModelToAnthropic(personaMetadata.Model),
 		toolRegistry:    toolRegistry,
 		conversationCtx: conversationCtx,
 		adventureCtx:    adventureCtx,
@@ -104,6 +113,15 @@ func (a *Agent) ProcessUserMessage(message string) error {
 	if a.logger != nil {
 		a.logger.LogUserMessage(message)
 	}
+
+	// === SESSION GUARD-RAIL ===
+	// A player message must never be processed outside an active session, or its
+	// log_event entries leak into journal-session-0 (see CLAUDE.md). start_session
+	// is otherwise purely LLM-discretionary, and the DM may skip it on resume — so
+	// we enforce it deterministically here, at the common chokepoint for sw-web and
+	// sw-dm. This reuses the exact start_session tool logic (StartSession + coherence
+	// gate + world-keeper briefing) so the resumed turn still gets its hidden brief.
+	a.ensureSessionStarted()
 
 	// Add user message to conversation history
 	a.conversationCtx.AddUserMessage(message)
@@ -160,6 +178,45 @@ func (a *Agent) ProcessUserMessage(message string) error {
 		messages = a.conversationCtx.GetMessages()
 
 		// Continue loop to get final response with tool results
+	}
+}
+
+// ensureSessionStarted is the deterministic session guard-rail. If no game session
+// is active, it auto-invokes the registered start_session tool before the player's
+// message is processed, then applies the tool's hidden campaign briefing the same way
+// executeTools does. Best-effort: any failure is logged and never blocks the turn
+// (the DM can still call start_session itself — it becomes a harmless no-op).
+func (a *Agent) ensureSessionStarted() {
+	if a.adventureCtx == nil || a.adventureCtx.Adventure == nil {
+		return
+	}
+	// Disk-fresh check: GetCurrentSession reloads sessions.json, so this reflects the
+	// real state even across process restarts. (nil, nil) means no active session.
+	cur, err := a.adventureCtx.Adventure.GetCurrentSession()
+	if err != nil || cur != nil {
+		return
+	}
+
+	tool, ok := a.toolRegistry.Get("start_session")
+	if !ok {
+		return
+	}
+	result, err := tool.Execute(map[string]interface{}{})
+	if err != nil {
+		if a.logger != nil {
+			a.logger.LogError("session guard-rail: start_session", err)
+		}
+		return
+	}
+	if a.logger != nil {
+		a.logger.LogInfo("session guard-rail: no active session — auto-started before processing player message")
+	}
+	// Apply the hidden campaign briefing, mirroring executeTools' handling of a
+	// start_session result so the resumed turn is guided like a normal session start.
+	if resultMap, ok := result.(map[string]interface{}); ok {
+		if systemBrief, ok := resultMap["system_brief"].(string); ok && systemBrief != "" {
+			a.AddSystemGuidance(systemBrief)
+		}
 	}
 }
 
@@ -318,7 +375,7 @@ func (a *Agent) callAnthropicAPI(systemPrompt string, messages []anthropic.Messa
 	// Create streaming message
 	stream := a.client.Messages.NewStreaming(context.Background(), anthropic.MessageNewParams{
 		Model:     a.model,
-		MaxTokens: 16384, // Haiku 4.5
+		MaxTokens: 32000, // Opus 4.8 output budget (streaming; well under the 128K cap)
 		System: []anthropic.TextBlockParam{
 			{
 				Type: "text",
@@ -483,23 +540,23 @@ func formatRecentJournal(ctx *AdventureContext) string {
 // isStateModifyingTool returns true if the tool modifies adventure state.
 func isStateModifyingTool(toolName string) bool {
 	modifyingTools := map[string]bool{
-		"log_event":              true,
-		"add_gold":               true,
-		"add_item":               true,
-		"remove_item":            true,
-		"update_time":            true,
-		"update_location":        true,
-		"set_flag":               true,
-		"add_quest":              true,
-		"complete_quest":         true,
-		"set_variable":           true,
-		"update_hp":              true,
-		"use_spell_slot":         true,
-		"add_xp":                 true,
-		"generate_npc":            true,
-		"update_npc_importance":   true,
-		"update_character_stat":   true,
-		"long_rest":               true,
+		"log_event":             true,
+		"add_gold":              true,
+		"add_item":              true,
+		"remove_item":           true,
+		"update_time":           true,
+		"update_location":       true,
+		"set_flag":              true,
+		"add_quest":             true,
+		"complete_quest":        true,
+		"set_variable":          true,
+		"update_hp":             true,
+		"use_spell_slot":        true,
+		"add_xp":                true,
+		"generate_npc":          true,
+		"update_npc_importance": true,
+		"update_character_stat": true,
+		"long_rest":             true,
 	}
 	return modifyingTools[toolName]
 }

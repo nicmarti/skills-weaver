@@ -507,7 +507,7 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 	}
 
 	// Validate agent name
-	validAgents := []string{"character-creator", "rules-keeper", "world-keeper", "scenario-critic"}
+	validAgents := []string{"character-creator", "rules-keeper", "world-keeper"}
 	if !slices.Contains(validAgents, agentName) {
 		return "", &ErrAgentNotFound{
 			AgentName:       agentName,

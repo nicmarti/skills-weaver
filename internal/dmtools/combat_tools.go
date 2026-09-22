@@ -6,7 +6,71 @@ import (
 	"strings"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/ambient"
 )
+
+// NewStartCombatTool marks combat as canonically active and returns the fixed
+// combat ambient cue.
+//
+// This is the anti-spoil guardrail's source of truth: the DM calls it when
+// initiative is rolled (the reveal point), so the combat cue is driven by engine
+// state rather than prose and can never precede the threat's reveal in the
+// fiction. set_ambient_music refuses combat/danger moods unless this flag is set.
+func NewStartCombatTool(adv *adventure.Adventure) *SimpleTool {
+	return &SimpleTool{
+		name:        "start_combat",
+		description: "Marquer le début d'un combat, au moment où l'initiative est lancée. Active l'état de combat canonique du moteur et déclenche automatiquement la musique de combat. À appeler APRÈS avoir décrit la révélation (l'ennemi qui surgit), jamais avant — sinon la musique trahit la menace. Appelle end_combat à la fin du combat.",
+		schema: map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+		},
+		execute: func(params map[string]interface{}) (interface{}, error) {
+			if _, err := adv.StartCombat(); err != nil {
+				return map[string]interface{}{"success": false, "error": err.Error()}, nil
+			}
+			adv.LogEvent("combat", "Début du combat")
+
+			preset := ambient.CombatPreset()
+			return map[string]interface{}{
+				"success":      true,
+				"lyria_prompt": preset.Prompt,
+				"bpm":          preset.BPM,
+				"temperature":  preset.Temperature,
+				"scene_name":   preset.DisplayName,
+				"display":      "⚔️ Combat engagé",
+			}, nil
+		},
+	}
+}
+
+// NewEndCombatTool marks combat as canonically over and returns an aftermath
+// ambient cue. After this, set_ambient_music is free to set a location ambiance.
+func NewEndCombatTool(adv *adventure.Adventure) *SimpleTool {
+	return &SimpleTool{
+		name:        "end_combat",
+		description: "Marquer la fin du combat. Désactive l'état de combat canonique et fait revenir la musique vers une ambiance d'après-combat. Après cet appel, set_ambient_music peut de nouveau poser l'ambiance du lieu.",
+		schema: map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+		},
+		execute: func(params map[string]interface{}) (interface{}, error) {
+			if _, err := adv.EndCombat(); err != nil {
+				return map[string]interface{}{"success": false, "error": err.Error()}, nil
+			}
+			adv.LogEvent("combat", "Fin du combat")
+
+			preset := ambient.AftermathPreset()
+			return map[string]interface{}{
+				"success":      true,
+				"lyria_prompt": preset.Prompt,
+				"bpm":          preset.BPM,
+				"temperature":  preset.Temperature,
+				"scene_name":   preset.DisplayName,
+				"display":      "🕊️ Combat terminé",
+			}, nil
+		},
+	}
+}
 
 // NewUpdateHPTool creates a tool to modify a character's HP during combat.
 // Use negative values for damage, positive for healing.

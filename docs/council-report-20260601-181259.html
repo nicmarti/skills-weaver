@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Council Verdict — Outil de Debug/Cohérence SkillsWeaver</title>
+<style>
+  :root{
+    --bg:#faf9f7; --ink:#1f2430; --muted:#6b7280; --line:#e5e2dc;
+    --accent:#7c5cff; --green:#1f9d6b; --amber:#c98a16; --red:#c0392b;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;}
+  .wrap{max-width:900px;margin:0 auto;padding:48px 24px 96px}
+  header.top{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:32px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:28px;margin:8px 0 6px;line-height:1.2}
+  .q{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);
+     border-radius:8px;padding:16px 20px;margin:0 0 36px;color:#33384a;font-size:15px}
+  h2{font-size:20px;margin:38px 0 14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin:22px 0 8px}
+  p{margin:10px 0}
+  .verdict{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 28px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .rec{background:#f3f0ff;border:1px solid #d9cffb;border-radius:10px;padding:18px 22px;margin-top:8px}
+  .first{background:#0f1320;color:#f4f4f6;border-radius:10px;padding:20px 22px;margin-top:18px}
+  .first .kicker{color:#9d86ff}
+  .first code{background:#222a3d;color:#e7e3ff;padding:2px 6px;border-radius:4px;font-size:13px}
+  code{background:#f0eee9;padding:1px 5px;border-radius:4px;font-size:13px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  ul{margin:8px 0;padding-left:22px} li{margin:6px 0}
+  /* alignment grid */
+  .grid{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .grid th,.grid td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .grid th{background:#f4f2ee;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .grid tr:last-child td{border-bottom:none}
+  .pos{font-weight:700}
+  .pos.first{background:none;color:var(--green);padding:0}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .t-int{background:#e6f5ee;color:var(--green)}
+  .t-vis{background:#fff3da;color:var(--amber)}
+  .t-mix{background:#efeaff;color:var(--accent)}
+  details{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:10px 0;overflow:hidden}
+  summary{cursor:pointer;padding:13px 18px;font-weight:600;list-style:none;display:flex;
+    align-items:center;justify-content:space-between;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--muted);font-size:18px}
+  details[open] summary::after{content:"–"}
+  details .body{padding:2px 18px 18px;border-top:1px solid var(--line);color:#3a3f4d;font-size:14.5px}
+  .adv-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 18px;font-size:12px;color:var(--muted)}
+  .converge{background:#e6f5ee;border:1px solid #b9e3cd;border-radius:8px;padding:14px 18px;margin:14px 0}
+  .clash{background:#fff3da;border:1px solid #f0d9a0;border-radius:8px;padding:14px 18px;margin:14px 0}
+  .blind{background:#fdecea;border:1px solid #f3c7c0;border-radius:8px;padding:14px 18px;margin:14px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">LLM Council · Verdict</div>
+  <h1>Outil de Debug &amp; Cohérence pour SkillsWeaver</h1>
+  <div style="color:var(--muted);font-size:13px">5 conseillers · peer-review anonyme · synthèse du chairman</div>
+</header>
+
+<div class="q">
+  <strong>La question :</strong> Concevoir un outil de debug/analyse de cohérence pour le moteur de JdR D&amp;D 5e SkillsWeaver (Go + Gin/HTMX/SSE + agent DM IA). Vérifier la cohérence à deux niveaux — le <em>squelette</em> (campaign-plan : actes, antagoniste, foreshadows, threads) et le <em>déroulé</em> (journal session par session, NPCs, inventaire, progression) — en interne et l'un vis-à-vis de l'autre. Envisagé comme un onglet/URL web, lisible aussi par Claude Code. Un <code>validation.go</code> existe déjà (validation statique du plan). <strong>Les données sont déjà partiellement corrompues</strong> par d'anciens bugs (IDs de journal troués, chronologie inversée, session-0 fourre-tout, next_id désynchronisé).
+</div>
+
+<h2>Carte d'alignement du council</h2>
+<div class="legend">
+  <span><span class="tag t-int">intégrité d'abord</span> = fixer les données / le write-path avant tout</span>
+  <span><span class="tag t-mix">moteur partagé</span> = package <code>internal/coherence</code></span>
+  <span><span class="tag t-vis">vision/upside</span> = au-delà du debug</span>
+</div>
+<table class="grid">
+  <tr><th>Conseiller</th><th>Position centrale</th><th>Lentille</th><th>Verdict pairs</th></tr>
+  <tr>
+    <td class="pos">L'Exécuteur</td>
+    <td>Package <code>internal/coherence</code> partagé, structs <code>Report</code>/<code>Finding</code>, porter les corruptions <em>déjà observées</em> en checks, route HTMX clonée de <code>/info</code>, JSON gratuit via <code>?format=json</code>.</td>
+    <td><span class="tag t-mix">moteur partagé</span> <span class="tag t-int">intégrité d'abord</span></td>
+    <td><strong style="color:var(--green)">★ Plus forte (5/5)</strong></td>
+  </tr>
+  <tr>
+    <td class="pos">Le Penseur 1ers Principes</td>
+    <td>Deux problèmes de formes opposées. Journal cassé = base corrompue, pas aventure incohérente. Intégrité (déterministe, write-path) PUIS cohérence (floue → confiée à l'IA, pas au Go).</td>
+    <td><span class="tag t-int">intégrité d'abord</span></td>
+    <td>Bon diagnostic, reste au niveau principe</td>
+  </tr>
+  <tr>
+    <td class="pos">L'Outsider</td>
+    <td>« Cohérent » fait trop de travail : 3 contrôles distincts (intégrité / drift plan-vs-réel / qualité narrative). Humain-visuel ≠ IA-lisible : un moteur, deux renderers.</td>
+    <td><span class="tag t-int">intégrité d'abord</span></td>
+    <td>Bon diagnostic, peu de code</td>
+  </tr>
+  <tr>
+    <td class="pos">Le Contrarian</td>
+    <td>C'est un problème de <em>writes</em>, pas d'outil. Fixer le write-path d'abord. Ne pas fusionner intégrité + narratif en un score 0-100. Geler le schéma. CLI <code>sw-validate</code> en CI, exit-code.</td>
+    <td><span class="tag t-int">intégrité d'abord</span></td>
+    <td>Diagnostic juste, posture « ship-last » contestée</td>
+  </tr>
+  <tr>
+    <td class="pos">L'Expansionniste</td>
+    <td>Pas un outil de debug : un moteur de qualité narrative + flywheel d'auto-amélioration du DM. Graphe de foreshadows = « YouTube gold ». Règles déclaratives.</td>
+    <td><span class="tag t-vis">vision/upside</span></td>
+    <td>Plus gros angle mort (5/5) : ignore la corruption</td>
+  </tr>
+</table>
+
+<h2>Le verdict du Chairman</h2>
+<div class="verdict">
+
+<div class="converge">
+  <h3 style="margin-top:8px">✓ Là où le council converge (signal fort)</h3>
+  <ul>
+    <li><strong>« Cohérence » est un mot-valise dangereux.</strong> 4 conseillers sur 5 séparent spontanément trois choses : <strong>(1) intégrité des données</strong> (déterministe, machine), <strong>(2) drift squelette-vs-déroulé</strong> (diff mécanique), <strong>(3) qualité narrative</strong> (jugement → IA/humain). Les fusionner = un outil mou qui fait les trois mal. <em>Ne jamais condenser intégrité et narratif dans un seul score 0-100.</em></li>
+    <li><strong>L'intégrité d'abord — c'est non négociable.</strong> Aucune analyse narrative n'a de sens sur des octets corrompus (garbage in). Le journal troué n'est pas une « aventure incohérente », c'est une <strong>base corrompue</strong>.</li>
+    <li><strong>La corruption vient du write-path, pas du read-path.</strong> Un checker en lecture seule qui retrouve les mêmes trous à chaque exécution est du théâtre. Les bugs sont dans le code qui <em>écrit</em> les entrées (allocation d'ID, routage de session, sync du meta).</li>
+    <li><strong>Architecture : un moteur partagé <code>internal/coherence</code>, plusieurs front-ends.</strong> CLI et web ne sont que de fins renderers. Émettre du JSON, puis afficher une page par-dessus — ce qui répond aussi à l'ordre de construction.</li>
+    <li><strong>Le rapport machine (JSON) est quasi gratuit</strong> et c'est le vrai canal pour Claude Code. Même struct que l'UI humaine, <code>?format=json</code>.</li>
+  </ul>
+</div>
+
+<div class="clash">
+  <h3 style="margin-top:8px">⚡ Là où le council s'affronte</h3>
+  <p><strong>Le narratif : jamais, ou plus tard ?</strong> Le Contrarian veut le reléguer à « plus tard, voire jamais » (un jouet de recherche). Le Penseur 1ers Principes et l'Expansionniste sont d'accord pour ne <em>pas</em> coder les règles narratives en Go — mais pour une raison opposée : parce que <strong>Claude Code / l'IA EST le moteur de cohérence narrative</strong>. Résolution : ce n'est pas « jamais » — c'est « pas en Go ». Le Go produit des faits structurés ; le jugement narratif est délégué à l'IA qui consomme le JSON.</p>
+  <p><strong>CLI-en-CI vs onglet web.</strong> Le Contrarian veut un <code>sw-validate</code> exit-code en CI (la régression doit « crier » automatiquement). L'Exécuteur et l'Expansionniste poussent l'onglet web. Pas vraiment un conflit : le moteur partagé sert les deux. Mais le Contrarian gagne sur un point — <strong>un onglet que personne n'ouvre est mort</strong> : il faut un déclenchement automatique (CI ou post-session), pas seulement une page passive.</p>
+  <p><strong>Vision vs fondations.</strong> L'Expansionniste vend le flywheel d'auto-amélioration du DM et le graphe « YouTube gold ». Les quatre autres disent : magnifique, mais bâtir un DM qui « s'auto-corrige » sur des données mensongères rend le DM <em>plus bête</em>. La vision est juste — l'ordre est faux.</p>
+</div>
+
+<div class="blind">
+  <h3 style="margin-top:8px">🔍 L'angle mort que seul le peer-review a révélé</h3>
+  <p><strong>Les 5 conseillers ont oublié la même chose : la remédiation.</strong> Tous parlent de <em>détecter</em> la corruption et de <em>prévenir</em> la future (write-path), mais <strong>les deux aventures existantes sont DÉJÀ corrompues</strong>. Sans un outil de réparation/migration (<code>sw-adventure repair</code> / mode <code>--fix</code>), le rapport de cohérence restera <strong>rouge en permanence</strong> sur tous les saves existants → le signal devient inutile et le concepteur arrête de le lire.</p>
+  <p>Corollaire également manqué : <strong>quelle source fait foi quand deux sources se contredisent ?</strong> (journal-meta vs fichiers de session ; les deux aventures divergent sur <code>categories[]</code> et la contiguïté des IDs). Impossible de valider contre un schéma qu'on n'a pas <strong>gelé</strong> et dont on n'a pas désigné l'autorité.</p>
+</div>
+
+<h3>La recommandation</h3>
+<div class="rec">
+  <p>Construire <strong>un seul moteur partagé <code>internal/coherence</code></strong> avec <strong>trois couches nettement nommées et non fusionnées</strong> :</p>
+  <ul>
+    <li><strong>Couche 1 — Intégrité</strong> (déterministe, Go) : porter les corruptions réelles en checks (<code>checkJournalIDGaps</code>, <code>checkChronoOrder</code>, <code>checkNextIDSync</code>, <code>checkEmptyCategories</code>, session-0 fourre-tout). C'est le ROI le plus élevé et c'est testable contre les données réelles dès lundi.</li>
+    <li><strong>Couche 2 — Drift squelette↔déroulé</strong> (diff mécanique, Go) : réutiliser <code>ValidateCampaignPlan()</code> + croiser foreshadows plantés/résolus, threads actifs/abandonnés, NPCs du plan vs <code>npcs-generated.json</code>, sessions cibles des actes vs sessions jouées.</li>
+    <li><strong>Couche 3 — Qualité narrative</strong> (PAS en Go) : le moteur émet du JSON ; Claude Code/l'agent juge. Optionnellement réinjecté dans le briefing world-keeper plus tard (la vision de l'Expansionniste — phase tardive).</li>
+  </ul>
+  <p>Émettre une struct <code>Report{Skeleton, DataIntegrity, Drift, Score-PAR-COUCHE}</code> avec <code>Finding{Severity, Rule, Message, Context}</code>. Exposer <strong>(a)</strong> une route web <code>GET /play/:slug/coherence</code> (partial HTMX cloné de <code>/info</code>) <strong>+ <code>?format=json</code></strong> pour Claude Code, et <strong>(b)</strong> un binaire fin <code>sw-validate</code> exit-code pour la CI. <strong>Mais d'abord, en parallèle de la couche 1, livrer un <code>sw-adventure repair</code></strong> qui re-home les orphelins de session-0, resynchronise <code>next_id</code> et fige le schéma — sinon l'outil ne fait que peindre joliment la corruption.</p>
+  <p><strong>Ce qu'on ne fait PAS maintenant :</strong> graphe de foreshadows, SSE, flywheel agent, score global unique, règles narratives en Go.</p>
+</div>
+
+<div class="first">
+  <div class="kicker">La seule chose à faire en premier</div>
+  <p style="margin-bottom:4px">Créer <code>internal/coherence/integrity.go</code> avec <code>checkJournalIDGaps(advDir) []Finding</code>, et écrire le test qui <strong>assure</strong> qu'il retrouve les IDs manquants connus (<code>81, 104, 106, 127</code>) sur <code>le-voyageur-de-tuncmor</code>. Test vert = la fondation déterministe tient. Tout le reste (drift, web, JSON, repair) se branche dessus ensuite.</p>
+</div>
+
+</div><!-- /verdict -->
+
+<h2>Réponses complètes des conseillers</h2>
+
+<details>
+  <summary><span class="adv-label">Le Contrarian</span> &nbsp;— C'est un problème de writes, pas d'outil</summary>
+  <div class="body">
+    <p>Tu traites ça comme un problème d'outillage alors que les données prouvent que c'est un problème de <em>writes</em>. IDs fragmentés, chronologie inversée, session-0 fourre-tout, next_id désynchronisé. Un analyseur de cohérence ne corrige rien de tout ça — il génère juste un plus joli rapport de la corruption que ton code continue de produire. Construis le dashboard read-only et tu passeras le mois prochain à fixer une magnifique timeline de déchets. Fixe le write-path du journal (allocation d'ID atomique, routage de session, sync du meta) D'ABORD, ou l'outil mesure du bruit.</p>
+    <p>Deuxième faille fatale : la « cohérence » entre squelette et déroulé n'est pas calculable, et tu fais semblant que si. Les règles d'intégrité (trous d'ID, liens foreshadow orphelins) sont déterministes — ok, automatise-les. Mais « est-ce que l'arc de l'antagoniste a vraiment avancé cette session ? » exige de lire la prose des champs Content et de juger l'intention narrative. Ton score validation.go (0-100) va confondre « aucun ID manquant » avec « l'histoire a du sens », et tu feras confiance à un chiffre vert qui ne veut rien dire. Ne fusionne JAMAIS intégrité et narratif en un seul score.</p>
+    <p>Troisième : qui consomme ça, et quand ? Un onglet de debug que personne n'ouvre en cours de session est un poids mort. Si c'est pour le concepteur, il doit tourner <em>automatiquement</em> et hurler à la régression — sinon la corruption revient en silence, exactement comme elle l'a déjà fait.</p>
+    <p>Questions que tu évites : Tes deux aventures sont en désaccord sur <code>categories[]</code> et la contiguïté des IDs. Laquelle est « correcte » ? Tu ne peux pas valider contre un schéma que tu n'as pas gelé. Quel est le coût des faux positifs ? Un analyseur qui signale 40 « incohérences narratives » par session est pire que rien. Pourquoi une UI graphe/timeline avant un seul test CI qui échoue ?</p>
+    <p>Verdict : plus petite chose viable — un CLI <code>sw-validate</code> sur un schéma <em>gelé</em>, lancé en CI, intégrité-seule, piloté par exit-code. La « cohérence » narrative est un jouet de recherche ; livre-la en dernier, si jamais.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="adv-label">Le Penseur Premiers Principes</span> &nbsp;— Deux problèmes de formes opposées</summary>
+  <div class="body">
+    <p>Tu confonds deux problèmes qui ont des formes opposées, et le cadrage le cache.</p>
+    <p>« Cohérence » suppose que les données sont fiables et que tu vérifies si l'<em>histoire</em> tient. Mais tu as déjà trouvé que le journal est structurellement cassé : trous, chronologie inversée, dumping en session-0, next_id désynchronisé, categories vides. Ce n'est pas une aventure incohérente. C'est une base de données corrompue. Aucune analyse narrative ne signifie quoi que ce soit par-dessus de mauvais octets — tu noterais la prose d'un document dont les pages sont dans le désordre.</p>
+    <p>Donc dépouille : tu as deux primitives distinctes, et elles sont en couches.</p>
+    <p><strong>1. Intégrité</strong> (les données sont-elles bien formées et canoniques ?) — déterministe, mécanique, doit passer avant que quoi que ce soit d'autre ne tourne. C'est le vrai problème urgent, et il est causé par les writers, pas les readers. Un checker read-only qui trouve des trous à chaque fois est du théâtre ; les bugs sont dans le code qui <em>écrit</em>. La source unique de vérité est le fix. Rends l'allocation d'ID, le routage de session et l'ordre corrects-par-construction au write-path. Alors le check d'intégrité devient un garde-fou de régression, pas un pansement.</p>
+    <p><strong>2. Cohérence</strong> (l'histoire bien formée a-t-elle du sens ?) — n'a de sens qu'au-dessus d'une couche d'intégrité qui passe, et intrinsèquement floue/de jugement — c'est là que l'LLM/Claude Code intervient, pas un moteur de règles Go.</p>
+    <p>Réponse à « le check de cohérence est-il la bonne primitive ? » : Non, pas en premier. Construis l'intégrité comme couche déterministe <code>internal/coherence</code> (renomme : <code>integrity</code>) + le fix du write-path. Émets un rapport JSON (Claude est ton vrai moteur de cohérence — ne hardcode pas les règles narratives en Go). L'onglet web est un viewer, phase 3.</p>
+    <p>Mauvaise question : « comment détecter l'incohérence ? » Bonne question : « pourquoi mes données me mentent-elles, et qu'est-ce qui rend une source autoritaire ? »</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="adv-label">L'Expansionniste</span> &nbsp;— Pas un linter : le moteur qui rend le DM plus malin</summary>
+  <div class="body">
+    <p>Construis le checker de cohérence comme un <strong>package partagé <code>internal/coherence</code></strong> d'abord — c'est le point de levier. CLI et web ne sont que de fins renderers. Mais voici ce que tout le monde va sous-estimer : ce n'est pas un outil de debug, c'est un <strong>moteur de qualité narrative et un flywheel d'entraînement du DM IA</strong>.</p>
+    <p>Le vrai prix : chaque règle de cohérence que tu écris (foreshadow abandonné, thread délaissé, importance de NPC jamais payée, stagnation de pacing) devient un <strong>signal de feedback réinjecté dans l'agent sw-dm</strong>. Émets le rapport JSON, puis nourris les violations dans le briefing world-keeper à <code>start_session</code>. Maintenant le DM s'auto-corrige en cours de campagne. Tu n'analyses plus la cohérence — tu boucles la boucle pour que l'IA s'améliore plus elle joue. C'est un moat qu'aucun autre projet d'IA-DM n'a.</p>
+    <p>Plus gros coups cachés ici :</p>
+    <ul>
+      <li><strong>Le graphe de foreshadows est de l'or YouTube.</strong> Un graphe de dépendances « fusil de Tchekhov » en live — planté vs tiré — est hypnotique à la caméra et explique la sophistication de ton moteur instantanément. Construis la visualisation pour être <em>screenshotée</em>, pas juste déboguée.</li>
+      <li><strong>Le Score de Cohérence dans le temps = le battement de cœur de ta campagne.</strong> Trace-le par session. C'est un dashboard d'arc narratif que créateurs et joueurs veulent.</li>
+      <li><strong>Le diff squelette-vs-déroulé est un produit réutilisable.</strong> « Voilà ce que tu avais prévu, voilà ce qui a émergé. »</li>
+      <li><strong>Règles comme données, pas comme code.</strong> Rends les règles déclaratives (JSON/YAML) pour que Claude Code puisse <em>écrire de nouvelles règles</em> par l'exemple.</li>
+    </ul>
+    <p>Phase 1 : package partagé + rapport JSON + 5 règles. Phase 2 : réinjection dans la boucle agent. Phase 3 : le graphe que tout le monde screenshote. Ne construis pas un linter. Construis la chose qui rend le DM plus malin à chaque session.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="adv-label">L'Outsider</span> &nbsp;— « Cohérent » fait trop de travail</summary>
+  <div class="body">
+    <p>Voici ce sur quoi un outsider trébuche :</p>
+    <p><strong>« Cohérent » fait trop de travail.</strong> Tu empiles trois contrôles sans rapport sous un seul mot : (1) <em>intégrité des données</em> — fichiers corrompus, IDs manquants, événements dans le désordre ; (2) <em>drift plan-vs-réalité</em> — l'histoire jouée a-t-elle suivi l'histoire planifiée ; (3) <em>qualité narrative</em> — l'histoire a-t-elle du sens / tient-elle. Ce sont des problèmes radicalement différents. (1) est un linter déterministe — une machine dit oui/non. (2) est un diff — assez mécanique aussi. (3) est un jugement qui exige une IA ou un humain. Les mélanger = un outil mou qui fait les trois mal. Nomme-les séparément.</p>
+    <p><strong>Qui ouvre ça, et quand ?</strong> Non dit. Un créateur solo qui débugge du code ? Alors c'est un outil de dev qu'on regarde après une session. Un Maître du Jeu qui prépare la semaine prochaine ? Audience différente, surface différente. Tu ne peux pas concevoir la visualisation avant d'avoir répondu à ça, et tu n'as pas répondu.</p>
+    <p><strong>Le but humain-visuel et le but IA-lisible ne sont PAS le même outil.</strong> L'IA veut des faits structurés (JSON : « l'événement 47 n'a pas d'ID », « le thread X n'a jamais été résolu »). Un humain veut une forme saisissable d'un coup d'œil — une timeline, des drapeaux rouges, « l'acte 2 n'est jamais arrivé ». Le <em>moteur d'analyse</em> est partagé ; les <em>renderers de sortie</em> diffèrent. Construis le moteur une fois, émets du JSON, puis affiche une page par-dessus. Ça répond aussi à ton ordre de construction.</p>
+    <p><strong>Ordre :</strong> fixe l'intégrité d'abord. Tu ne peux littéralement pas juger « l'histoire a-t-elle été cohérente » sur des données corrompues — garbage in. Donc : (1) linter d'intégrité + meilleur logging (même fix — ta corruption venait d'écritures bâclées), (2) rapport JSON, (3) checks de drift/qualité, (4) l'onglet web en dernier.</p>
+    <p>Ne construis pas le joli onglet en premier. Il ne fera que visualiser des données cassées.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="adv-label">L'Exécuteur</span> &nbsp;— Ce que tu codes lundi matin&nbsp; <span style="color:var(--green)">★ jugée la plus forte</span></summary>
+  <div class="body">
+    <p>Construis <code>internal/coherence/</code> comme package partagé — pas un nouveau binaire, pas web-first. L'onglet web et tout futur <code>sw-debug</code> appellent dedans. Un package, plusieurs front-ends.</p>
+    <p>Lundi matin, dans l'ordre :</p>
+    <p>1. <code>internal/coherence/report.go</code> — définir le type de sortie, en réutilisant ta forme existante :</p>
+    <pre style="background:#0f1320;color:#e7e3ff;padding:14px;border-radius:8px;overflow:auto;font-size:12.5px"><code>type Report struct {
+    Skeleton      adventure.ValidationResult // existe déjà
+    DataIntegrity []Finding
+    Flow          []Finding
+    OverallScore  int
+}
+type Finding struct {
+    Severity string // "error"|"warning"|"info"
+    Rule     string // "journal.id_gaps"
+    Message  string
+    Context  map[string]any
+}</code></pre>
+    <p>2. <code>internal/coherence/analyze.go</code> — <code>func Analyze(advDir string) (*Report, error)</code>. Charge journal-meta + sessions, appelle l'existant <code>ValidateCampaignPlan()</code>, fourre le résultat dans <code>Report.Skeleton</code>.</p>
+    <p>3. <code>internal/coherence/integrity.go</code> — porte la corruption que tu as DÉJÀ trouvée en checks déterministes : <code>checkJournalIDGaps</code>, <code>checkChronoOrder</code>, <code>checkNextIDSync</code>, <code>checkEmptyCategories</code>. Ce sont de vrais bugs aux signatures connues — écris-les en premier, ROI maximal.</p>
+    <p>4. Câble une route Gin : <code>GET /play/:slug/coherence</code> renvoyant un partial HTMX qui itère sur les Findings dans un <code>&lt;table&gt;</code>. Copie le handler <code>/info</code> verbatim et change le corps.</p>
+    <p>À zapper pour l'instant : règles narratives/gameplay, SSE, visualisations, extension de logs. Livre intégrité + squelette cette semaine.</p>
+    <p>Pour (d) le JSON machine : gratuit — ajoute <code>?format=json</code> à la même route, <code>c.JSON(200, report)</code>. Même struct, zéro travail en plus. C'est ton feed Claude Code.</p>
+    <p>Premier pas que tu peux littéralement faire maintenant : crée <code>integrity.go</code> avec <code>checkJournalIDGaps</code>. Tu sais déjà qu'il trouve 81,104,106,127. Écris cette fonction, assure contre l'aventure réelle, test vert, fini.</p>
+  </div>
+</details>
+
+<h2>Faits saillants du peer-review</h2>
+<details>
+  <summary>Les 5 relectures anonymes (consensus + angle mort collectif)</summary>
+  <div class="body">
+    <p><strong>Consensus unanime (5/5) :</strong> la réponse de <strong>l'Exécuteur</strong> est jugée la plus forte — seule à transformer le design en code livrable lundi (structs concrètes, réutilisation de <code>ValidateCampaignPlan()</code>, corruptions réelles portées en checks, handler <code>/info</code> cloné, JSON gratuit, premier test vert contre données réelles), tout en absorbant l'insight juste des autres (intégrité d'abord, moteur partagé, JSON-puis-render).</p>
+    <p><strong>Plus gros angle mort (5/5) :</strong> la réponse de <strong>l'Expansionniste</strong> — elle romance le flywheel narratif et le graphe « YouTube gold » en <em>ignorant que les données sont déjà corrompues</em>. Nourrir le briefing du DM avec des violations bruitées rendrait le DM plus bête. La vision est juste, l'ordre est faux.</p>
+    <p><strong>Ce que les 5 ont tous manqué (relevé par les 5 relecteurs) :</strong> la <strong>remédiation / migration des données déjà corrompues</strong>. Tous détectent et préviennent, aucun ne <em>répare</em>. Sans un <code>sw-adventure repair</code> / mode <code>--fix</code> (re-homing des orphelins de session-0, resync de <code>next_id</code>), le rapport reste rouge à vie sur les saves existants. Corollaire : <strong>désigner la source autoritaire</strong> quand journal-meta et fichiers de session se contredisent, et <strong>geler le schéma</strong> avant de valider contre lui.</p>
+  </div>
+</details>
+
+<footer>
+  Counciled le 2026-06-01 · 5 conseillers (Contrarian, Premiers Principes, Expansionniste, Outsider, Exécuteur) · peer-review anonyme A–E · synthèse du chairman.<br>
+  Sujet : architecture &amp; plan de développement d'un outil de debug/cohérence pour SkillsWeaver.
+</footer>
+
+</div>
+</body>
+</html>

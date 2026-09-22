@@ -16,7 +16,6 @@
         <div class="sidebar-header">
             <a href="/" class="back-link">&larr; Retour</a>
             <h2>{{.Adventure.Name}}</h2>
-            <a href="/play/{{.Slug}}/coherence" class="back-link" title="Analyse de cohérence (debug)">🔍 Cohérence</a>
         </div>
 
         <!-- Session Status Indicator -->
@@ -76,7 +75,7 @@
                 <span class="info-label">Modele IA</span>
                 <select id="model-selector" class="model-select">
                     <option value="sonnet" {{if eq .CurrentModel "sonnet"}}selected{{end}}>Sonnet 4.6</option>
-                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.6</option>
+                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.8 (1M)</option>
                 </select>
             </div>
         </div>

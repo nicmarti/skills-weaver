@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -21,9 +20,7 @@ import (
 	"dungeons/internal/adventure"
 	"dungeons/internal/agent"
 	"dungeons/internal/character"
-	"dungeons/internal/coherence"
 	"dungeons/internal/data"
-	"dungeons/internal/narrativeai"
 	"dungeons/internal/npc"
 	"dungeons/internal/npcmanager"
 	"dungeons/internal/tarot"
@@ -358,7 +355,7 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
     <span class="info-label">Modele IA</span>
     <select id="model-selector" class="model-select">
         <option value="sonnet"%s>Sonnet 4.6</option>
-        <option value="opus"%s>Opus 4.6</option>
+        <option value="opus"%s>Opus 4.8 (1M)</option>
     </select>
 </div>`,
 		session.AdventureCtx.State.CurrentLocation,
@@ -409,138 +406,6 @@ func (s *Server) handleSessionStatus(c *gin.Context) {
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)
-}
-
-// handleCoherence renders the read-only coherence analysis of an adventure.
-// With ?format=json it returns the raw Report (the machine feed for Claude Code);
-// otherwise it renders the coherence dashboard page.
-func (s *Server) handleCoherence(c *gin.Context) {
-	slug := c.Param("slug")
-
-	adv, err := adventure.LoadByName(adventuresDir, slug)
-	if err != nil {
-		if c.Query("format") == "json" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "adventure not found"})
-		} else {
-			s.renderError(c, http.StatusNotFound, "Aventure introuvable: "+slug)
-		}
-		return
-	}
-
-	report, err := coherence.Analyze(adv)
-	if err != nil {
-		if c.Query("format") == "json" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		} else {
-			s.renderError(c, http.StatusInternalServerError, "Analyse impossible: "+err.Error())
-		}
-		return
-	}
-
-	if c.Query("format") == "json" {
-		c.JSON(http.StatusOK, report)
-		return
-	}
-
-	// Load the cached AI narrative judgment (if any) and flag staleness.
-	judgment, _ := coherence.LoadNarrativeJudgment(adv)
-	played := 0
-	if report.NarrativeBrief != nil {
-		played = report.NarrativeBrief.PlayedSessions
-	}
-	judgmentStale := judgment != nil && judgment.Stale(played)
-	var judgmentTime string
-	if judgment != nil {
-		judgmentTime = judgment.GeneratedAt.Format("02/01/2006 15:04")
-	}
-
-	c.HTML(http.StatusOK, "coherence.html", gin.H{
-		"Slug":          slug,
-		"AdventureName": report.AdventureName,
-		"GeneratedAt":   report.GeneratedAt.Format("02/01/2006 15:04"),
-		"Layers": []gin.H{
-			layerView("Intégrité", report.Integrity),
-			layerView("Dérive (squelette ↔ déroulé)", report.Drift),
-			layerView("Qualité narrative (signaux)", report.Narrative),
-		},
-		"Brief":         report.NarrativeBrief,
-		"Judgment":      judgment,
-		"JudgmentTime":  judgmentTime,
-		"JudgmentStale": judgmentStale,
-		"AIAvailable":   s.apiKey != "",
-	})
-}
-
-// handleCoherenceAnalyze runs the AI narrative judgment (3 lenses + synthesis)
-// on demand, caches it, then redirects back to the coherence dashboard.
-func (s *Server) handleCoherenceAnalyze(c *gin.Context) {
-	slug := c.Param("slug")
-
-	if s.apiKey == "" {
-		s.renderError(c, http.StatusBadRequest, "Clé API Anthropic absente — le jugement narratif IA est indisponible.")
-		return
-	}
-
-	// The game session owns a fully-wired AgentManager (the invoker).
-	session, err := s.sessionManager.GetOrCreateSession(slug)
-	if err != nil {
-		s.renderError(c, http.StatusNotFound, "Session introuvable: "+err.Error())
-		return
-	}
-
-	// Load the adventure fresh to guarantee basePath for the brief and cache IO.
-	adv, err := adventure.LoadByName(adventuresDir, slug)
-	if err != nil {
-		s.renderError(c, http.StatusNotFound, "Aventure introuvable: "+slug)
-		return
-	}
-
-	brief, err := coherence.BuildNarrativeBrief(adv)
-	if err != nil {
-		s.renderError(c, http.StatusInternalServerError, "Dossier narratif: "+err.Error())
-		return
-	}
-
-	log.Printf("[coherence-ai][%s] analyse demandée — lancement du jugement narratif (3 agents + synthèse)", slug)
-	start := time.Now()
-	progress := func(msg string) {
-		log.Printf("[coherence-ai][%s] %s", slug, msg)
-	}
-	judgment, err := narrativeai.Judge(brief, session.Agent.AgentManager(), progress)
-	if err != nil {
-		log.Printf("[coherence-ai][%s] ÉCHEC après %s: %v", slug, time.Since(start).Round(time.Second), err)
-		s.renderError(c, http.StatusInternalServerError, "Analyse IA échouée: "+err.Error())
-		return
-	}
-	log.Printf("[coherence-ai][%s] jugement terminé en %s (%d perspectives)", slug, time.Since(start).Round(time.Second), len(judgment.Lenses))
-
-	if err := coherence.SaveNarrativeJudgment(adv, judgment); err != nil {
-		s.renderError(c, http.StatusInternalServerError, "Sauvegarde du jugement: "+err.Error())
-		return
-	}
-
-	c.Redirect(http.StatusSeeOther, "/play/"+slug+"/coherence")
-}
-
-// layerView adapts a coherence LayerReport for the dashboard template.
-func layerView(title string, lr coherence.LayerReport) gin.H {
-	errs, warns, infos := lr.Counts()
-	scoreClass := "score-good"
-	switch {
-	case lr.Score < 70:
-		scoreClass = "score-bad"
-	case lr.Score < 90:
-		scoreClass = "score-warn"
-	}
-	return gin.H{
-		"Title":      title,
-		"Score":      lr.Score,
-		"ScoreClass": scoreClass,
-		"Errors":     errs,
-		"Warnings":   warns,
-		"Infos":      infos,
-		"Findings":   lr.Findings,
-	}
 }
 
 // handleMaps serves map images from data/maps/.

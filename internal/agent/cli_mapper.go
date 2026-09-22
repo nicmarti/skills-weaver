@@ -88,6 +88,10 @@ func ToolToCLICommand(toolName string, params map[string]interface{}) string {
 		return mapGetState(params)
 	case "set_ambient_music":
 		return mapSetAmbientMusic(params)
+	case "start_combat":
+		return "# start_combat: active l'état de combat canonique + déclenche la musique de combat"
+	case "end_combat":
+		return "# end_combat: désactive l'état de combat + ambiance d'après-combat"
 	default:
 		return ""
 	}

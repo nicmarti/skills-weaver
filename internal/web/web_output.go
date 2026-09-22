@@ -131,9 +131,12 @@ func (w *WebOutput) OnToolComplete(toolName string, result interface{}) {
 				})
 			}
 		}
-		// Check if this is an ambient music result
-		if toolName == "set_ambient_music" {
-			if success, ok := m["success"].(bool); ok && success {
+		// Ambient music cues come from set_ambient_music (DM-driven, non-combat
+		// moods) and from start_combat/end_combat (engine-driven combat / aftermath).
+		// Emit only when a real Lyria prompt is present: a combat cue suppressed by
+		// the anti-spoil guardrail returns success without a prompt and stays silent.
+		if toolName == "set_ambient_music" || toolName == "start_combat" || toolName == "end_combat" {
+			if prompt, ok := m["lyria_prompt"].(string); ok && prompt != "" {
 				ambientData := map[string]interface{}{
 					"lyria_prompt": m["lyria_prompt"],
 					"bpm":          m["bpm"],

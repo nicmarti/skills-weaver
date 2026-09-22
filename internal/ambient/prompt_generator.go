@@ -50,7 +50,7 @@ Temperature guidelines:
 - Normal: 1.0
 - Creative/chaotic: 1.1-1.3`
 
-// GenerateLyriaPrompt calls Claude Haiku to generate optimized Lyria parameters from a scene description.
+// GenerateLyriaPrompt calls Claude Sonnet to generate optimized Lyria parameters from a scene description.
 func GenerateLyriaPrompt(apiKey, sceneDescription string) (*LyriaSceneParams, error) {
 	if apiKey == "" {
 		return nil, fmt.Errorf("ANTHROPIC_API_KEY not set")
@@ -61,7 +61,7 @@ func GenerateLyriaPrompt(apiKey, sceneDescription string) (*LyriaSceneParams, er
 	userPrompt := fmt.Sprintf("Generate Lyria music parameters for this D&D scene: %s", sceneDescription)
 
 	response, err := client.Messages.New(context.Background(), anthropic.MessageNewParams{
-		Model: anthropic.ModelClaudeHaiku4_5,
+		Model: anthropic.ModelClaudeSonnet4_6,
 		System: []anthropic.TextBlockParam{
 			{Text: lyriaSystemPrompt},
 		},

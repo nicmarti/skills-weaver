@@ -105,6 +105,10 @@ func (a *Adventure) StartSession() (*Session, error) {
 	}
 	a.basePath = originalBasePath
 
+	// Reset combat state: a session must never inherit a stale "in combat" flag
+	// from a previous session (which would let combat music leak at session start).
+	_, _ = a.EndCombat()
+
 	// Log to journal
 	a.LogEvent("session", fmt.Sprintf("Session %d démarrée", nextID))
 
@@ -141,6 +145,9 @@ func (a *Adventure) EndSession(summary string) (*Session, error) {
 	session.Duration = formatDuration(session.EndedAt.Sub(session.StartedAt))
 
 	history.CurrentSession = nil
+
+	// Clear any active combat so it cannot bleed into the next session.
+	_, _ = a.EndCombat()
 
 	// Update adventure
 	a.LastPlayed = time.Now()

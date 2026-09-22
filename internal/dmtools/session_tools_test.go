@@ -8,57 +8,7 @@ import (
 	"time"
 
 	"dungeons/internal/adventure"
-	"dungeons/internal/coherence"
 )
-
-// fakeAgentManager implements the dmtools AgentManager interface for tests.
-type fakeAgentManager struct{ calls int }
-
-func (f *fakeAgentManager) InvokeAgent(agentName, question, contextInfo string, depth int) (string, error) {
-	return "verdict", nil
-}
-func (f *fakeAgentManager) InvokeAgentSilent(agentName, question string, depth int) (string, error) {
-	f.calls++
-	return "verdict de " + agentName, nil
-}
-
-func TestRefreshNarrativeJudgment(t *testing.T) {
-	adv := adventure.New("End Test", "")
-	adv.SetBasePath(t.TempDir())
-	if err := adv.SaveJournalMetadata(&adventure.JournalMetadata{NextID: 2, Categories: []string{"story"}}); err != nil {
-		t.Fatal(err)
-	}
-	if err := adv.SaveSessionJournal(&adventure.SessionJournal{SessionID: 1, Entries: []adventure.JournalEntry{
-		{ID: 1, SessionID: 1, Type: "story", Content: "intro", Timestamp: time.Now()},
-	}}); err != nil {
-		t.Fatal(err)
-	}
-	if err := adv.SaveSessions(&adventure.SessionHistory{Sessions: []adventure.Session{{ID: 1, Status: "completed"}}}); err != nil {
-		t.Fatal(err)
-	}
-
-	// Nil manager => no-op, empty note.
-	if note := refreshNarrativeJudgment(adv, nil); note != "" {
-		t.Errorf("nil manager should produce no note, got %q", note)
-	}
-
-	// With a manager => judgment cached + success note.
-	fam := &fakeAgentManager{}
-	note := refreshNarrativeJudgment(adv, fam)
-	if !strings.Contains(note, "rafraîchie") {
-		t.Errorf("expected success note, got %q", note)
-	}
-	if fam.calls == 0 {
-		t.Error("expected agent invocations")
-	}
-	cached, err := coherence.LoadNarrativeJudgment(adv)
-	if err != nil || cached == nil {
-		t.Fatalf("expected a cached judgment, got %v (err=%v)", cached, err)
-	}
-	if len(cached.Lenses) != 3 {
-		t.Errorf("expected 3 lenses cached, got %d", len(cached.Lenses))
-	}
-}
 
 func TestPreSessionCoherenceGate(t *testing.T) {
 	adv := adventure.New("Gate Test", "")
@@ -91,14 +41,6 @@ func TestPreSessionCoherenceGate(t *testing.T) {
 	if err := adv.SaveCampaignPlan(plan); err != nil {
 		t.Fatal(err)
 	}
-	// A cached narrative judgment with a recognizable synthesis.
-	if err := coherence.SaveNarrativeJudgment(adv, &coherence.NarrativeJudgment{
-		GeneratedAt:    time.Now(),
-		PlayedSessions: 2,
-		Synthesis:      "SYNTH_MARKER les joueurs sont passifs",
-	}); err != nil {
-		t.Fatal(err)
-	}
 
 	human, brief := preSessionCoherenceGate(adv)
 
@@ -107,9 +49,6 @@ func TestPreSessionCoherenceGate(t *testing.T) {
 	}
 	if !strings.Contains(brief, "fsh_1") {
 		t.Errorf("DM brief should surface the overdue foreshadow, got: %q", brief)
-	}
-	if !strings.Contains(brief, "SYNTH_MARKER") {
-		t.Errorf("DM brief should inject the cached narrative synthesis, got: %q", brief)
 	}
 }
 

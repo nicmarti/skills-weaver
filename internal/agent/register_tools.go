@@ -88,6 +88,11 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewUpdateHPTool(adv))
 	registry.Register(dmtools.NewUseSpellSlotTool(adv))
 
+	// Register canonical combat state tools (drive combat ambient music and the
+	// anti-spoil guardrail in set_ambient_music)
+	registry.Register(dmtools.NewStartCombatTool(adv))
+	registry.Register(dmtools.NewEndCombatTool(adv))
+
 	// Register level-up and rest tools
 	registry.Register(dmtools.NewUpdateCharacterStatTool(adv))
 	registry.Register(dmtools.NewLongRestTool(adv))
@@ -184,7 +189,7 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewGetStateTool(adv))
 
 	// Register ambient music tool (gracefully fails if ANTHROPIC_API_KEY missing)
-	ambientTool := dmtools.NewSetAmbientMusicTool(os.Getenv("ANTHROPIC_API_KEY"))
+	ambientTool := dmtools.NewSetAmbientMusicTool(os.Getenv("ANTHROPIC_API_KEY"), adv)
 	registry.Register(ambientTool)
 
 	return nil

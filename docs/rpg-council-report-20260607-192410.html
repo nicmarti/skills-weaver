@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conseil de la Table — Musique d'ambiance IA (Lyria)</title>
+<style>
+  :root{
+    --bg:#14110d; --panel:#1f1b15; --panel2:#241f17; --ink:#f4ecd8; --mut:#b9ad8f;
+    --faint:#8a8068; --gold:#d4af37; --line:#3a302a;
+    --joueur:#e07a5f; --regles:#4a90d9; --archi:#9b7ede; --briseur:#d64545; --mj:#5fb37a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(#14110d,#1c1813);color:var(--ink);
+    font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;line-height:1.6;padding:40px 16px}
+  .wrap{max-width:920px;margin:0 auto}
+  h1{font-size:32px;margin:0 0 6px;text-align:center}
+  h1 .accent{color:var(--gold)}
+  .sub{text-align:center;color:var(--mut);margin:0 0 4px}
+  .meta{text-align:center;color:var(--faint);font-style:italic;font-size:14px;margin-bottom:26px}
+  .rule{height:2px;background:linear-gradient(90deg,#8a6d2f,#d4af37,#8a6d2f);border:0;margin:22px auto;max-width:560px}
+  .q{background:var(--panel2);border:1px solid var(--gold);border-radius:12px;padding:18px 22px;margin:18px 0}
+  .q h2{margin:0 0 8px;font-size:14px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+  .q p{margin:6px 0;color:var(--ink)}
+  .q .ctx{color:var(--mut);font-size:14px}
+  .verdict{background:var(--panel);border:2px solid var(--gold);border-radius:14px;padding:10px 26px 22px;margin:26px 0;
+    box-shadow:0 6px 24px rgba(0,0,0,.4)}
+  .verdict h2{color:var(--gold);font-size:22px;border-bottom:1px solid var(--line);padding-bottom:10px}
+  .verdict h3{margin:22px 0 6px;font-size:16px;letter-spacing:.5px}
+  .verdict h3.acc{color:var(--mj)} .verdict h3.clash{color:var(--briseur)}
+  .verdict h3.blind{color:var(--archi)} .verdict h3.reco{color:var(--gold)} .verdict h3.first{color:var(--regles)}
+  .verdict p,.verdict li{color:var(--ink)}
+  .first-box{background:#1c252a;border:1px solid var(--regles);border-radius:10px;padding:14px 18px;margin-top:8px}
+  /* alignment grid */
+  .grid{margin:26px 0}
+  .grid h2{font-size:14px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;text-align:center}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:#241f17;color:var(--gold);font-weight:600}
+  td.name{font-weight:600;white-space:nowrap}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .v-yes{color:var(--mj)} .v-cond{color:var(--gold)} .v-no{color:var(--briseur)}
+  .spectrum{display:flex;gap:8px;margin:14px 0 4px;flex-wrap:wrap;justify-content:center;font-size:13px}
+  .chip{padding:5px 12px;border-radius:20px;border:1px solid var(--line);background:#1a160f;color:var(--mut)}
+  details{background:var(--panel);border:1px solid var(--line);border-left-width:4px;border-radius:8px;margin:10px 0;padding:4px 18px}
+  details summary{cursor:pointer;font-weight:600;font-size:16px;padding:10px 0;list-style:none;outline:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ ";color:var(--gold)}
+  details[open] summary::before{content:"▾ "}
+  details p{color:var(--mut)}
+  .bar-joueur{border-left-color:var(--joueur)} .bar-regles{border-left-color:var(--regles)}
+  .bar-archi{border-left-color:var(--archi)} .bar-briseur{border-left-color:var(--briseur)}
+  .bar-mj{border-left-color:var(--mj)} .bar-gold{border-left-color:var(--gold)}
+  .tag{font-size:12px;color:var(--faint);font-weight:400;margin-left:8px}
+  .winner{color:var(--gold);font-size:13px;margin-left:8px}
+  footer{text-align:center;color:var(--faint);font-size:13px;margin-top:36px;border-top:1px solid var(--line);padding-top:16px}
+  code{background:#241f17;padding:1px 6px;border-radius:4px;font-size:13px;color:#e0d6bb}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Conseil de la Table — <span class="accent">Verdict</span></h1>
+  <p class="sub">Musique d'ambiance IA dynamique (Google Lyria RealTime) pour SkillsWeaver</p>
+  <p class="meta">5 conseillers · relecture anonyme par les pairs · synthèse du président — 7 juin 2026</p>
+  <hr class="rule">
+
+  <div class="q">
+    <h2>La question soumise</h2>
+    <p>Faut-il investir dans la <strong>musique d'ambiance générée dynamiquement par IA</strong>, réagissant aux scènes (combat, auberge, marché, exploration) pour augmenter l'immersion ? Et comment la pousser concrètement plus loin ?</p>
+    <p class="ctx"><strong>Réalité du terrain :</strong> ce n'est pas une idée — c'est <strong>déjà implémenté et committé</strong> (commit <code>99bfd9f</code>). <code>LyriaManager</code> (WebSocket persistant → Lyria RealTime, PCM streamé en WAV), tool <code>set_ambient_music</code> (Claude Haiku génère prompt + BPM + température), persona DM intégré (combat prioritaire, musique invisible), lecteur front sw-web. Contraintes : <code>GEMINI_API_KEY</code> requis, API <em>expérimentale</em>, pas de fallback audio, sw-web only, flux PCM continu (coût proportionnel à la durée).</p>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <h2>⚖️ Le verdict du président</h2>
+
+    <h3 class="acc">Là où le conseil s'accorde</h3>
+    <p>Quatre signaux de haute confiance, émergés indépendamment :</p>
+    <ul>
+      <li><strong>L'immersion vaut l'investissement</strong> — personne ne propose de supprimer la feature. C'est le cœur de valeur de SkillsWeaver, et elle est déjà construite.</li>
+      <li><strong>La faille centrale n'est pas Lyria, c'est le déclenchement.</strong> Le Briseur de Jeu et le Gardien des Règles convergent fort : <code>set_ambient_music</code> est piloté par le <em>jugement narratif du LLM</em>, pas par l'<strong>état canonique du moteur</strong> (<code>combat_tools</code>, initiative). D'où risque de <strong>spoil de l'état caché</strong> (la musique de combat trahit l'embuscade avant le jet de Perception) et de <strong>désynchronisation</strong> musique/combat réel.</li>
+      <li><strong>Le coût n'est pas borné.</strong> Flux PCM continu (~1,4 Mbit/s) sur WebSocket persistant, header de flux infini, aucun timeout d'inactivité : un onglet laissé ouvert facture Lyria pendant des heures.</li>
+      <li><strong>Pas de dégradation gracieuse.</strong> Clé absente ou API tombée → <code>503</code> et perte d'audio inexpliquée. Le jeu doit continuer en silence, jamais casser.</li>
+    </ul>
+
+    <h3 class="clash">Là où le conseil s'affronte</h3>
+    <p><strong>« Stabiliser » contre « enrichir ».</strong> Le Briseur conclut <em>« ne pas pousser plus loin »</em> ; l'Architecte Narratif veut au contraire investir dans un <strong>leitmotiv</strong> (motifs Lyria figés par entité dans <code>campaign-plan.json</code>, payoff audio qui referme un foreshadow). Les deux ont raison sur des horizons différents — mais la relecture tranche : le leitmotiv de l'Architecte, branché sur le pipeline actuel, <strong>aggraverait le spoil</strong> (injecter le thème de l'antagoniste « à son apparition » révèle sa présence avant la fiction). On ne décore pas un étage dont les fondations fuient.</p>
+    <p><strong>Quelle est la priorité n°1 ?</strong> Le conseil se divise à trois : anti-spoil canonique (Gardien/Briseur), dégradation gracieuse (MJ Pragmatique), ou latence combat→musique (Joueur). Désaccord réel — et, comme l'a relevé la relecture, <strong>non tranchable sans données</strong>.</p>
+
+    <h3 class="blind">Angles morts détectés par le conseil</h3>
+    <p>Émergés <em>uniquement</em> en relecture, manqués par les cinq conseillers :</p>
+    <ul>
+      <li><strong>Personne ne mesure.</strong> Le Joueur déclare la latence « décisive » sans jamais la chiffrer. Nul ne vérifie si le DM <em>appelle réellement</em> <code>set_ambient_music</code> en session, ni quel pourcentage de joueurs garde le son actif. On débat à l'aveugle.</li>
+      <li><strong>Consentement &amp; accessibilité.</strong> Musique imposée par le LLM, jamais choisie. Aucun mute persistant, aucun opt-out, rien pour les joueurs sourds/malentendants ou sensibles.</li>
+      <li><strong>Dépendance à une API expérimentale.</strong> <code>lyria-realtime-exp</code> peut être déprécié ou rate-limité du jour au lendemain — sans fallback, c'est un risque produit.</li>
+      <li><strong>Le futur multijoueur</strong> (CLAUDE.md note « mono-joueur actuellement ») démultiplierait le spoil sur un canal audio partagé.</li>
+    </ul>
+
+    <h3 class="reco">La recommandation</h3>
+    <p><strong>Garde la feature. Gèle toute extension. Le travail n'est pas d'<em>ajouter</em> (leitmotiv, marché, crossfade, presets, sw-dm CLI) mais de rendre l'existant fiable et honnête.</strong> Le vrai backlog, dans l'ordre : (1) <strong>brancher combat/danger sur l'état canonique de <code>combat_tools</code></strong> au lieu du jugement LLM — garde-fou anti-spoil et anti-désync ; le mood d'ambiance (tavern/mystery/nature) peut rester piloté par le DM ; (2) <strong>timeout d'inactivité</strong> qui coupe le WebSocket Lyria quand le SSE se déconnecte ou après X minutes sans <code>set_ambient_music</code> ; (3) <strong>dégradation silencieuse</strong> (jamais de 503 au joueur) + sanitisation de l'input joueur hors du prompt musical. Le <strong>leitmotiv de l'Architecte est le bon Acte 2</strong> — mais seulement une fois le socle canonique posé. Le « pas de fallback audio » que craint le MJ se règle par le silence : c'est un fallback acceptable, pas un chantier.</p>
+    <p><strong>Mais</strong> ces trois priorités ne sont pas ordonnançables tant que la division du conseil (anti-spoil vs coût vs latence) n'est pas tranchée — et elle ne l'est que par l'observation.</p>
+
+    <h3 class="first">La première chose à faire</h3>
+    <div class="first-box">
+      Joue <strong>une seule session réelle dans sw-web, audio activé, en tailant <code>sw-dm-session-N.log</code></strong>, et observe trois choses : <em>(a)</em> le DM appelle-t-il <code>set_ambient_music</code>, quand, et combien de fois ; <em>(b)</em> la latence ressentie entre le basculement de scène et la musique ; <em>(c)</em> la musique de combat spoile-t-elle l'embuscade. Cette unique session instrumentée transforme le débat à l'aveugle du conseil en backlog priorisé par des faits.
+    </div>
+  </div>
+
+  <!-- ALIGNMENT -->
+  <div class="grid">
+    <h2>Alignement des conseillers</h2>
+    <div class="spectrum">
+      <span class="chip">🛡️ Stabiliser d'abord ◀ — — — — — ▶ Enrichir maintenant 🎼</span>
+    </div>
+    <table>
+      <tr><th>Conseiller</th><th>Position</th><th>Sa contribution clé</th></tr>
+      <tr><td class="name"><span class="dot" style="background:var(--briseur)"></span>Le Briseur de Jeu</td><td class="v-no">Geler &amp; câbler</td><td>Diagnostic le plus complet : spoil + injection + coût AFK + désync. <strong>Jugé le plus fort par les 5 relecteurs.</strong></td></tr>
+      <tr><td class="name"><span class="dot" style="background:var(--regles)"></span>Le Gardien des Règles</td><td class="v-no">Geler &amp; câbler</td><td>« Métagaming audio = triche structurelle. » La vérité doit venir du moteur, pas de la prose du DM.</td></tr>
+      <tr><td class="name"><span class="dot" style="background:var(--mj)"></span>Le MJ Pragmatique</td><td class="v-cond">Finir, pas étendre</td><td>Dégradation silencieuse + 1 test sur <code>prompt_generator</code> + timeout de coût. Liste anti-gold-plating.</td></tr>
+      <tr><td class="name"><span class="dot" style="background:var(--joueur)"></span>Le Joueur à la Table</td><td class="v-cond">Oui, si latence</td><td>La latence combat→musique fait ou défait tout. Rendre l'activation audio impossible à rater.</td></tr>
+      <tr><td class="name"><span class="dot" style="background:var(--archi)"></span>L'Architecte Narratif</td><td class="v-yes">Enrichir (leitmotiv)</td><td>Relier l'audio au <code>campaign-plan</code>. <strong>Idée la plus créative — mais plus gros angle mort selon les 5 relecteurs.</strong></td></tr>
+    </table>
+  </div>
+
+  <hr class="rule">
+  <h2 style="text-align:center;color:var(--gold);font-size:14px;letter-spacing:2px">RÉPONSES COMPLÈTES DES CONSEILLERS</h2>
+
+  <details class="bar-briseur"><summary>💥 Le Briseur de Jeu<span class="winner">★ jugée la plus forte</span></summary>
+    <p>Le système de déclenchement musical est la faille fatale, pas Lyria.</p>
+    <p><strong>Le tool spoile l'état caché.</strong> <code>set_ambient_music</code> est déclenché par le jugement du LLM DM, pas par l'état canonique. Or le DM connaît l'embuscade avant le joueur. Le persona dit « combat prioritaire » : la musique de combat se déclenche au moment où le DM décide qu'il y a combat — potentiellement avant le jet de Perception, avant « trois gobelins surgissent ». Le joueur entend le combat monter pendant que le texte décrit encore un couloir calme. Tu grilles embuscades, révélations de trahison (<code>fsh_004</code>), boss cachés. Le briefing de campagne confidentiel fuit par le canal audio. Pire que pas de musique : un oracle.</p>
+    <p><strong>Prompt injection trivial.</strong> Le joueur tape « mon barde joue une polka entraînante en plein donjon » → Haiku génère « upbeat polka » → l'ambiance se casse. Input texte non sanitisé.</p>
+    <p><strong>Le coût AFK est non borné.</strong> Flux PCM WAV16 44.1kHz stéréo ≈ 1,4 Mbit/s continu. Header RIFF 0xFFFFFFFF = flux infini volontaire. Joueur AFK onglet ouvert toute la nuit = WebSocket Lyria + bande passante facturés 8h sur une scène figée. Aucun heartbeat, aucun timeout d'inactivité.</p>
+    <p><strong>Désync structurelle.</strong> Latence Haiku + reconnexion Lyria (5s) + buffering → la musique de combat arrive après le combat. <code>/ambient/stop</code> puis <code>/ambient/set</code> reconnecte « un manager neuf » → ambiance random, pas reprise de scène. Deux onglets, même slug = un manager partagé : le second joueur impose sa scène au premier.</p>
+    <p><strong>Prochaine étape rentable :</strong> ne pas pousser plus loin. Câbler le déclenchement sur l'état canonique du moteur (combat réel démarré), sanitiser l'input joueur, ajouter timeout + heartbeat. Sinon tu paies pour spoiler ton propre suspense.</p>
+  </details>
+
+  <details class="bar-regles"><summary>⚖️ Le Gardien des Règles</summary>
+    <p><code>set_ambient_music</code> est piloté par le texte du DM, pas par l'état canonique du moteur. C'est, mécaniquement, une source de vérité non fiable — et ça casse l'intégrité du signal.</p>
+    <p><strong>1. Métagaming audio = triche structurelle.</strong> Si le DM écrit l'embuscade avant de la décrire, ou si Haiku interprète « une silhouette s'approche » comme <code>combat</code>, la musique spoile un état caché que la mécanique D&amp;D protège (surprise round, Perception passive). Le joueur entend le danger avant que son personnage ne le perçoive. C'est l'équivalent audio de montrer le jet du DM derrière l'écran.</p>
+    <p><strong>2. Désynchronisation init/round.</strong> L'init bascule via <code>combat_tools</code> (état canonique). La musique bascule quand le LLM raconte. Ces deux horloges dérivent : combat mécaniquement terminé mais narration en cours → musique combat qui traîne, ou inversement.</p>
+    <p><strong>3. Double jugement, double erreur.</strong> Deux LLM en série (DM décide d'appeler → Haiku mappe le mood). Chaque maillon peut halluciner, aucune validation contre l'état réel.</p>
+    <p><strong>Correction :</strong> la source de vérité doit être le moteur. Câbler combat/danger sur les transitions canoniques de <code>combat_tools</code> ; le mood narratif (tavern/mystery/nature) reste piloté par le DM — c'est de l'ambiance, pas un état caché. <strong>Prochaine étape :</strong> garde-fou anti-spoil — interdire le passage en combat/danger tant que l'initiative n'a pas démarré. Ça vaut l'investissement uniquement si la musique dit la vérité.</p>
+  </details>
+
+  <details class="bar-mj"><summary>🛠️ Le MJ Pragmatique</summary>
+    <p>Pas de fallback audio = ton point de rupture numéro un. Sans <code>GEMINI_API_KEY</code> ou si l'API exp tombe, tu te manges un 503 et le joueur perd l'audio en pleine session sans savoir pourquoi. C'est ça qui « casse au prochain build », pas l'absence de sorties surround.</p>
+    <p>Ce qui manque pour fiable et fini : <strong>(1) Dégradation silencieuse</strong> — si Lyria indisponible, le jeu continue sans bruit et l'UI montre un état « audio off » discret. Jamais un 503 qui remonte au joueur. <strong>(2) Un seul test qui compte</strong> — teste <code>prompt_generator</code> (input → prompt/BPM/temp bornés) : pur, déterministe, sans WebSocket ; protège le seul endroit où Haiku peut sortir des valeurs absurdes (BPM négatif, temp hors plage). <strong>(3) Garde-fou de coût</strong> — timeout d'inactivité : si aucun <code>set_ambient_music</code> depuis X minutes ou SSE déconnecté, coupe le WebSocket Lyria.</p>
+    <p>Gold-plating à NE PAS faire : multi-pistes, crossfade, mixage layered, presets de genres, support sw-dm CLI (muet = très bien). <strong>Étape unique la plus rentable :</strong> rendre l'absence/chute de Lyria invisible au joueur (point 1). Tout le reste est optimisation.</p>
+  </details>
+
+  <details class="bar-joueur"><summary>🎲 Le Joueur à la Table</summary>
+    <p>Le tool existe déjà, donc ma question n'est pas « faut-il le construire » mais « est-ce que ça me donne envie de relancer une session ». Honnêtement : oui, à condition de tenir une promesse précise.</p>
+    <p>Ce qui me régale : le combat = priorité absolue avec changement dès l'initiative. C'est exactement le moment où mon cœur bat plus vite. Si la bascule arrive avant que le DM finisse de décrire le gobelin qui dégaine, je suis dedans. Si elle arrive 8 secondes après, j'ai déjà roulé mon dé, le frisson est passé, et la musique de combat devient une blague triste. <strong>La latence de SetScene vs le streaming de la narration est LE point qui fait ou défait la feature.</strong></p>
+    <p>Ce qui me frustre déjà : « bouton d'activation requis » (autoplay policy). Je démarre, je suis happé par le texte, et l'ambiance ne joue pas parce que je n'ai pas cliqué une icône flottante que je n'ai pas vue. Premier moment d'immersion raté en silence. Il faut un appel à l'action énorme au tout début.</p>
+    <p>Le « pas de fallback audio » ne me dérange pas : le silence est un fallback acceptable, mieux que de la mauvaise musique. <strong>Prochaine étape la plus rentable pour MOI :</strong> mesurer et serrer la latence combat → musique (viser &lt; 2s, idéalement déclenché en parallèle du premier token de narration), et rendre l'activation audio impossible à rater. Le reste — marché, camp, transitions douces — c'est du nice-to-have.</p>
+  </details>
+
+  <details class="bar-archi"><summary>📜 L'Architecte Narratif<span class="tag">— idée la plus créative, plus gros angle mort</span></summary>
+    <p>Le tool existe déjà — la vraie dette n'est pas technique, elle est narrative. Tu as une couche campagne (<code>campaign-plan.json</code> : acte courant, antagoniste, foreshadows, threads) et une couche audio, et elles ne se parlent pas. C'est l'occasion manquée.</p>
+    <p><strong>Oui, investir — mais pas dans plus de réactivité à la scène. Dans le leitmotiv.</strong> En musique de film, l'antagoniste a un thème ; quand il revient, l'oreille le reconnaît avant le cerveau. Lyria génère en continu (pas de piste identique réutilisable) — mais on peut fabriquer un pseudo-leitmotiv en figeant des descripteurs Lyria stables par entité narrative : Vaskir = « low dissonant cello drone, slow 50bpm, minor key, ritual percussion ». Stocke ce prompt-signature dans <code>campaign-plan.json</code> (<code>antagonist.audio_motif</code>, <code>act.audio_palette</code>). À l'apparition de l'antagoniste ou au déclenchement d'un foreshadow critique, le DM injecte le motif figé au lieu de laisser Haiku improviser.</p>
+    <p><strong>Étapes :</strong> (1) le briefing caché de <code>start_session</code> pose l'<code>audio_palette</code> de l'acte courant comme couleur de fond par défaut ; (2) <code>set_ambient_music</code> accepte un param <code>motif_ref</code> qui court-circuite Haiku ; (3) sur payoff d'un foreshadow, le DM déclenche le motif planté des sessions plus tôt — l'audio referme l'arc. Sans ça, tu as un superbe synthé qui réagit à la météo de la pièce et ignore la tempête de la campagne.</p>
+  </details>
+
+  <details class="bar-gold"><summary>🔍 Points saillants de la relecture par les pairs</summary>
+    <p><strong>Verdict quasi unanime :</strong> les 5 relecteurs élisent <strong>le Briseur de Jeu</strong> comme la réponse la plus forte — « la seule à traiter la feature comme un système complet » (spoil + injection + coût + désync + cycle de vie du manager), chiffrée et actionnable.</p>
+    <p><strong>Plus gros angle mort, à l'unanimité : l'Architecte Narratif.</strong> Le leitmotiv est « la seule idée vraiment créative », mais « bâtit l'étage sur des fondations que les autres démolissent ». Ironie relevée : injecter le motif de l'antagoniste « à son apparition » <em>aggrave</em> le spoil qu'il prétend servir.</p>
+    <p><strong>Ce que les cinq ont tous manqué</strong> (convergence des relecteurs) : (a) <strong>mesurer d'abord</strong> — latence réelle, le DM appelle-t-il le tool, % de joueurs gardant le son ; on optimise peut-être une feature ignorée ; (b) <strong>consentement &amp; accessibilité</strong> — mute persistant, opt-out, joueurs sourds/sensibles ; (c) <strong>risque d'API expérimentale</strong> (dépréciation de <code>lyria-realtime-exp</code>) et licence ; (d) <strong>spoil démultiplié en multijoueur</strong> futur.</p>
+  </details>
+
+  <footer>
+    Conseil de la Table — SkillsWeaver · moteur de JdR D&amp;D 5e<br>
+    Objet : musique d'ambiance IA dynamique (Lyria RealTime) · généré le 7 juin 2026, 19:24
+  </footer>
+</div>
+</body>
+</html>

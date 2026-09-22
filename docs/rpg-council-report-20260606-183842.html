@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conseil de la Table — Les Cendres du Commandant Oublié</title>
+<style>
+  :root{
+    --bg:#14110d; --panel:#1d1913; --panel2:#241f17; --ink:#e8dcc2;
+    --muted:#a99c80; --gold:#c8a24a; --gold-soft:#9c7f3a; --line:#3a3225;
+    --red:#b5502f; --green:#6f8f4a; --blue:#5a7a93;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,serif;
+    line-height:1.6;padding:0 0 60px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:40px 0 28px;margin-bottom:32px;
+    background:linear-gradient(180deg,#1a160f,transparent)}
+  .kicker{letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:var(--gold-soft);margin:0 0 10px}
+  h1{font-size:30px;margin:0;font-weight:600;color:#f1e7cf}
+  .sub{color:var(--muted);font-size:15px;margin-top:8px}
+  h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);
+    border-bottom:1px solid var(--line);padding-bottom:8px;margin:38px 0 16px}
+  .q{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+    padding:16px 20px;border-radius:4px;font-size:15px;color:#ddd0b4}
+  .verdict{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 26px 22px}
+  .verdict h3{color:var(--gold);font-size:16px;margin:22px 0 8px;font-weight:600}
+  .verdict p{margin:8px 0}
+  .first{background:linear-gradient(135deg,#2a2113,#1d1913);border:1px solid var(--gold-soft);
+    border-radius:6px;padding:20px 24px;margin:24px 0}
+  .first .lbl{color:var(--gold);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+  .first .act{font-size:17px;color:#f1e7cf}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--gold-soft);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+  .pos{font-weight:600}
+  .bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:4px 0 2px;border:1px solid var(--line)}
+  .seg{height:100%}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:5px;margin:10px 0;overflow:hidden}
+  summary{cursor:pointer;padding:13px 18px;font-weight:600;color:#e8dcc2;list-style:none;
+    display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary:hover{background:#221d15}
+  .tag{font-size:11px;color:var(--muted);font-weight:400}
+  details .body{padding:4px 18px 18px;color:#d5c8ac;font-size:14.5px;border-top:1px solid var(--line)}
+  .agree{color:#9fb877}.clash{color:#d08a5f}.blind{color:#8aa6bf}
+  .chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:11px;border:1px solid var(--line);
+    color:var(--muted);margin-right:6px}
+  .chip.win{border-color:var(--gold-soft);color:var(--gold)}
+  .chip.blindc{border-color:var(--red);color:#d08a5f}
+  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12.5px}
+  blockquote{border-left:2px solid var(--gold-soft);margin:10px 0;padding:2px 16px;color:#cabf9f;font-style:italic}
+  code{background:#0f0d09;border:1px solid var(--line);padding:1px 6px;border-radius:3px;font-size:13px;color:#d8c48a}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <p class="kicker">Conseil de la Table · SkillsWeaver</p>
+  <h1>Les Cendres du Commandant Oublié — Analyse de cohérence</h1>
+  <p class="sub">Verdict d'un conseil de 5 conseillers · 4 sessions jouées · rapport <code>coherence-narrative.json</code></p>
+</div></header>
+
+<div class="wrap">
+
+<h2>La question</h2>
+<div class="q">
+À partir du rapport de cohérence (3 lentilles : world-keeper, rules-keeper, scenario-critic) — antagoniste <strong>Volker jamais joué</strong>, effondrement des compétences en S4, interrogatoire-clé non mécanisé, capacités de classe jamais loggées, XP biaisé combat, acte 3 compressé, PNJ qui déversent l'exposition, foreshadows <code>fsh_003</code>/<code>fsh_004</code> non payés — quelles actions concrètes (a) pour cette aventure et (b) pour le moteur/personas afin d'éviter ces problèmes ? Quel est le changement à plus fort levier ?
+</div>
+
+<h2>Verdict du président</h2>
+<div class="verdict">
+  <p><strong>B (le Briseur de Jeu) a raison sur le diagnostic ; le MJ Pragmatique a raison sur la cure.</strong> On n'instrumente pas à l'aveugle, et on ne code surtout pas un sous-système avant d'avoir vérifié que le problème existe vraiment — et sur la version actuelle du moteur.</p>
+
+  <h3>Là où le conseil s'accorde</h3>
+  <p>1. <strong>Le briefing <code>start_session</code> est le point de levier</strong> — mais il informe sans rien exiger. La correction la moins chère : transformer trois lignes descriptives en trois lignes <em>impératives</em>.</p>
+  <p>2. <strong>Résoudre une scène-pivot en récit pur est une faute de jeu</strong> (interrogatoire sans jet, confrontation Volker narrée après coup) — pas seulement un trou de log. Le persona DM doit l'interdire.</p>
+  <p>3. <strong>Pour cette aventure, on ne rejoue presque rien</strong> : marquer <code>fsh_003</code>/<code>fsh_004</code> à la main, épilogue joué optionnel.</p>
+
+  <h3>Là où le conseil s'affronte</h3>
+  <p><strong>Gardien des Règles vs Briseur de Jeu — un désaccord de diagnostic, pas de solution.</strong> E veut corriger et instrumenter (tool <code>request_check</code>, gating, rétro-correction XP « niveau 3 dû RAW »), en faisant confiance au rapport. B refuse la prémisse : le rapport mesure la complétude du <em>logging</em>, pas la qualité du <em>jeu</em> — <code>roll_dice</code> est le seul événement fiablement tracé, donc tout converge artificiellement vers « pas assez de jets ». Forcer des jets = jets sans enjeu ; forcer Volker = antagoniste téléporté. <strong>Meilleur rapport, pire jeu.</strong> 4 relecteurs sur 5 donnent raison à B. Le conseil tranche : <strong>pas de rétro-correction XP</strong> — calibrer une règle sur un instrument cassé.</p>
+
+  <h3>Angles morts détectés par le conseil</h3>
+  <p>• <strong>Valider le diagnostic sur les transcripts bruts AVANT d'agir</strong> — le rapport est dérivé du journal, « l'accusé rédige son propre PV ».<br>
+  • <strong>Le briefing arrive trop tard</strong> pour l'antagoniste absent (constaté en fin de session) → il faut un <strong>check de clôture <code>end_session</code></strong> qui reporte l'<code>escalation_debt</code>.<br>
+  • <strong>Biais de version moteur</strong> (CLAUDE.md) : ne pas patcher si l'aventure est pré-version-courante.<br>
+  • <strong>La qualité réelle du jeu reste non mesurée</strong> : tous corrigent des <em>proxies</em>.</p>
+
+  <h3>La recommandation — ordre d'opérations</h3>
+  <p><strong>Étape 0 (bloquante, coût nul) :</strong> lire le transcript brut de S4 (pas le journal) + vérifier la version moteur. Si le diagnostic ne survit pas, <strong>on s'arrête</strong>.</p>
+  <p><strong>Cette aventure :</strong> marquer <code>fsh_003</code>/<code>fsh_004</code> resolved/abandoned. Pas de rétro-correction XP. Épilogue joué seulement si le joueur le veut.</p>
+  <p><strong>Moteur — CHEAP (à faire si l'étape 0 confirme) :</strong> (1) briefing impératif « l'antagoniste DOIT agir on-screen » ; (2) une puce persona DM « exiger un jet avant de livrer une info à enjeu, les PNJ résistent » ; (3) nag foreshadow + boucle de dette à <code>end_session</code>.</p>
+  <p><strong>Moteur — CHER, à NE PAS faire :</strong> tool <code>request_check</code>/<code>force_skill_check</code>, moteur de pacing, sous-système de scène d'antagoniste, tracking auto des capacités, gating dur. Des centaines de lignes Go pour discipliner un agent Opus qui obéit déjà à un bon prompt.</p>
+  <p><strong>Validation avant généralisation :</strong> rejouer une aventure de référence courte sur la version courante, relire le transcript brut. Si le prompt suffit, ne rien coder de plus.</p>
+</div>
+
+<div class="first">
+  <div class="lbl">La première chose à faire</div>
+  <div class="act">Lire le <strong>transcript brut de la session 4</strong> (pas le journal, pas le rapport) et confirmer que l'antagoniste, l'interrogatoire et les capacités manquent <em>vraiment</em> au jeu — avant d'écrire une seule ligne de patch.</div>
+</div>
+
+<h2>Alignement des conseillers</h2>
+<table>
+  <tr><th>Conseiller</th><th>Position sur le levier</th><th>Camp diagnostic</th></tr>
+  <tr><td class="pos" style="color:var(--blue)">Briseur de Jeu</td><td>L'instrument ment — corriger l'instrumentation, ne forcer RIEN</td><td>Sceptique ★ (porté par la relecture)</td></tr>
+  <tr><td class="pos" style="color:var(--gold)">MJ Pragmatique</td><td>Impératif au briefing + puce persona ; surtout ne pas coder</td><td>Cure minimale</td></tr>
+  <tr><td class="pos" style="color:#b98b6a">Joueur à la Table</td><td>Règle dure : antagoniste joué + jets obligatoires sur scènes-clés</td><td>Pro-correction (vécu)</td></tr>
+  <tr><td class="pos" style="color:var(--green)">Architecte Narratif</td><td><code>presence_schedule</code> + <code>escalation_debt</code> dans le campaign-plan</td><td>Pro-correction (structurel)</td></tr>
+  <tr><td class="pos" style="color:var(--red)">Gardien des Règles</td><td>Tool <code>request_check</code> + gating + rétro-correction XP</td><td>Pro-correction RAW — angle mort ⚑</td></tr>
+</table>
+<p style="font-size:13px;color:var(--muted)">Spectre : « ne force rien / l'instrument ment » <span style="color:var(--blue)">◄ Briseur</span> · <span style="color:var(--gold)">MJ Pragmatique</span> · <span style="color:#b98b6a">Joueur</span> · <span style="color:var(--green)">Architecte</span> · <span style="color:var(--red)">Gardien ►</span> « corrige et instrumente à fond ». Le président se range côté Briseur/Pragmatique.</p>
+
+<h2>Réponses complètes des conseillers</h2>
+
+<details><summary><span>🎭 Le Joueur à la Table</span><span class="tag">agentivité · climax volé</span></summary>
+<div class="body">
+<p>Volker n'a jamais existé pour le joueur. C'est ça, le crime. Quatre sessions à courir après un nom — jamais un visage, jamais une réplique, jamais un jet d'opposition contre lui. La satisfaction promise (« on va faire tomber Volker ») a été livrée par <strong>Gorren en voix off, après coup</strong>. On m'a raconté ma propre victoire. C'est le contraire d'un climax : c'est un reçu.</p>
+<p>Et S4 confirme que le moteur me retire la manette au pire moment. La scène d'interrogatoire — l'info la plus stratégique de l'aventure — résolue sans un jet ? Ça veut dire que mon perso, mes stats, mon Attaque Sournoise, mon Inspiration Bardique n'ont <strong>aucune prise</strong> sur le moment qui compte. J'aurais pu être un caillou. Intuition jamais lancée avec 10 PNJ menteurs : le DM a décidé seul de ce que je « ressens ». Pas d'agentivité, pas de doute, pas de tension.</p>
+<p><strong>Le changement à plus fort levier — un seul :</strong> une règle dure dans le persona dungeon-master + check au <code>start_session</code> de l'acte final : l'antagoniste nommé DOIT apparaître en scène jouée, avec au moins un échange direct PJ↔antagoniste avant la résolution, et la confrontation finale ne peut PAS être narrée en récit rapporté. Si le campaign-plan a un antagoniste, le briefing de l'acte 3 doit le flagger. Pas de payoff en voix off. Jamais.</p>
+<p>En second levier : interdire la résolution narrative des scènes-clés. Enquête, interrogatoire, négociation à enjeu → <strong>jet obligatoire</strong>, avec échec possible. Et que rules-keeper rappelle au DM d'inviter les capacités signature. Je veux <em>agir</em> sur l'histoire, pas la recevoir.</p>
+<p>Pour cette aventure : le fil de l'objet métallique de Gorren et la silhouette de Volker (<code>fsh_004</code>) sont encore actifs — c'est mon accroche pour rejouer. Donnez-moi une session 5 où je regarde enfin Volker dans les yeux.</p>
+</div></details>
+
+<details><summary><span>⚖️ Le Gardien des Règles</span><span class="tag chip blindc">angle mort désigné par 4 relecteurs</span></summary>
+<div class="body">
+<p>Effondrement des compétences en S4 — symptôme le plus grave côté RAW. Une scène d'interrogatoire stratégique résolue sans jet viole directement le SRD : c'est un <strong>test de caractéristique contesté</strong> (Intimidation/Persuasion CHA vs Intuition/Tromperie WIS). Idem, l'Intuition jamais lancée sur 10+ PNJ à agenda caché = la mécanique de détection de mensonge purement décorative.</p>
+<p><strong>Levier #1 — un tool <code>request_check</code> couplé à un gating dans <code>start_session</code>.</strong> Ajouter dans <code>internal/dmtools/</code> un tool qui force le DM à déclarer, pour toute scène d'enjeu, la DC + la compétence + l'éventuel jet contesté AVANT de narrer l'issue. Le briefing <code>start_session</code> doit inclure un <strong>bilan de couverture mécanique de la session précédente</strong> : compétences/sauvegardes non sollicitées, capacités de classe jamais déclenchées.</p>
+<p><strong>Capacités de classe.</strong> Le rules-keeper doit recevoir la composition du groupe et vérifier l'usage RAW : Attaque Sournoise sous-évaluée = dégâts faussés ; Fougue d'Action perdue = combat allongé — d'où vraisemblablement les <strong>46 jets pour 3 éclaireurs CR 1/2</strong>.</p>
+<p><strong>XP — corriger le biais combat.</strong> Le SRD prévoit l'XP pour objectifs non-combat. 150 XP pour la session sociale la plus dense vs 350 combat = barème cassé. Imposer une attribution par <strong>pilier</strong> (combat/exploration/interaction) et <strong>logger S4</strong>.</p>
+<p><strong>(a) Rétro-correction :</strong> recréditer XP S4 + rééquilibrer S3 fait franchir le palier — le groupe <strong>doit être niveau 3</strong>. C'est dû RAW.</p>
+<p><strong>(b) Changement à plus fort levier :</strong> le bilan de couverture mécanique injecté au <code>start_session</code>.</p>
+</div></details>
+
+<details><summary><span>📖 L'Architecte Narratif</span><span class="tag chip win">jugée la plus forte par le relecteur 1</span></summary>
+<div class="body">
+<p>L'antagoniste absent est le symptôme ; la cause est architecturale. Le <code>campaign-plan.json</code> tracke des foreshadows (planted/payoff) mais ne tracke jamais les <strong>apparitions de l'antagoniste</strong>. <code>fsh_004</code> a été planté en S2 et personne, ni le moteur ni le DM, n'a réclamé sa montée en présence. Volker est resté « active » parce que rien ne forçait son incarnation.</p>
+<p><strong>Le changement à plus fort levier : un budget d'apparitions d'antagoniste dans le campaign-plan, vérifié par le briefing de <code>start_session</code>.</strong></p>
+<p>(a) <strong>Clore rétroactivement</strong> — Une scène épilogue jouée, pas narrée : Gorren convoque le groupe, étale les preuves, Volker apparaît enfin (interrogatoire mécanisé, jet social). Identifier l'objet métallique (clé du 3e caisson) et résoudre qui a rescellé. Passer <code>fsh_003</code>/<code>fsh_004</code> en <code>paid</code>. C'est une demi-session, pas un patch JSON.</p>
+<p>(b) Trois leviers : <strong>1)</strong> schéma campaign-plan avec <code>presence_schedule</code> (offscreen→glimpsed→confronted) + <code>escalation_debt</code> qui monte tant que l'antagoniste n'a pas progressé, injecté au briefing. <strong>2)</strong> briefing anti-compression : <code>start_session</code> calcule sessions_restantes vs actes_restants, exige une session de respiration avant la résolution. <strong>3)</strong> persona DM : règle anti-exposition (un PNJ ne livre jamais son bloc complet à la première apparition) + aucun foreshadow ne meurt « active ».</p>
+<p>Le world-keeper devrait <em>réclamer</em> l'antagoniste, pas seulement le mentionner. Sinon on rejouera ce vide à chaque campagne.</p>
+</div></details>
+
+<details><summary><span>💥 Le Briseur de Jeu</span><span class="tag chip win">jugée la plus forte par 4 relecteurs</span></summary>
+<div class="body">
+<p>Le piège fatal : <strong>le rapport de cohérence mesure la complétude du LOGGING, pas la qualité du JEU</strong>, et il appelle ces deux choses par le même mot. CLAUDE.md le dit noir sur blanc — combats loggés coup par coup, marqueurs de progression rarement écrits, <code>sessions.json</code> vide pour location/xp. Donc « Attaque Sournoise jamais confirmée » ne signifie PAS « jamais appliquée » : ça signifie « le moteur n'a aucun champ qui l'enregistre ». Tu instrumentes une absence de capteur comme une absence d'événement.</p>
+<p>Le biais structurel : <code>roll_dice</code> est le SEUL événement fiablement tracé. Tout ce que le rapport « trouve » converge donc mécaniquement vers « pas assez de jets ». Le combat (46 jets) explose les compteurs ; la résolution narrative (interrogatoire) est invisible. Conclusion biaisée garantie.</p>
+<p>La correction naïve est le vrai danger. Forcer plus de jets = jets sans enjeu. Forcer Volker en scène = antagoniste téléporté pour satisfaire une métrique. Tu transformerais un DM qui prend des <strong>raccourcis légitimes</strong> en DM qui fait du <strong>théâtre pour les logs</strong>. Pire jeu, meilleur rapport.</p>
+<p><strong>(a) Cette aventure :</strong> aucune « correction ». Tu ne peux pas distinguer non-joué de non-loggé a posteriori. Verdict honnête : « non mesurable ». Relire les transcripts bruts (pas le journal).</p>
+<p><strong>(b) Moteur/personas :</strong> ne force RIEN côté DM. Corrige l'INSTRUMENTATION : logger les résolutions narratives (<code>narrative_resolution</code> avec enjeu), les capacités de classe déclenchées, les XP S4. Et tague chaque rapport : « basé sur logs <code>roll_dice</code> uniquement — silence ≠ absence ».</p>
+</div></details>
+
+<details><summary><span>🛠️ Le MJ Pragmatique</span><span class="tag">effort vs payoff · anti-sur-ingénierie</span></summary>
+<div class="body">
+<p>L'antagoniste fantôme et les compétences effondrées : deux symptômes, une seule cause : le briefing <code>start_session</code> ne RÉCLAME rien. Il informe, il n'exige pas. Chemin le plus court :</p>
+<p><strong>(b) Moteur/personas — coût quasi nul :</strong></p>
+<p><strong>1.</strong> Briefing <code>start_session</code> : ajouter 3 lignes impératives. « Antagoniste actif ce chapitre : Volker. Avant la fin de session, il DOIT agir on-screen au moins une fois (sbire, lettre, sabotage, apparition). » C'est du <code>fmt.Sprintf</code> — pas un tool, pas une scène.</p>
+<p><strong>2.</strong> Persona dungeon-master : une puce sur la résolution non-combat. « Quand un PJ enquête/interroge/persuade, EXIGE un jet avant de donner l'info. Les PNJ ne déversent pas l'exposition : ils résistent, mentent, négocient. » Zéro Go.</p>
+<p><strong>3.</strong> Foreshadow nag dans le briefing : lister les <code>fsh_*</code> « active » depuis >2 sessions. Déjà dans <code>foreshadows.json</code>, juste à afficher.</p>
+<p><strong>(a) Cette aventure :</strong> rien à rejouer. Marquer <code>fsh_003</code>/<code>fsh_004</code> à la main. Note de campagne. Fini.</p>
+<p><strong>NE PAS FAIRE :</strong> le sous-système « scène d'antagoniste » dédié, le moteur de pacing, un tool <code>force_skill_check</code>, le tracking automatique des capacités. Des centaines de lignes Go, de la dette, des tokens — pour discipliner un agent Opus qui obéit déjà à une instruction de prompt bien formulée. Le levier, c'est l'impératif dans le briefing, pas le code.</p>
+</div></details>
+
+<h2>Points saillants des relectures</h2>
+<details><summary><span>🔍 Synthèse des 5 relectures anonymes</span><span class="tag">B plébiscitée · E pointée du doigt</span></summary>
+<div class="body">
+<p><span class="chip win">Plus forte</span> <strong>4 relecteurs sur 5 → B (Briseur de Jeu)</strong> : seule réponse à attaquer la validité de la prémisse au lieu de l'optimiser. Condition préalable à tout le reste. Le relecteur 1 préfère A (Architecte Narratif) pour son bon niveau d'abstraction.</p>
+<p><span class="chip blindc">Angle mort</span> <strong>5 relecteurs sur 5 → E (Gardien des Règles)</strong> : la rétro-correction XP « niveau 3 dû RAW » réécrit l'état du jeu sur des logs que CLAUDE.md déclare non fiables ; empile tools + gating (over-engineering pointé par D) ; confond conformité RAW et qualité de jeu.</p>
+<p><strong>Ce que tous ont manqué (émergé en relecture) :</strong></p>
+<ul>
+<li><strong>Valider le diagnostic sur le transcript brut S4</strong> comme préalable bloquant avant tout patch.</li>
+<li><strong>Check de clôture <code>end_session</code></strong> : l'antagoniste absent se constate en fin de session — il faut reporter l'<code>escalation_debt</code>, le <code>start_session</code> seul arrive trop tard.</li>
+<li><strong>Biais de version moteur</strong> (CLAUDE.md) : patcher des personas peut viser un bug déjà corrigé.</li>
+<li><strong>La qualité réelle du jeu n'est jamais mesurée</strong> : tous corrigent des proxies ; rejouer une session de référence pour valider qu'un changement aide vraiment.</li>
+</ul>
+</div></details>
+
+<footer>
+  <p>Conseil de la Table — SkillsWeaver · généré le 2026-06-06 18:38:42 · objet : analyse du rapport de cohérence de <strong>les-cendres-du-commandant-oublie</strong> (4 sessions).</p>
+  <p>Source analysée : <code>data/adventures/les-cendres-du-commandant-oublie/coherence-narrative.json</code> + <code>foreshadows.json</code> (analyse de fichiers — session web live, pas d'accès navigateur). Transcript complet : <code>rpg-council-transcript-20260606-183842.md</code>.</p>
+</footer>
+
+</div>
+</body>
+</html>

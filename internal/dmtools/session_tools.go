@@ -6,7 +6,6 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/coherence"
-	"dungeons/internal/narrativeai"
 )
 
 // NewStartSessionTool creates a tool to start a new game session.
@@ -146,15 +145,6 @@ func preSessionCoherenceGate(adv *adventure.Adventure) (humanSummary, dmBrief st
 		}
 	}
 
-	// 4. Cached narrative judgment synthesis → what did not work previously.
-	if j, _ := coherence.LoadNarrativeJudgment(adv); j != nil && j.Synthesis != "" {
-		stale := ""
-		if report.NarrativeBrief != nil && j.Stale(report.NarrativeBrief.PlayedSessions) {
-			stale = " (analyse des sessions précédentes)"
-		}
-		fmt.Fprintf(&db, "\n**Synthèse de l'analyse narrative%s** :\n%s\n", stale, j.Synthesis)
-	}
-
 	return hs.String(), db.String()
 }
 
@@ -284,13 +274,6 @@ func NewEndSessionTool(adv *adventure.Adventure, agentManager AgentManager) *Sim
 
 			display := fmt.Sprintf("Session %d terminée - Durée: %s", session.ID, session.Duration)
 
-			// Refresh the AI narrative judgment so the next session's pre-session
-			// gate injects an up-to-date "what didn't work" synthesis. Best-effort:
-			// the session ends regardless of whether the judgment succeeds.
-			if note := refreshNarrativeJudgment(adv, agentManager); note != "" {
-				display += "\n" + note
-			}
-
 			return map[string]interface{}{
 				"success":    true,
 				"session_id": session.ID,
@@ -300,28 +283,6 @@ func NewEndSessionTool(adv *adventure.Adventure, agentManager AgentManager) *Sim
 			}, nil
 		},
 	}
-}
-
-// refreshNarrativeJudgment runs the 3-lens AI judgment over the just-ended
-// session and caches it. Returns a short status note for the end-session display.
-// Best-effort: any failure (no agent manager, no API key, API error) is reported
-// in the note but never blocks ending the session.
-func refreshNarrativeJudgment(adv *adventure.Adventure, agentManager AgentManager) string {
-	if agentManager == nil {
-		return ""
-	}
-	brief, err := coherence.BuildNarrativeBrief(adv)
-	if err != nil {
-		return fmt.Sprintf("⚠️  Analyse narrative non rafraîchie (dossier: %v).", err)
-	}
-	judgment, err := narrativeai.Judge(brief, agentManager)
-	if err != nil {
-		return fmt.Sprintf("⚠️  Analyse narrative non rafraîchie (%v).", err)
-	}
-	if err := coherence.SaveNarrativeJudgment(adv, judgment); err != nil {
-		return fmt.Sprintf("⚠️  Analyse narrative calculée mais non sauvegardée (%v).", err)
-	}
-	return fmt.Sprintf("🤖 Analyse narrative rafraîchie (%d perspectives) — disponible au prochain démarrage de session.", len(judgment.Lenses))
 }
 
 // NewGetSessionInfoTool creates a tool to get information about the current session.

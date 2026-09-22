@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conseil de la Table (Passage 2 — logs bruts) — Les Cendres du Commandant Oublié</title>
+<style>
+  :root{
+    --bg:#14110d; --panel:#1d1913; --panel2:#241f17; --ink:#e8dcc2;
+    --muted:#a99c80; --gold:#c8a24a; --gold-soft:#9c7f3a; --line:#3a3225;
+    --red:#b5502f; --green:#6f8f4a; --blue:#5a7a93;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,serif;
+    line-height:1.6;padding:0 0 60px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:40px 0 28px;margin-bottom:32px;
+    background:linear-gradient(180deg,#1a160f,transparent)}
+  .kicker{letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:var(--gold-soft);margin:0 0 10px}
+  h1{font-size:28px;margin:0;font-weight:600;color:#f1e7cf}
+  .sub{color:var(--muted);font-size:15px;margin-top:8px}
+  .badge{display:inline-block;background:#2a2113;border:1px solid var(--gold-soft);color:var(--gold);
+    font-size:12px;padding:3px 10px;border-radius:12px;margin-top:12px;letter-spacing:.04em}
+  h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);
+    border-bottom:1px solid var(--line);padding-bottom:8px;margin:38px 0 16px}
+  .q{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+    padding:16px 20px;border-radius:4px;font-size:15px;color:#ddd0b4}
+  .verdict{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 26px 22px}
+  .verdict h3{color:var(--gold);font-size:16px;margin:22px 0 8px;font-weight:600}
+  .verdict p{margin:8px 0}
+  .first{background:linear-gradient(135deg,#2a2113,#1d1913);border:1px solid var(--gold-soft);
+    border-radius:6px;padding:20px 24px;margin:24px 0}
+  .first .lbl{color:var(--gold);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+  .first .act{font-size:17px;color:#f1e7cf}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--gold-soft);font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+  .ok{color:var(--green)} .ko{color:var(--red)} .mid{color:var(--gold)}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:5px;margin:10px 0;overflow:hidden}
+  summary{cursor:pointer;padding:13px 18px;font-weight:600;color:#e8dcc2;list-style:none;
+    display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary:hover{background:#221d15}
+  .tag{font-size:11px;color:var(--muted);font-weight:400}
+  details .body{padding:4px 18px 18px;color:#d5c8ac;font-size:14.5px;border-top:1px solid var(--line)}
+  .chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:11px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .chip.win{border-color:var(--gold-soft);color:var(--gold)}
+  .chip.blindc{border-color:var(--red);color:#d08a5f}
+  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12.5px}
+  code{background:#0f0d09;border:1px solid var(--line);padding:1px 6px;border-radius:3px;font-size:13px;color:#d8c48a}
+  pre{background:#0f0d09;border:1px solid var(--line);border-radius:4px;padding:12px 14px;overflow-x:auto;font-size:12.5px;color:#cdbf95}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <p class="kicker">Conseil de la Table · SkillsWeaver · PASSAGE 2</p>
+  <h1>Les Cendres du Commandant Oublié — verdict fondé sur les logs bruts</h1>
+  <p class="sub">Second passage du conseil · dossier de preuves extrait des 4 logs de session · le rapport de cohérence automatique a été écarté comme source primaire</p>
+  <span class="badge">⚠️ Aventure jouée sur Sonnet 4.6 / Opus 4.6 — JAMAIS sur Opus 4.8 (DM courant)</span>
+</div></header>
+
+<div class="wrap">
+
+<h2>La question</h2>
+<div class="q">
+Premier conseil rendu sur le rapport de cohérence automatique. À la demande de l'utilisateur, on a relu les <strong>logs bruts des 4 sessions</strong> pour donner au conseil des sources plus complètes. Quels sont les <em>vrais</em> problèmes (vérifiés), et quelles actions/modifications — (a) pour l'aventure, (b) pour le moteur/personas — les corrigent ? Le verdict change-t-il ?
+</div>
+
+<h2>Ce que les logs bruts révèlent vs le rapport de cohérence</h2>
+<table>
+  <tr><th>Affirmation du rapport</th><th>Vérité des logs bruts</th><th>Statut</th></tr>
+  <tr><td>Attaque Sournoise jamais confirmée</td><td>Utilisée ~8× ; règle d'adjacence RAW correctement appliquée (refusée S4 L.1676)</td><td class="ko">FAUX</td></tr>
+  <tr><td>Intuition jamais lancée</td><td>Perspicacité lancée ≥7× (S1/S3/S4), souvent ratée</td><td class="ko">FAUX</td></tr>
+  <tr><td>XP de S4 non loggés</td><td><code>add_xp</code> +75 puis +200 en S4</td><td class="ko">FAUX</td></tr>
+  <tr><td>Groupe niveau 2/3</td><td>Niveau 4 tout du long (~5125 XP ; seuil niv.5 = 6500)</td><td class="ko">FAUX</td></tr>
+  <tr><td>Objet métallique de Gorren = fil mort</td><td>Résolu en S3 (plaque-sceau du Tribunal, « Pièce à Conviction »)</td><td class="ko">FAUX</td></tr>
+  <tr><td>Interrogatoire non mécanisé</td><td>Jet contesté présent (Intimidation 6 vs Sagesse 9)… mais résultat ignoré</td><td class="mid">NUANCÉ</td></tr>
+  <tr><td>Antagoniste Volker jamais incarné</td><td>Confirmé — jamais on-screen sur 4 sessions ; mais le <strong>joueur</strong> a refusé la confrontation</td><td class="ok">VRAI (à nuancer)</td></tr>
+  <tr><td>Capacités signature 1×/repos inutilisées</td><td>Confirmé : Inspiration Bardique, Channel Divinity, Sursaut d'Action = 0×</td><td class="ok">VRAI</td></tr>
+  <tr><td>Acte final compressé</td><td>Confirmé : résolution en ~4 tours, adieux narrés</td><td class="ok">VRAI</td></tr>
+</table>
+
+<h2>La preuve décisive — l'interrogatoire de la session 4</h2>
+<p>Le verdict du conseil reposait sur une question factuelle : le jet raté a-t-il eu un <strong>coût</strong> (fail-forward légitime) ou a-t-il été <strong>ignoré</strong> (jet cosmétique) ? La citation brute tranche :</p>
+<pre>[22:04:32] Caelian - Intimidation pour interroger le prisonnier: 1d20+5: [1] + 5 = 6
+[22:04:32] Prisonnier - Sagesse pour résister: 1d20: [9] = 9   ← le défenseur GAGNE le contest
+[22:04:49] ASSISTANT: « ...il n'a pas besoin de beaucoup d'encouragement. Il parle... »
+           → livre l'information COMPLÈTE et EXACTE : nom de Volker, mission, code
+             du miroir, position « 2 jours / 30 hommes ». Aucun coût, aucune info
+             partielle, aucun mensonge, aucune complication.</pre>
+<p><strong>Conclusion :</strong> test contesté perdu par le joueur, puis ignoré. Ce n'est pas du fail-forward — c'est un jet cosmétique. Le problème est réel… <strong>mais observé sur Opus 4.6, pas sur la version DM courante (Opus 4.8).</strong></p>
+
+<h2>Verdict du président</h2>
+<div class="verdict">
+  <p>Je tranche <strong>avec la majorité des relectures (4/5 pour le Briseur de Jeu), contre l'action immédiate sur les personas — mais sans le défaitisme.</strong> On ne reste pas paralysés : on fait le test, puis on agit.</p>
+
+  <h3>Là où le conseil s'accorde</h3>
+  <p>• Le rapport de cohérence était faux sur le fond — <strong>aucune rétro-correction mécanique</strong> (le Gardien des Règles fait son mea culpa).<br>
+  • Le vrai motif est <strong>narratif, pas mécanique</strong> : des jets sont lancés puis leurs résultats contournés.<br>
+  • <strong>Pas de Go à écrire</strong> — tout le monde vise des changements de persona/briefing.<br>
+  • <strong>Volker absent n'est pas un bug</strong> : le joueur a refusé la confrontation (« 4 contre 30 = suicide »). Forcer l'antagoniste violerait l'agentivité.</p>
+
+  <h3>Là où le conseil s'affronte</h3>
+  <p><strong>Agir maintenant vs valider d'abord.</strong> Joueur/Gardien/MJ Pragmatique : les invariants fail-forward sont vrais quelle que soit la version → patcher tout de suite. Briseur de Jeu : on ignore si l'échec a eu un coût, et ces logs viennent d'un moteur (Opus 4.6) qui n'est plus le DM courant (Opus 4.8) → patcher = corriger un fantôme.<br>
+  <strong>Garantir l'antagoniste vs agentivité.</strong> Milestone bloquant (Joueur) / contrat d'incarnation (Architecte) punissent un choix joueur légitime — un sous-système contre un faux positif.</p>
+
+  <h3>Angles morts détectés par le conseil</h3>
+  <p>• <strong>Le test décisif</strong> (apparu en relecture) : rejouer le segment litigieux sur Opus 4.8 — seul geste qui discrimine bug vs fail-forward ET version périmée vs courante.<br>
+  • La <strong>fiabilité du dossier</strong> lui-même : IA relisant des logs d'IA, troués par construction (CLAUDE.md).<br>
+  • <code>fsh_002</code>/<code>fsh_003</code> ouverts = <strong>possiblement volontaire</strong> (hooks de suite), pas une dette.</p>
+
+  <h3>Le rapport de cohérence : à déclasser</h3>
+  <p>C'est le vrai coupable de tout ce conseil. Il <strong>mesure le logging, pas le jeu</strong>, et a produit des faux positifs en série. Verdict : <strong>ne plus l'utiliser comme détecteur de défauts de jeu</strong> — le retirer, ou le requalifier en simple <em>audit de complétude des logs</em>. Le seul correctif moteur qu'il justifie : <strong>combler les trous de log</strong>, pour que le prochain audit dise la vérité.</p>
+
+  <h3>La recommandation — ordre d'opérations</h3>
+  <p><strong>1. Maintenant (cheap) :</strong> ✅ fait — citation brute de l'interrogatoire extraite → coût nul confirmé (jet ignoré).<br>
+  <strong>2. Maintenant, sans risque :</strong> déclasser le rapport de cohérence ; mettre au backlog « combler les trous de log » (indépendant de la version).<br>
+  <strong>3. Test décisif :</strong> rejouer une session de référence courte sur Opus 4.8 avec une scène de test social contesté + un antagoniste. Observer : l'échec a-t-il une conséquence ? l'antagoniste est-il proposé à l'écran ?<br>
+  <strong>4. Conditionnel (seulement si le test reproduit le défaut) :</strong> une ligne au persona DM (« un jet contesté perdu par le joueur protège l'enjeu ; un échec produit une conséquence concrète ») + une ligne au briefing (foreshadows à réarmer + antagoniste à faire vivre).</p>
+  <p><strong>Ce qu'on ne fait pas :</strong> pas de milestone bloquant, pas de contrat d'incarnation <code>onstage_beats</code>, pas de correcteur XP, pas de tracking de capacités, pas de moteur de pacing, pas de rétro-incarnation de Volker.</p>
+</div>
+
+<div class="first">
+  <div class="lbl">La première chose à faire</div>
+  <div class="act">✅ <strong>Déjà exécutée</strong> : la citation horodatée du jet <code>Intimidation [1]+5=6</code> et de ses suites est extraite — coût nul confirmé, jet ignoré. <strong>Prochaine action :</strong> rejouer une courte scène de test social contesté sur <strong>Opus 4.8</strong> avant de toucher au moindre persona.</div>
+</div>
+
+<h2>Réponses des conseillers (passage 2)</h2>
+
+<details><summary><span>🎭 Le Joueur à la Table</span><span class="tag">l'enjeu, pas les dés</span></summary>
+<div class="body">
+<p>Le vrai problème : <strong>le jeu n'a pas d'enjeu</strong>. Pas un manque de dés — un manque de <em>conséquences</em>. Quand un Intimidation à 6 contre une Sagesse 9 livre quand même l'info, le joueur apprend que ses jets ne pèsent rien. Et Volker n'arrive jamais : l'antagoniste est un fantôme, la confrontation est <em>racontée</em> par un PNJ, et c'est le joueur lui-même qui sabote l'objectif faute d'alternative jouable. On a coché des cases (XP, livraison, adieux) sans ressentir « j'ai fait ça, moi ».</p>
+<p>Levier : <strong>rendre l'échec intéressant au lieu de l'annuler</strong> (fail-forward : l'info sort, mais le prisonnier ment sur un détail, ou alerte ses gardes). (a) Ne pas conclure sur un Volker rapporté ; donner une vraie scène finale jouable ; offrir une option qui n'est pas « suicide ou abandon ». (b) Persona DM : fail-forward obligatoire ; confrontation d'antagoniste = milestone bloquant ; interdire de compresser l'acte final. Le frisson, c'est de risquer quelque chose. Rendez-moi ce risque.</p>
+</div></details>
+
+<details><summary><span>⚖️ Le Gardien des Règles</span><span class="tag">mea culpa + Resolve-Then-Narrate</span></summary>
+<div class="body">
+<p>Les jets faits mais ignorés : défaut à plus fort levier, car il vide la mécanique de sens. SRD, test contesté : l'interrogatoire — Intimidation 6 contre JdS Sagesse 9 — est <strong>gagné par le défenseur</strong>, donc le prisonnier RÉSISTE. Livrer l'info quand même transforme le d20 en théâtre. Un « 1 » naturel qui produit un succès narratif viole le principe : un échec doit avoir une conséquence (sec, partiel, ou réussite à coût).</p>
+<p>(a) Aucune rétro-correction (XP, niveau 4, Sournoise : tout est RAW-conforme). (b) 1) Persona DM règle <strong>« Resolve-Then-Narrate »</strong> : comparer au DD/jet adverse AVANT de narrer ; un échec DOIT produire échec/coût/info partielle. 2) Briefing rappelle les tests contestés SRD. 3) Rules-keeper audite « résultat appliqué ? », pas seulement la légalité.</p>
+<p><strong>Mea culpa :</strong> mon angle précédent (effondrement, rétro-correction XP « niveau 3 ») était sur-instrumenté et faux. Le vrai trou n'est pas l'absence de jets — c'est l'absence de conséquence.</p>
+</div></details>
+
+<details><summary><span>📖 L'Architecte Narratif</span><span class="tag">contrat d'incarnation</span></summary>
+<div class="body">
+<p>L'antagoniste sans incarnation est le vrai problème, et il en aggrave deux autres. Volker n'est pas un personnage : c'est une rumeur que quatre PNJ se relaient à citer. Sans présence physique, aucune menace ne monte, donc le joueur peut rationnellement décider que la confrontation est « un suicide ». <code>fsh_004</code> (la silhouette en S2) était l'amorce d'incarnation : jamais payée. C'est ça, la dette qui compte — pas <code>fsh_002</code>/<code>fsh_003</code>, du worldbuilding optionnel. La compression de l'acte 3 découle du même vide.</p>
+<p>(a) Garder <code>fsh_002</code>/<code>fsh_003</code> ouverts comme hooks de suite assumés ; ne PAS rétro-incarner Volker (la livraison-trahison est une fin valable) ; logger que l'objectif « confronter » a muté en « incriminer ». (b) Faire du campaign-plan un <strong>contrat d'incarnation</strong> : champ <code>onstage_beats</code> (≥1 scène jouée avant l'acte final), <code>escalation_ladder</code> foreshadow→présence ; le briefing alerte quand un antagoniste reste off-stage à >60 % ; autoriser le DM à requalifier un objectif désamorcé par le joueur plutôt que de le laisser mourir en silence.</p>
+</div></details>
+
+<details><summary><span>💥 Le Briseur de Jeu</span><span class="tag chip win">plus forte selon 4 relecteurs sur 5</span></summary>
+<div class="body">
+<p>Le dossier ne dit pas si un <strong>coût</strong> a accompagné l'info livrée sur échec : sans ça, on ne distingue pas un bug d'un « fail-forward » RAI légitime. Corriger en aveugle, c'est risquer de tuer une vertu et de transformer chaque « 1 » social en mur sec — anti-jeu.</p>
+<p>Trois pièges : <strong>1)</strong> le dossier est produit par des IA relisant des IA — biais circulaire ; « Volker jamais on-screen » repose sur une absence de trace (le rapport précédent en est la démonstration). Exigez la citation brute horodatée. <strong>2)</strong> Volker absent = NON-défaut : c'est LE JOUEUR qui a tranché « suicide ». Forcer Volker violerait l'agentivité. Un foreshadow non payé par choix du joueur est une réussite de table, pas une dette. <strong>3)</strong> Piège fatal : cette aventure tourne sur <strong>Sonnet 4.6 / Opus 4.6</strong>, pas la version courante (Opus 4.8). Modifier les personas sur des logs d'une version antérieure = corriger un comportement qui n'existe peut-être plus.</p>
+<p>Ne corrigez RIEN avant : (a) une aventure de référence sur la version courante, (b) la preuve brute que l'échec social n'a entraîné aucun coût. Le seul correctif sûr aujourd'hui : combler les trous de LOG.</p>
+</div></details>
+
+<details><summary><span>🛠️ Le MJ Pragmatique</span><span class="tag chip win">plus forte selon le relecteur 1</span></summary>
+<div class="body">
+<p>Trois réglages de narration, pas trois tickets Go. Le chemin court tient en deux lignes et une vérif.</p>
+<p><strong>Ligne persona (dungeon-master.md) :</strong> « Tout jet raté doit produire une conséquence narrative concrète (info refusée, partielle, ou coût) ; à chaque scène-clé, invite explicitement au moins un PJ à utiliser sa capacité signature (Inspiration Bardique, Channel Divinity, Sursaut d'Action) ; accorde à l'acte final autant de tours que les actes précédents. » Couvre 3 problèmes d'un coup.</p>
+<p><strong>Ligne briefing (start_session) :</strong> « Foreshadows non résolus à payer ou réarmer : <code>fsh_002</code>, <code>fsh_003</code>. Antagoniste à faire vivre : Volker (≥1 présence indirecte). » Le briefing injecte déjà les foreshadows — on durcit le verbe.</p>
+<p><strong>Ne vaut pas l'effort :</strong> correcteur XP (XP loggés), tracking de capacités (confirmées), sous-système d'antagoniste (non-incarnation = choix joueur), moteur de pacing. <strong>Validation préalable non négociable :</strong> grep le modèle (« sonnet-4-6 » en S2) ; si pas la version courante, tu patches peut-être un comportement déjà corrigé. Deux lignes, un grep, une session test.</p>
+</div></details>
+
+<h2>Points saillants des relectures (passage 2)</h2>
+<details><summary><span>🔍 Synthèse des 5 relectures anonymes</span><span class="tag">Briseur plébiscité (4/5)</span></summary>
+<div class="body">
+<p><span class="chip win">Plus forte</span> <strong>4 relecteurs sur 5 → Briseur de Jeu</strong> (ancre le verdict sur le fait de version, refuse de patcher en aveugle, distingue bug vs fail-forward). Le relecteur 1 préfère le MJ Pragmatique (diagnostic + protocole de validation exécutable, sans défaitisme).</p>
+<p><span class="chip blindc">Angles morts</span> répartis : <strong>Gardien des Règles</strong> (prescrit des correctifs sur diagnostic non établi), <strong>Joueur</strong> (« milestone bloquant » punit un choix joueur) et <strong>Architecte</strong> (contrat d'incarnation lourd contre un faux positif).</p>
+<p><strong>Ce que tous ont manqué :</strong> le test discriminant minimal — <strong>rejouer le segment litigieux sur Opus 4.8</strong> — n'apparaît que dans les relectures ; la fiabilité du dossier (IA relisant des logs troués) n'est pas neutralisée sans citation brute ; <code>fsh_002</code>/<code>fsh_003</code> ouverts sont peut-être un design volontaire.</p>
+</div></details>
+
+<footer>
+  <p>Conseil de la Table — SkillsWeaver · PASSAGE 2 · généré le 2026-06-06 19:37:31 · objet : verdict fondé sur les logs bruts de <strong>les-cendres-du-commandant-oublie</strong> (4 sessions).</p>
+  <p>Sources : <code>sw-dm-session-1..4.log</code> (dossier de preuves extrait par 4 agents) + vérification de version moteur. Supersède le passage 1 (<code>rpg-council-report-20260606-183842.html</code>). Transcript : <code>rpg-council-transcript-20260606-193731.md</code>.</p>
+</footer>
+
+</div>
+</body>
+</html>

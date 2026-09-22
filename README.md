@@ -845,7 +845,7 @@ skillsweaver/
 │   ├── monsters.json        # Bestiary
 │   ├── treasure.json        # Treasure tables
 │   └── names.json           # Name dictionaries
-├── CLAUDE.md                # Project instructions for Claude
+├── AGENTS.md                # Project instructions for agents (CLAUDE.md is a pointer)
 └── README.md                # This file
 ```
 

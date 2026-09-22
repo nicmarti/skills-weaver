@@ -724,7 +724,7 @@ Exit criterion: unit and integration tests cover all protocol conversions and ag
 
 - [ ] Update active runtime sections in `README.md`.
 - [ ] Update `DEPLOYMENT.md`.
-- [ ] Update active runtime sections in `CLAUDE.md`.
+- [x] Update active runtime sections in `CLAUDE.md`.
 - [ ] Update `docs/optional-features-summary.md`.
 - [ ] Update `core_agents/skills/map-generator/SKILL.md`.
 - [ ] Update `core_agents/skills/journal-illustrator/SKILL.md`.
@@ -829,7 +829,7 @@ Exit criterion: all automated checks pass, real contract tests pass, and the ref
 | `core_agents/agents/world-keeper.md` | OpenRouter Advisor semantics |
 | `README.md` | OpenRouter setup and model documentation |
 | `DEPLOYMENT.md` | OpenRouter deployment and troubleshooting |
-| `CLAUDE.md` | Active runtime architecture only |
+| `AGENTS.md` (formerly CLAUDE.md) | Active runtime architecture only; CLAUDE.md is now a pointer |
 | `docs/optional-features-summary.md` | New client and Advisor behavior |
 | `core_agents/skills/map-generator/SKILL.md` | OpenRouter enrichment requirements |
 | `core_agents/skills/journal-illustrator/SKILL.md` | OpenRouter enrichment requirements |

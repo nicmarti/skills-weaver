@@ -285,7 +285,7 @@ System is working correctly if:
 **Documentation**:
 - `IMPLEMENTATION_SUMMARY.md` - Complete implementation details
 - `E2E_TESTING_GUIDE.md` - Comprehensive testing procedures
-- `CLAUDE.md` - User-facing documentation
+- `AGENTS.md` - User-facing documentation (formerly CLAUDE.md)
 - `core_agents/agents/dungeon-master.md` - DM persona instructions
 
 **Logs**:

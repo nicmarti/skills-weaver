@@ -13,8 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 	"github.com/gin-gonic/gin"
 
 	"dungeons/internal/adventure"
@@ -82,7 +80,7 @@ func (s *Server) handleCreateAdventure(c *gin.Context) {
 	}
 
 	// Generate campaign plan if theme provided
-	if theme != "" && s.apiKey != "" {
+	if theme != "" && s.llmClient != nil {
 		if err := s.generateCampaignPlan(adv, theme, duration, adventureType); err != nil {
 			// Log warning but don't fail adventure creation
 			fmt.Printf("Warning: campaign plan generation failed: %v\n", err)
@@ -1362,13 +1360,39 @@ Conserve les CLÉS JSON en anglais (ex. "narrative_structure", "role", "race", "
 	return prompt, dmPersona, worldResources, dur, nil
 }
 
+// campaignLLMRequest builds the neutral Campaign-role request, attaching the
+// optional world-map image as a multimodal user message.
+func campaignLLMRequest(model, dmPersona, prompt string, worldResources *agent.WorldResources) llm.Request {
+	userMessage := llm.UserMessage(prompt)
+	if worldResources != nil && worldResources.MapImageBase64 != "" {
+		userMessage = llm.UserMessageWithImage(prompt, llm.ImagePart{
+			MediaType: worldResources.MapImageMediaType,
+			Base64:    worldResources.MapImageBase64,
+		})
+	}
+	return llm.Request{
+		Model:    model,
+		System:   dmPersona,
+		Messages: []llm.Message{userMessage},
+		// Structured JSON output; the tolerant fence-stripping parsing in the
+		// caller stays as the fallback for endpoints without response-format
+		// support.
+		MaxCompletionTokens: 8192,
+		JSONResponse: &llm.JSONResponseFormat{
+			Name:   "campaign_plan",
+			Strict: false,
+		},
+		RequireParameters: true,
+	}
+}
+
 // generateCampaignPlanWithBrief builds the request, calls the model, then parses
 // and saves the JSON campaign plan. When brief is non-nil (the fortune-teller
 // wizard path) its creative constraints and world-coherence guidance are part of
 // the prompt. The output JSON schema is unchanged either way.
 func (s *Server) generateCampaignPlanWithBrief(adv *adventure.Adventure, theme, duration, adventureType string, brief *tarot.CreativeBrief) error {
-	if s.apiKey == "" {
-		return fmt.Errorf("ANTHROPIC_API_KEY not set")
+	if s.llmClient == nil {
+		return fmt.Errorf("OpenRouter client unavailable (OPENROUTER_API_KEY not set)")
 	}
 
 	prompt, dmPersona, worldResources, dur, err := s.buildCampaignPlanRequest(adv, theme, duration, adventureType, brief)
@@ -1376,51 +1400,17 @@ func (s *Server) generateCampaignPlanWithBrief(adv *adventure.Adventure, theme, 
 		return err
 	}
 
-	// Call Anthropic API with Sonnet for better narrative quality
-	client := anthropic.NewClient(option.WithAPIKey(s.apiKey))
+	// Call the Campaign model through the shared neutral client, preserving
+	// the optional world-map image input.
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	// Build user message content blocks (text + optional map image)
-	userContent := []anthropic.ContentBlockParamUnion{
-		anthropic.NewTextBlock(prompt),
-	}
-	if worldResources != nil && worldResources.MapImageBase64 != "" {
-		userContent = append(userContent,
-			anthropic.NewImageBlockBase64(worldResources.MapImageMediaType, worldResources.MapImageBase64),
-		)
-	}
-
-	response, err := client.Messages.New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.ModelClaudeSonnet4_5,
-		MaxTokens: 8192,
-		System: []anthropic.TextBlockParam{
-			{
-				Type: "text",
-				Text: dmPersona,
-			},
-		},
-		Messages: []anthropic.MessageParam{
-			{
-				Role:    "user",
-				Content: userContent,
-			},
-		},
-	})
-
+	resp, err := s.llmClient.Complete(ctx, campaignLLMRequest(s.llmCfg.ModelCampaign, dmPersona, prompt, worldResources))
 	if err != nil {
 		return fmt.Errorf("API call failed: %w", err)
 	}
 
-	// Extract JSON from response
-	var responseText string
-	for _, block := range response.Content {
-		switch contentBlock := block.AsAny().(type) {
-		case anthropic.TextBlock:
-			responseText += contentBlock.Text
-		}
-	}
-
+	responseText := resp.Message.Text
 	if responseText == "" {
 		return fmt.Errorf("empty response from API")
 	}

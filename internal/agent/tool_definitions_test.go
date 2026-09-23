@@ -2,6 +2,7 @@ package agent
 
 import (
 	"dungeons/internal/dmtools"
+	"dungeons/internal/llm"
 	"dungeons/internal/skills"
 	"encoding/json"
 	"errors"
@@ -74,7 +75,7 @@ func TestProductionRegistryConvertsEveryToolOffline(t *testing.T) {
 	am, cleanup := setupAgentManager(t)
 	defer cleanup()
 	registry := NewToolRegistry(am.adventureCtx)
-	if err := registerAllTools(registry, filepath.Join("..", "..", "data"), am.adventureCtx.Adventure, am, nil); err != nil {
+	if err := registerAllTools(registry, filepath.Join("..", "..", "data"), am.adventureCtx.Adventure, am, nil, newNestedFakeClient(), llm.DefaultModels()); err != nil {
 		t.Fatal(err)
 	}
 	// registerAllTools uses cwd-relative defaults; go test runs from internal/agent.

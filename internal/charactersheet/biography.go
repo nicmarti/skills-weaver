@@ -4,15 +4,13 @@ import (
 	"context"
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
+	"dungeons/internal/llm"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
 // Biography represents character backstory
@@ -36,12 +34,16 @@ type Bond struct {
 	Sentiment   string `json:"sentiment"`   // "ally", "enemy", "neutral", "complicated"
 }
 
+// biographyTimeout bounds the optional AI biography call.
+const biographyTimeout = 120 * time.Second
+
 // BiographyGenerator creates character backstories
 type BiographyGenerator struct {
-	apiKey string // Claude API key for AI-enhanced biographies
+	client llm.Client // optional: nil falls back to template-based generation
+	model  string     // resolved Fast-role model
 }
 
-// AIBiographyResponse holds the structured response from Claude
+// AIBiographyResponse holds the structured response from the model
 type AIBiographyResponse struct {
 	Origin       string   `json:"origin"`
 	Background   string   `json:"background"`
@@ -54,17 +56,19 @@ type AIBiographyResponse struct {
 	Secrets      []string `json:"secrets"`
 }
 
-// NewBiographyGenerator creates a new biography generator
-func NewBiographyGenerator() *BiographyGenerator {
-	return &BiographyGenerator{
-		apiKey: os.Getenv("ANTHROPIC_API_KEY"),
+// NewBiographyGenerator creates a new biography generator. A nil client keeps
+// the generator fully functional with template-based biographies.
+func NewBiographyGenerator(client llm.Client, fastModel string) *BiographyGenerator {
+	if fastModel == "" {
+		fastModel = llm.DefaultModelFast
 	}
+	return &BiographyGenerator{client: client, model: fastModel}
 }
 
 // Generate creates a biography from character data
 func (g *BiographyGenerator) Generate(c *character.Character, adventureName string) (*Biography, error) {
-	// Try AI-enhanced generation if API key is available
-	if g.apiKey != "" {
+	// Try AI-enhanced generation when a client is available
+	if g.client != nil {
 		bio, err := g.generateWithAI(c, adventureName)
 		if err == nil {
 			return bio, nil
@@ -124,7 +128,8 @@ func LoadBiography(characterName string, dir string) (*Biography, error) {
 	return &bio, nil
 }
 
-// generateWithAI uses Claude API to generate rich, personalized biographies
+// generateWithAI uses the shared neutral client to generate rich,
+// personalized biographies; the template fallback covers any failure.
 func (g *BiographyGenerator) generateWithAI(c *character.Character, adventureName string) (*Biography, error) {
 	// Build context for the prompt
 	adventureContext := ""
@@ -150,30 +155,49 @@ func (g *BiographyGenerator) generateWithAI(c *character.Character, adventureNam
 	// Build the prompt
 	prompt := g.buildBiographyPrompt(c, adventureContext)
 
-	// Call Claude API
-	client := anthropic.NewClient(option.WithAPIKey(g.apiKey))
-	response, err := client.Messages.New(context.Background(), anthropic.MessageNewParams{
-		Model: anthropic.Model("claude-3-5-haiku-20241022"),
-		Messages: []anthropic.MessageParam{
-			anthropic.NewUserMessage(anthropic.NewTextBlock(prompt)),
+	ctx, cancel := context.WithTimeout(context.Background(), biographyTimeout)
+	defer cancel()
+
+	resp, err := g.client.Complete(ctx, llm.Request{
+		Model:    g.model,
+		Messages: []llm.Message{llm.UserMessage(prompt)},
+		// Structured JSON output; the tolerant fence-stripping parsing below
+		// stays as the fallback when the endpoint lacks response-format support.
+		MaxCompletionTokens: 1000,
+		JSONResponse: &llm.JSONResponseFormat{
+			Name: "character_biography",
+			Schema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"origin":          map[string]interface{}{"type": "string"},
+					"background":      map[string]interface{}{"type": "string"},
+					"motivation":      map[string]interface{}{"type": "string"},
+					"personality":     map[string]interface{}{"type": "string"},
+					"bond_name":       map[string]interface{}{"type": "string"},
+					"bond_description": map[string]interface{}{"type": "string"},
+					"bond_type":       map[string]interface{}{"type": "string"},
+					"bond_sentiment":  map[string]interface{}{"type": "string"},
+					"secrets":         map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}},
+				},
+				"required": []string{"origin", "background", "motivation", "personality"},
+			},
 		},
-		MaxTokens:   1000,
-		Temperature: anthropic.Float(0.8),
+		RequireParameters: true,
 	})
 
 	if err != nil {
 		return nil, fmt.Errorf("API request failed: %w", err)
 	}
 
-	if len(response.Content) == 0 {
-		return nil, fmt.Errorf("empty response from Claude API")
+	if resp.Message.Text == "" {
+		return nil, fmt.Errorf("empty response from LLM")
 	}
 
 	// Parse JSON response
-	jsonStr := stripMarkdownFences(response.Content[0].Text)
+	jsonStr := stripMarkdownFences(resp.Message.Text)
 	var aiResp AIBiographyResponse
 	if err := json.Unmarshal([]byte(jsonStr), &aiResp); err != nil {
-		return nil, fmt.Errorf("parsing Claude response: %w\nResponse: %s", err, jsonStr)
+		return nil, fmt.Errorf("parsing LLM response: %w\nResponse: %s", err, jsonStr)
 	}
 
 	// Convert to Biography struct

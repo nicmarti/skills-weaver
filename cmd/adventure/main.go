@@ -12,6 +12,7 @@ import (
 	"dungeons/internal/adventure"
 	"dungeons/internal/ai"
 	"dungeons/internal/coherence"
+	"dungeons/internal/llm"
 )
 
 const (
@@ -913,18 +914,26 @@ func cmdEnrich(args []string) error {
 		return nil
 	}
 
-	// Create AI enricher
-	enricher, err := ai.NewEnricher()
+	// Create AI enricher over the shared neutral OpenRouter client (Fast role)
+	enrichCfg, err := llm.LoadConfig()
 	if err != nil {
-		fmt.Println("✗ AI enrichment requires ANTHROPIC_API_KEY")
+		fmt.Println("✗ AI enrichment requires OPENROUTER_API_KEY")
 		fmt.Printf("  Error: %v\n", err)
 		fmt.Println("\nSet your API key:")
-		fmt.Println("  export ANTHROPIC_API_KEY=\"your-key-here\"")
+		fmt.Println("  export OPENROUTER_API_KEY=\"your-key-here\"")
 		fmt.Println("\nOr use --dry-run to preview entries without enriching")
 		return err
 	}
+	enrichClient, err := llm.NewOpenRouterClient(enrichCfg)
+	if err != nil {
+		return fmt.Errorf("creating OpenRouter client: %w", err)
+	}
+	enricher, err := ai.NewEnricher(enrichClient, enrichCfg.ModelFast)
+	if err != nil {
+		return fmt.Errorf("creating enricher: %w", err)
+	}
 
-	fmt.Printf("Enriching %d entries with Claude...\n\n", len(entries))
+	fmt.Printf("Enriching %d entries with %s...\n\n", len(entries), llm.DisplayName(enrichCfg.ModelFast))
 
 	// Process in batches with interactive confirmation
 	successCount := 0

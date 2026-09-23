@@ -35,9 +35,9 @@ type Server struct {
 	templatesDir   string
 	staticDir      string
 	port           int
-	llmCfg         llm.Config // OpenRouter configuration for the DM agent
-	apiKey         string     // Legacy Anthropic key for not-yet-migrated utility paths
-	geminiKey      string     // Google Gemini API key for Lyria ambient music
+	llmCfg         llm.Config    // OpenRouter configuration for DM + utility roles
+	llmClient      llm.Client    // Shared neutral client (DM sessions, campaign/title generation)
+	geminiKey      string        // Google Gemini API key for Lyria ambient music
 }
 
 // Config holds server configuration.
@@ -67,6 +67,13 @@ func NewServer(cfg Config) *Server {
 		fmt.Println("Warning: GEMINI_API_KEY not set — ambient music (Lyria RealTime) will not be available")
 	}
 
+	// One shared neutral client per process: DM sessions and every utility
+	// path (campaign plan, adventure title) reuse it.
+	llmClient, err := llm.NewOpenRouterClient(cfg.LLMConfig)
+	if err != nil {
+		fmt.Printf("Warning: OpenRouter client unavailable: %v\n", err)
+	}
+
 	server := &Server{
 		engine:         engine,
 		sessionManager: NewSessionManager(cfg.LLMConfig),
@@ -74,7 +81,7 @@ func NewServer(cfg Config) *Server {
 		staticDir:      cfg.StaticDir,
 		port:           cfg.Port,
 		llmCfg:         cfg.LLMConfig,
-		apiKey:         cfg.LLMConfig.LegacyAnthropicKey(),
+		llmClient:      llmClient,
 		geminiKey:      geminiKey,
 	}
 

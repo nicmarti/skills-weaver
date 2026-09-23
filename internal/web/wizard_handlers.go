@@ -10,13 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 	"github.com/gin-gonic/gin"
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
 	"dungeons/internal/image"
+	"dungeons/internal/llm"
 	"dungeons/internal/tarot"
 )
 
@@ -93,7 +92,7 @@ func (s *Server) handleSuggestAdventureName(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "payload invalide"})
 		return
 	}
-	if s.apiKey == "" {
+	if s.llmClient == nil {
 		c.JSON(http.StatusOK, gin.H{"name": ""})
 		return
 	}
@@ -140,19 +139,14 @@ func (s *Server) generateAdventureName(brief tarot.CreativeBrief, theme string) 
 	}
 	b.WriteString("\nRéponds UNIQUEMENT par le titre, rien d'autre.")
 
-	client := anthropic.NewClient(option.WithAPIKey(s.apiKey))
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	resp, err := client.Messages.New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.ModelClaudeHaiku4_5,
-		MaxTokens: 64,
-		System: []anthropic.TextBlockParam{
-			{Type: "text", Text: "Tu crées des titres d'aventures D&D évocateurs. Tu réponds toujours par un seul titre, sans guillemets ni ponctuation superflue."},
-		},
-		Messages: []anthropic.MessageParam{
-			{Role: "user", Content: []anthropic.ContentBlockParamUnion{anthropic.NewTextBlock(b.String())}},
-		},
+	resp, err := s.llmClient.Complete(ctx, llm.Request{
+		Model:               s.llmCfg.ModelFast,
+		MaxCompletionTokens: 64,
+		System:              "Tu crées des titres d'aventures D&D évocateurs. Tu réponds toujours par un seul titre, sans guillemets ni ponctuation superflue.",
+		Messages:            []llm.Message{llm.UserMessage(b.String())},
 	})
 	if err != nil {
 		return "", err
@@ -161,13 +155,7 @@ func (s *Server) generateAdventureName(brief tarot.CreativeBrief, theme string) 
 	// Idee : utiliser JEV pour voir si le titre de l'aventure est réaliste ou non
 	// JEV pourrait traiter une dizaine de propositions de noms et déterminer le plus réaliste pour un jeu de rôle médieval fantastique
 
-	var txt string
-	for _, block := range resp.Content {
-		if tb, ok := block.AsAny().(anthropic.TextBlock); ok {
-			txt += tb.Text
-		}
-	}
-	return sanitizeAdventureName(txt), nil
+	return sanitizeAdventureName(resp.Message.Text), nil
 }
 
 // sanitizeAdventureName keeps the first line and strips quotes/punctuation noise.
@@ -255,8 +243,8 @@ func (s *Server) handleCreateAdventureWizard(c *gin.Context) {
 		return
 	}
 
-	// Generate the campaign plan (blocking) when an API key is configured.
-	if s.apiKey != "" {
+	// Generate the campaign plan (blocking) when the LLM client is available.
+	if s.llmClient != nil {
 		theme := strings.TrimSpace(p.Theme)
 		if err := s.generateCampaignPlanWithBrief(adv, theme, p.Duration, p.AdventureType, &brief); err != nil {
 			fmt.Printf("Warning: wizard campaign plan generation failed: %v\n", err)

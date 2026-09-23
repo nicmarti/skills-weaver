@@ -100,7 +100,7 @@ func newWithClient(client llm.Client, cfg llm.Config, adventureCtx *AdventureCon
 	toolRegistry := NewToolRegistry(adventureCtx)
 
 	// Register all tools - pass Adventure object, agentManager, and outputHandler for real persistence
-	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure, agentManager, outputHandler); err != nil {
+	if err := registerAllTools(toolRegistry, "data", adventureCtx.Adventure, agentManager, outputHandler, client, cfg); err != nil {
 		return nil, fmt.Errorf("failed to register tools: %w", err)
 	}
 

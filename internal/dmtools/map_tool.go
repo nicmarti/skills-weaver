@@ -10,6 +10,7 @@ import (
 	"dungeons/internal/adventure"
 	"dungeons/internal/ai"
 	"dungeons/internal/image"
+	"dungeons/internal/llm"
 	"dungeons/internal/world"
 )
 
@@ -29,8 +30,9 @@ type GenerateMapTool struct {
 	notifier  MapGeneratedNotifier
 }
 
-// NewGenerateMapTool creates a new map generation tool.
-func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGeneratedNotifier) (*GenerateMapTool, error) {
+// NewGenerateMapTool creates a new map generation tool over the shared
+// neutral LLM client (Fast role for prompt enrichment).
+func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGeneratedNotifier, client llm.Client, fastModel string) (*GenerateMapTool, error) {
 	// Load world data
 	geo, err := world.LoadGeography(dataDir)
 	if err != nil {
@@ -43,7 +45,7 @@ func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGe
 	}
 
 	// Create enricher
-	enricher, err := ai.NewEnricher()
+	enricher, err := ai.NewEnricher(client, fastModel)
 	if err != nil {
 		return nil, fmt.Errorf("creating enricher: %w", err)
 	}
@@ -51,10 +53,10 @@ func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGe
 	return &GenerateMapTool{
 		dataDir:   dataDir,
 		adventure: adv,
-		enricher:  enricher,
+		enricher: enricher,
 		geography: geo,
-		factions:  factions,
-		notifier:  notifier,
+		factions: factions,
+		notifier: notifier,
 	}, nil
 }
 

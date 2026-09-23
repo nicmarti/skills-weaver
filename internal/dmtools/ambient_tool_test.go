@@ -10,10 +10,11 @@ func newAmbientToolWithAdv(t *testing.T) (*SetAmbientMusicTool, *adventure.Adven
 	t.Helper()
 	adv := &adventure.Adventure{}
 	adv.SetBasePath(t.TempDir())
-	// No API key: the guardrail must short-circuit BEFORE any Claude call, so the
-	// suppressed path needs no network. The pass-through path will fail at the API
-	// call, which is exactly how we detect the guardrail let it through.
-	return NewSetAmbientMusicTool("", adv), adv
+	// No LLM client: the guardrail must short-circuit BEFORE any provider
+	// call, so the suppressed path needs no network. The pass-through path
+	// will fail at the client call, which is exactly how we detect the
+	// guardrail let it through.
+	return NewSetAmbientMusicTool(nil, "", adv), adv
 }
 
 func TestAmbientGuardrail_SuppressesCombatWhenNoCombat(t *testing.T) {

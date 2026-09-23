@@ -4,6 +4,7 @@ import (
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
 	"dungeons/internal/data"
+	"dungeons/internal/llm"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -54,7 +55,8 @@ type AdventureContext struct {
 	LastPlayed   time.Time
 }
 
-// NewSheetGenerator creates a new sheet generator
+// NewSheetGenerator creates a new sheet generator. Biographies use templates
+// unless EnableAIBiographies wires a shared LLM client.
 func NewSheetGenerator(dataDir string) (*SheetGenerator, error) {
 	gd, err := data.Load(dataDir)
 	if err != nil {
@@ -63,10 +65,19 @@ func NewSheetGenerator(dataDir string) (*SheetGenerator, error) {
 
 	return &SheetGenerator{
 		gameData:        gd,
-		bioGenerator:    NewBiographyGenerator(),
+		bioGenerator:    NewBiographyGenerator(nil, ""),
 		equipExtractor:  NewEquipmentExtractor(gd),
 		templateManager: NewTemplateManager(),
 	}, nil
+}
+
+// EnableAIBiographies upgrades the biography generator to AI-enhanced output
+// through the shared neutral client (template fallback preserved on failure).
+func (g *SheetGenerator) EnableAIBiographies(client llm.Client, fastModel string) {
+	if client == nil {
+		return
+	}
+	g.bioGenerator = NewBiographyGenerator(client, fastModel)
 }
 
 // Generate creates a character sheet

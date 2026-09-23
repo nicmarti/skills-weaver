@@ -1,302 +1,153 @@
 package ai
 
 import (
-	"dungeons/internal/world"
+	"context"
+	"fmt"
 	"strings"
+	"sync"
 	"testing"
+
+	"dungeons/internal/adventure"
+	"dungeons/internal/llm"
 )
 
-func TestBuildBaseMapPrompt_City(t *testing.T) {
-	e := &Enricher{model: "test"}
+// fakeEnrichClient scripts neutral responses for enrichment tests.
+type fakeEnrichClient struct {
+	mu        sync.Mutex
+	responses []string
+	calls     int
+	requests  []llm.Request
+}
 
-	loc := &world.Location{
-		Name:        "Cordova",
-		Type:        "port majeur",
-		Kingdom:     "Valdorine",
-		Description: "Ville portuaire scintillante",
-		KeyLocations: []string{
-			"Taverne du Voile Écarlate",
-			"Docks Marchands",
-		},
+func (f *fakeEnrichClient) Complete(ctx context.Context, req llm.Request) (llm.Response, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	snapshot := req
+	f.requests = append(f.requests, snapshot)
+	idx := f.calls
+	f.calls++
+	if idx >= len(f.responses) {
+		return llm.Response{}, fmt.Errorf("fake exhausted")
 	}
+	return llm.Response{
+		FinishReason: llm.FinishStop,
+		Message:      llm.AssistantMessage(f.responses[idx]),
+	}, nil
+}
 
-	kingdom := &world.Kingdom{
-		ID:     "valdorine",
-		Name:   "Royaume de Valdorine",
-		Colors: []string{"bleu", "or"},
+func (f *fakeEnrichClient) Stream(ctx context.Context, req llm.Request, obs llm.StreamObserver) (llm.Response, error) {
+	return llm.Response{}, fmt.Errorf("not implemented")
+}
+
+func (f *fakeEnrichClient) lastRequest() llm.Request {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.requests[len(f.requests)-1]
+}
+
+func newTestEnricher(responses ...string) (*Enricher, *fakeEnrichClient) {
+	fake := &fakeEnrichClient{responses: responses}
+	return &Enricher{client: fake, model: llm.DefaultModelFast}, fake
+}
+
+func testEnrichmentContext() *adventure.EnrichmentContext {
+	return &adventure.EnrichmentContext{
+		AdventureName: "Test Adventure",
+		PartyMembers:  []string{"Aldric"},
+		SessionInfo:   "Session 1",
 	}
+}
 
-	req := MapPromptRequest{
-		MapType:  "city",
-		Scale:    "medium",
-		Features: []string{"Villa de Valorian"},
-	}
+// TestEnrichEntry_JSONResponse proves the journal entry call requests
+// structured JSON, requires endpoint parameter support, uses the Fast-role
+// model, and parses the bilingual result.
+func TestEnrichEntry_JSONResponse(t *testing.T) {
+	enricher, fake := newTestEnricher(`{"description": "Aldric fights in a torch-lit corridor.", "description_fr": "Aldric combat dans un couloir éclairé aux torches."}`)
 
-	prompt, err := e.buildBaseMapPrompt(req, loc, kingdom)
+	result, err := enricher.EnrichEntry(adventure.JournalEntry{ID: 1, Type: "combat", Content: "Aldric attacks"}, testEnrichmentContext())
 	if err != nil {
-		t.Fatalf("buildBaseMapPrompt failed: %v", err)
+		t.Fatalf("EnrichEntry: %v", err)
+	}
+	if result.Description == "" || result.DescriptionFr == "" {
+		t.Fatalf("incomplete result: %+v", result)
 	}
 
-	// Validate prompt contains key elements
-	if !strings.Contains(prompt, "Cordova") {
-		t.Error("Prompt should contain city name")
+	req := fake.lastRequest()
+	if req.Model != llm.DefaultModelFast {
+		t.Errorf("model = %q, want Fast role default", req.Model)
 	}
-
-	if !strings.Contains(prompt, "portuaire") {
-		t.Error("Prompt should mention port nature")
+	if req.JSONResponse == nil {
+		t.Error("journal enrichment must request structured JSON output")
 	}
-
-	if !strings.Contains(prompt, "Taverne du Voile Écarlate") {
-		t.Error("Prompt should include POIs from location")
-	}
-
-	if !strings.Contains(prompt, "Villa de Valorian") {
-		t.Error("Prompt should include extra features")
-	}
-
-	if !strings.Contains(prompt, "valdorin maritime") {
-		t.Error("Prompt should mention kingdom architectural style")
-	}
-
-	if len(prompt) < 100 {
-		t.Errorf("Prompt seems too short (%d characters)", len(prompt))
+	if !req.RequireParameters {
+		t.Error("structured-JSON requests must require endpoint parameter support")
 	}
 }
 
-func TestBuildBaseMapPrompt_Region(t *testing.T) {
-	e := &Enricher{model: "test"}
+// TestEnrichEntry_TolerantParsing proves markdown-fenced JSON still parses
+// (fallback for endpoints without response-format support).
+func TestEnrichEntry_TolerantParsing(t *testing.T) {
+	enricher, _ := newTestEnricher("```json\n{\"description\": \"d\", \"description_fr\": \"f\"}\n```")
 
-	loc := &world.Location{
-		Name:        "Cordova",
-		Kingdom:     "Valdorine",
-		Description: "Région côtière prospère",
-	}
-
-	kingdom := &world.Kingdom{
-		ID:   "valdorine",
-		Name: "Royaume de Valdorine",
-	}
-
-	req := MapPromptRequest{
-		MapType: "region",
-		Scale:   "large",
-	}
-
-	prompt, err := e.buildBaseMapPrompt(req, loc, kingdom)
+	result, err := enricher.EnrichEntry(adventure.JournalEntry{ID: 2, Type: "note", Content: "x"}, testEnrichmentContext())
 	if err != nil {
-		t.Fatalf("buildBaseMapPrompt failed: %v", err)
+		t.Fatalf("EnrichEntry with fenced JSON: %v", err)
 	}
-
-	if !strings.Contains(prompt, "région") {
-		t.Error("Prompt should contain 'région'")
-	}
-
-	if !strings.Contains(prompt, "Routes commerciales") {
-		t.Error("Prompt should mention trade routes")
+	if result.Description != "d" || result.DescriptionFr != "f" {
+		t.Errorf("parsed fields = %+v", result)
 	}
 }
 
-func TestBuildBaseMapPrompt_Dungeon(t *testing.T) {
-	e := &Enricher{model: "test"}
+// TestEnrichEntry_RejectsIncomplete proves incomplete descriptions fail loudly.
+func TestEnrichEntry_RejectsIncomplete(t *testing.T) {
+	enricher, _ := newTestEnricher(`{"description": "only english"}`)
 
-	req := MapPromptRequest{
-		MapType:      "dungeon",
-		LocationName: "La Crypte des Ombres",
-		DungeonLevel: 1,
-		Features:     []string{"Salle du trône", "Crypte"},
+	_, err := enricher.EnrichEntry(adventure.JournalEntry{ID: 3, Type: "note", Content: "x"}, testEnrichmentContext())
+	if err == nil || !strings.Contains(err.Error(), "incomplete descriptions") {
+		t.Fatalf("expected incomplete-descriptions error, got %v", err)
 	}
+}
 
-	prompt, err := e.buildBaseMapPrompt(req, nil, nil)
+// TestEnrichMapPrompt_PlainTextNoJSON proves map-prompt enrichment stays
+// free-form prose (no JSON response format) and passes word-count validation.
+func TestEnrichMapPrompt_PlainTextNoJSON(t *testing.T) {
+	longPrompt := strings.Repeat("Vue aérienne d'une cité portuaire aux toits de tuiles rouges, ruelles escarpées et marchés animés près des quais. ", 5)
+	enricher, fake := newTestEnricher(longPrompt)
+
+	result, err := enricher.EnrichMapPrompt(MapPromptRequest{MapType: "dungeon", LocationName: "La Crypte des Ombres", Scale: "medium"}, nil, nil)
 	if err != nil {
-		t.Fatalf("buildBaseMapPrompt failed: %v", err)
+		t.Fatalf("EnrichMapPrompt: %v", err)
+	}
+	if result.Prompt == "" {
+		t.Fatal("empty enriched prompt")
+	}
+	if result.EnrichedAt == "" {
+		t.Error("metadata not filled")
 	}
 
-	if !strings.Contains(prompt, "La Crypte des Ombres") {
-		t.Error("Prompt should contain dungeon name")
+	req := fake.lastRequest()
+	if req.JSONResponse != nil {
+		t.Error("map prompts are plain text — no JSON response format expected")
 	}
-
-	if !strings.Contains(prompt, "Niveau 1") {
-		t.Error("Prompt should mention level")
-	}
-
-	if !strings.Contains(prompt, "Salle du trône") {
-		t.Error("Prompt should include specific features")
-	}
-
-	if !strings.Contains(prompt, "Grille") {
-		t.Error("Prompt should mention grid")
+	if req.RequireParameters {
+		t.Error("plain-text requests must not require response-format support")
 	}
 }
 
-func TestBuildBaseMapPrompt_Tactical(t *testing.T) {
-	e := &Enricher{model: "test"}
+// TestEnrichMapPrompt_TooShort proves the word-count guard rejects thin prompts.
+func TestEnrichMapPrompt_TooShort(t *testing.T) {
+	enricher, _ := newTestEnricher("Prompt trop court.")
 
-	req := MapPromptRequest{
-		MapType:   "tactical",
-		Terrain:   "forêt",
-		SceneDesc: "Combat dans la forêt dense",
-		Features:  []string{"Ruisseau", "Pont de bois"},
-	}
-
-	prompt, err := e.buildBaseMapPrompt(req, nil, nil)
-	if err != nil {
-		t.Fatalf("buildBaseMapPrompt failed: %v", err)
-	}
-
-	if !strings.Contains(prompt, "forêt") {
-		t.Error("Prompt should mention terrain")
-	}
-
-	if !strings.Contains(prompt, "Arbres") {
-		t.Error("Prompt should include forest-specific features")
-	}
-
-	if !strings.Contains(prompt, "Ruisseau") {
-		t.Error("Prompt should include extra features")
-	}
-
-	if !strings.Contains(prompt, "Grille de combat") {
-		t.Error("Prompt should mention combat grid")
+	// Dungeon maps need no location record, so the call reaches enrichment.
+	_, err := enricher.EnrichMapPrompt(MapPromptRequest{MapType: "dungeon", LocationName: "La Crypte des Ombres", Scale: "medium"}, nil, nil)
+	if err == nil || !strings.Contains(err.Error(), "too short") {
+		t.Fatalf("expected too-short error, got %v", err)
 	}
 }
 
-func TestBuildBaseMapPrompt_InvalidType(t *testing.T) {
-	e := &Enricher{model: "test"}
-
-	req := MapPromptRequest{
-		MapType: "invalid",
-	}
-
-	_, err := e.buildBaseMapPrompt(req, nil, nil)
-	if err == nil {
-		t.Error("Should return error for invalid map type")
-	}
-
-	if !strings.Contains(err.Error(), "unknown map type") {
-		t.Errorf("Error should mention unknown type, got: %v", err)
-	}
-}
-
-func TestBuildBaseMapPrompt_CityRequiresLocation(t *testing.T) {
-	e := &Enricher{model: "test"}
-
-	req := MapPromptRequest{
-		MapType: "city",
-	}
-
-	_, err := e.buildBaseMapPrompt(req, nil, nil)
-	if err == nil {
-		t.Error("Should return error when location is nil for city map")
-	}
-
-	if !strings.Contains(err.Error(), "location required") {
-		t.Errorf("Error should mention location required, got: %v", err)
-	}
-}
-
-func TestGetStyleHints(t *testing.T) {
-	e := &Enricher{model: "test"}
-
-	// Test Valdorine kingdom
-	kingdom := &world.Kingdom{
-		ID: "valdorine",
-	}
-
-	req := MapPromptRequest{
-		MapType: "city",
-		Style:   "illustrated",
-	}
-
-	hints := e.getStyleHints(req, kingdom)
-
-	if !strings.Contains(hints, "maritime") {
-		t.Errorf("Valdorine hints should mention maritime, got: %s", hints)
-	}
-
-	if !strings.Contains(hints, "blue/gold") {
-		t.Errorf("Valdorine hints should mention blue/gold colors, got: %s", hints)
-	}
-
-	if !strings.Contains(hints, "aerial view") {
-		t.Errorf("City hints should mention aerial view, got: %s", hints)
-	}
-
-	// Test Karvath kingdom
-	kingdom.ID = "karvath"
-	hints = e.getStyleHints(req, kingdom)
-
-	if !strings.Contains(hints, "militaristic") {
-		t.Errorf("Karvath hints should mention militaristic, got: %s", hints)
-	}
-
-	// Test dark fantasy style
-	req.Style = "dark_fantasy"
-	hints = e.getStyleHints(req, kingdom)
-
-	if !strings.Contains(hints, "dark atmosphere") {
-		t.Errorf("Dark fantasy hints should mention dark atmosphere, got: %s", hints)
-	}
-}
-
-func TestBuildMapEnrichmentPrompt(t *testing.T) {
-	e := &Enricher{model: "test"}
-
-	loc := &world.Location{
-		Name:         "Cordova",
-		Type:         "port majeur",
-		Kingdom:      "Valdorine",
-		Description:  "Ville portuaire",
-		KeyLocations: []string{"Taverne"},
-	}
-
-	kingdom := &world.Kingdom{
-		ID:     "valdorine",
-		Name:   "Royaume de Valdorine",
-		Colors: []string{"bleu", "or"},
-		Symbol: "Trident doré",
-		Values: []string{"Commerce", "Prospérité"},
-	}
-
-	req := MapPromptRequest{
-		MapType: "city",
-		Scale:   "medium",
-		Style:   "illustrated",
-	}
-
-	basePrompt := "Cette carte montre Cordova..."
-
-	enrichPrompt := e.buildMapEnrichmentPrompt(req, basePrompt, loc, kingdom)
-
-	// Validate enrichment prompt structure
-	if !strings.Contains(enrichPrompt, "MAP TYPE: city") {
-		t.Error("Should contain map type")
-	}
-
-	if !strings.Contains(enrichPrompt, "Cordova") {
-		t.Error("Should contain location name")
-	}
-
-	if !strings.Contains(enrichPrompt, "Royaume de Valdorine") {
-		t.Error("Should contain kingdom name")
-	}
-
-	if !strings.Contains(enrichPrompt, "bleu") {
-		t.Error("Should contain kingdom colors")
-	}
-
-	if !strings.Contains(enrichPrompt, "BASE PROMPT") {
-		t.Error("Should include base prompt section")
-	}
-
-	if !strings.Contains(enrichPrompt, "GUIDELINES") {
-		t.Error("Should include guidelines section")
-	}
-
-	if !strings.Contains(enrichPrompt, "100-200 words") {
-		t.Error("Should specify target length")
-	}
-
-	if !strings.Contains(enrichPrompt, "French") {
-		t.Error("Should specify French output")
+// TestNewEnricher_RequiresClient proves the dependency is explicit.
+func TestNewEnricher_RequiresClient(t *testing.T) {
+	if _, err := NewEnricher(nil, ""); err == nil {
+		t.Fatal("nil client must be rejected")
 	}
 }

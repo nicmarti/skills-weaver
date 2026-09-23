@@ -1,12 +1,31 @@
 package dmtools
 
 import (
+	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/llm"
 )
+
+// fakeMapLLMClient returns a canned map prompt long enough (80+ words) to
+// pass enrichment validation, keeping map-tool tests offline and deterministic.
+type fakeMapLLMClient struct{}
+
+func (fakeMapLLMClient) Complete(ctx context.Context, req llm.Request) (llm.Response, error) {
+	prompt := strings.Repeat("Vue aérienne d'une région montagneuse aux forêts denses, rivières sinueuses et hameaux nichés dans les vallées brumeuses. ", 6)
+	return llm.Response{
+		FinishReason: llm.FinishStop,
+		Message:      llm.AssistantMessage(prompt),
+	}, nil
+}
+
+func (fakeMapLLMClient) Stream(ctx context.Context, req llm.Request, obs llm.StreamObserver) (llm.Response, error) {
+	return llm.Response{}, context.Canceled
+}
 
 // TestMapGenerationValidation verifies the validation behavior for different map types.
 func TestMapGenerationValidation(t *testing.T) {
@@ -30,7 +49,7 @@ func TestMapGenerationValidation(t *testing.T) {
 	}
 
 	// Create tool instance
-	tool, err := NewGenerateMapTool(dataDir, tempAdventure, nil)
+	tool, err := NewGenerateMapTool(dataDir, tempAdventure, nil, fakeMapLLMClient{}, llm.DefaultModelFast)
 	if err != nil {
 		t.Fatalf("Failed to create tool: %v", err)
 	}
@@ -144,7 +163,7 @@ func TestMapGenerationHintMessage(t *testing.T) {
 		t.Fatalf("Failed to load adventure: %v", err)
 	}
 
-	tool, err := NewGenerateMapTool(dataDir, tempAdventure, nil)
+	tool, err := NewGenerateMapTool(dataDir, tempAdventure, nil, fakeMapLLMClient{}, llm.DefaultModelFast)
 	if err != nil {
 		t.Fatalf("Failed to create tool: %v", err)
 	}

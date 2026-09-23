@@ -39,6 +39,13 @@ func buildChatRequest(req Request, stream bool) (components.ChatRequest, error) 
 			RequireParameters: optionalnullable.From(oropenrouter.Bool(true)),
 		}))
 	}
+	if req.JSONResponse != nil {
+		rf, err := jsonResponseFormatToChat(*req.JSONResponse)
+		if err != nil {
+			return components.ChatRequest{}, err
+		}
+		chatReq.ResponseFormat = &rf
+	}
 
 	tools := toolsToChat(req)
 	if len(tools) > 0 {
@@ -46,6 +53,32 @@ func buildChatRequest(req Request, stream bool) (components.ChatRequest, error) 
 	}
 
 	return chatReq, nil
+}
+
+// jsonResponseFormatToChat maps the neutral JSON control onto the SDK union.
+// A schema selects the strict json_schema mode; otherwise the lighter
+// json_object mode only guarantees valid JSON.
+func jsonResponseFormatToChat(fmtCfg JSONResponseFormat) (components.ResponseFormat, error) {
+	if fmtCfg.Schema != nil {
+		name := fmtCfg.Name
+		if name == "" {
+			name = "skillsweaver_response"
+		}
+		schema := components.ChatFormatJSONSchemaConfig{
+			Type: components.ChatFormatJSONSchemaConfigTypeJSONSchema,
+			JSONSchema: components.ChatJSONSchemaConfig{
+				Name:   name,
+				Schema: fmtCfg.Schema,
+			},
+		}
+		if fmtCfg.Strict {
+			schema.JSONSchema.Strict = optionalnullable.From(oropenrouter.Bool(true))
+		}
+		return components.CreateResponseFormatJSONSchema(schema), nil
+	}
+	return components.CreateResponseFormatJSONObject(components.ChatFormatJSONObjectConfig{
+		Type: components.ChatFormatJSONObjectConfigTypeJSONObject,
+	}), nil
 }
 
 // messagesToChat converts neutral history into Chat wire messages. The system

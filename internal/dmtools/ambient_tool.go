@@ -5,19 +5,22 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/ambient"
+	"dungeons/internal/llm"
 )
 
 // SetAmbientMusicTool generates an optimized Lyria music prompt from a scene description.
 type SetAmbientMusicTool struct {
-	anthropicKey string
-	adv          *adventure.Adventure // canonical state, used to gate combat/danger cues
+	client    llm.Client
+	fastModel string
+	adv       *adventure.Adventure // canonical state, used to gate combat/danger cues
 }
 
-// NewSetAmbientMusicTool creates a new ambient music tool. adv supplies the
-// canonical combat state used by the anti-spoil guardrail; it may be nil (the
-// guardrail then simply lets every mood through).
-func NewSetAmbientMusicTool(anthropicKey string, adv *adventure.Adventure) *SetAmbientMusicTool {
-	return &SetAmbientMusicTool{anthropicKey: anthropicKey, adv: adv}
+// NewSetAmbientMusicTool creates a new ambient music tool over the shared
+// neutral client. adv supplies the canonical combat state used by the
+// anti-spoil guardrail; it may be nil (the guardrail then simply lets every
+// mood through).
+func NewSetAmbientMusicTool(client llm.Client, fastModel string, adv *adventure.Adventure) *SetAmbientMusicTool {
+	return &SetAmbientMusicTool{client: client, fastModel: fastModel, adv: adv}
 }
 
 // Name returns the tool name.
@@ -80,8 +83,8 @@ func (t *SetAmbientMusicTool) Execute(params map[string]interface{}) (interface{
 		sceneDesc = fmt.Sprintf("%s (mood: %s)", sceneDesc, mood)
 	}
 
-	// Generate Lyria parameters via Claude Sonnet
-	lyriaParams, err := ambient.GenerateLyriaPrompt(t.anthropicKey, sceneDesc)
+	// Generate Lyria parameters through the shared neutral client
+	lyriaParams, err := ambient.GenerateLyriaPrompt(t.client, t.fastModel, sceneDesc)
 	if err != nil {
 		return map[string]interface{}{
 			"success": false,

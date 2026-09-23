@@ -116,7 +116,7 @@ func NewAgentManagerWithTools(cfg llm.Config, adventureCtx *AdventureContext, lo
 	personaLoader := NewPersonaLoader()
 	am := NewAgentManager(client, cfg, adventureCtx, logger, outputHandler, personaLoader)
 	registry := NewToolRegistry(adventureCtx)
-	if err := registerAllTools(registry, "data", adventureCtx.Adventure, am, outputHandler); err != nil {
+	if err := registerAllTools(registry, "data", adventureCtx.Adventure, am, outputHandler, client, cfg); err != nil {
 		return nil, fmt.Errorf("failed to register tools: %w", err)
 	}
 	am.SetMainToolRegistry(registry)

@@ -89,6 +89,21 @@ type ToolDefinition struct {
 	Parameters  map[string]interface{}
 }
 
+// JSONResponseFormat requests a machine-readable JSON response instead of
+// free-form text. When Schema is set the provider enforces that JSON Schema
+// (structured output); otherwise the provider only guarantees a bare JSON
+// object. Requests carrying it must set RequireParameters so endpoints
+// without response-format support fail routing loudly instead of silently
+// returning prose.
+type JSONResponseFormat struct {
+	// Name labels the schema for providers that require it (a-z, 0-9, dashes).
+	Name string
+	// Schema is the complete JSON Schema object; nil selects json_object mode.
+	Schema map[string]interface{}
+	// Strict asks the provider to reject outputs violating the schema.
+	Strict bool
+}
+
 // Request describes a single LLM turn.
 type Request struct {
 	Model               string
@@ -99,6 +114,8 @@ type Request struct {
 	Temperature         *float64
 	SessionID           string
 	RequireParameters   bool
+	// JSONResponse optionally switches the response to structured JSON output.
+	JSONResponse *JSONResponseFormat
 }
 
 // FinishReason classifies why a generation ended.

@@ -9,11 +9,9 @@ import (
 	"time"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/llm"
 	"dungeons/internal/map"
 	"dungeons/internal/world"
-
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
 // EnrichmentResult holds generated descriptions.
@@ -46,40 +44,54 @@ type MapPromptResult struct {
 	EnrichedAt   string   `json:"enriched_at"`
 }
 
-// Enricher generates descriptions using Claude API.
+// enrichmentTimeout bounds each enrichment call.
+const enrichmentTimeout = 120 * time.Second
+
+// Enricher generates descriptions through the shared neutral LLM client.
 type Enricher struct {
-	apiKey string
-	model  string
+	client llm.Client
+	model  string // resolved Fast-role model (Sonnet 5 default)
 }
 
-// NewEnricher creates an enricher with Claude API.
-func NewEnricher() (*Enricher, error) {
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
-	if apiKey == "" {
-		return nil, fmt.Errorf("ANTHROPIC_API_KEY environment variable not set")
+// NewEnricher creates an enricher over the shared neutral client. The model
+// comes from the configurable Fast role.
+func NewEnricher(client llm.Client, fastModel string) (*Enricher, error) {
+	if client == nil {
+		return nil, fmt.Errorf("llm client is required for enrichment")
 	}
-
-	return &Enricher{
-		apiKey: apiKey,
-		model:  "claude-haiku-4-5-20251001", // Latest Haiku with improved capabilities
-	}, nil
+	if fastModel == "" {
+		fastModel = llm.DefaultModelFast
+	}
+	return &Enricher{client: client, model: fastModel}, nil
 }
 
 // EnrichEntry generates bilingual descriptions for a single journal entry.
 func (e *Enricher) EnrichEntry(entry adventure.JournalEntry, ctx *adventure.EnrichmentContext) (*EnrichmentResult, error) {
 	prompt := e.buildPrompt(entry, ctx)
 
-	response, err := e.callClaude(prompt)
+	response, err := e.callLLM(prompt, &llm.JSONResponseFormat{
+		Name: "journal_enrichment",
+		Schema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"description":    map[string]interface{}{"type": "string"},
+				"description_fr": map[string]interface{}{"type": "string"},
+			},
+			"required": []string{"description", "description_fr"},
+		},
+		Strict: false,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("Claude API call failed: %w", err)
+		return nil, fmt.Errorf("LLM call failed: %w", err)
 	}
 
-	// Strip markdown code fences if present
+	// The structured output should return bare JSON, but keep the tolerant
+	// fence-stripping parsing as a fallback for endpoints without support.
 	jsonStr := stripMarkdownFences(response)
 
 	var result EnrichmentResult
 	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
-		return nil, fmt.Errorf("parsing Claude response: %w\nResponse: %s", err, response)
+		return nil, fmt.Errorf("parsing LLM response: %w\nResponse: %s", err, response)
 	}
 
 	// Validate results
@@ -92,7 +104,7 @@ func (e *Enricher) EnrichEntry(entry adventure.JournalEntry, ctx *adventure.Enri
 	return &result, nil
 }
 
-// EnrichMapPrompt generates an enriched map prompt with Claude API.
+// EnrichMapPrompt generates an enriched map prompt through the neutral client.
 func (e *Enricher) EnrichMapPrompt(req MapPromptRequest, location *world.Location, kingdom *world.Kingdom) (*MapPromptResult, error) {
 	// Build base prompt using internal/map builders
 	basePrompt, err := e.buildBaseMapPrompt(req, location, kingdom)
@@ -103,10 +115,10 @@ func (e *Enricher) EnrichMapPrompt(req MapPromptRequest, location *world.Locatio
 	// Build enrichment prompt with guidelines
 	enrichPrompt := e.buildMapEnrichmentPrompt(req, basePrompt, location, kingdom)
 
-	// Call Claude API
-	response, err := e.callClaude(enrichPrompt)
+	// Map prompts are plain prose — no JSON response format here.
+	response, err := e.callLLM(enrichPrompt, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Claude API call failed: %w", err)
+		return nil, fmt.Errorf("LLM call failed: %w", err)
 	}
 
 	// Strip markdown fences if present
@@ -128,7 +140,7 @@ func (e *Enricher) EnrichMapPrompt(req MapPromptRequest, location *world.Locatio
 
 	// Validate prompt
 	if result.Prompt == "" {
-		return nil, fmt.Errorf("empty prompt returned from Claude API")
+		return nil, fmt.Errorf("empty prompt returned from LLM")
 	}
 
 	wordCount := len(strings.Fields(result.Prompt))
@@ -426,30 +438,27 @@ func getTypeFocus(entryType string) string {
 	return "General fantasy scene with atmospheric details and visual interest"
 }
 
-// callClaude sends the prompt to Claude API.
-func (e *Enricher) callClaude(prompt string) (string, error) {
-	client := anthropic.NewClient(
-		option.WithAPIKey(e.apiKey),
-	)
+// callLLM sends the prompt through the shared neutral client. jsonFormat may
+// be nil for plain-text responses (map prompts). Structured-JSON requests
+// require endpoint parameter support so unsupported routes fail loudly.
+func (e *Enricher) callLLM(prompt string, jsonFormat *llm.JSONResponseFormat) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), enrichmentTimeout)
+	defer cancel()
 
-	response, err := client.Messages.New(context.Background(), anthropic.MessageNewParams{
-		Model: anthropic.Model(e.model),
-		Messages: []anthropic.MessageParam{
-			anthropic.NewUserMessage(anthropic.NewTextBlock(prompt)),
-		},
-		MaxTokens:   500,
-		Temperature: anthropic.Float(0.7),
+	resp, err := e.client.Complete(ctx, llm.Request{
+		Model:               e.model,
+		Messages:            []llm.Message{llm.UserMessage(prompt)},
+		MaxCompletionTokens: 500,
+		JSONResponse:        jsonFormat,
+		RequireParameters:   jsonFormat != nil,
 	})
-
 	if err != nil {
 		return "", fmt.Errorf("API request failed: %w", err)
 	}
-
-	if len(response.Content) == 0 {
-		return "", fmt.Errorf("empty response from Claude API")
+	if resp.Message.Text == "" {
+		return "", fmt.Errorf("empty response from LLM")
 	}
-
-	return response.Content[0].Text, nil
+	return resp.Message.Text, nil
 }
 
 // fallbackGuidelines provides basic guidelines if file is missing.

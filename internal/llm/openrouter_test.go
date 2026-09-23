@@ -257,6 +257,82 @@ func TestComplete_SendsNeutralWireFormat(t *testing.T) {
 	}
 }
 
+func TestChatRequest_JSONResponseFormatWire(t *testing.T) {
+	schema := map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"description":    map[string]interface{}{"type": "string"},
+			"description_fr": map[string]interface{}{"type": "string"},
+		},
+		"required": []string{"description", "description_fr"},
+	}
+
+	// json_schema mode with strict adherence.
+	req, err := buildChatRequest(Request{
+		Model:             ModelSonnet5,
+		Messages:          []Message{UserMessage("enrich")},
+		RequireParameters: true,
+		JSONResponse:      &JSONResponseFormat{Name: "enrichment", Schema: schema, Strict: true},
+	}, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := json.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded map[string]interface{}
+	if err := json.Unmarshal(body, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	rf, ok := decoded["response_format"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("response_format missing from wire payload: %s", body)
+	}
+	if rf["type"] != "json_schema" {
+		t.Errorf("response_format.type = %v, want json_schema", rf["type"])
+	}
+	jsonSchema := rf["json_schema"].(map[string]interface{})
+	if jsonSchema["name"] != "enrichment" {
+		t.Errorf("json_schema.name = %v", jsonSchema["name"])
+	}
+	if jsonSchema["strict"] != true {
+		t.Errorf("json_schema.strict = %v, want true", jsonSchema["strict"])
+	}
+	if _, ok := jsonSchema["schema"]; !ok {
+		t.Error("json_schema.schema missing")
+	}
+	provider := decoded["provider"].(map[string]interface{})
+	if provider["require_parameters"] != true {
+		t.Error("JSON response requests must require parameter support")
+	}
+
+	// Schema-less mode selects the lighter json_object format.
+	req2, err := buildChatRequest(Request{
+		Model:        ModelSonnet5,
+		Messages:     []Message{UserMessage("params")},
+		JSONResponse: &JSONResponseFormat{},
+	}, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body2, err := json.Marshal(req2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded2 map[string]interface{}
+	if err := json.Unmarshal(body2, &decoded2); err != nil {
+		t.Fatal(err)
+	}
+	rf2, ok := decoded2["response_format"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("response_format missing: %s", body2)
+	}
+	if rf2["type"] != "json_object" {
+		t.Errorf("schema-less response_format.type = %v, want json_object", rf2["type"])
+	}
+}
+
 func TestChatRequest_RequireParameters(t *testing.T) {
 	req, err := buildChatRequest(Request{
 		Model:             ModelSonnet5,

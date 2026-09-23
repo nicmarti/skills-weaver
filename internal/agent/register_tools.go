@@ -2,12 +2,12 @@ package agent
 
 import (
 	"fmt"
-	"os"
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/data"
 	"dungeons/internal/dmtools"
 	"dungeons/internal/equipment"
+	"dungeons/internal/llm"
 	"dungeons/internal/locations"
 	"dungeons/internal/monster"
 	"dungeons/internal/names"
@@ -15,8 +15,10 @@ import (
 	"dungeons/internal/spell"
 )
 
-// registerAllTools registers all available tools in the registry.
-func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure, agentManager *AgentManager, outputHandler OutputHandler) error {
+// registerAllTools registers all available tools in the registry. The shared
+// neutral client powers the LLM-backed tools (map enrichment, ambient music);
+// cfg provides the Fast-role model.
+func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adventure, agentManager *AgentManager, outputHandler OutputHandler, client llm.Client, cfg llm.Config) error {
 	// Register dice roller
 	registry.Register(dmtools.NewDiceRollerTool())
 
@@ -106,18 +108,23 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 		registry.Register(imageTool)
 	}
 
-	// Register map generation tool
+	// Register map generation tool (requires the shared LLM client for
+	// prompt enrichment; FAL.ai handles the image itself)
 	// Cast outputHandler to MapGeneratedNotifier interface
 	var mapNotifier dmtools.MapGeneratedNotifier
 	if notifier, ok := outputHandler.(dmtools.MapGeneratedNotifier); ok {
 		mapNotifier = notifier
 	}
-	mapTool, err := dmtools.NewGenerateMapTool(dataDir, adv, mapNotifier)
-	if err != nil {
-		// Log warning but don't fail if ANTHROPIC_API_KEY is not set
-		fmt.Printf("Warning: Map generation tool not available: %v\n", err)
+	if client != nil {
+		mapTool, err := dmtools.NewGenerateMapTool(dataDir, adv, mapNotifier, client, cfg.ModelFast)
+		if err != nil {
+			// Log warning but don't fail if enrichment is unavailable
+			fmt.Printf("Warning: Map generation tool not available: %v\n", err)
+		} else {
+			registry.Register(mapTool)
+		}
 	} else {
-		registry.Register(mapTool)
+		fmt.Println("Warning: Map generation tool not available: no LLM client")
 	}
 
 	// Register equipment lookup tool
@@ -188,8 +195,8 @@ func registerAllTools(registry *ToolRegistry, dataDir string, adv *adventure.Adv
 	registry.Register(dmtools.NewSetVariableTool(adv))
 	registry.Register(dmtools.NewGetStateTool(adv))
 
-	// Register ambient music tool (gracefully fails if ANTHROPIC_API_KEY missing)
-	ambientTool := dmtools.NewSetAmbientMusicTool(os.Getenv("ANTHROPIC_API_KEY"), adv)
+	// Register ambient music tool over the shared neutral client
+	ambientTool := dmtools.NewSetAmbientMusicTool(client, cfg.ModelFast, adv)
 	registry.Register(ambientTool)
 
 	return nil

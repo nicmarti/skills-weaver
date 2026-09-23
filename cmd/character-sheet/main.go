@@ -2,6 +2,7 @@ package main
 
 import (
 	"dungeons/internal/charactersheet"
+	"dungeons/internal/llm"
 	"fmt"
 	"os"
 	"os/exec"
@@ -59,6 +60,11 @@ func cmdGenerate(args []string) error {
 	gen, err := charactersheet.NewSheetGenerator(dataDir)
 	if err != nil {
 		return err
+	}
+	// AI-enhanced biographies when OPENROUTER_API_KEY is set (best-effort:
+	// templates remain the fallback when unavailable).
+	if client, cfg := optionalLLMClient(); client != nil {
+		gen.EnableAIBiographies(client, cfg.ModelFast)
 	}
 
 	// Build sheet options
@@ -128,6 +134,11 @@ func cmdRegenerate(args []string) error {
 	if err != nil {
 		return err
 	}
+	// AI-enhanced biographies when OPENROUTER_API_KEY is set (best-effort:
+	// templates remain the fallback when unavailable).
+	if client, cfg := optionalLLMClient(); client != nil {
+		gen.EnableAIBiographies(client, cfg.ModelFast)
+	}
 
 	// Build sheet options (use cached bio if exists)
 	sheetOpts := charactersheet.SheetOptions{
@@ -164,6 +175,21 @@ func cmdRegenerate(args []string) error {
 	return nil
 }
 
+// optionalLLMClient builds the shared neutral client when OPENROUTER_API_KEY
+// is configured. A nil client keeps every path functional with template-based
+// biographies (best-effort optional AI).
+func optionalLLMClient() (llm.Client, llm.Config) {
+	cfg, err := llm.LoadConfig()
+	if err != nil {
+		return nil, llm.Config{}
+	}
+	client, err := llm.NewOpenRouterClient(cfg)
+	if err != nil {
+		return nil, llm.Config{}
+	}
+	return client, cfg
+}
+
 func cmdBio(args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("nom de personnage requis")
@@ -179,8 +205,10 @@ func cmdBio(args []string) error {
 		return err
 	}
 
-	// Generate biography
-	bioGen := charactersheet.NewBiographyGenerator()
+	// Generate biography (AI-enhanced when OPENROUTER_API_KEY is set,
+	// template-based otherwise)
+	client, cfg := optionalLLMClient()
+	bioGen := charactersheet.NewBiographyGenerator(client, cfg.ModelFast)
 	bio, err := bioGen.Generate(c, opts["adventure"])
 	if err != nil {
 		return err

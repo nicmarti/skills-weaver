@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
+	"dungeons/internal/llm"
 )
 
 // LyriaSceneParams contains the generated parameters for a Lyria music scene.
@@ -17,6 +17,10 @@ type LyriaSceneParams struct {
 	Temperature float64 // 0.8-1.3
 	DisplayName string  // Human-readable scene name
 }
+
+// lyriaTimeout bounds the parameter-generation call. The Google Lyria music
+// transport itself is unchanged and has its own lifecycle.
+const lyriaTimeout = 120 * time.Second
 
 const lyriaSystemPrompt = `You are an expert in ambient RPG music generation. Given a scene description, generate parameters for Google Lyria RealTime music generation.
 
@@ -50,36 +54,52 @@ Temperature guidelines:
 - Normal: 1.0
 - Creative/chaotic: 1.1-1.3`
 
-// GenerateLyriaPrompt calls Claude Sonnet to generate optimized Lyria parameters from a scene description.
-func GenerateLyriaPrompt(apiKey, sceneDescription string) (*LyriaSceneParams, error) {
-	if apiKey == "" {
-		return nil, fmt.Errorf("ANTHROPIC_API_KEY not set")
+// GenerateLyriaPrompt generates optimized Lyria parameters from a scene
+// description through the shared neutral client. Only the parameter
+// generation is migrated; the Google Lyria music transport is unchanged.
+func GenerateLyriaPrompt(client llm.Client, fastModel, sceneDescription string) (*LyriaSceneParams, error) {
+	if client == nil {
+		return nil, fmt.Errorf("LLM client not available for Lyria prompt generation")
 	}
-
-	client := anthropic.NewClient(option.WithAPIKey(apiKey))
+	if fastModel == "" {
+		fastModel = llm.DefaultModelFast
+	}
 
 	userPrompt := fmt.Sprintf("Generate Lyria music parameters for this D&D scene: %s", sceneDescription)
 
-	response, err := client.Messages.New(context.Background(), anthropic.MessageNewParams{
-		Model: anthropic.ModelClaudeSonnet4_6,
-		System: []anthropic.TextBlockParam{
-			{Text: lyriaSystemPrompt},
+	ctx, cancel := context.WithTimeout(context.Background(), lyriaTimeout)
+	defer cancel()
+
+	resp, err := client.Complete(ctx, llm.Request{
+		Model:    fastModel,
+		System:   lyriaSystemPrompt,
+		Messages: []llm.Message{llm.UserMessage(userPrompt)},
+		// Structured JSON output; keep the tolerant parsing below as a
+		// fallback for endpoints without response-format support.
+		MaxCompletionTokens: 300,
+		JSONResponse: &llm.JSONResponseFormat{
+			Name: "lyria_scene_params",
+			Schema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"prompt_en":   map[string]interface{}{"type": "string"},
+					"bpm":         map[string]interface{}{"type": "integer"},
+					"temperature": map[string]interface{}{"type": "number"},
+					"scene_name":  map[string]interface{}{"type": "string"},
+				},
+				"required": []string{"prompt_en", "bpm", "temperature", "scene_name"},
+			},
 		},
-		Messages: []anthropic.MessageParam{
-			anthropic.NewUserMessage(anthropic.NewTextBlock(userPrompt)),
-		},
-		MaxTokens:   300,
-		Temperature: anthropic.Float(0.3),
+		RequireParameters: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Claude API request failed: %w", err)
+		return nil, fmt.Errorf("LLM request failed: %w", err)
+	}
+	if resp.Message.Text == "" {
+		return nil, fmt.Errorf("empty response from LLM")
 	}
 
-	if len(response.Content) == 0 {
-		return nil, fmt.Errorf("empty response from Claude")
-	}
-
-	rawText := response.Content[0].Text
+	rawText := resp.Message.Text
 
 	// Extract JSON from the response (handle markdown code blocks if present)
 	jsonStr := extractJSON(rawText)

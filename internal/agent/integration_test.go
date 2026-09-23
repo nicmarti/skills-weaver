@@ -178,8 +178,10 @@ func TestIntegration_StatePersistenceAcrossSessions(t *testing.T) {
 			t.Errorf("Expected invocation count 1, got: %d", state.invocationCount)
 		}
 
-		// Note: Conversation history is not fully persisted (TODO in SerializeConversationContext)
-		// so the conversation will start fresh, but metadata (invocation count, last invoked) is preserved
+		messages := state.conversationCtx.NeutralMessages()
+		if len(messages) != 2 || messages[0].Text != "First question" || messages[1].Role != "assistant" {
+			t.Fatalf("conversation did not resume after reload: %+v", messages)
+		}
 
 		// Make second invocation
 		_, err := am2.InvokeAgent("rules-keeper", "Second question", "", 1)

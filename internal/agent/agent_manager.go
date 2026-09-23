@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"dungeons/internal/llm"
+
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 )
@@ -240,8 +242,16 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	// Prepare tools (may be nil if agent has no tools)
 	var toolsParam []anthropic.ToolUnionParam
 	hasTools := nestedAgent.toolRegistry != nil && nestedAgent.toolRegistry.Count() > 0
+	var definitions []llm.ToolDefinition
 	if hasTools {
-		toolsParam = nestedAgent.toolRegistry.ToAnthropicToolsParam()
+		definitions, err = nestedAgent.toolRegistry.ToolDefinitions()
+		if err != nil {
+			return "", fmt.Errorf("prepare %s tool definitions: %w", agentName, err)
+		}
+		toolsParam, err = llm.LegacyAnthropicToolParams(definitions)
+		if err != nil {
+			return "", fmt.Errorf("prepare %s Anthropic tools: %w", agentName, err)
+		}
 	}
 
 	// Advisor-enabled agents run the loop through the beta Messages API with the
@@ -250,7 +260,10 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	var betaToolsParam []anthropic.BetaToolUnionParam
 	if useAdvisor {
 		if hasTools {
-			betaToolsParam = nestedAgent.toolRegistry.ToBetaToolsParam()
+			betaToolsParam, err = llm.LegacyAnthropicBetaToolParams(definitions)
+			if err != nil {
+				return "", fmt.Errorf("prepare %s beta tools: %w", agentName, err)
+			}
 		}
 		betaToolsParam = append(betaToolsParam, advisorToolParam(nestedAgent))
 	}
@@ -449,8 +462,10 @@ func (am *AgentManager) executeNestedAgentTools(agent *NestedAgentState, toolUse
 			}
 			results = append(results, ToolResultMessage{
 				ToolUseID: use.ID,
-				Content:   fmt.Sprintf(`{"success": false, "error": "Tool not found: %s"}`, use.Name),
-				IsError:   true,
+				Content: formatToolResult(map[string]interface{}{
+					"success": false, "error": fmt.Sprintf("Tool not found: %s", use.Name),
+				}),
+				IsError: true,
 			})
 			continue
 		}
@@ -463,26 +478,33 @@ func (am *AgentManager) executeNestedAgentTools(agent *NestedAgentState, toolUse
 			}
 			results = append(results, ToolResultMessage{
 				ToolUseID: use.ID,
-				Content:   fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error()),
-				IsError:   true,
+				Content: formatToolResult(map[string]interface{}{
+					"success": false, "error": err.Error(),
+				}),
+				IsError: true,
 			})
 			continue
 		}
 
-		// Convert result to JSON string
-		resultJSON, err := json.Marshal(result)
-		if err != nil {
-			// Log serialization failure and return a warning so the agent knows the result couldn't be serialized
-			if am.logger != nil {
-				am.logger.LogInfo(fmt.Sprintf("[%s] Tool %s result not serializable: %v", agent.agentName, use.Name, err))
+		isError := false
+		if resultMap, ok := result.(map[string]interface{}); ok {
+			if success, ok := resultMap["success"].(bool); ok && !success {
+				isError = true
 			}
-			resultJSON = []byte(fmt.Sprintf(`{"success": true, "warning": "result not serializable: %s"}`, err.Error()))
+		}
+		// Use the same JSON encoding as the main agent, including failures.
+		resultJSON, encodingFailed := encodeToolResult(result)
+		if encodingFailed {
+			if am.logger != nil {
+				am.logger.LogInfo(fmt.Sprintf("[%s] Tool %s result not serializable", agent.agentName, use.Name))
+			}
+			isError = true
 		}
 
 		results = append(results, ToolResultMessage{
 			ToolUseID: use.ID,
-			Content:   string(resultJSON),
-			IsError:   false,
+			Content:   resultJSON,
+			IsError:   isError,
 		})
 	}
 
@@ -728,10 +750,11 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 
 	// Inject world map image for world-keeper as initial conversation context
 	if agentName == "world-keeper" && am.worldResources != nil && am.worldResources.MapImageBase64 != "" {
-		agent.conversationCtx.AddUserMessageWithImage(
+		agent.conversationCtx.AddUserMessageWithImageResource(
 			"Voici la carte du monde des Quatre Royaumes. Utilise-la comme référence géographique pour toutes tes validations.",
 			am.worldResources.MapImageBase64,
 			am.worldResources.MapImageMediaType,
+			"world-map",
 		)
 		agent.conversationCtx.AddAssistantMessage(
 			"J'ai bien reçu la carte du monde des Quatre Royaumes. Je l'utiliserai comme référence pour assurer la cohérence géographique de l'aventure.",

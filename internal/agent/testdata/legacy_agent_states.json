@@ -1,0 +1,39 @@
+{
+  "session_id": 3,
+  "last_updated": "2026-01-07T14:30:00Z",
+  "agents": {
+    "rules-keeper": {
+      "invocation_count": 2,
+      "last_invoked": "2026-01-07T14:25:00Z",
+      "conversation_history": [
+        {"role": "user", "text_content": "Question de règle", "token_estimate": 5},
+        {
+          "role": "assistant",
+          "text_content": "Je vérifie deux points.",
+          "tool_uses": [
+            {"id": "legacy-a", "name": "get_spell", "input": {"name": "boule de feu", "level": 3, "reference": 9007199254740993}},
+            {"id": "legacy-b", "name": "get_equipment", "input": {"name": "arc long"}}
+          ],
+          "token_estimate": 205
+        },
+        {"role": "user", "tool_results": [{"tool_use_id": "legacy-a", "content": "{\"success\":true}", "is_error": false}], "token_estimate": 50},
+        {"role": "user", "tool_results": [{"tool_use_id": "legacy-b", "content": "{\"success\":false}", "is_error": true}], "token_estimate": 50},
+        {"role": "assistant", "text_content": "Voici la réponse.", "token_estimate": 5}
+      ],
+      "token_estimate": 315,
+      "max_tokens": 20000,
+      "metrics": {
+        "total_tokens_used": 12450,
+        "total_input_tokens": 10000,
+        "total_output_tokens": 2450,
+        "model_used": "claude-sonnet-4-6",
+        "advisor_calls": 2,
+        "advisor_input_tokens": 450,
+        "advisor_output_tokens": 70,
+        "advisor_cache_creation_tokens": 340,
+        "advisor_cache_read_tokens": 120,
+        "advisor_model_used": "claude-opus-4-7"
+      }
+    }
+  }
+}

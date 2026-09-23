@@ -1,10 +1,11 @@
 package agent
 
 import (
+	"encoding/json"
 	"fmt"
+	"sort"
 
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/packages/param"
+	"dungeons/internal/llm"
 )
 
 // Tool represents a tool that can be called by the agent.
@@ -46,89 +47,48 @@ func (tr *ToolRegistry) Get(name string) (Tool, bool) {
 // GetAll returns all registered tools.
 func (tr *ToolRegistry) GetAll() []Tool {
 	tools := make([]Tool, 0, len(tr.tools))
-	for _, tool := range tr.tools {
-		tools = append(tools, tool)
+	for _, name := range tr.Names() {
+		tools = append(tools, tr.tools[name])
 	}
 	return tools
 }
 
-// ToAnthropicTools converts the registry to Anthropic API tool format.
-func (tr *ToolRegistry) ToAnthropicTools() []anthropic.ToolParam {
-	tools := make([]anthropic.ToolParam, 0, len(tr.tools))
-
-	for _, tool := range tr.tools {
+// ToolDefinitions provides complete JSON Schemas to the provider-neutral LLM
+// boundary. Never rebuild selected fields: constraints and nested schemas must
+// reach the Chat function parameters unchanged.
+func (tr *ToolRegistry) ToolDefinitions() ([]llm.ToolDefinition, error) {
+	definitions := make([]llm.ToolDefinition, 0, len(tr.tools))
+	for _, tool := range tr.GetAll() {
+		name := tool.Name()
+		if name == "" {
+			return nil, fmt.Errorf("tool has an empty name")
+		}
 		schema := tool.InputSchema()
-
-		// Extract properties and required fields from schema map
-		properties := schema["properties"]
-		required := []string{}
-		if req, ok := schema["required"].([]string); ok {
-			required = req
-		} else if req, ok := schema["required"].([]interface{}); ok {
-			for _, r := range req {
-				if str, ok := r.(string); ok {
-					required = append(required, str)
+		if schema == nil || schema["type"] != "object" {
+			return nil, fmt.Errorf("tool %q requires an object input schema", name)
+		}
+		if _, ok := schema["properties"].(map[string]interface{}); !ok {
+			return nil, fmt.Errorf("tool %q requires an object of properties", name)
+		}
+		switch required := schema["required"].(type) {
+		case nil, []string:
+		case []interface{}:
+			for _, value := range required {
+				if _, ok := value.(string); !ok {
+					return nil, fmt.Errorf("tool %q has a non-string required property", name)
 				}
 			}
+		default:
+			return nil, fmt.Errorf("tool %q has an invalid required list", name)
 		}
-
-		tools = append(tools, anthropic.ToolParam{
-			Name:        tool.Name(),
-			Description: param.NewOpt(tool.Description()),
-			InputSchema: anthropic.ToolInputSchemaParam{
-				Type:       "object",
-				Properties: properties,
-				Required:   required,
-			},
+		if _, err := json.Marshal(schema); err != nil {
+			return nil, fmt.Errorf("tool %q has an unserializable schema: %w", name, err)
+		}
+		definitions = append(definitions, llm.ToolDefinition{
+			Name: name, Description: tool.Description(), Parameters: schema,
 		})
 	}
-
-	return tools
-}
-
-// ToAnthropicToolsParam converts the registry to ToolUnionParam format for API calls.
-func (tr *ToolRegistry) ToAnthropicToolsParam() []anthropic.ToolUnionParam {
-	toolParams := tr.ToAnthropicTools()
-	tools := make([]anthropic.ToolUnionParam, len(toolParams))
-	for i, toolParam := range toolParams {
-		tools[i] = anthropic.ToolUnionParam{OfTool: &toolParam}
-	}
-	return tools
-}
-
-// ToBetaToolsParam converts the registry to BetaToolUnionParam format for the
-// beta Messages API (required when combining client-side tools with the
-// server-side Advisor tool).
-func (tr *ToolRegistry) ToBetaToolsParam() []anthropic.BetaToolUnionParam {
-	tools := make([]anthropic.BetaToolUnionParam, 0, len(tr.tools))
-
-	for _, tool := range tr.tools {
-		schema := tool.InputSchema()
-
-		properties := schema["properties"]
-		required := []string{}
-		if req, ok := schema["required"].([]string); ok {
-			required = req
-		} else if req, ok := schema["required"].([]interface{}); ok {
-			for _, r := range req {
-				if str, ok := r.(string); ok {
-					required = append(required, str)
-				}
-			}
-		}
-
-		betaTool := anthropic.BetaToolParam{
-			Name:        tool.Name(),
-			Description: param.NewOpt(tool.Description()),
-			InputSchema: anthropic.BetaToolInputSchemaParam{
-				Properties: properties,
-				Required:   required,
-			},
-		}
-		tools = append(tools, anthropic.BetaToolUnionParam{OfTool: &betaTool})
-	}
-
-	return tools
+	return definitions, nil
 }
 
 // ToolUse represents a tool call from Claude.
@@ -199,5 +159,6 @@ func (tr *ToolRegistry) Names() []string {
 	for name := range tr.tools {
 		names = append(names, name)
 	}
+	sort.Strings(names)
 	return names
 }

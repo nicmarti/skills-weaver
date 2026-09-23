@@ -8,13 +8,17 @@ import (
 
 // Environment variables read by LoadConfig. Only the API key is required.
 const (
-	EnvAPIKey        = "OPENROUTER_API_KEY"
-	EnvModelDM       = "OPENROUTER_MODEL_DM"
-	EnvModelFast     = "OPENROUTER_MODEL_FAST"
-	EnvModelCampaign = "OPENROUTER_MODEL_CAMPAIGN"
-	EnvModelAdvisor  = "OPENROUTER_MODEL_ADVISOR"
-	EnvHTTPReferer   = "OPENROUTER_HTTP_REFERER"
-	EnvAppName       = "OPENROUTER_APP_NAME"
+	EnvAPIKey           = "OPENROUTER_API_KEY"
+	EnvModelDM          = "OPENROUTER_MODEL_DM"
+	EnvModelNested      = "OPENROUTER_MODEL_NESTED"
+	EnvRulesKeeper      = "OPENROUTER_MODEL_RULES_KEEPER"
+	EnvCharacterCreator = "OPENROUTER_MODEL_CHARACTER_CREATOR"
+	EnvWorldKeeper      = "OPENROUTER_MODEL_WORLD_KEEPER"
+	EnvModelFast        = "OPENROUTER_MODEL_FAST"
+	EnvModelCampaign    = "OPENROUTER_MODEL_CAMPAIGN"
+	EnvModelAdvisor     = "OPENROUTER_MODEL_ADVISOR"
+	EnvHTTPReferer      = "OPENROUTER_HTTP_REFERER"
+	EnvAppName          = "OPENROUTER_APP_NAME"
 )
 
 // Config holds the process-wide OpenRouter configuration. One shared client is
@@ -25,7 +29,10 @@ type Config struct {
 
 	// Model overrides accept aliases ("sonnet", "haiku", "opus") or full
 	// OpenRouter model IDs. Empty selects the plan default.
-	ModelDM       string
+	ModelDM     string
+	ModelNested string
+	// AgentModels contains named overrides for the nested agents only.
+	AgentModels   map[string]string
 	ModelFast     string
 	ModelCampaign string
 	ModelAdvisor  string
@@ -40,8 +47,14 @@ type Config struct {
 // key cannot authenticate against OpenRouter.
 func LoadConfig() (Config, error) {
 	cfg := Config{
-		APIKey:        strings.TrimSpace(os.Getenv(EnvAPIKey)),
-		ModelDM:       os.Getenv(EnvModelDM),
+		APIKey:      strings.TrimSpace(os.Getenv(EnvAPIKey)),
+		ModelDM:     os.Getenv(EnvModelDM),
+		ModelNested: os.Getenv(EnvModelNested),
+		AgentModels: map[string]string{
+			RulesKeeperAgent:      os.Getenv(EnvRulesKeeper),
+			CharacterCreatorAgent: os.Getenv(EnvCharacterCreator),
+			WorldKeeperAgent:      os.Getenv(EnvWorldKeeper),
+		},
 		ModelFast:     os.Getenv(EnvModelFast),
 		ModelCampaign: os.Getenv(EnvModelCampaign),
 		ModelAdvisor:  os.Getenv(EnvModelAdvisor),
@@ -53,27 +66,112 @@ func LoadConfig() (Config, error) {
 		return Config{}, fmt.Errorf("%s environment variable not set (set it in your .envrc file or export it)", EnvAPIKey)
 	}
 
-	cfg.ModelDM = resolveOrDefault(cfg.ModelDM, DefaultModelDM)
-	cfg.ModelFast = resolveOrDefault(cfg.ModelFast, DefaultModelFast)
-	cfg.ModelCampaign = resolveOrDefault(cfg.ModelCampaign, DefaultModelCampaign)
-	cfg.ModelAdvisor = resolveOrDefault(cfg.ModelAdvisor, DefaultModelAdvisor)
+	return cfg.normalizeModels()
+}
 
+// resolveOrDefault validates explicit overrides instead of silently replacing
+// mistyped IDs with Sonnet. An unset override selects the role default.
+func resolveOrDefault(input, def, label string) (string, error) {
+	if input == "" {
+		return def, nil
+	}
+	model, err := ParseModelChoice(input)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", label, err)
+	}
+	return model, nil
+}
+
+// ModelOverrides are future sw-dm flag values, applied after environment
+// variables. The CLI cannot use them for live gameplay until Phases 4/5 wire
+// both the DM and nested agents to llm.Client.
+type ModelOverrides struct {
+	DM     string
+	Nested string
+	Agents map[string]string
+}
+
+// WithModelOverrides gives explicit CLI choices precedence over environment
+// values without altering the source config or falling back on invalid IDs.
+func (cfg Config) WithModelOverrides(overrides ModelOverrides) (Config, error) {
+	if overrides.DM != "" {
+		cfg.ModelDM = overrides.DM
+	}
+	agents := make(map[string]string, len(cfg.AgentModels)+len(overrides.Agents))
+	if overrides.Nested != "" {
+		// An explicit CLI nested default overrides per-agent environment values;
+		// a more specific CLI --agent-model can override it again below.
+		cfg.ModelNested = overrides.Nested
+	} else {
+		for name, model := range cfg.AgentModels {
+			agents[name] = model
+		}
+	}
+	for name, model := range overrides.Agents {
+		if !IsNestedAgent(name) || strings.TrimSpace(model) == "" {
+			return Config{}, fmt.Errorf("invalid model override for agent %q", name)
+		}
+		agents[name] = model
+	}
+	cfg.AgentModels = agents
+	return cfg.normalizeModels()
+}
+
+func (cfg Config) normalizeModels() (Config, error) {
+	var err error
+	for _, role := range []struct {
+		value *string
+		def   string
+		name  string
+	}{
+		{&cfg.ModelDM, DefaultModelDM, EnvModelDM},
+		{&cfg.ModelNested, DefaultModelNested, EnvModelNested},
+		{&cfg.ModelFast, DefaultModelFast, EnvModelFast},
+		{&cfg.ModelCampaign, DefaultModelCampaign, EnvModelCampaign},
+		{&cfg.ModelAdvisor, DefaultModelAdvisor, EnvModelAdvisor},
+	} {
+		*role.value, err = resolveOrDefault(*role.value, role.def, role.name)
+		if err != nil {
+			return Config{}, err
+		}
+	}
+	if cfg.AgentModels == nil {
+		cfg.AgentModels = make(map[string]string)
+	}
+	for name := range cfg.AgentModels {
+		if !IsNestedAgent(name) {
+			return Config{}, fmt.Errorf("unknown nested agent %q", name)
+		}
+	}
+	for _, name := range nestedAgentNames {
+		if raw := cfg.AgentModels[name]; raw != "" {
+			cfg.AgentModels[name], err = resolveOrDefault(raw, DefaultModelNested, name)
+			if err != nil {
+				return Config{}, err
+			}
+		} else {
+			delete(cfg.AgentModels, name)
+		}
+	}
 	return cfg, nil
 }
 
-// resolveOrDefault maps an override to a concrete model ID, falling back to
-// the role default when no override is configured.
-func resolveOrDefault(input, def string) string {
-	if strings.TrimSpace(input) == "" {
-		return def
+// ModelForAgent resolves a nested agent's model after applying role defaults.
+func (cfg Config) ModelForAgent(name string) (string, error) {
+	if !IsNestedAgent(name) {
+		return "", fmt.Errorf("unknown nested agent %q", name)
 	}
-	return ResolveModel(input)
+	if model := cfg.AgentModels[name]; model != "" {
+		return ParseModelChoice(model)
+	}
+	return resolveOrDefault(cfg.ModelNested, DefaultModelNested, EnvModelNested)
 }
 
 // DefaultModels returns the plan's concrete production defaults.
 func DefaultModels() Config {
 	return Config{
 		ModelDM:       DefaultModelDM,
+		ModelNested:   DefaultModelNested,
 		ModelFast:     DefaultModelFast,
 		ModelCampaign: DefaultModelCampaign,
 		ModelAdvisor:  DefaultModelAdvisor,

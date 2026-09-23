@@ -1,27 +1,73 @@
 package llm
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Concrete OpenRouter model IDs pinned per docs/openrouter-migration-plan.md.
-// Mutable "~latest" aliases are intentionally not used in production so that
-// game behavior stays reproducible across sessions.
+// Mutable "~latest" aliases are not used as defaults so game behavior stays
+// reproducible; explicit user model overrides may deliberately select them.
 const (
 	ModelHaiku45 = "anthropic/claude-haiku-4.5"
 	ModelSonnet5 = "anthropic/claude-sonnet-5"
 	ModelOpus5   = "anthropic/claude-opus-5"
 )
 
-// Role defaults per the approved model catalog (2026-09-22):
-//   - Main DM / nested agents / campaign generation: Sonnet 5
-//   - Fast utility generation: Haiku 4.5
-//   - World Keeper advisor: Opus 5
+// OpenRouter defaults: Sonnet 5 for every role. Alternative models remain
+// selectable explicitly; these defaults do not affect the legacy Anthropic
+// runtime until the agent loops are migrated to llm.Client.
 const (
 	DefaultModel         = ModelSonnet5
 	DefaultModelDM       = ModelSonnet5
-	DefaultModelFast     = ModelHaiku45
+	DefaultModelNested   = ModelSonnet5
+	DefaultModelFast     = ModelSonnet5
 	DefaultModelCampaign = ModelSonnet5
-	DefaultModelAdvisor  = ModelOpus5
+	DefaultModelAdvisor  = ModelSonnet5
 )
+
+const (
+	RulesKeeperAgent      = "rules-keeper"
+	CharacterCreatorAgent = "character-creator"
+	WorldKeeperAgent      = "world-keeper"
+)
+
+var nestedAgentNames = []string{RulesKeeperAgent, CharacterCreatorAgent, WorldKeeperAgent}
+
+// IsNestedAgent recognizes the three actual nested-agent personas.
+func IsNestedAgent(name string) bool {
+	switch name {
+	case RulesKeeperAgent, CharacterCreatorAgent, WorldKeeperAgent:
+		return true
+	default:
+		return false
+	}
+}
+
+// ParseModelChoice validates an explicit configuration/CLI model selection.
+// Aliases remain convenient, but provider-qualified OpenRouter IDs are not
+// restricted to Claude. Catalog availability and model capabilities are
+// checked at request time, not guessed from the ID here.
+func ParseModelChoice(input string) (string, error) {
+	model := strings.TrimSpace(input)
+	switch strings.ToLower(model) {
+	case "sonnet":
+		return ModelSonnet5, nil
+	case "haiku":
+		return ModelHaiku45, nil
+	case "opus":
+		return ModelOpus5, nil
+	}
+	if model == "" || strings.ContainsAny(model, " \t\r\n") {
+		return "", fmt.Errorf("invalid OpenRouter model %q: expected a provider/model ID or sonnet, haiku, opus", input)
+	}
+	id := strings.TrimPrefix(model, "~") // Allow deliberate mutable ~latest overrides.
+	provider, slug, ok := strings.Cut(id, "/")
+	if !ok || provider == "" || slug == "" || strings.HasPrefix(slug, "/") || strings.HasSuffix(slug, "/") {
+		return "", fmt.Errorf("invalid OpenRouter model %q: expected a provider/model ID or sonnet, haiku, opus", input)
+	}
+	return model, nil
+}
 
 // ResolveModel maps persona/configuration aliases and full OpenRouter model
 // IDs to a concrete model ID. Accepted aliases: "", "sonnet", "haiku", "opus".

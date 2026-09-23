@@ -3,7 +3,7 @@ module dungeons
 go 1.25.10
 
 require (
-	github.com/OpenRouterTeam/go-sdk v0.8.17
+	github.com/OpenRouterTeam/go-sdk v0.8.19
 	github.com/anthropics/anthropic-sdk-go v1.46.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/chzyer/readline v1.5.1

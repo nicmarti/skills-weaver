@@ -213,9 +213,10 @@ func TestAgentManager_StatePersistence(t *testing.T) {
 		t.Errorf("Expected invocationCount 5, got: %d", agent2.invocationCount)
 	}
 
-	// Note: Full message content serialization is not implemented yet (TODO)
-	// Empty messages are skipped during deserialization to avoid API errors
-	// The conversation will start fresh on next invocation, but metadata is preserved
+	messages := agent2.conversationCtx.NeutralMessages()
+	if len(messages) != 2 || messages[0].Text != "test question" || messages[1].Text != "test response" {
+		t.Fatalf("Conversation was not restored with its text content: %+v", messages)
+	}
 }
 
 // TestAgentManager_ListNestedAgents tests agent listing.

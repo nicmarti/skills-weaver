@@ -1,17 +1,19 @@
 package agent
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
+	"dungeons/internal/llm"
 
 	"github.com/anthropics/anthropic-sdk-go"
 )
 
-// ConversationContext manages the conversation history with Claude.
+// ConversationContext stores provider-neutral conversation history.
 type ConversationContext struct {
-	messages      []anthropic.MessageParam
+	messages      []llm.Message
 	tokenEstimate int
 	maxTokens     int
 }
@@ -25,7 +27,7 @@ func NewConversationContext() *ConversationContext {
 // This is useful for nested agents which have lower token limits (e.g., 20K).
 func NewConversationContextWithLimit(maxTokens int) *ConversationContext {
 	return &ConversationContext{
-		messages:      []anthropic.MessageParam{},
+		messages:      []llm.Message{},
 		tokenEstimate: 0,
 		maxTokens:     maxTokens,
 	}
@@ -33,20 +35,25 @@ func NewConversationContextWithLimit(maxTokens int) *ConversationContext {
 
 // AddUserMessage adds a user message to the conversation.
 func (ctx *ConversationContext) AddUserMessage(content string) {
-	ctx.messages = append(ctx.messages, anthropic.NewUserMessage(
-		anthropic.NewTextBlock(content),
-	))
-	ctx.tokenEstimate += len(content) / 4 // Rough estimation
-	ctx.TruncateIfNeeded()
+	ctx.appendMessage(llm.UserMessage(content))
+}
+
+// AddUserMessageWithImageResource includes a reference to an image reloaded on
+// restore, without persisting its base64 payload.
+func (ctx *ConversationContext) AddUserMessageWithImageResource(content, imageBase64, mediaType, resourceRef string) {
+	ctx.appendMessage(llm.UserMessageWithImage(content, llm.ImagePart{
+		MediaType: mediaType, Base64: imageBase64, ResourceRef: resourceRef,
+	}))
 }
 
 // AddUserMessageWithImage adds a user message containing text and a base64-encoded image.
 func (ctx *ConversationContext) AddUserMessageWithImage(content string, imageBase64 string, mediaType string) {
-	ctx.messages = append(ctx.messages, anthropic.NewUserMessage(
-		anthropic.NewTextBlock(content),
-		anthropic.NewImageBlockBase64(mediaType, imageBase64),
-	))
-	ctx.tokenEstimate += len(content)/4 + 1600 // ~1600 tokens for a 1536x1024 image
+	ctx.AddUserMessageWithImageResource(content, imageBase64, mediaType, "")
+}
+
+func (ctx *ConversationContext) appendMessage(message llm.Message) {
+	ctx.messages = append(ctx.messages, message)
+	ctx.tokenEstimate += estimateMessage(message)
 	ctx.TruncateIfNeeded()
 }
 
@@ -57,35 +64,20 @@ func (ctx *ConversationContext) AddAssistantMessage(content string) {
 		return
 	}
 
-	ctx.messages = append(ctx.messages, anthropic.NewAssistantMessage(
-		anthropic.NewTextBlock(content),
-	))
-	ctx.tokenEstimate += len(content) / 4
-	ctx.TruncateIfNeeded()
+	ctx.appendMessage(llm.AssistantMessage(content))
 }
 
 // AddAssistantMessageWithTools adds an assistant message with tool uses.
 func (ctx *ConversationContext) AddAssistantMessageWithTools(content string, toolUses []ToolUse) {
-	contentBlocks := []anthropic.ContentBlockParamUnion{}
-
-	// Only add text block if content is not empty
-	// API rejects empty text blocks
-	if len(content) > 0 {
-		contentBlocks = append(contentBlocks, anthropic.NewTextBlock(content))
-	}
-
-	// Add tool use blocks
+	calls := make([]llm.ToolCall, 0, len(toolUses))
 	for _, use := range toolUses {
-		contentBlocks = append(contentBlocks, anthropic.NewToolUseBlock(
-			use.ID,
-			use.Input,
-			use.Name,
-		))
+		args, err := json.Marshal(use.Input)
+		if err != nil {
+			args = []byte("{}") // Legacy tool input is always a JSON-compatible map.
+		}
+		calls = append(calls, llm.ToolCall{ID: use.ID, Name: use.Name, Arguments: args})
 	}
-
-	ctx.messages = append(ctx.messages, anthropic.NewAssistantMessage(contentBlocks...))
-	ctx.tokenEstimate += len(content)/4 + len(toolUses)*100 // Rough estimation
-	ctx.TruncateIfNeeded()
+	ctx.appendMessage(llm.AssistantToolCallMessage(content, calls))
 }
 
 // AddAssistantMessageWithToolUses is an alias for AddAssistantMessageWithTools.
@@ -95,11 +87,9 @@ func (ctx *ConversationContext) AddAssistantMessageWithToolUses(content string, 
 
 // AddToolResultMessage adds a tool result message.
 func (ctx *ConversationContext) AddToolResultMessage(result ToolResultMessage) {
-	ctx.messages = append(ctx.messages, anthropic.NewUserMessage(
-		anthropic.NewToolResultBlock(result.ToolUseID, result.Content, result.IsError),
-	))
-	ctx.tokenEstimate += len(result.Content) / 4
-	ctx.TruncateIfNeeded()
+	ctx.appendMessage(llm.ToolResultMessage(llm.ToolResult{
+		ToolCallID: result.ToolUseID, Content: result.Content, IsError: result.IsError,
+	}))
 }
 
 // AddToolResults adds multiple tool result messages.
@@ -109,35 +99,110 @@ func (ctx *ConversationContext) AddToolResults(results []ToolResultMessage) {
 	}
 }
 
-// GetMessages returns all messages in the conversation.
-func (ctx *ConversationContext) GetMessages() []anthropic.MessageParam {
+// NeutralMessages returns the provider-independent conversation.
+func (ctx *ConversationContext) NeutralMessages() []llm.Message {
 	return ctx.messages
 }
 
-// TruncateIfNeeded truncates old messages if token limit is exceeded.
-func (ctx *ConversationContext) TruncateIfNeeded() {
-	if ctx.tokenEstimate > ctx.maxTokens && len(ctx.messages) > 20 {
-		// Keep last 20 messages (10 exchanges)
-		ctx.messages = ctx.messages[len(ctx.messages)-20:]
-		// Recalculate token estimate
-		ctx.tokenEstimate = 0
-		for range ctx.messages {
-			// Rough estimation based on message type
-			ctx.tokenEstimate += 500 // Assume 500 tokens per message on average
+// GetMessages is a temporary Anthropic wire adapter for the still-unmigrated
+// main and nested-agent loops. Phases 4/5 replace these callers with llm.Client.
+func (ctx *ConversationContext) GetMessages() []anthropic.MessageParam {
+	messages := make([]anthropic.MessageParam, 0, len(ctx.messages))
+	for _, msg := range ctx.messages {
+		switch msg.Role {
+		case llm.RoleUser:
+			blocks := []anthropic.ContentBlockParamUnion{}
+			if msg.Text != "" {
+				blocks = append(blocks, anthropic.NewTextBlock(msg.Text))
+			}
+			for _, img := range msg.Images {
+				if img.Base64 != "" {
+					blocks = append(blocks, anthropic.NewImageBlockBase64(img.MediaType, img.Base64))
+				}
+			}
+			messages = append(messages, anthropic.NewUserMessage(blocks...))
+		case llm.RoleAssistant:
+			blocks := []anthropic.ContentBlockParamUnion{}
+			if msg.Text != "" {
+				blocks = append(blocks, anthropic.NewTextBlock(msg.Text))
+			}
+			for _, call := range msg.ToolCalls {
+				var args map[string]interface{}
+				if err := json.Unmarshal(call.Arguments, &args); err != nil {
+					args = map[string]interface{}{}
+				}
+				blocks = append(blocks, anthropic.NewToolUseBlock(call.ID, args, call.Name))
+			}
+			messages = append(messages, anthropic.NewAssistantMessage(blocks...))
+		case llm.RoleTool:
+			blocks := make([]anthropic.ContentBlockParamUnion, 0, len(msg.ToolResults))
+			for _, result := range msg.ToolResults {
+				blocks = append(blocks, anthropic.NewToolResultBlock(result.ToolCallID, result.Content, result.IsError))
+			}
+			messages = append(messages, anthropic.NewUserMessage(blocks...))
 		}
+	}
+	return messages
+}
+
+func estimateMessage(msg llm.Message) int {
+	count := len(msg.Text)/4 + len(msg.ToolCalls)*100 + len(msg.ToolResults)*50
+	for _, result := range msg.ToolResults {
+		count += len(result.Content) / 4
+	}
+	count += len(msg.Images) * 1600
+	return count
+}
+
+// exchangeEnd returns the end of the first atomic tool exchange (or one message).
+func exchangeEnd(messages []llm.Message, start int) int {
+	end := start + 1
+	if messages[start].Role != llm.RoleAssistant || len(messages[start].ToolCalls) == 0 {
+		return end
+	}
+	ids := make(map[string]bool, len(messages[start].ToolCalls))
+	for _, call := range messages[start].ToolCalls {
+		ids[call.ID] = true
+	}
+	for end < len(messages) && messages[end].Role == llm.RoleTool {
+		valid := true
+		for _, result := range messages[end].ToolResults {
+			if !ids[result.ToolCallID] {
+				valid = false
+			}
+		}
+		if !valid {
+			break
+		}
+		end++
+	}
+	return end
+}
+
+// TruncateIfNeeded removes oldest complete exchanges without splitting tools.
+func (ctx *ConversationContext) TruncateIfNeeded() {
+	for ctx.maxTokens > 0 && ctx.tokenEstimate > ctx.maxTokens && len(ctx.messages) > 1 {
+		end := exchangeEnd(ctx.messages, 0)
+		if end >= len(ctx.messages) {
+			break // Keep an oversized latest exchange intact.
+		}
+		for _, msg := range ctx.messages[:end] {
+			ctx.tokenEstimate -= estimateMessage(msg)
+		}
+		ctx.messages = ctx.messages[end:]
 	}
 }
 
 // AdventureContext holds the current adventure state.
 type AdventureContext struct {
-	basePath      string
-	Adventure     *adventure.Adventure
-	Party         *adventure.Party
-	Characters    []*character.Character
-	Inventory     *adventure.SharedInventory
+	basePath       string
+	Adventure      *adventure.Adventure
+	Party          *adventure.Party
+	Characters     []*character.Character
+	Inventory      *adventure.SharedInventory
 	CurrentSession *adventure.Session
-	RecentJournal []adventure.JournalEntry
-	State         *adventure.GameState
+	RecentJournal  []adventure.JournalEntry
+	State          *adventure.GameState
 }
 
 // BasePath returns the adventure's base directory path.

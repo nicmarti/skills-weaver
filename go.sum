@@ -1,5 +1,5 @@
-github.com/OpenRouterTeam/go-sdk v0.8.17 h1:Atw5o6emqyGlGlH9k3WjCROBChi4warJ2r+IG1CkDz4=
-github.com/OpenRouterTeam/go-sdk v0.8.17/go.mod h1:8vFtUZ9I2YiDntYbck42wQhrx9DsJN5PHbViaHwTkXc=
+github.com/OpenRouterTeam/go-sdk v0.8.19 h1:2aX+H/hDRPZrgN3R+nUYNfe/GKcS0bdlwp/NVFnoMIY=
+github.com/OpenRouterTeam/go-sdk v0.8.19/go.mod h1:8vFtUZ9I2YiDntYbck42wQhrx9DsJN5PHbViaHwTkXc=
 github.com/anthropics/anthropic-sdk-go v1.46.0 h1:yl3n+el5ZfNgiCtQ7zQ7s/NXxB11YbrKXdc3uLPNWlU=
 github.com/anthropics/anthropic-sdk-go v1.46.0/go.mod h1:bx5vWuHFuGPkELH8Z4KUiNSohFnUwScdpTyr+50myPo=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=

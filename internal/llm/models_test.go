@@ -30,6 +30,29 @@ func TestResolveModel(t *testing.T) {
 	}
 }
 
+func TestParseModelChoice(t *testing.T) {
+	for input, want := range map[string]string{
+		"sonnet":                          ModelSonnet5,
+		"opus":                            ModelOpus5,
+		"haiku":                           ModelHaiku45,
+		"openai/gpt-6":                    "openai/gpt-6",
+		"google/gemini-3-pro":             "google/gemini-3-pro",
+		"openrouter/auto":                 "openrouter/auto",
+		"~anthropic/claude-sonnet-latest": "~anthropic/claude-sonnet-latest",
+		"openai/gpt-6:nitro":              "openai/gpt-6:nitro",
+	} {
+		got, err := ParseModelChoice(input)
+		if err != nil || got != want {
+			t.Errorf("ParseModelChoice(%q) = %q, %v; want %q", input, got, err, want)
+		}
+	}
+	for _, input := range []string{"", "gpt-6", "anthropic/", "/model", "~invalid", "openai//model", "openai/my model"} {
+		if _, err := ParseModelChoice(input); err == nil {
+			t.Errorf("ParseModelChoice(%q) should reject malformed override", input)
+		}
+	}
+}
+
 func TestDisplayName(t *testing.T) {
 	if got := DisplayName(ModelSonnet5); got != "Claude Sonnet 5" {
 		t.Errorf("DisplayName(Sonnet5) = %q", got)
@@ -63,13 +86,16 @@ func TestDefaultModels(t *testing.T) {
 	if cfg.ModelDM != ModelSonnet5 {
 		t.Errorf("ModelDM = %q, want %q", cfg.ModelDM, ModelSonnet5)
 	}
-	if cfg.ModelFast != ModelHaiku45 {
-		t.Errorf("ModelFast = %q, want %q", cfg.ModelFast, ModelHaiku45)
+	if cfg.ModelFast != ModelSonnet5 {
+		t.Errorf("ModelFast = %q, want %q", cfg.ModelFast, ModelSonnet5)
+	}
+	if cfg.ModelNested != ModelSonnet5 {
+		t.Errorf("ModelNested = %q, want %q", cfg.ModelNested, ModelSonnet5)
 	}
 	if cfg.ModelCampaign != ModelSonnet5 {
 		t.Errorf("ModelCampaign = %q, want %q", cfg.ModelCampaign, ModelSonnet5)
 	}
-	if cfg.ModelAdvisor != ModelOpus5 {
-		t.Errorf("ModelAdvisor = %q, want %q", cfg.ModelAdvisor, ModelOpus5)
+	if cfg.ModelAdvisor != ModelSonnet5 {
+		t.Errorf("ModelAdvisor = %q, want %q", cfg.ModelAdvisor, ModelSonnet5)
 	}
 }

@@ -22,6 +22,8 @@ const (
 type ImagePart struct {
 	MediaType string // e.g. "image/png"
 	Base64    string
+	// ResourceRef identifies a re-loadable local resource, not serialized image bytes.
+	ResourceRef string
 }
 
 // DataURL renders the image as a data URL accepted by Chat image parts.

@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"dungeons/internal/llm"
+
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 )
@@ -135,8 +137,15 @@ func (a *Agent) ProcessUserMessage(message string) error {
 	// Prepare messages for API call
 	messages := a.conversationCtx.GetMessages()
 
-	// Convert tools to Anthropic format
-	toolsParam := a.toolRegistry.ToAnthropicToolsParam()
+	// Temporary wire conversion until Phase 4 switches the main loop to llm.Client.
+	definitions, err := a.toolRegistry.ToolDefinitions()
+	if err != nil {
+		return fmt.Errorf("prepare tool definitions: %w", err)
+	}
+	toolsParam, err := llm.LegacyAnthropicToolParams(definitions)
+	if err != nil {
+		return fmt.Errorf("prepare Anthropic tool compatibility: %w", err)
+	}
 
 	// Call API with streaming and tools in a loop
 	for {
@@ -427,7 +436,7 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 			}
 			results = append(results, ToolResultMessage{
 				ToolUseID: use.ID,
-				Content:   fmt.Sprintf(`{"success": false, "error": "Tool not found: %s"}`, use.Name),
+				Content:   formatToolResult(errorResult),
 				IsError:   true,
 			})
 			continue
@@ -445,8 +454,10 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 			}
 			results = append(results, ToolResultMessage{
 				ToolUseID: use.ID,
-				Content:   fmt.Sprintf(`{"success": false, "error": "%s"}`, err.Error()),
-				IsError:   true,
+				Content: formatToolResult(map[string]interface{}{
+					"success": false, "error": err.Error(),
+				}),
+				IsError: true,
 			})
 			continue
 		}
@@ -456,8 +467,12 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 			a.logger.LogToolResult(use.Name, use.ID, result)
 		}
 
+		isError := false
 		// Check for system_brief in tool result (hidden campaign guidance)
 		if resultMap, ok := result.(map[string]interface{}); ok {
+			if success, ok := resultMap["success"].(bool); ok && !success {
+				isError = true
+			}
 			if systemBrief, ok := resultMap["system_brief"].(string); ok && systemBrief != "" {
 				// Inject system briefing into agent context (hidden from player)
 				a.AddSystemGuidance(systemBrief)
@@ -470,11 +485,11 @@ func (a *Agent) executeTools(toolUses []ToolUse) []ToolResultMessage {
 		}
 
 		// Convert result to JSON string
-		resultJSON := formatToolResult(result)
+		resultJSON, encodingFailed := encodeToolResult(result)
 		results = append(results, ToolResultMessage{
 			ToolUseID: use.ID,
 			Content:   resultJSON,
-			IsError:   false,
+			IsError:   isError || encodingFailed,
 		})
 
 		// Notify completion
@@ -561,34 +576,25 @@ func isStateModifyingTool(toolName string) bool {
 	return modifyingTools[toolName]
 }
 
-// formatToolResult converts a tool result to JSON string.
+// formatToolResult always produces valid JSON, including for a result that
+// cannot itself be marshaled. Never interpolate unescaped tool/error text.
 func formatToolResult(result interface{}) string {
-	// If result is already a map with success field, use it directly
-	if m, ok := result.(map[string]interface{}); ok {
-		// Try to marshal to JSON
-		b, err := json.Marshal(m)
-		if err == nil {
-			return string(b)
-		}
+	encoded, _ := encodeToolResult(result)
+	return encoded
+}
 
-		// Fallback: simple serialization
-		if success, ok := m["success"].(bool); ok {
-			if !success {
-				if errMsg, ok := m["error"].(string); ok {
-					return fmt.Sprintf(`{"success": false, "error": "%s"}`, errMsg)
-				}
-			}
-			// For successful results, include display field if present
-			if display, ok := m["display"].(string); ok {
-				// Escape quotes in display
-				display = strings.ReplaceAll(display, `"`, `\"`)
-				return fmt.Sprintf(`{"success": true, "display": "%s"}`, display)
-			}
-		}
+func encodeToolResult(result interface{}) (string, bool) {
+	if result == nil {
+		result = map[string]interface{}{"success": true}
 	}
-
-	// Fallback: return generic success
-	return `{"success": true}`
+	data, err := json.Marshal(result)
+	if err != nil {
+		data, _ = json.Marshal(map[string]interface{}{
+			"success": false, "error": fmt.Sprintf("tool result is not JSON serializable: %v", err),
+		})
+		return string(data), true
+	}
+	return string(data), false
 }
 
 // AgentManager exposes the nested-agent manager so callers (e.g. the coherence

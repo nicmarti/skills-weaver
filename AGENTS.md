@@ -16,7 +16,7 @@
 - **Never commit with a broken build.** Run `go build ./...` immediately after every batch of `.go` edits and fix failures before anything else. If `.templ` files changed, run `templ generate` first.
 - **Never `git reset --hard` without explicit user confirmation.**
 - **Do not use browser MCP tools during a live game session** (sw-dm or sw-web running). Analyze files instead: logs (`data/adventures/<nom>/sw-dm-session-N.log`), `agent-states.json`, and source code. Ask the user before opening any browser tooling.
-- **Model provider boundary:** only `internal/llm` may import provider SDKs (currently `github.com/OpenRouterTeam/go-sdk`). Agents, tools, web handlers, and utilities consume the provider-neutral `llm.Client`. Model IDs are centralized in `internal/llm/models.go`; provider keys are read only by `internal/llm`. This boundary is new (Phase 1 of the OpenRouter migration) — see `docs/openrouter-migration-plan.md`.
+- **Model provider boundary (migration in progress):** only `internal/llm` may import the OpenRouter SDK (`github.com/OpenRouterTeam/go-sdk`); do not add new provider SDK imports elsewhere. Existing Anthropic SDK imports and API-key reads remain in the old agent/web/utility runtime until Phases 4–12 migrate those callers to `llm.Client`. OpenRouter model IDs and key loading are centralized in `internal/llm/models.go` and `internal/llm/config.go`. Evidence: `internal/agent/agent.go`, `internal/agent/agent_manager.go`, and `cmd/dm/main.go`; see `docs/openrouter-migration-plan.md`.
 - **sw-dm journal correctness:** the Dungeon Master agent MUST call `start_session` at the beginning and `end_session` at the end of a session. Otherwise all events land in `journal-session-0.json` instead of being organized per session.
 
 ### Gotchas and tribal knowledge
@@ -41,7 +41,7 @@ Real provider API tests are gated and never run by default:
 
 ### Human-required actions
 
-- Provider keys live in the shell environment (`.envrc` via direnv, not committed): `OPENROUTER_API_KEY` (migration target, with optional `OPENROUTER_MODEL_DM` / `OPENROUTER_MODEL_FAST` / `OPENROUTER_MODEL_CAMPAIGN` / `OPENROUTER_MODEL_ADVISOR` / `OPENROUTER_HTTP_REFERER` / `OPENROUTER_APP_NAME`), `GEMINI_API_KEY` (Lyria ambient music), `FAL_KEY` (fal.ai images). A human must configure them; agents must never print, log, or commit key values. `ANTHROPIC_API_KEY` is legacy during the migration and is not accepted by the new `internal/llm` boundary.
+- Provider keys live in the shell environment (`.envrc` via direnv, not committed): `OPENROUTER_API_KEY` (migration target, with optional `OPENROUTER_MODEL_DM`, `OPENROUTER_MODEL_NESTED`, `OPENROUTER_MODEL_RULES_KEEPER`, `OPENROUTER_MODEL_CHARACTER_CREATOR`, `OPENROUTER_MODEL_WORLD_KEEPER`, `OPENROUTER_MODEL_FAST`, `OPENROUTER_MODEL_CAMPAIGN`, `OPENROUTER_MODEL_ADVISOR`, `OPENROUTER_HTTP_REFERER`, `OPENROUTER_APP_NAME`; see `internal/llm/config.go`), `GEMINI_API_KEY` (Lyria ambient music), `FAL_KEY` (fal.ai images). A human must configure them; agents must never print, log, or commit key values. `ANTHROPIC_API_KEY` is legacy during the migration and is not accepted by the new `internal/llm` boundary. OpenRouter model selection is not active in gameplay until Phases 4/5/8 wire the runtime.
 
 ### Commit conventions
 
@@ -104,7 +104,7 @@ Le préfixe `sw-` identifie toutes les commandes CLI du projet.
              │
              └──► sw-dm (REPL autonome)
                   └──► internal/agent/ (boucle d'agent complète)
-                       ├──► dungeon-master (main agent, 50K tokens)
+                       ├──► dungeon-master (main agent, ~900K tokens estimés)
                        ├──► rules-keeper (nested, 20K tokens)
                        ├──► character-creator (nested, 20K tokens)
                        └──► world-keeper (nested, 20K tokens)
@@ -146,7 +146,7 @@ Le préfixe `sw-` identifie toutes les commandes CLI du projet.
 
 **Agent-to-Agent Communication** :
 - Le dungeon-master (main agent) peut invoquer des agents imbriqués via `invoke_agent`
-- Les agents imbriqués sont des **consultants en lecture seule** (pas d'accès tools)
+- Les agents imbriqués sont des **consultants en lecture seule** : `InvokeAgent` reçoit des tools filtrés en lecture seule ; `InvokeAgentSilent` n'envoie pas de tools client (voir `internal/agent/agent_manager.go` et `internal/agent/tool_access_policy.go`).
 - Profondeur maximale de récursion = 1 (agents imbriqués ne peuvent pas invoquer d'autres agents)
 - Conversations persistées dans `agent-states.json`
 
@@ -211,7 +211,7 @@ web/
 ### Session Management
 
 - Une session par aventure (mono-joueur actuellement)
-- Sessions persistées en mémoire pendant 30 minutes d'inactivité
+- Sessions persistées en mémoire pendant **2 heures** d'inactivité (`SessionTTL` dans `internal/web/session.go`)
 - Nettoyage automatique des sessions expirées
 - Logs session-specific dans `data/adventures/<nom>/sw-dm-session-N.log`
 
@@ -460,7 +460,7 @@ World-Keeper Briefing:
 **Fichier** : `internal/agent/message_serialization.go`
 
 - ✅ Sérialisation complète : texte, tool uses, tool results
-- ✅ Optimisation : l'historique **sauvegardé** est tronqué à la limite de tokens propre à chaque agent (`state.tokenLimit`, soit **20K** pour les agents imbriqués ; repli à 15K si la limite est non définie). Auparavant codé en dur à 15K, ce qui rognait ~5K de contexte des agents imbriqués à la restauration. ⚠️ Cette troncature ne concerne **que** ce qui est écrit dans `agent-states.json` — le contexte **live** en session n'est jamais affecté (DM principal 50K, imbriqués 20K). Le log `[agent-state] saved history trimmed…` est purement informatif.
+- ✅ Optimisation : l'historique **sauvegardé** est tronqué à la limite de tokens propre à chaque agent (`state.tokenLimit`, soit **20K** pour les agents imbriqués ; repli à 15K si la limite est non définie). Auparavant codé en dur à 15K, ce qui rognait ~5K de contexte des agents imbriqués à la restauration. ⚠️ Cette troncature ne concerne **que** ce qui est écrit dans `agent-states.json` — elle n'affecte pas le contexte **live** en session (DM principal : **900K tokens estimés**, imbriqués : **20K** ; voir `mainAgentContextTokenLimit` dans `internal/agent/agent.go` et `nestedAgentTokenLimit` dans `internal/agent/agent_manager.go`). Le log `[agent-state] saved history trimmed…` est purement informatif.
 - ✅ Persistance : sauvegardé dans `agent-states.json`
 - ✅ Restauration : conversation continuée entre sessions
 
@@ -485,7 +485,7 @@ sw-dm-session-1.log.1.gz   (1MB compressé)
 
 **Fichier** : `internal/agent/agent_manager.go`
 
-Les agents imbriqués sont des **consultants en lecture seule** sans accès aux outils :
+Les agents imbriqués sont des **consultants en lecture seule** avec accès uniquement aux outils autorisés par `internal/agent/tool_access_policy.go` pour `InvokeAgent`. Le chemin `InvokeAgentSilent` n'envoie aucun outil client (`internal/agent/agent_manager.go`) :
 
 - ❌ **Rules-Keeper** : Ne peut PAS modifier l'état du jeu
 - ❌ **Character-Creator** : Ne peut PAS invoquer de skills

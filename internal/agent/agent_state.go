@@ -6,14 +6,18 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+
+	"dungeons/internal/llm"
 )
 
 // AgentStatesFile represents the JSON structure for persisting agent states.
 type AgentStatesFile struct {
-	SessionID   int                         `json:"session_id"`
-	LastUpdated string                      `json:"last_updated"`
-	Agents      map[string]*SerializedAgent `json:"agents"`
+	SchemaVersion int                         `json:"schema_version,omitempty"`
+	SessionID     int                         `json:"session_id"`
+	LastUpdated   string                      `json:"last_updated"`
+	Agents        map[string]*SerializedAgent `json:"agents"`
 }
 
 // SerializedAgent represents a serialized nested agent state.
@@ -88,11 +92,15 @@ func (am *AgentManager) SaveAgentStates(filePath string) error {
 			AdvisorModelUsed:           state.metrics.AdvisorModelUsed,
 		}
 
+		storedTokens := 0
+		for _, msg := range conversationHistory {
+			storedTokens += msg.TokenEstimate
+		}
 		serialized := &SerializedAgent{
 			InvocationCount:     state.invocationCount,
 			LastInvoked:         state.lastInvoked.Format(time.RFC3339),
 			ConversationHistory: conversationHistory,
-			TokenEstimate:       state.conversationCtx.tokenEstimate,
+			TokenEstimate:       storedTokens,
 			MaxTokens:           state.tokenLimit,
 			Metrics:             serializedMetrics,
 		}
@@ -110,9 +118,10 @@ func (am *AgentManager) SaveAgentStates(filePath string) error {
 
 	// Create file structure
 	stateFile := AgentStatesFile{
-		SessionID:   sessionID,
-		LastUpdated: time.Now().Format(time.RFC3339),
-		Agents:      agents,
+		SchemaVersion: 2,
+		SessionID:     sessionID,
+		LastUpdated:   time.Now().Format(time.RFC3339),
+		Agents:        agents,
 	}
 
 	// Marshal to JSON with indentation
@@ -165,9 +174,16 @@ func (am *AgentManager) LoadAgentStates(filePath string) error {
 		fmt.Printf("Warning: agent states file corrupted, starting fresh: %v\n", err)
 		return nil
 	}
+	// Schema version 0 means legacy version 1 (no schema_version field).
+	if stateFile.SchemaVersion != 0 && stateFile.SchemaVersion != 1 && stateFile.SchemaVersion != 2 {
+		return fmt.Errorf("unsupported agent states schema version %d", stateFile.SchemaVersion)
+	}
 
 	// Restore agent states
 	for name, serialized := range stateFile.Agents {
+		if serialized == nil {
+			continue
+		}
 		// Get or create agent (this loads the persona)
 		agent, err := am.getOrCreateNestedAgent(name)
 		if err != nil {
@@ -176,13 +192,42 @@ func (am *AgentManager) LoadAgentStates(filePath string) error {
 		}
 
 		// Restore conversation history
+		limit := serialized.MaxTokens
+		if limit <= 0 {
+			limit = agent.tokenLimit
+		}
 		restoredCtx, err := DeserializeConversationContextFromMessages(
 			serialized.ConversationHistory,
-			serialized.MaxTokens,
+			limit,
 		)
 		if err != nil {
 			fmt.Printf("Warning: Failed to deserialize conversation for %s: %v\n", name, err)
 			restoredCtx = NewConversationContextWithLimit(agent.tokenLimit)
+		}
+		if name == "world-keeper" && am.worldResources != nil && am.worldResources.MapImageBase64 != "" {
+			// getOrCreateNestedAgent created a fresh map exchange, but restoring the
+			// saved context would discard it. Replace any saved placeholder with
+			// that fresh image exchange, then retain the rest of the history.
+			fresh := agent.conversationCtx.NeutralMessages()
+			if len(fresh) >= 2 && len(fresh[0].Images) > 0 {
+				messages := fresh[:2]
+				old := restoredCtx.NeutralMessages()
+				for i := 0; i < len(old); i++ {
+					msg := old[i]
+					if i == 0 && msg.Role == llm.RoleUser && (len(msg.Images) > 0 && msg.Images[0].ResourceRef == "world-map" || strings.HasPrefix(msg.Text, "Voici la carte du monde des Quatre Royaumes.")) {
+						if i+1 < len(old) && old[i+1].Role == llm.RoleAssistant && strings.HasPrefix(old[i+1].Text, "J'ai bien reçu la carte du monde des Quatre Royaumes.") {
+							i++
+						}
+						continue
+					}
+					messages = append(messages, msg)
+				}
+				restoredCtx.messages = messages
+				restoredCtx.tokenEstimate = 0
+				for _, msg := range messages {
+					restoredCtx.tokenEstimate += estimateMessage(msg)
+				}
+			}
 		}
 		agent.conversationCtx = restoredCtx
 

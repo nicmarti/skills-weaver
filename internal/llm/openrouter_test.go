@@ -273,6 +273,30 @@ func TestComplete_SendsNeutralWireFormat(t *testing.T) {
 	}
 }
 
+func TestChatRequest_PersistedImageReferenceWithoutBytesIsTextOnly(t *testing.T) {
+	req, err := buildChatRequest(Request{
+		Model: ModelSonnet5,
+		Messages: []Message{UserMessageWithImage("[image non persistée]", ImagePart{
+			ResourceRef: "world-map",
+		})},
+	}, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := json.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded map[string]interface{}
+	if err := json.Unmarshal(body, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	messages := decoded["messages"].([]interface{})
+	if content := messages[0].(map[string]interface{})["content"]; content != "[image non persistée]" {
+		t.Fatalf("unavailable image reference must not produce an invalid data URL: %v", content)
+	}
+}
+
 func TestComplete_ZeroChoices(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

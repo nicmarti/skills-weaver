@@ -92,13 +92,19 @@ func messagesToChat(req Request) ([]components.ChatMessages, error) {
 
 func userMessageToChat(msg Message) components.ChatMessages {
 	content := components.ChatUserMessageContent{}
-	if len(msg.Images) == 0 {
+	images := make([]ImagePart, 0, len(msg.Images))
+	for _, img := range msg.Images {
+		if img.Base64 != "" {
+			images = append(images, img)
+		}
+	}
+	if len(images) == 0 {
 		content = components.CreateChatUserMessageContentStr(msg.Text)
 	} else {
 		items := []components.ChatContentItems{
 			components.CreateChatContentItemsText(components.ChatContentText{Text: msg.Text}),
 		}
-		for _, img := range msg.Images {
+		for _, img := range images {
 			items = append(items, components.CreateChatContentItemsImageURL(components.ChatContentImage{
 				ImageURL: components.ChatContentImageImageURL{URL: img.DataURL()},
 			}))

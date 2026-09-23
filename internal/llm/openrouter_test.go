@@ -113,7 +113,6 @@ func TestComplete_SendsNeutralWireFormat(t *testing.T) {
 				},
 			},
 		},
-		Advisor: &AdvisorConfig{Model: ModelOpus5, Instructions: "Conseiller stratégique.", ForwardTranscript: true, MaxCompletionTokens: 4096},
 	}
 
 	resp, err := client.Complete(context.Background(), req)
@@ -212,8 +211,8 @@ func TestComplete_SendsNeutralWireFormat(t *testing.T) {
 	}
 
 	tools, ok := capturedBody["tools"].([]interface{})
-	if !ok || len(tools) != 2 {
-		t.Fatalf("tools = %v (want local function + advisor)", capturedBody["tools"])
+	if !ok || len(tools) != 1 {
+		t.Fatalf("tools = %v (want the local function only)", capturedBody["tools"])
 	}
 	localTool := tools[0].(map[string]interface{})
 	if localTool["type"] != "function" {
@@ -223,21 +222,6 @@ func TestComplete_SendsNeutralWireFormat(t *testing.T) {
 	params := localFn["parameters"].(map[string]interface{})
 	if _, ok := params["additionalProperties"]; !ok {
 		t.Error("complete JSON Schema should be forwarded (additionalProperties missing)")
-	}
-
-	advisorTool := tools[1].(map[string]interface{})
-	if advisorTool["type"] != "openrouter:advisor" {
-		t.Errorf("tools[1].type = %v", advisorTool["type"])
-	}
-	advParams := advisorTool["parameters"].(map[string]interface{})
-	if advParams["model"] != ModelOpus5 {
-		t.Errorf("advisor model = %v", advParams["model"])
-	}
-	if advParams["forward_transcript"] != true {
-		t.Errorf("advisor forward_transcript = %v", advParams["forward_transcript"])
-	}
-	if _, ok := advParams["max_completion_tokens"]; !ok {
-		t.Error("advisor max_completion_tokens missing")
 	}
 
 	// Response mapping

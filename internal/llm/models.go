@@ -15,15 +15,13 @@ const (
 )
 
 // OpenRouter defaults: Sonnet 5 for every role. Alternative models remain
-// selectable explicitly; these defaults do not affect the legacy Anthropic
-// runtime until the agent loops are migrated to llm.Client.
+// selectable explicitly; these defaults apply to the migrated runtime.
 const (
 	DefaultModel         = ModelSonnet5
 	DefaultModelDM       = ModelSonnet5
 	DefaultModelNested   = ModelSonnet5
 	DefaultModelFast     = ModelSonnet5
 	DefaultModelCampaign = ModelSonnet5
-	DefaultModelAdvisor  = ModelSonnet5
 )
 
 const (

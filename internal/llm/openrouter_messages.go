@@ -154,10 +154,9 @@ func assistantMessageToChat(msg Message) (components.ChatMessages, error) {
 	return components.CreateChatMessagesAssistant(assistant), nil
 }
 
-// toolsToChat converts neutral tool definitions plus the optional advisor
-// server tool. The advisor entry is appended last and kept in stable order.
+// toolsToChat converts neutral tool definitions to Chat function tools.
 func toolsToChat(req Request) []components.ChatFunctionTool {
-	tools := make([]components.ChatFunctionTool, 0, len(req.Tools)+1)
+	tools := make([]components.ChatFunctionTool, 0, len(req.Tools))
 
 	for _, tool := range req.Tools {
 		def := components.ChatFunctionToolFunctionFunction{
@@ -175,29 +174,7 @@ func toolsToChat(req Request) []components.ChatFunctionTool {
 		))
 	}
 
-	if req.Advisor != nil {
-		tools = append(tools, advisorToolToChat(*req.Advisor))
-	}
-
 	return tools
-}
-
-func advisorToolToChat(cfg AdvisorConfig) components.ChatFunctionTool {
-	params := &components.AdvisorServerToolConfig{
-		Model:             oropenrouter.String(cfg.Model),
-		ForwardTranscript: oropenrouter.Bool(cfg.ForwardTranscript),
-	}
-	if cfg.Instructions != "" {
-		params.Instructions = oropenrouter.String(cfg.Instructions)
-	}
-	if cfg.MaxCompletionTokens > 0 {
-		params.MaxCompletionTokens = oropenrouter.Int64(cfg.MaxCompletionTokens)
-	}
-
-	return components.CreateChatFunctionToolAdvisorServerToolOpenRouter(components.AdvisorServerToolOpenRouter{
-		Type:       components.AdvisorServerToolOpenRouterTypeOpenrouterAdvisor,
-		Parameters: params,
-	})
 }
 
 // usageFromChat maps SDK usage accounting onto neutral Usage.

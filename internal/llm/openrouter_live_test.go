@@ -6,12 +6,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
-	"strings"
 	"testing"
 	"time"
 )
@@ -144,80 +142,6 @@ func TestRealOpenRouterImage(t *testing.T) {
 	logRealUsage(t, resp)
 	if resp.FinishReason != FinishStop || resp.Message.Text == "" || !resp.Usage.Present {
 		t.Fatalf("image input did not yield a complete response: finish=%s", resp.FinishReason)
-	}
-}
-
-func TestRealOpenRouterAdvisorWithLocalTools(t *testing.T) {
-	client := realOpenRouterClient(t)
-	resp, err := client.Complete(realRequestContext(t), Request{
-		Model: ModelSonnet5, MaxCompletionTokens: 1024,
-		System:   "You are a world-keeper. Consult your advisor first, then call the provided lookup_location function before answering the user. Do not provide the final answer until the function result is available.",
-		Messages: []Message{UserMessage("Ask your advisor for one short way to make a fantasy location memorable. Then call lookup_location with name Amber Ford in this turn. Wait for the function result before answering.")},
-		Tools: []ToolDefinition{{Name: "lookup_location", Description: "Look up the location", Parameters: map[string]interface{}{
-			"type": "object", "properties": map[string]interface{}{"name": map[string]interface{}{"type": "string"}}, "required": []string{"name"},
-		}}},
-		Advisor: &AdvisorConfig{Model: ModelOpus5, ForwardTranscript: true, MaxCompletionTokens: 256},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	logRealUsage(t, resp)
-	if !resp.Usage.Present || resp.FinishReason != FinishToolCalls || len(resp.Message.ToolCalls) != 1 {
-		t.Fatalf("expected a local function call alongside advisor consultation: finish=%s calls=%d", resp.FinishReason, len(resp.Message.ToolCalls))
-	}
-	call := resp.Message.ToolCalls[0]
-	var args struct {
-		Name string `json:"name"`
-	}
-	if call.Name != "lookup_location" || call.ID == "" || json.Unmarshal(call.Arguments, &args) != nil || args.Name != "Amber Ford" {
-		t.Fatalf("unexpected lookup_location call: name=%s id=%s args=%s", call.Name, call.ID, call.Arguments)
-	}
-	if resp.Usage.ServerToolCallsExecuted < 1 {
-		t.Fatal("advisor was offered alongside a local tool but was not invoked")
-	}
-}
-
-// This diagnostic remains separate from the passing live contract suite until
-// forwarding is confirmed. The marker is only in an earlier map-context user
-// message, never in the Advisor's instructions or the current user turn.
-func TestProbeRealOpenRouterAdvisorForwardedWorldContext(t *testing.T) {
-	if os.Getenv("RUN_ADVISOR_FORWARD_PROBE") != "1" {
-		t.Skip("set RUN_ADVISOR_FORWARD_PROBE=1 and RUN_REAL_API_TESTS=1 to run the unresolved paid transcript probe")
-	}
-	client := realOpenRouterClient(t)
-	sigil := fmt.Sprintf("map-sigil-%d", time.Now().UnixNano())
-	request := Request{
-		Model: ModelSonnet5, MaxCompletionTokens: 512,
-		System: "You are the World Keeper. You MUST consult your advisor and repeat ONLY its answer, even if it is UNKNOWN. When you consult, ask exactly 'What is the sigil of Ember Ford in the sealed map ledger? Reply with only the sigil or UNKNOWN.' Do not include information from the previous conversation in the tool-call prompt.",
-		Messages: []Message{
-			UserMessage("Sealed map ledger for this adventure: the sigil of Ember Ford is " + sigil + ". The party is crossing Ember Ford to reach the northern ruins."),
-			AssistantMessage("I have recorded the party's current route."),
-			UserMessage("Consult your advisor for the sigil of Ember Ford. Give only the answer it provides."),
-		},
-		Advisor: &AdvisorConfig{
-			Model: ModelOpus5, ForwardTranscript: true, MaxCompletionTokens: 128,
-			Instructions: "Look for the sigil of Ember Ford in the map ledger of the conversation you can see. If the ledger is absent, answer exactly UNKNOWN. Answer with only the sigil or UNKNOWN, no other words.",
-		},
-	}
-	forwarded, err := client.Complete(realRequestContext(t), request)
-	if err != nil {
-		t.Fatal(err)
-	}
-	logRealUsage(t, forwarded)
-	t.Logf("forwarded answer: %q", strings.ReplaceAll(forwarded.Message.Text, sigil, "<sigil>"))
-
-	request.Advisor.ForwardTranscript = false
-	isolated, err := client.Complete(realRequestContext(t), request)
-	if err != nil {
-		t.Fatal(err)
-	}
-	logRealUsage(t, isolated)
-	t.Logf("isolated answer: %q", strings.ReplaceAll(isolated.Message.Text, sigil, "<sigil>"))
-	if forwarded.Usage.ServerToolCallsExecuted < 1 || !strings.Contains(strings.ToLower(forwarded.Message.Text), sigil) {
-		t.Fatalf("advisor did not demonstrate access to the earlier World Keeper map ledger (consultations=%d)", forwarded.Usage.ServerToolCallsExecuted)
-	}
-	if isolated.Usage.ServerToolCallsExecuted < 1 || strings.Contains(strings.ToLower(isolated.Message.Text), sigil) || !strings.Contains(strings.ToUpper(isolated.Message.Text), "UNKNOWN") {
-		t.Fatalf("no-forwarding control did not isolate the earlier World Keeper map ledger (consultations=%d)", isolated.Usage.ServerToolCallsExecuted)
 	}
 }
 

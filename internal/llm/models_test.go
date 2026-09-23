@@ -95,7 +95,4 @@ func TestDefaultModels(t *testing.T) {
 	if cfg.ModelCampaign != ModelSonnet5 {
 		t.Errorf("ModelCampaign = %q, want %q", cfg.ModelCampaign, ModelSonnet5)
 	}
-	if cfg.ModelAdvisor != ModelSonnet5 {
-		t.Errorf("ModelAdvisor = %q, want %q", cfg.ModelAdvisor, ModelSonnet5)
-	}
 }

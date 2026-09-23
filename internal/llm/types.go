@@ -89,15 +89,6 @@ type ToolDefinition struct {
 	Parameters  map[string]interface{}
 }
 
-// AdvisorConfig configures the OpenRouter native advisor server tool
-// (type "openrouter:advisor"). Nil on Request disables the advisor.
-type AdvisorConfig struct {
-	Model               string
-	Instructions        string
-	ForwardTranscript   bool
-	MaxCompletionTokens int64
-}
-
 // Request describes a single LLM turn.
 type Request struct {
 	Model               string
@@ -107,7 +98,6 @@ type Request struct {
 	MaxCompletionTokens int64
 	Temperature         *float64
 	SessionID           string
-	Advisor             *AdvisorConfig
 	RequireParameters   bool
 }
 

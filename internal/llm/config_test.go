@@ -6,7 +6,7 @@ import (
 
 func clearModelEnv(t *testing.T) {
 	t.Helper()
-	for _, name := range []string{EnvModelDM, EnvModelNested, EnvRulesKeeper, EnvCharacterCreator, EnvWorldKeeper, EnvModelFast, EnvModelCampaign, EnvModelAdvisor} {
+	for _, name := range []string{EnvModelDM, EnvModelNested, EnvRulesKeeper, EnvCharacterCreator, EnvWorldKeeper, EnvModelFast, EnvModelCampaign} {
 		t.Setenv(name, "")
 	}
 }
@@ -46,9 +46,6 @@ func TestLoadConfigDefaults(t *testing.T) {
 	if cfg.ModelCampaign != DefaultModelCampaign {
 		t.Errorf("ModelCampaign = %q, want %q", cfg.ModelCampaign, DefaultModelCampaign)
 	}
-	if cfg.ModelAdvisor != DefaultModelAdvisor {
-		t.Errorf("ModelAdvisor = %q, want %q", cfg.ModelAdvisor, DefaultModelAdvisor)
-	}
 }
 
 func TestLoadConfigOverrides(t *testing.T) {
@@ -56,7 +53,6 @@ func TestLoadConfigOverrides(t *testing.T) {
 	t.Setenv(EnvAPIKey, "or-test-key")
 	t.Setenv(EnvModelDM, "opus")
 	t.Setenv(EnvModelFast, "anthropic/claude-haiku-4.5")
-	t.Setenv(EnvModelAdvisor, "opus")
 	t.Setenv(EnvHTTPReferer, "https://example.org")
 	t.Setenv(EnvAppName, "SkillsWeaver")
 
@@ -69,9 +65,6 @@ func TestLoadConfigOverrides(t *testing.T) {
 	}
 	if cfg.ModelFast != ModelHaiku45 {
 		t.Errorf("ModelFast = %q", cfg.ModelFast)
-	}
-	if cfg.ModelAdvisor != ModelOpus5 {
-		t.Errorf("ModelAdvisor = %q", cfg.ModelAdvisor)
 	}
 	if cfg.HTTPReferer != "https://example.org" {
 		t.Errorf("HTTPReferer = %q", cfg.HTTPReferer)

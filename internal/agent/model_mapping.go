@@ -31,50 +31,6 @@ func MapPersonaModelToAnthropic(personaModel string) anthropic.Model {
 	}
 }
 
-// MapAdvisorModelToAnthropic converts a persona "advisor" model string to an
-// Anthropic SDK model constant suitable for the Advisor tool.
-//
-// The Advisor tool (beta) requires the advisor to be at least as capable as the
-// executor. The current SDK exposes Opus 4.7 and Opus 4.8 as advisor models.
-// Supported values (case-insensitive): "opus-4.8"/"opus4.8" → Opus 4.8;
-// "opus-4.7"/"opus4.7"/"opus" → Opus 4.7 (kept as the default for backward
-// compatibility with personas that simply declare "opus").
-// Returns ok=false if the string is empty or not a recognized advisor model.
-func MapAdvisorModelToAnthropic(advisorModel string) (anthropic.Model, bool) {
-	switch strings.ToLower(strings.TrimSpace(advisorModel)) {
-	case "opus-4.8", "opus4.8", "opus-4-8":
-		return anthropic.ModelClaudeOpus4_8, true
-	case "opus-4.7", "opus4.7", "opus-4-7", "opus":
-		return anthropic.ModelClaudeOpus4_7, true
-	default:
-		return "", false
-	}
-}
-
-// IsValidAdvisorPair reports whether the given executor/advisor models form a
-// valid pair for the Advisor tool. The advisor must be at least as capable as
-// the executor. Per the Advisor tool docs, valid executors are Haiku 4.5,
-// Sonnet 4.6, and Opus 4.6/4.7/4.8; the advisor must be Opus 4.7 or Opus 4.8.
-func IsValidAdvisorPair(executor, advisor anthropic.Model) bool {
-	advisorOK := advisor == anthropic.ModelClaudeOpus4_7 || advisor == anthropic.ModelClaudeOpus4_8
-	if !advisorOK {
-		return false
-	}
-	// Advisor must be at least as capable as the executor: an Opus 4.8 executor
-	// can only be advised by Opus 4.8, not by the less-capable Opus 4.7.
-	if executor == anthropic.ModelClaudeOpus4_8 && advisor != anthropic.ModelClaudeOpus4_8 {
-		return false
-	}
-	switch executor {
-	case anthropic.ModelClaudeHaiku4_5, anthropic.ModelClaudeHaiku4_5_20251001,
-		anthropic.ModelClaudeSonnet4_6,
-		anthropic.ModelClaudeOpus4_6, anthropic.ModelClaudeOpus4_7, anthropic.ModelClaudeOpus4_8:
-		return true
-	default:
-		return false
-	}
-}
-
 // GetModelDisplayName returns a human-readable name for an Anthropic model.
 func GetModelDisplayName(model anthropic.Model) string {
 	switch model {

@@ -22,16 +22,6 @@ type PersonaMetadata struct {
 	Description string   `yaml:"description"`
 	Tools       []string `yaml:"tools"`
 	Model       string   `yaml:"model"`
-	// Advisor, when set (e.g. "opus-4.7"), enables the Anthropic Advisor tool
-	// for this nested agent, pairing its executor model with a stronger advisor
-	// model consulted mid-generation. Empty = advisor disabled.
-	Advisor string `yaml:"advisor"`
-	// AdvisorMaxUses caps advisor calls per request (0 = unset → default 2).
-	AdvisorMaxUses int `yaml:"advisor_max_uses"`
-	// AdvisorCaching enables advisor-side prompt caching: "5m" or "1h"
-	// (empty/other = off). Worth enabling for agents with a large stable
-	// context prefix or long advisor loops.
-	AdvisorCaching string `yaml:"advisor_caching"`
 }
 
 // NewPersonaLoader creates a new PersonaLoader with default search paths.

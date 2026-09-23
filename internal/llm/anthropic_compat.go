@@ -28,7 +28,7 @@ func LegacyAnthropicToolParams(definitions []ToolDefinition) ([]anthropic.ToolUn
 }
 
 // LegacyAnthropicBetaToolParams uses the same schema extraction for the old
-// Advisor path. Phase 6 removes this and the beta-specific tool conversion.
+// legacy agent runtime (removed with the advisor feature).
 func LegacyAnthropicBetaToolParams(definitions []ToolDefinition) ([]anthropic.BetaToolUnionParam, error) {
 	tools := make([]anthropic.BetaToolUnionParam, 0, len(definitions))
 	for _, def := range definitions {

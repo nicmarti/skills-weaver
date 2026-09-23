@@ -16,7 +16,6 @@ const (
 	EnvWorldKeeper      = "OPENROUTER_MODEL_WORLD_KEEPER"
 	EnvModelFast        = "OPENROUTER_MODEL_FAST"
 	EnvModelCampaign    = "OPENROUTER_MODEL_CAMPAIGN"
-	EnvModelAdvisor     = "OPENROUTER_MODEL_ADVISOR"
 	EnvHTTPReferer      = "OPENROUTER_HTTP_REFERER"
 	EnvAppName          = "OPENROUTER_APP_NAME"
 )
@@ -35,7 +34,6 @@ type Config struct {
 	AgentModels   map[string]string
 	ModelFast     string
 	ModelCampaign string
-	ModelAdvisor  string
 
 	// Optional OpenRouter attribution metadata.
 	HTTPReferer string
@@ -57,7 +55,6 @@ func LoadConfig() (Config, error) {
 		},
 		ModelFast:     os.Getenv(EnvModelFast),
 		ModelCampaign: os.Getenv(EnvModelCampaign),
-		ModelAdvisor:  os.Getenv(EnvModelAdvisor),
 		HTTPReferer:   strings.TrimSpace(os.Getenv(EnvHTTPReferer)),
 		AppName:       strings.TrimSpace(os.Getenv(EnvAppName)),
 	}
@@ -128,7 +125,6 @@ func (cfg Config) normalizeModels() (Config, error) {
 		{&cfg.ModelNested, DefaultModelNested, EnvModelNested},
 		{&cfg.ModelFast, DefaultModelFast, EnvModelFast},
 		{&cfg.ModelCampaign, DefaultModelCampaign, EnvModelCampaign},
-		{&cfg.ModelAdvisor, DefaultModelAdvisor, EnvModelAdvisor},
 	} {
 		*role.value, err = resolveOrDefault(*role.value, role.def, role.name)
 		if err != nil {
@@ -175,7 +171,6 @@ func DefaultModels() Config {
 		AgentModels:   make(map[string]string),
 		ModelFast:     DefaultModelFast,
 		ModelCampaign: DefaultModelCampaign,
-		ModelAdvisor:  DefaultModelAdvisor,
 	}
 }
 

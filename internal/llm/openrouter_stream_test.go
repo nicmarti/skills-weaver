@@ -3,11 +3,16 @@ package llm
 import (
 	"context"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/OpenRouterTeam/go-sdk/retry"
 )
 
 // sseChunk formats one SSE data line carrying a ChatStreamChunk directly
@@ -303,5 +308,300 @@ func TestStream_SendsStreamTrue(t *testing.T) {
 	}
 	if resp.Usage.PromptTokens != 10 {
 		t.Errorf("usage = %+v", resp.Usage)
+	}
+}
+
+// closeTrackingHTTPClient wraps responses so tests can observe that the
+// adapter closes every response body (no SSE stream is ever left open).
+type closeTrackingHTTPClient struct {
+	inner  *http.Client
+	mu     sync.Mutex
+	bodies []*trackingBody
+}
+
+func (c *closeTrackingHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	resp, err := c.inner.Do(req)
+	if resp != nil && resp.Body != nil {
+		body := newTrackingBody()
+		body.ReadCloser = resp.Body
+		c.mu.Lock()
+		c.bodies = append(c.bodies, body)
+		c.mu.Unlock()
+		resp.Body = body
+	}
+	return resp, err
+}
+
+type trackingBody struct {
+	io.ReadCloser
+	closed chan struct{}
+	once   sync.Once
+}
+
+func newTrackingBody() *trackingBody {
+	return &trackingBody{closed: make(chan struct{})}
+}
+
+func (b *trackingBody) Close() error {
+	b.once.Do(func() { close(b.closed) })
+	return b.ReadCloser.Close()
+}
+
+// TestStream_BodyClosedOnAllExitPaths proves the adapter closes the SSE
+// response body on every exit path: success, mid-stream error, malformed or
+// incomplete tool calls, and a genuine connection drop mid-stream. A leaked
+// body would keep the HTTP connection (and its buffers) alive forever.
+func TestStream_BodyClosedOnAllExitPaths(t *testing.T) {
+	cases := []struct {
+		name    string
+		payload string
+		rst     bool // abruptly reset the TCP connection mid-stream
+	}{
+		{
+			name: "success",
+			payload: sseChunk(chunkBase("chatcmpl-close-ok", "anthropic/claude-sonnet-5",
+				`[{"index":0,"delta":{"content":"ok"},"finish_reason":"stop"}]`)) +
+				"data: [DONE]\n\n",
+		},
+		{
+			name: "mid-stream error",
+			payload: sseChunk(chunkBase("chatcmpl-close-err", "anthropic/claude-sonnet-5",
+				`[{"index":0,"delta":{"content":"Hel"},"finish_reason":null}]`)) +
+				`data: {"id":"x","choices":[],"error":{"code":502,"message":"upstream failed"}}` + "\n\n",
+		},
+		{
+			name: "incomplete tool call",
+			payload: sseChunk(chunkBase("chatcmpl-close-inc", "anthropic/claude-sonnet-5",
+				`[{"index":0,"delta":{"tool_calls":[{"index":0,"type":"function","function":{"name":"roll_dice"}}]},"finish_reason":"tool_calls"}]`)) +
+				"data: [DONE]\n\n",
+		},
+		{
+			name: "malformed tool arguments",
+			payload: sseChunk(chunkBase("chatcmpl-close-bad", "anthropic/claude-sonnet-5",
+				`[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_x","type":"function","function":{"name":"roll_dice","arguments":"{not json"}}]},"finish_reason":"tool_calls"}]`)) +
+				"data: [DONE]\n\n",
+		},
+		{
+			name: "connection reset mid-stream",
+			payload: sseChunk(chunkBase("chatcmpl-close-rst", "anthropic/claude-sonnet-5",
+				`[{"index":0,"delta":{"content":"Tu lances le d"},"finish_reason":null}]`)),
+			rst: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if tc.rst {
+					// Bypass net/http and kill the TCP connection with a
+					// RST mid-stream: a genuine provider-incident shape.
+					hj := w.(http.Hijacker)
+					conn, rw, err := hj.Hijack()
+					if err != nil {
+						return
+					}
+					defer conn.Close()
+					_, _ = rw.WriteString("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n")
+					_, _ = rw.WriteString(tc.payload)
+					_ = rw.Flush()
+					time.Sleep(50 * time.Millisecond)
+					if tcp, ok := conn.(*net.TCPConn); ok {
+						_ = tcp.SetLinger(0)
+					}
+					return
+				}
+				w.Header().Set("Content-Type", "text/event-stream")
+				_, _ = w.Write([]byte(tc.payload))
+			}))
+			defer server.Close()
+
+			tracking := &closeTrackingHTTPClient{inner: server.Client()}
+			client, err := newOpenRouterClientWithHTTP(testConfig(t), nil, server.URL, tracking)
+			if err != nil {
+				t.Fatalf("newOpenRouterClientWithHTTP: %v", err)
+			}
+
+			obs := &recordingObserver{}
+			resp, err := client.Stream(context.Background(), Request{Model: ModelSonnet5, Messages: []Message{UserMessage("hi")}}, obs)
+			if tc.name != "success" && err == nil {
+				t.Fatalf("Stream() should report an error on path %q, got none (resp=%+v)", tc.name, resp)
+			}
+
+			tracking.mu.Lock()
+			bodies := append([]*trackingBody(nil), tracking.bodies...)
+			tracking.mu.Unlock()
+			if len(bodies) == 0 {
+				t.Fatal("no response body was observed; test client wiring is broken")
+			}
+			for i, body := range bodies {
+				select {
+				case <-body.closed:
+				case <-time.After(5 * time.Second):
+					t.Fatalf("response body %d was never closed after Stream() returned: SSE stream leaked", i)
+				}
+			}
+		})
+	}
+}
+
+// TestStream_NoRetryAfterStreamOpens proves a stream that starts successfully
+// (200 + emitted text delta) is never replayed when the connection dies
+// mid-flight: a genuine provider mid-stream incident surfaces as an error on
+// the partially accumulated response, not as a silent replay.
+func TestStream_NoRetryAfterStreamOpens(t *testing.T) {
+	var requests int32
+	payload := sseChunk(chunkBase("chatcmpl-abrupt", "anthropic/claude-sonnet-5",
+		`[{"index":0,"delta":{"content":"Tu lances le dé et..."},"finish_reason":null}]`))
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&requests, 1)
+		hj := w.(http.Hijacker)
+		conn, rw, err := hj.Hijack()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		_, _ = rw.WriteString("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n")
+		_, _ = rw.WriteString(payload)
+		_ = rw.Flush()
+		// Let the client read the delta, then kill the connection (RST).
+		time.Sleep(50 * time.Millisecond)
+		if tcp, ok := conn.(*net.TCPConn); ok {
+			_ = tcp.SetLinger(0)
+		}
+	}))
+	defer server.Close()
+
+	client, err := newOpenRouterClient(testConfig(t), nil, server.URL)
+	if err != nil {
+		t.Fatalf("newOpenRouterClient: %v", err)
+	}
+
+	obs := &recordingObserver{}
+	resp, err := client.Stream(context.Background(), Request{Model: ModelSonnet5, Messages: []Message{UserMessage("hi")}}, obs)
+	if err == nil {
+		t.Fatalf("Stream() must fail on a mid-stream connection reset (resp=%+v)", resp)
+	}
+	// The SDK's EventStream swallows terminal read errors; the adapter's
+	// read-error holder must surface the dead connection as mid_stream.
+	llmErr, ok := err.(*Error)
+	if !ok {
+		t.Fatalf("error type = %T, want *llm.Error", err)
+	}
+	if llmErr.Kind != ErrKindMidStream {
+		t.Errorf("kind = %q, want mid_stream", llmErr.Kind)
+	}
+	if llmErr.Retryable {
+		t.Error("a stream that already emitted deltas must never be replayed")
+	}
+
+	if got := atomic.LoadInt32(&requests); got != 1 {
+		t.Errorf("requests = %d, want exactly 1 (no replay after emitted deltas)", got)
+	}
+	if len(obs.deltas) == 0 || obs.deltas[0] != "Tu lances le dé et..." {
+		t.Errorf("emitted text delta lost before the drop: %v", obs.deltas)
+	}
+	if resp.Message.Text != "Tu lances le dé et..." {
+		t.Errorf("accumulated text = %q", resp.Message.Text)
+	}
+}
+
+// TestComplete_NoRetryOn401And402WithProductionRetry proves 4XX
+// authentication failures are never replayed even with the production retry
+// configuration enabled (previous classification tests disabled retries).
+func TestComplete_NoRetryOn401And402WithProductionRetry(t *testing.T) {
+	cases := []struct {
+		name    string
+		status  int
+		body    string
+		wantErr ErrorKind
+	}{
+		{"401", http.StatusUnauthorized, `{"error":{"code":401,"message":"Invalid API key"}}`, ErrKindAuth},
+		{"402", http.StatusPaymentRequired, `{"error":{"code":402,"message":"Insufficient credits"}}`, ErrKindPayment},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var requests int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				atomic.AddInt32(&requests, 1)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tc.status)
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer server.Close()
+
+			// nil retries = production defaultRetry() configuration.
+			client, err := newOpenRouterClient(testConfig(t), nil, server.URL)
+			if err != nil {
+				t.Fatalf("newOpenRouterClient: %v", err)
+			}
+
+			_, err = client.Complete(context.Background(), Request{Model: ModelSonnet5, Messages: []Message{UserMessage("hi")}})
+			if err == nil {
+				t.Fatal("Complete() should fail on 4XX")
+			}
+			llmErr, ok := err.(*Error)
+			if !ok {
+				t.Fatalf("error type = %T, want *llm.Error", err)
+			}
+			if llmErr.Kind != tc.wantErr {
+				t.Errorf("kind = %q, want %q", llmErr.Kind, tc.wantErr)
+			}
+			if got := atomic.LoadInt32(&requests); got != 1 {
+				t.Errorf("requests = %d, want exactly 1 (4XX must not be retried with production retry config)", got)
+			}
+		})
+	}
+}
+
+// TestComplete_RetryExhaustionIsBounded proves the adapter gives up after a
+// bounded number of attempts when the provider is persistently unavailable,
+// instead of retrying forever.
+func TestComplete_RetryExhaustionIsBounded(t *testing.T) {
+	var requests int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&requests, 1)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = w.Write([]byte(`{"error":{"code":503,"message":"provider unavailable"}}`))
+	}))
+	defer server.Close()
+
+	// Fast backoff so exhaustion happens in milliseconds; the bound being
+	// proven is that attempts stop, not the specific count.
+	fast := retry.Config{
+		Strategy: "backoff",
+		Backoff: &retry.BackoffStrategy{
+			InitialInterval: 1,
+			MaxInterval:     2,
+			Exponent:        1.5,
+			MaxElapsedTime:  15,
+		},
+		RetryConnectionErrors: true,
+	}
+	client, err := newOpenRouterClient(testConfig(t), &fast, server.URL)
+	if err != nil {
+		t.Fatalf("newOpenRouterClient: %v", err)
+	}
+
+	_, err = client.Complete(context.Background(), Request{Model: ModelSonnet5, Messages: []Message{UserMessage("hi")}})
+	if err == nil {
+		t.Fatal("Complete() should fail when the provider is persistently unavailable")
+	}
+	llmErr, ok := err.(*Error)
+	if !ok {
+		t.Fatalf("error type = %T, want *llm.Error", err)
+	}
+	if llmErr.Status != 503 || llmErr.Kind != ErrKindUnavailable {
+		t.Errorf("error = %+v, want 503/unavailable", llmErr)
+	}
+
+	attempts := atomic.LoadInt32(&requests)
+	if attempts < 2 {
+		t.Errorf("attempts = %d, want at least one retry (503 is retryable)", attempts)
+	}
+	if attempts > 50 {
+		t.Errorf("attempts = %d, retry exhaustion must stay bounded", attempts)
 	}
 }

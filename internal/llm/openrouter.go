@@ -3,9 +3,13 @@ package llm
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	oropenrouter "github.com/OpenRouterTeam/go-sdk"
 	"github.com/OpenRouterTeam/go-sdk/models/components"
@@ -13,9 +17,11 @@ import (
 	"github.com/OpenRouterTeam/go-sdk/types/stream"
 )
 
-// attributionClient injects OpenRouter attribution headers on every request.
-// The generated SDK fails to populate these globals for Chat Completions, so
-// the adapter owns them at the transport level.
+// attributionClient injects OpenRouter attribution headers on every request
+// and records terminal body read errors: the generated SDK's EventStream
+// never surfaces them (Next() returns false without propagating
+// scanner.Err()), so a stream that dies mid-flight would otherwise be
+// reported as a clean success carrying a truncated message.
 type attributionClient struct {
 	inner   oropenrouter.HTTPClient
 	referer string
@@ -29,7 +35,59 @@ func (c *attributionClient) Do(req *http.Request) (*http.Response, error) {
 	if c.title != "" {
 		req.Header.Set("X-Title", c.title)
 	}
-	return c.inner.Do(req)
+	resp, err := c.inner.Do(req)
+	if err != nil || resp == nil || resp.Body == nil {
+		return resp, err
+	}
+	holder, _ := req.Context().Value(streamReadErrKey{}).(*streamReadErrHolder)
+	if holder == nil {
+		// Non-streaming calls (Complete) parse the body synchronously inside
+		// the SDK; read errors there already surface as Send errors.
+		return resp, err
+	}
+	resp.Body = &recordingBody{ReadCloser: resp.Body, holder: holder}
+	return resp, err
+}
+
+// recordingBody remembers the first non-EOF read error of a streaming
+// response body.
+type recordingBody struct {
+	io.ReadCloser
+	holder *streamReadErrHolder
+}
+
+func (b *recordingBody) Read(p []byte) (int, error) {
+	n, err := b.ReadCloser.Read(p)
+	if err != nil && !errors.Is(err, io.EOF) {
+		b.holder.record(err)
+	}
+	return n, err
+}
+
+// streamReadErrKey is the context key for the per-Stream-call error holder.
+type streamReadErrKey struct{}
+
+// streamReadErrHolder collects the network failure that killed a stream.
+type streamReadErrHolder struct {
+	mu  sync.Mutex
+	err error
+}
+
+func (h *streamReadErrHolder) record(err error) {
+	if err == nil {
+		return
+	}
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	if h.err == nil {
+		h.err = err
+	}
+}
+
+func (h *streamReadErrHolder) load() error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	return h.err
 }
 
 // defaultRetry bounds the SDK's retry window (the SDK default retries 5XX for
@@ -61,6 +119,13 @@ func NewOpenRouterClient(cfg Config) (*OpenRouterClient, error) {
 // newOpenRouterClient is the internal constructor used by tests to point the
 // SDK at a stub server and override the retry policy.
 func newOpenRouterClient(cfg Config, retries *retry.Config, serverURL string) (*OpenRouterClient, error) {
+	return newOpenRouterClientWithHTTP(cfg, retries, serverURL, nil)
+}
+
+// newOpenRouterClientWithHTTP is the test seam under newOpenRouterClient: it
+// lets tests observe the response-body lifecycle through a custom HTTP client.
+// The adapter always wraps the client with attribution + read-error recording.
+func newOpenRouterClientWithHTTP(cfg Config, retries *retry.Config, serverURL string, httpClient oropenrouter.HTTPClient) (*OpenRouterClient, error) {
 	if cfg.APIKey == "" {
 		return nil, fmt.Errorf("llm: OpenRouter API key is required")
 	}
@@ -76,15 +141,20 @@ func newOpenRouterClient(cfg Config, retries *retry.Config, serverURL string) (*
 	if serverURL != "" {
 		opts = append(opts, oropenrouter.WithServerURL(serverURL))
 	}
-	// The SDK does not propagate WithHTTPReferer/WithXTitle globals to the
-	// Chat operation, so attribution headers are injected by the HTTP client.
-	if cfg.HTTPReferer != "" || cfg.AppName != "" {
-		opts = append(opts, oropenrouter.WithClient(&attributionClient{
-			inner:   http.DefaultClient,
-			referer: cfg.HTTPReferer,
-			title:   cfg.AppName,
-		}))
+
+	// Mirror the SDK's default client (60s cap per request) instead of
+	// http.DefaultClient (no timeout): a stuck provider must not hang a
+	// turn forever. Mid-stream timeouts surface as ErrKindTimeout through the
+	// read-error holder below.
+	inner := oropenrouter.HTTPClient(&http.Client{Timeout: 60 * time.Second})
+	if httpClient != nil {
+		inner = httpClient
 	}
+	opts = append(opts, oropenrouter.WithClient(&attributionClient{
+		inner:   inner,
+		referer: cfg.HTTPReferer,
+		title:   cfg.AppName,
+	}))
 
 	return &OpenRouterClient{sdk: oropenrouter.New(opts...)}, nil
 }
@@ -110,11 +180,22 @@ func (c *OpenRouterClient) Complete(ctx context.Context, req Request) (Response,
 // Stream performs a streaming Chat Completions request. Text deltas are
 // forwarded to obs as they arrive; the returned Response carries the
 // accumulated assistant message. No retry happens after the stream opens.
+//
+// The generated SDK's EventStream swallows terminal body read errors
+// (Next() returns false without propagating scanner.Err()), so a stream
+// killed by a network failure mid-flight would be reported as a clean
+// success with a truncated message. Stream() therefore routes the call
+// through a read-error holder injected into the context: the transport-level
+// body wrapper records the failure and Stream() surfaces it after the
+// stream is consumed.
 func (c *OpenRouterClient) Stream(ctx context.Context, req Request, obs StreamObserver) (Response, error) {
 	chatReq, err := buildChatRequest(req, true)
 	if err != nil {
 		return Response{}, err
 	}
+
+	holder := &streamReadErrHolder{}
+	ctx = context.WithValue(ctx, streamReadErrKey{}, holder)
 
 	res, err := c.sdk.Chat.Send(ctx, chatReq, nil)
 	if err != nil {
@@ -124,7 +205,27 @@ func (c *OpenRouterClient) Stream(ctx context.Context, req Request, obs StreamOb
 		return Response{}, &Error{Kind: ErrKindProvider, Message: "expected streaming response"}
 	}
 
-	return consumeStream(ctx, res.EventStream, obs)
+	resp, err := consumeStream(ctx, res.EventStream, obs)
+	if err != nil {
+		return resp, err
+	}
+
+	// A clean end of stream must never hide a dead connection: a truncated
+	// narration would be presented to the player as complete output.
+	if readErr := holder.load(); readErr != nil {
+		if errors.Is(readErr, context.Canceled) {
+			return resp, &Error{Kind: ErrKindCanceled, Message: "request canceled"}
+		}
+		if errors.Is(readErr, context.DeadlineExceeded) {
+			return resp, &Error{Kind: ErrKindTimeout, Message: "request deadline exceeded", Retryable: true}
+		}
+		return resp, &Error{
+			Kind:      ErrKindMidStream,
+			Message:   fmt.Sprintf("stream terminated by a network error: %v", readErr),
+			Retryable: false,
+		}
+	}
+	return resp, nil
 }
 
 // toolAccum accumulates one streamed tool call across fragments.

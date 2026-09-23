@@ -1,8 +1,11 @@
 package web
 
 import (
+	"fmt"
 	"strings"
 	"testing"
+
+	"dungeons/internal/llm"
 	"unicode/utf8"
 
 	"dungeons/internal/adventure"
@@ -285,5 +288,60 @@ func TestBuildCharacterSheetData_UnknownSpeciesClassFallback(t *testing.T) {
 	}
 	if sheet.HitDice != "4d8" { // level 4, default d8
 		t.Errorf("unknown class hit dice = %q, want default %q", sheet.HitDice, "4d8")
+	}
+}
+
+func TestModelSelectorOptions_RenderedFromCatalog(t *testing.T) {
+	html := modelSelectorOptionsHTML(llm.ModelSonnet5)
+
+	// Every catalog entry is rendered with its stable ID and display label.
+	for _, option := range llm.SelectableModels() {
+		want := fmt.Sprintf(`<option value="%s"`, option.ID)
+		if !strings.Contains(html, want) {
+			t.Errorf("missing catalog entry %s", option.ID)
+		}
+		if !strings.Contains(html, option.Label) {
+			t.Errorf("missing display label %q", option.Label)
+		}
+	}
+
+	// Exactly one entry is marked selected: the current model.
+	if got := strings.Count(html, " selected"); got != 1 {
+		t.Errorf("selected markers = %d, want 1", got)
+	}
+	if !strings.Contains(html, fmt.Sprintf(`value="%s" selected`, llm.ModelSonnet5)) {
+		t.Error("current model not marked selected")
+	}
+}
+
+func TestModelSelectorOptions_CuratedChoicesStayOptional(t *testing.T) {
+	// Haiku and Opus remain optional curated choices, never role defaults.
+	for _, model := range []string{llm.ModelHaiku45, llm.ModelOpus5} {
+		if model == llm.DefaultModelDM || model == llm.DefaultModelNested ||
+			model == llm.DefaultModelFast || model == llm.DefaultModelCampaign {
+			t.Errorf("%s must stay optional, not a default role", model)
+		}
+	}
+	if llm.DefaultModelDM != llm.ModelSonnet5 {
+		t.Errorf("DM default = %q, want Sonnet 5", llm.DefaultModelDM)
+	}
+}
+
+func TestModelSelection_RejectsMistypedValues(t *testing.T) {
+	// The web selector validates through ParseModelChoice: mistyped values are
+	// rejected instead of silently mapped to Sonnet 5.
+	if _, err := llm.ParseModelChoice("sonnett"); err == nil {
+		t.Error("mistyped alias should be rejected")
+	}
+	// Full IDs pass through unchanged (surrounding whitespace is trimmed).
+	if model, err := llm.ParseModelChoice(" openai/gpt-5-mini "); err != nil || model != "openai/gpt-5-mini" {
+		t.Errorf("full ID passthrough: model=%q err=%v", model, err)
+	}
+	// Aliases and exact full IDs are both accepted.
+	if model, err := llm.ParseModelChoice("opus"); err != nil || model != llm.ModelOpus5 {
+		t.Errorf("alias resolution: model=%q err=%v", model, err)
+	}
+	if _, err := llm.ParseModelChoice("anthropic//claude-sonnet-5"); err == nil {
+		t.Error("malformed provider/model ID should be rejected")
 	}
 }

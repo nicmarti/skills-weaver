@@ -74,8 +74,9 @@
             <div class="info-item">
                 <span class="info-label">Modele IA</span>
                 <select id="model-selector" class="model-select">
-                    <option value="sonnet" {{if eq .CurrentModel "sonnet"}}selected{{end}}>Sonnet 4.6</option>
-                    <option value="opus" {{if eq .CurrentModel "opus"}}selected{{end}}>Opus 4.8 (1M)</option>
+                    {{range .Models}}
+                    <option value="{{.ID}}" {{if eq $.CurrentModel .ID}}selected{{end}}>{{.Label}}</option>
+                    {{end}}
                 </select>
             </div>
         </div>

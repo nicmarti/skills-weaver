@@ -70,8 +70,15 @@ func ParseModelChoice(input string) (string, error) {
 // ResolveModel maps persona/configuration aliases and full OpenRouter model
 // IDs to a concrete model ID. Accepted aliases: "", "sonnet", "haiku", "opus".
 // Any input containing "/" is treated as a full model ID and passed through
-// unchanged. Unknown bare words fall back to the default (Sonnet 5), matching
-// the previous persona-mapping behavior.
+// unchanged. Unknown bare words fall back to the default (Sonnet 5).
+//
+// Decision (Phase 9): the lenient unknown-bare-word fallback is preserved for
+// historical persona metadata only — every runtime configuration path
+// (environment variables, sw-dm CLI flags, the web model selector, Agent
+// SetModel) validates through ParseModelChoice, which rejects mistyped IDs
+// instead of silently mapping them to Sonnet 5. ResolveModel stays as the
+// last-line defense on the request path so a stale alias or a persona
+// `model:` field can never produce an invalid request.
 func ResolveModel(input string) string {
 	trimmed := strings.TrimSpace(input)
 	switch strings.ToLower(trimmed) {

@@ -163,17 +163,10 @@ func (s *Server) handleGame(c *gin.Context) {
 		activeSessionID = currentSession.ID
 	}
 
-	// Determine current model for the selector (alias form for the legacy UI)
-	currentModel := "sonnet"
+	// Current model for the selector: the agent stores validated full IDs.
+	currentModel := llm.DefaultModelDM
 	if session.Agent != nil {
-		switch llm.ResolveModel(session.Agent.GetModel()) {
-		case llm.ModelOpus5:
-			currentModel = "opus"
-		case llm.ModelHaiku45:
-			currentModel = "haiku"
-		default:
-			currentModel = "sonnet"
-		}
+		currentModel = session.Agent.GetModel()
 	}
 
 	// Auto-start: a freshly generated adventure has never been played (no active
@@ -195,6 +188,7 @@ func (s *Server) handleGame(c *gin.Context) {
 		"IsSessionActive": isSessionActive,
 		"ActiveSessionID": activeSessionID,
 		"CurrentModel":    currentModel,
+		"Models":          llm.SelectableModels(),
 		"AutoStart":       autoStart,
 	})
 }
@@ -324,24 +318,10 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 		return
 	}
 
-	// Determine current model for selector (alias form for the legacy UI)
-	currentModel := "sonnet"
+	// Current model for the selector: the agent stores validated full IDs.
+	currentModel := llm.DefaultModelDM
 	if session.Agent != nil {
-		switch llm.ResolveModel(session.Agent.GetModel()) {
-		case llm.ModelOpus5:
-			currentModel = "opus"
-		case llm.ModelHaiku45:
-			currentModel = "haiku"
-		default:
-			currentModel = "sonnet"
-		}
-	}
-	sonnetSelected := ""
-	opusSelected := ""
-	if currentModel == "sonnet" {
-		sonnetSelected = " selected"
-	} else {
-		opusSelected = " selected"
+		currentModel = session.Agent.GetModel()
 	}
 
 	// Return HTML directly for HTMX
@@ -357,14 +337,12 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 <div class="info-item">
     <span class="info-label">Modele IA</span>
     <select id="model-selector" class="model-select">
-        <option value="sonnet"%s>Sonnet 4.6</option>
-        <option value="opus"%s>Opus 4.8 (1M)</option>
+        %s
     </select>
 </div>`,
 		session.AdventureCtx.State.CurrentLocation,
 		session.AdventureCtx.Inventory.Gold,
-		sonnetSelected,
-		opusSelected)
+		modelSelectorOptionsHTML(currentModel))
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)
@@ -1078,6 +1056,20 @@ func (s *Server) handleDeleteAdventure(c *gin.Context) {
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
+// modelSelectorOptionsHTML renders the model selector options from the
+// neutral backend catalog, marking the current model's entry as selected.
+func modelSelectorOptionsHTML(currentModel string) string {
+	var options strings.Builder
+	for _, option := range llm.SelectableModels() {
+		selected := ""
+		if option.ID == currentModel {
+			selected = " selected"
+		}
+		fmt.Fprintf(&options, `<option value="%s"%s>%s</option>`, option.ID, selected, option.Label)
+	}
+	return options.String()
+}
+
 // handleGetModel returns the current model for an adventure session.
 func (s *Server) handleGetModel(c *gin.Context) {
 	slug := c.Param("slug")
@@ -1089,31 +1081,24 @@ func (s *Server) handleGetModel(c *gin.Context) {
 	}
 
 	model := session.Agent.GetModel()
-	displayName := llm.DisplayName(model)
 
-	// Map to short alias for the legacy selector
-	shortName := "sonnet"
-	switch llm.ResolveModel(model) {
-	case llm.ModelOpus5:
-		shortName = "opus"
-	case llm.ModelHaiku45:
-		shortName = "haiku"
-	}
-
+	// Stable full IDs and display labels, straight from the neutral catalog.
 	c.JSON(http.StatusOK, gin.H{
-		"model":   shortName,
-		"display": displayName,
+		"model":   model,
+		"display": llm.DisplayName(model),
 	})
 }
 
-// handleSetModel changes the model used by the DM agent.
+// handleSetModel changes the model used by the DM agent. Aliases
+// (sonnet/haiku/opus) and full provider/model IDs are both accepted; mistyped
+// values are rejected instead of silently mapped to the default.
 func (s *Server) handleSetModel(c *gin.Context) {
 	slug := c.Param("slug")
 	modelName := strings.TrimSpace(c.PostForm("model"))
 
-	// Validate: legacy UI aliases only for now (full selector lands in Phase 9)
-	if modelName != "sonnet" && modelName != "opus" && modelName != "haiku" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid model. Use 'sonnet', 'opus' or 'haiku'."})
+	resolved, err := llm.ParseModelChoice(modelName)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid model. Use a provider/model ID or the sonnet, haiku, opus aliases."})
 		return
 	}
 
@@ -1132,7 +1117,7 @@ func (s *Server) handleSetModel(c *gin.Context) {
 	displayName := llm.DisplayName(session.Agent.GetModel())
 	fmt.Printf("[%s] Model changed: %s → %s\n", slug, previousModel, displayName)
 	c.JSON(http.StatusOK, gin.H{
-		"model":   modelName,
+		"model":   resolved,
 		"display": displayName,
 	})
 }

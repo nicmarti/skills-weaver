@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -27,14 +28,29 @@ func main() {
 	// Initial title (will be replaced by banner after adventure selection)
 	fmt.Println(ui.SubtitleStyle.Render("SkillsWeaver - Sélection d'aventure"))
 
-	// Load OpenRouter configuration (OPENROUTER_API_KEY is required; the legacy
-	// ANTHROPIC_API_KEY is only consulted by the not-yet-migrated nested agents).
+	// Model overrides: explicit CLI choices take precedence over environment
+	// variables. Invalid values fail fast, before any adventure is loaded.
+	overrides, err := parseModelFlags(os.Args[1:])
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		fmt.Fprintln(os.Stderr, "Usage: sw-dm [--model <provider/model>] [--nested-model <provider/model>] [--agent-model <rules-keeper|character-creator|world-keeper>=<provider/model>]")
+		os.Exit(2)
+	}
+
+	// Load OpenRouter configuration (OPENROUTER_API_KEY is required; model IDs
+	// resolve via llm.Config.WithModelOverrides after the environment).
 	cfg, err := llm.LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		fmt.Fprintln(os.Stderr, "Please set it in your .envrc file or export it")
 		os.Exit(1)
 	}
+	cfg, err = cfg.WithModelOverrides(overrides)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		os.Exit(2)
+	}
+	printEffectiveModels(cfg)
 
 	// List adventures
 	adventures, err := listAdventures()
@@ -134,6 +150,92 @@ func main() {
 		}
 		fmt.Println()
 	}
+}
+
+// modelFlag is a --model/--nested-model value that rejects empty IDs instead of
+// silently falling back to the environment default.
+type modelFlag struct {
+	value string
+}
+
+func (f *modelFlag) String() string { return f.value }
+
+func (f *modelFlag) Set(v string) error {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return fmt.Errorf("model ID must not be empty (expected provider/model or sonnet, haiku, opus)")
+	}
+	f.value = v
+	return nil
+}
+
+// agentModelFlags collects repeatable --agent-model <name>=<model> values.
+type agentModelFlags struct {
+	agents map[string]string
+}
+
+func (a *agentModelFlags) String() string { return "" }
+
+func (a *agentModelFlags) Set(v string) error {
+	name, model, ok := strings.Cut(v, "=")
+	name = strings.TrimSpace(name)
+	model = strings.TrimSpace(model)
+	if !ok || name == "" || model == "" {
+		return fmt.Errorf("--agent-model expects <rules-keeper|character-creator|world-keeper>=<provider/model>, got %q", v)
+	}
+	if !llm.IsNestedAgent(name) {
+		return fmt.Errorf("unknown nested agent %q (expected rules-keeper, character-creator or world-keeper)", name)
+	}
+	if a.agents == nil {
+		a.agents = make(map[string]string)
+	}
+	a.agents[name] = model
+	return nil
+}
+
+// parseModelFlags turns command-line arguments into explicit model overrides.
+// Validation of the model IDs themselves is delegated to
+// llm.Config.WithModelOverrides so CLI and environment values follow the same
+// rules.
+func parseModelFlags(args []string) (llm.ModelOverrides, error) {
+	var dm, nested modelFlag
+	agentModels := &agentModelFlags{}
+
+	fs := flag.NewFlagSet("sw-dm", flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+	fs.Var(&dm, "model", "main DM model (provider/model ID or sonnet, haiku, opus alias)")
+	fs.Var(&nested, "nested-model", "default model for nested agents")
+	fs.Var(agentModels, "agent-model", "per-agent model override (repeatable): <rules-keeper|character-creator|world-keeper>=<provider/model>")
+
+	if err := fs.Parse(args); err != nil {
+		return llm.ModelOverrides{}, err
+	}
+	if fs.NArg() > 0 {
+		return llm.ModelOverrides{}, fmt.Errorf("unexpected argument %q (sw-dm takes no positional arguments)", fs.Arg(0))
+	}
+	return llm.ModelOverrides{
+		DM:     dm.value,
+		Nested: nested.value,
+		Agents: agentModels.agents,
+	}, nil
+}
+
+// printEffectiveModels shows the requested models without ever logging keys.
+func printEffectiveModels(cfg llm.Config) {
+	fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("Modèle DM: %s", cfg.ModelDM)))
+	nested := cfg.ModelNested
+	for _, name := range []string{llm.RulesKeeperAgent, llm.CharacterCreatorAgent, llm.WorldKeeperAgent} {
+		model, err := cfg.ModelForAgent(name)
+		if err != nil {
+			continue
+		}
+		label := model
+		if model != nested {
+			label = fmt.Sprintf("%s (défaut imbriqué: %s)", model, nested)
+		}
+		fmt.Println(ui.SubtitleStyle.Render(fmt.Sprintf("Modèle %s: %s", name, label)))
+	}
+	fmt.Println()
 }
 
 // listAdventures lists all available adventures.

@@ -17,8 +17,8 @@ func main() {
 	debug := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
 
-	// Load OpenRouter configuration (OPENROUTER_API_KEY is required; the legacy
-	// ANTHROPIC_API_KEY is only consulted by the not-yet-migrated nested agents).
+	// Load OpenRouter configuration (OPENROUTER_API_KEY is required for the DM
+	// agent, the nested agents and every LLM utility call).
 	cfg, err := llm.LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)

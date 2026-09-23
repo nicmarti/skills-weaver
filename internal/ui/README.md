@@ -83,7 +83,7 @@ ui.RenderDMText("Vous voyez *un dragon* qui s'approche!")
 
 #### Streaming Renderer (streaming_renderer.go) - Pour sw-dm ✨
 
-Pour le texte streamé chunk-par-chunk (comme les réponses de l'API Anthropic), utilisez le **StreamingMarkdownRenderer** qui maintient l'état du markdown entre les chunks :
+Pour le texte streamé chunk-par-chunk (comme les réponses de l'API OpenRouter), utilisez le **StreamingMarkdownRenderer** qui maintient l'état du markdown entre les chunks :
 
 ```go
 // Créer un renderer avec état
@@ -119,7 +119,7 @@ renderer.Reset()
 ui.ClearScreen()
 
 // Affiche la bannière avec le nom du modèle
-ui.ShowBanner("Claude Haiku 4.5")
+ui.ShowBanner("Claude Sonnet 5")
 
 // Affiche les infos d'aventure dans une boîte stylée
 ui.ShowAdventureInfo(

@@ -1,6 +1,6 @@
 # OpenRouter Migration Plan
 
-Status (updated 2026-09-23): Phases 1–5 and 7–10 implemented (Phase 6 dropped: the Advisor feature was removed entirely). The main DM loop, the three nested agents and every direct utility call (journal/map enrichment, ambient Lyria parameters, biographies, campaign plans, adventure titles) run on `llm.Client` (OpenRouter Chat, Sonnet 5 default). **No production code reads `ANTHROPIC_API_KEY` anymore** — the only remaining Anthropic SDK imports are Phase-12 legacy compat (`internal/agent`: `model_mapping.go`, `streaming.go`, `GetMessages()` conversion; `internal/llm/anthropic_compat.go`). Phase 0 live evidence remains incomplete (genuine provider mid-stream error). Remaining before cutover: Phases 11–12 (docs + SDK removal). Phase 0 live evidence: a deterministic in-repo fixture now proves the genuine mid-stream-incident behavior (simulated TCP reset surfaced as mid_stream, no silent truncation); live provider evidence remains desirable but is no longer blocking for that scenario. See "Decision gates before cutover" below.
+Status (updated 2026-09-23): Phases 1–5, 7–10 and 11 implemented (Phase 6 dropped: the Advisor feature was removed entirely). The main DM loop, the three nested agents and every direct utility call (journal/map enrichment, ambient Lyria parameters, biographies, campaign plans, adventure titles) run on `llm.Client` (OpenRouter Chat, Sonnet 5 default). **No production code reads `ANTHROPIC_API_KEY` anymore** — the only remaining Anthropic SDK imports are Phase-12 legacy compat (`internal/agent`: `model_mapping.go`, `streaming.go`, `GetMessages()` conversion; `internal/llm/anthropic_compat.go`). Phase 0 live evidence remains incomplete (genuine provider mid-stream error). Remaining before cutover: Phases 11–12 (docs + SDK removal). Phase 0 live evidence: a deterministic in-repo fixture now proves the genuine mid-stream-incident behavior (simulated TCP reset surfaced as mid_stream, no silent truncation); live provider evidence remains desirable but is no longer blocking for that scenario. See "Decision gates before cutover" below.
 
 Created: 2026-09-22
 
@@ -777,19 +777,21 @@ Exit criterion: existing transport/persistence coverage remains passing, and the
 
 ### Phase 11: Documentation
 
-- [ ] Update active runtime sections in `README.md`.
-- [ ] Update `DEPLOYMENT.md`.
-- [ ] Update remaining pre-migration runtime sections in `AGENTS.md`; `CLAUDE.md` is only a pointer and has no runtime sections to migrate.
-- [ ] Update `docs/optional-features-summary.md`.
-- [ ] Update `core_agents/skills/map-generator/SKILL.md`.
-- [ ] Update `core_agents/skills/journal-illustrator/SKILL.md`.
-- [ ] Update `internal/ui/README.md`.
-- [ ] Add a new `CHANGELOG.md` entry.
-- [ ] Keep historical changelog descriptions unchanged.
-- [ ] Keep Claude Code references that describe the development tool rather than the game runtime.
-- [ ] Document OpenRouter key limits and recommend a spending cap.
-- [ ] Document model overrides and concrete production defaults.
-- [ ] Document Advisor metric limitations.
+- [x] Update active runtime sections in `README.md` (OpenRouter key setup with spending-cap recommendation, model table `OPENROUTER_MODEL_*`, CLI flags, enrichment/web/sw-dm runtime descriptions; Claude Code dev-tool references kept).
+- [x] Update `DEPLOYMENT.md` (OpenRouter key, troubleshooting checks, 60s request timeout, Sonnet 5 campaign generation).
+- [x] Update remaining pre-migration runtime sections in `AGENTS.md` (`model_used` example, migration note finalized); `CLAUDE.md` is only a pointer and has no runtime sections to migrate.
+- [x] Update `docs/optional-features-summary.md` (neutral history serialization, neutral nested-agent call example, OpenRouter metrics, Advisor metric limitation note).
+- [x] Update `core_agents/skills/map-generator/SKILL.md` (OPENROUTER_API_KEY, Sonnet 5, real error message).
+- [x] Update `core_agents/skills/journal-illustrator/SKILL.md` (OPENROUTER_API_KEY).
+- [x] Update `internal/ui/README.md` (streaming source, banner example).
+- [x] Add a new `CHANGELOG.md` entry (OpenRouter migration section under Unreleased).
+- [x] Keep historical changelog descriptions unchanged.
+- [x] Keep Claude Code references that describe the development tool rather than the game runtime.
+- [x] Document OpenRouter key limits and recommend a spending cap (README key section + DEPLOYMENT.md).
+- [x] Document model overrides and concrete production defaults (README table: Sonnet 5 everywhere, per-role `OPENROUTER_MODEL_*`, sw-dm flags, web selector).
+- [x] Document Advisor metric limitations (AGENTS.md Advisor section + optional-features-summary.md note: `advisor_*` fields read for compat, no longer populated).
+
+Also fixed a stale comment in `cmd/web/main.go` that still claimed nested agents consulted `ANTHROPIC_API_KEY`.
 
 Exit criterion: setup, deployment, troubleshooting, and runtime architecture documentation consistently describe OpenRouter.
 
@@ -1044,3 +1046,4 @@ Implementation updates should be appended here with the date, completed phase, v
 | 2026-09-23 | Phase 8 | Implemented (CLI flags) | `sw-dm` now accepts `--model <provider/model>`, `--nested-model <provider/model>` and repeatable `--agent-model <rules-keeper|character-creator|world-keeper>=<provider/model>`, applied via `llm.Config.WithModelOverrides` after the environment. Empty values, unknown agents, malformed `name=model` pairs, unknown flags and positional arguments are rejected before any adventure loads; effective requested models are printed at startup without ever logging keys. Validation of the model IDs themselves is delegated to the existing `ParseModelChoice` rules so CLI and environment values behave identically. Tests: `cmd/dm/model_flags_test.go` (valid combos, all rejection cases, alias resolution, no silent defaulting on invalid IDs). |
 | 2026-09-23 | Phase 9 | Implemented (web model catalog) | The web selector is now rendered from the neutral backend catalog (`llm.SelectableModels()` + `llm.DisplayName`): `game.html` and the HTMX info panel (`modelSelectorOptionsHTML`) list the curated choices with stable full OpenRouter IDs and current display labels, replacing the stale hardcoded "Sonnet 4.6"/"Opus 4.8 (1M)" options. `handleGetModel`/`handleSetModel` return and accept stable IDs (aliases still accepted), validating through `ParseModelChoice` so mistyped values get a 400 instead of silently mapping to Sonnet 5. Substring/alias-based model detection was removed from `handleGame`/`handleGetAdventureInfo`/`handleGetModel`. Decision recorded: the lenient `llm.ResolveModel` fallback stays for historical persona metadata only (runtime paths all validate strictly). Labels confirmed to fit the UI (no fixed widths; popup follows the longest label). Tests: `TestModelSelectorOptions_RenderedFromCatalog`, `TestModelSelectorOptions_CuratedChoicesStayOptional`, `TestModelSelection_RejectsMistypedValues`. |
 | 2026-09-23 | Phase 10 | Implemented (tests, mocks and a critical SDK fix) | All remaining test items landed: 401/402 never retried with the production retry config; bounded retry exhaustion proven; response bodies closed on every stream exit path (success, in-band error, malformed/incomplete tool calls, TCP reset); no replay after the stream opened (1 request, partial text preserved); web SSE tests (slow subscriber drops after the bounded wait instead of blocking the agent loop, OnError always emits terminal complete, client disconnect and channel close terminate the stream). Campaign/ambient/biography/multimodal and tool-loop items were already covered by Phases 4–8. **Critical finding:** the generated SDK's EventStream swallows terminal body read errors — a connection dying mid-stream was reported as a clean success with a truncated message (exactly the Phase 0 "genuine provider mid-stream incident" scenario). The adapter now records body read failures through a context-injected holder in the transport-level client and surfaces them from Stream() as mid_stream/timeout/canceled; the default inner HTTP client also restores the SDK's 60 s per-request timeout that the attribution path previously lost. `go build`, `go vet` and `make test` pass. |
+| 2026-09-23 | Phase 11 | Implemented (documentation rewrite) | All runtime documentation now describes OpenRouter consistently: README (key setup with spending-cap recommendation, per-role `OPENROUTER_MODEL_*` overrides with Sonnet 5 defaults, `sw-dm` model flags, web selector, enrichment/web/REPL runtime sections), DEPLOYMENT (key checks, troubleshooting, 60s request timeout, performance table), AGENTS.md (metrics example, migration note finalized), optional-features-summary (neutral serialization + nested-agent call example, OpenRouter metrics, Advisor metric limitation), map-generator and journal-illustrator SKILL.md, internal/ui README. New CHANGELOG entry under Unreleased; historical entries and Claude Code dev-tool references untouched. Stale `cmd/web/main.go` comment claiming nested agents still consulted `ANTHROPIC_API_KEY` corrected. |

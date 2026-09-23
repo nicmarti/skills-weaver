@@ -16,8 +16,8 @@ Skill pour générer des illustrations basées sur le journal d'une aventure BFR
 # Requis pour la génération d'images
 export FAL_KEY="votre_clé_api_fal"
 
-# Optionnel pour l'enrichissement AI des descriptions
-export ANTHROPIC_API_KEY="votre_clé_anthropic"
+# Optionnel pour l'enrichissement AI des descriptions (via OpenRouter)
+export OPENROUTER_API_KEY="votre_clé_openrouter"
 ```
 
 ## Utilisation des Descriptions Enrichies (Recommandé)

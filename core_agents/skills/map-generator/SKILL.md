@@ -97,7 +97,7 @@ Styles: illustrated (défaut), dark_fantasy
 Sauvegarde le prompt dans un fichier JSON spécifique.
 
 ### --dry-run
-Prévisualise le prompt de base sans appeler l'API Claude.
+Prévisualise le prompt de base sans appeler l'API OpenRouter.
 
 ### --generate-image
 Génère aussi l'image via fal.ai flux-2 (nécessite FAL_KEY).
@@ -190,7 +190,7 @@ Modèle utilisé: `fal-ai/flux-2` (haute qualité pour cartes détaillées)
 
 ## Prérequis
 
-- **ANTHROPIC_API_KEY**: Requis pour enrichissement AI (Claude Haiku 3.5)
+- **OPENROUTER_API_KEY**: Requis pour enrichissement AI (Claude Sonnet 5 via OpenRouter)
 - **FAL_KEY**: Requis pour génération d'images (optionnel)
 
 ## Exemples d'Utilisation
@@ -268,7 +268,7 @@ Le world-keeper valide automatiquement:
 
 - **Validation automatique**: Tous les noms de lieux sont vérifiés contre geography.json
 - **Fuzzy matching**: Suggestions basées sur similarité Levenshtein
-- **Enrichissement AI**: Claude Haiku 3.5 enrichit les prompts de base avec détails visuels
+- **Enrichissement AI**: Claude Sonnet 5 (via OpenRouter) enrichit les prompts de base avec détails visuels
 - **Guidelines**: 400+ lignes de directives pour prompts optimaux
 - **Longueur cible**: 100-200 mots (sweet spot: 150)
 
@@ -287,10 +287,10 @@ Vouliez-vous dire ?
 
 ### API Key manquante
 ```
-Error: creating enricher: ANTHROPIC_API_KEY environment variable not set
+Error: OPENROUTER_API_KEY environment variable not set (set it in your .envrc file or export it)
 ```
 
-**Solution**: Définissez `export ANTHROPIC_API_KEY="votre_clé"`
+**Solution**: Définissez `export OPENROUTER_API_KEY="votre_clé"`
 
 ### Prompt trop court/long
 Le système valide automatiquement que les prompts font 80-250 mots et régénère si nécessaire.

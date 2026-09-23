@@ -28,14 +28,14 @@ type SerializableMessage struct {
 ```
 
 #### Token Optimization
-- **15K token limit** for saved conversation history
+- Saved conversation history is trimmed to the agent's token limit (`state.tokenLimit`, **20K** for nested agents; 15K fallback when unset)
 - Serializes messages in reverse order (newest first)
 - Stops when token limit reached, truncating older messages
 - Preserves most recent context for better continuity
 
 #### Content Extraction
-- Extracts text blocks, tool uses, and tool results from Anthropic API messages
-- Uses JSON marshaling/unmarshaling to work around private SDK methods
+- Extracts text blocks, tool uses, and tool results from the provider-neutral `llm` message history
+- Serializes/deserializes the neutral types directly (no SDK-specific conversion)
 - Handles all message types: user messages, assistant messages, tool invocations
 
 ### Benefits
@@ -111,13 +111,13 @@ sw-dm-session-1.log.2.gz   (1MB)
 
 #### Enforcement
 ```go
-// API call explicitly omits Tools parameter
-response, err := nestedAgent.client.Messages.New(ctx, anthropic.MessageNewParams{
-    Model:     anthropic.ModelClaudeHaiku4_5,
-    MaxTokens: 4096,
-    System:    []anthropic.TextBlockParam{...},
-    Messages:  nestedAgent.conversationCtx.GetMessages(),
-    // Tools parameter intentionally omitted - nested agents cannot use tools
+// The request is built without Tools and sent through the neutral client
+response, err := agent.llmClient.Complete(ctx, llm.Request{
+    Model:           agent.model, // default anthropic/claude-sonnet-5 via OpenRouter
+    MaxTokens:       4096,
+    System:          systemPrompt,
+    Messages:        agent.conversationCtx.GetMessages(),
+    // Tools intentionally omitted - nested agents cannot use tools
 })
 ```
 
@@ -154,7 +154,7 @@ type AgentMetrics struct {
     TotalResponseTime    time.Duration // Cumulative response time
     AverageTokensPerCall int64         // Average tokens per invocation
     AverageResponseTime  time.Duration // Average response time
-    ModelUsed            string        // Model name (claude-haiku-4-5)
+    ModelUsed            string        // Model ID (anthropic/claude-sonnet-5 by default)
     LastCallTokens       int64         // Tokens from last call
     LastCallDuration     time.Duration // Duration of last call
 }
@@ -165,6 +165,12 @@ type AgentMetrics struct {
 - **Response time**: Measured with time.Since(startTime)
 - **Averages**: Automatically calculated after each invocation
 - **Persistent**: Saved to agent-states.json
+
+#### Provider Metrics (OpenRouter)
+
+Migrated states also persist the OpenRouter metrics returned by the shared `internal/llm` client: `requested_model`, `routed_model`, `total_cost`, `cached_tokens`, `cache_write_tokens`, `reasoning_tokens`.
+
+**Advisor metric limitation**: the `advisor_*` fields (`advisor_calls`, `advisor_input_tokens`, `advisor_output_tokens`, `advisor_cache_creation_tokens`, `advisor_cache_read_tokens`, `advisor_model_used`) still present in pre-migration `agent-states.json` files are **read for backward compatibility but no longer populated** — the Advisor feature was removed with the OpenRouter migration (see the Advisor section in `AGENTS.md`). New states only carry the aggregated OpenRouter metrics above.
 
 ### API Access
 
@@ -204,7 +210,7 @@ if exists {
       "average_tokens_per_call": 2490,
       "total_response_time_ms": 15320,
       "average_response_time_ms": 3064,
-      "model_used": "claude-haiku-4-5",
+      "model_used": "anthropic/claude-sonnet-5",
       "last_call_tokens": 2680,
       "last_call_duration_ms": 3200
     },

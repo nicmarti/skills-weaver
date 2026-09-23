@@ -40,8 +40,8 @@ The web interface (`sw-web`) provides the easiest way to create adventures and p
 # Build the tools
 make build
 
-# Set your Anthropic API key
-export ANTHROPIC_API_KEY="your_key"
+# Set your OpenRouter API key (https://openrouter.ai/keys)
+export OPENROUTER_API_KEY="your_key"
 
 # Optional: Set fal.ai key for image generation
 export FAL_KEY="your_fal_key"
@@ -61,7 +61,7 @@ export FAL_KEY="your_fal_key"
 - 🗺️ **Tactical maps** displayed inline
 - 📖 **Live journal** with session tracking
 - 🎨 **AI-generated images** shown during gameplay
-- 📱 **Model selector** - Switch between Haiku, Sonnet, Opus
+- 📱 **Model selector** - Switch between Haiku, Sonnet, and Opus (served via OpenRouter)
 
 ### Option 2: Command-Line Interface (Advanced)
 
@@ -71,8 +71,8 @@ The CLI (`sw-dm`) provides a terminal-based REPL experience:
 # Build the tools
 make build
 
-# Set your Anthropic API key
-export ANTHROPIC_API_KEY="your_key"
+# Set your OpenRouter API key (https://openrouter.ai/keys)
+export OPENROUTER_API_KEY="your_key"
 
 # Launch the Dungeon Master
 ./sw-dm
@@ -334,7 +334,7 @@ SkillsWeaver demonstrates how to build a complex, multi-tool AI application usin
 ### 1. Claude Code (optional)
 
 You can install [Claude Code](https://claude.ai/claude-code), Anthropic's official CLI for Claude if you want to test skills or each Agents.
-Else, use directly the go cli with a valid ANTHROPIC API key.
+Else, use directly the go cli with a valid OpenRouter API key.
 
 ### 2. Go
 
@@ -359,22 +359,40 @@ export FAL_KEY="your_fal_ai_api_key"
 
 The `sw-dm` Dungeon Master can generate images during gameplay if FAL_KEY is configured. The skill-based `sw-image` tool also uses it for character portraits and scene illustrations.
 
-### 4. Anthropic API Key
+### 4. OpenRouter API Key
 
-**REQUIRED for `sw-dm` (Dungeon Master agent)**
+**REQUIRED for `sw-dm` (Dungeon Master agent) and `sw-web`**
 **OPTIONAL for `sw-adventure enrich` (journal enrichment)**
 
-The autonomous Dungeon Master (`sw-dm`) requires direct access to Claude API for the agent loop. The `sw-adventure enrich` command also uses it for bilingual journal descriptions.
+The autonomous Dungeon Master (`sw-dm`) and the web interface (`sw-web`) call the OpenRouter Chat API through the provider-neutral `internal/llm` client for the agent loop. The `sw-adventure enrich` command also uses it for bilingual journal descriptions.
 
-Get your API key from [Anthropic Console](https://console.anthropic.com/) and set it:
+Get your API key from [OpenRouter](https://openrouter.ai/) and set it:
 
 ```bash
-export ANTHROPIC_API_KEY="your_anthropic_api_key"
+export OPENROUTER_API_KEY="your_openrouter_api_key"
 ```
 
-**Usage:**
-- `sw-dm`: Uses Claude Haiku 4.5 for fast, immersive game sessions (~$1/M input tokens, ~$5/M output tokens)
-- `sw-adventure enrich`: Uses Claude Haiku 4.5 for cost-effective descriptions (~$0.0003 per entry)
+> **Spending cap**: OpenRouter keys are pay-as-you-go. Create your key with a **spending limit** (OpenRouter console → Keys → Limit) so a runaway game session cannot drain your credit. Key limits only apply to credit purchases, not to subscription credits — the simplest safe setup is a key backed by prepaid credits with a hard limit.
+
+**Usage and defaults:**
+- `sw-dm` / `sw-web`: Claude Sonnet 5 (`anthropic/claude-sonnet-5`) for all roles — DM, nested agents (rules-keeper, character-creator, world-keeper), and utility calls (enrichment, campaign plans, titles, biographies)
+- `sw-adventure enrich`: same default model, cost-efficient descriptions
+
+**Model overrides** (all optional; accept aliases `haiku`, `sonnet`, `opus` or a full `provider/model` ID):
+
+| Variable | Applies to |
+|---|---|
+| `OPENROUTER_MODEL_DM` | Main Dungeon Master agent |
+| `OPENROUTER_MODEL_NESTED` | All nested agents (default) |
+| `OPENROUTER_MODEL_RULES_KEEPER` | Rules-keeper only |
+| `OPENROUTER_MODEL_CHARACTER_CREATOR` | Character-creator only |
+| `OPENROUTER_MODEL_WORLD_KEEPER` | World-keeper only |
+| `OPENROUTER_MODEL_FAST` | Fast utility calls (titles, ambient music parameters) |
+| `OPENROUTER_MODEL_CAMPAIGN` | Campaign plan generation |
+
+You can also override per invocation with the CLI flags: `./sw-dm --model=opus --nested-model=haiku --agent-model=rules-keeper=haiku`. In the web interface, the in-game model selector switches the main DM model at runtime.
+
+Attribution (optional): `OPENROUTER_HTTP_REFERER` and `OPENROUTER_APP_NAME` are sent with each request so OpenRouter can rank the app.
 
 ## Quick Start
 
@@ -430,7 +448,7 @@ The `sw-web` binary provides a modern web interface for creating adventures and 
 - **💬 Streaming Chat**: Real-time DM responses via Server-Sent Events (SSE)
 - **🎨 Inline Media**: Images, maps, and tactical scenes display directly in chat
 - **📖 Live Journal**: See events logged as they happen
-- **🔄 Model Selector**: Switch between Haiku (fast), Sonnet (balanced), Opus (best quality)
+- **🔄 Model Selector**: Switch between Haiku (fast), Sonnet (balanced), Opus (best quality) — all served via OpenRouter
 - **📱 Responsive**: Works on desktop and tablet devices
 
 ### Architecture
@@ -494,7 +512,7 @@ open http://localhost:8085
 ### Prerequisites
 
 ```bash
-export ANTHROPIC_API_KEY="your_key"  # Required
+export OPENROUTER_API_KEY="your_key"  # Required (OpenRouter)
 export FAL_KEY="your_fal_key"        # Optional (for images)
 ```
 
@@ -502,11 +520,11 @@ export FAL_KEY="your_fal_key"        # Optional (for images)
 
 ## Command-Line Dungeon Master (sw-dm)
 
-The `sw-dm` binary is a standalone Go application that acts as an autonomous Dungeon Master using the Anthropic API directly. Unlike the Claude Code skills that require manual orchestration, `sw-dm` runs a complete **agent loop** with tool use in a terminal REPL.
+The `sw-dm` binary is a standalone Go application that acts as an autonomous Dungeon Master using the OpenRouter Chat API through the provider-neutral `internal/llm` client. Unlike the Claude Code skills that require manual orchestration, `sw-dm` runs a complete **agent loop** with tool use in a terminal REPL.
 
 ### Features
 
-- **Full Agent Loop**: User → Claude → Tool Use → Execution → Claude → Response
+- **Full Agent Loop**: User → LLM → Tool Use → Execution → LLM → Response (streamed via OpenRouter)
 - **Streaming Responses**: Real-time text streaming for immersive narrative
 - **Adventure Auto-Loading**: Automatically loads party, inventory, journal, and game state
 - **Direct Go Package Calls**: Tools call internal Go packages directly (no subprocess execution)
@@ -671,7 +689,7 @@ Go binaries that perform the actual work:
 
 ## Example: Enriching Journal Entries with AI
 
-The journal enrichment feature automatically generates detailed, bilingual descriptions for your adventure log using Claude AI. These descriptions are optimized for image generation and provide rich context.
+The journal enrichment feature automatically generates detailed, bilingual descriptions for your adventure log using the configured OpenRouter model (Claude Sonnet 5 by default). These descriptions are optimized for image generation and provide rich context.
 
 ```bash
 # Preview entries that need enrichment (dry-run mode)

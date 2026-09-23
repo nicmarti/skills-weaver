@@ -13,11 +13,11 @@
 # Verify Go version
 go version  # Requires 1.21+
 
-# Set API key
-export ANTHROPIC_API_KEY="your-key-here"
+# Set OpenRouter API key (https://openrouter.ai/keys — create it with a spending limit)
+export OPENROUTER_API_KEY="your-key-here"
 
 # Verify key is set
-echo $ANTHROPIC_API_KEY
+echo $OPENROUTER_API_KEY
 ```
 
 ### 2. Build Binaries
@@ -134,8 +134,8 @@ tail -50 sw-web.log
 ```
 
 **Solutions**:
-1. Verify ANTHROPIC_API_KEY is set correctly
-2. Check API rate limits (Anthropic console)
+1. Verify OPENROUTER_API_KEY is set correctly
+2. Check API rate limits and remaining credits (OpenRouter console — keys created with a spending limit stop at that limit)
 3. Try simpler, clearer theme description
 4. Check network connectivity
 
@@ -169,8 +169,8 @@ grep "InvokeAgentSilent" data/adventures/*/sw-dm-session-*.log
 ```
 
 **Solutions**:
-1. Verify ANTHROPIC_API_KEY is valid
-2. Check API timeout (80 seconds configured)
+1. Verify OPENROUTER_API_KEY is valid (test with `curl https://openrouter.ai/api/v1/models`)
+2. Check API timeout (60 seconds per HTTP request, configured on the shared client)
 3. Try without campaign plan (legacy adventure)
 
 ---
@@ -179,7 +179,7 @@ grep "InvokeAgentSilent" data/adventures/*/sw-dm-session-*.log
 
 | Operation | Expected Time | Notes |
 |-----------|--------------|-------|
-| Campaign Plan Generation | 30-60s | Uses Haiku 4.5 |
+| Campaign Plan Generation | 30-60s | Uses Claude Sonnet 5 via OpenRouter (`OPENROUTER_MODEL_CAMPAIGN` to override) |
 | Session Start (with plan) | 10-15s | Includes world-keeper call |
 | Session Start (without plan) | <1s | Legacy behavior |
 | Campaign Tools Query | <100ms | Local file I/O |

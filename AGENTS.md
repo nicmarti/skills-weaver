@@ -16,7 +16,7 @@
 - **Never commit with a broken build.** Run `go build ./...` immediately after every batch of `.go` edits and fix failures before anything else. If `.templ` files changed, run `templ generate` first.
 - **Never `git reset --hard` without explicit user confirmation.**
 - **Do not use browser MCP tools during a live game session** (sw-dm or sw-web running). Analyze files instead: logs (`data/adventures/<nom>/sw-dm-session-N.log`), `agent-states.json`, and source code. Ask the user before opening any browser tooling.
-- **Model provider boundary (migration in progress):** only `internal/llm` may import the OpenRouter SDK (`github.com/OpenRouterTeam/go-sdk`); do not add new provider SDK imports elsewhere. Existing Anthropic SDK imports and API-key reads remain in the old agent/web/utility runtime until Phases 4–12 migrate those callers to `llm.Client`. OpenRouter model IDs and key loading are centralized in `internal/llm/models.go` and `internal/llm/config.go`. Evidence: `internal/agent/agent.go`, `internal/agent/agent_manager.go`, and `cmd/dm/main.go`; see `docs/openrouter-migration-plan.md`.
+- **Model provider boundary (migration in progress):** only `internal/llm` may import the OpenRouter SDK (`github.com/OpenRouterTeam/go-sdk`); do not add new provider SDK imports elsewhere. **Main DM + nested agents (Phases 4–5 done):** the main agent loop and the three nested agents (rules-keeper, character-creator, world-keeper) run on the provider-neutral `llm.Client` (OpenRouter Chat, Sonnet 5 default); `cmd/dm`/`cmd/web` require `OPENROUTER_API_KEY` via `llm.LoadConfig`. The Anthropic beta Advisor path was removed; the native `openrouter:advisor` lands in Phase 6 behind `SW_ADVISOR_ENABLED` (currently off). Remaining Anthropic SDK imports (web campaign/title utilities in `internal/web/handlers.go`/`wizard_handlers.go`, `internal/ai`, `internal/ambient`, `internal/charactersheet`, plus Phase-12 legacy compat in `internal/agent`: `model_mapping.go`, `streaming.go`, `GetMessages()`) stay until Phases 7/12; `ANTHROPIC_API_KEY` is only read for those unmigrated paths (`llm.Config.LegacyAnthropicKey`). OpenRouter model IDs and key loading are centralized in `internal/llm/models.go` and `internal/llm/config.go`. Evidence: `internal/agent/agent.go`, `internal/agent/agent_manager.go`, `cmd/dm/main.go`; see `docs/openrouter-migration-plan.md`.
 - **sw-dm journal correctness:** the Dungeon Master agent MUST call `start_session` at the beginning and `end_session` at the end of a session. Otherwise all events land in `journal-session-0.json` instead of being organized per session.
 
 ### Gotchas and tribal knowledge
@@ -41,7 +41,7 @@ Real provider API tests are gated and never run by default:
 
 ### Human-required actions
 
-- Provider keys live in the shell environment (`.envrc` via direnv, not committed): `OPENROUTER_API_KEY` (migration target, with optional `OPENROUTER_MODEL_DM`, `OPENROUTER_MODEL_NESTED`, `OPENROUTER_MODEL_RULES_KEEPER`, `OPENROUTER_MODEL_CHARACTER_CREATOR`, `OPENROUTER_MODEL_WORLD_KEEPER`, `OPENROUTER_MODEL_FAST`, `OPENROUTER_MODEL_CAMPAIGN`, `OPENROUTER_MODEL_ADVISOR`, `OPENROUTER_HTTP_REFERER`, `OPENROUTER_APP_NAME`; see `internal/llm/config.go`), `GEMINI_API_KEY` (Lyria ambient music), `FAL_KEY` (fal.ai images). A human must configure them; agents must never print, log, or commit key values. `ANTHROPIC_API_KEY` is legacy during the migration and is not accepted by the new `internal/llm` boundary. OpenRouter model selection is not active in gameplay until Phases 4/5/8 wire the runtime.
+- Provider keys live in the shell environment (`.envrc` via direnv, not committed): `OPENROUTER_API_KEY` (required for `sw-dm`/`sw-web` gameplay, including nested agents; optional `OPENROUTER_MODEL_DM`, `OPENROUTER_MODEL_NESTED`, `OPENROUTER_MODEL_RULES_KEEPER`, `OPENROUTER_MODEL_CHARACTER_CREATOR`, `OPENROUTER_MODEL_WORLD_KEEPER`, `OPENROUTER_MODEL_FAST`, `OPENROUTER_MODEL_CAMPAIGN`, `OPENROUTER_MODEL_ADVISOR`, `OPENROUTER_HTTP_REFERER`, `OPENROUTER_APP_NAME`; see `internal/llm/config.go`), `GEMINI_API_KEY` (Lyria ambient music), `FAL_KEY` (fal.ai images). A human must configure them; agents must never print, log, or commit key values. `ANTHROPIC_API_KEY` is legacy during the migration: it is not accepted by `internal/llm` and is only read (via `llm.Config.LegacyAnthropicKey`) for the not-yet-migrated utility callers (web campaign/title generation, enrichment, ambient prompts, biographies — Phase 7).
 
 ### Commit conventions
 
@@ -51,7 +51,7 @@ Real provider API tests are gated and never run by default:
 
 ---
 
-⚠️ **Note de migration (Anthropic → OpenRouter)** : les sections ci-dessous décrivant l'API Anthropic (`ANTHROPIC_API_KEY`, outil Advisor beta Anthropic, boucle d'agent Anthropic) décrivent l'état **pré-migration** du moteur. La migration vers OpenRouter a démarré (boundary `internal/llm` en place) — plan, décisions et journal de progression : `docs/openrouter-migration-plan.md`. Ces sections seront réécrites en Phase 11 de ce plan.
+⚠️ **Note de migration (Anthropic → OpenRouter)** : le DM principal et les agents imbriqués (rules-keeper, character-creator, world-keeper) tournent désormais sur OpenRouter (`llm.Client`, Sonnet 5 par défaut, `OPENROUTER_API_KEY` — Phases 4–5). Les sections ci-dessous décrivant l'outil Advisor beta Anthropic décrivent un chemin **supprimé** ; l'Advisor natif `openrouter:advisor` arrive en Phase 6 derrière `SW_ADVISOR_ENABLED` (actuellement inactif). Les appels utilitaires restants (campagne/titre web, enrichissement, prompts ambient, biographies — Phase 7) lisent encore `ANTHROPIC_API_KEY`. Plan, décisions et journal de progression : `docs/openrouter-migration-plan.md`. Ces sections seront réécrites en Phase 11 de ce plan.
 
 ---
 
@@ -204,7 +204,7 @@ web/
 
 ### Prérequis
 
-- Variable d'environnement `ANTHROPIC_API_KEY` configurée *(pré-migration : remplacée par `OPENROUTER_API_KEY` via `internal/llm`, voir la note de migration en haut de ce fichier)*
+- Variable d'environnement `OPENROUTER_API_KEY` configurée (le DM principal tourne sur OpenRouter via `internal/llm` ; `ANTHROPIC_API_KEY` n'est plus lue que par les agents imbriqués et utilitaires non migrés — voir la note de migration en haut de ce fichier)
 - Personnages existants dans `data/characters/` (optionnel, créés auto si absents)
 - Aventures existantes dans `data/adventures/` (ou créez-en via l'interface)
 
@@ -232,7 +232,7 @@ go build -o sw-dm ./cmd/dm
 
 ### Fonctionnalités
 
-- ✅ Boucle d'agent complète avec tool_use (Anthropic API)
+- ✅ Boucle d'agent complète avec tool_use (OpenRouter Chat via `internal/llm`, Sonnet 5 par défaut ; boucle d'outils bornée à 40 itérations et finish reasons gérées explicitement)
 - ✅ Streaming des réponses pour expérience immersive
 - ✅ Auto-chargement du contexte d'aventure (groupe, inventaire, journal)
 - ✅ Accès direct aux packages Go (dice, monster, treasure, npc, etc.)

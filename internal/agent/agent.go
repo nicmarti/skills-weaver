@@ -1,4 +1,4 @@
-// Package agent implements the Dungeon Master agent loop using Anthropic API.
+// Package agent implements the Dungeon Master agent loop on the provider-neutral llm boundary.
 package agent
 
 import (
@@ -9,15 +9,12 @@ import (
 	"strings"
 
 	"dungeons/internal/llm"
-
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
 // Agent orchestrates the Dungeon Master agent loop.
 type Agent struct {
-	client          anthropic.Client
-	model           anthropic.Model
+	client          llm.Client
+	model           string // resolved OpenRouter model ID (Sonnet 5 default)
 	toolRegistry    *ToolRegistry
 	conversationCtx *ConversationContext
 	adventureCtx    *AdventureContext
@@ -27,20 +24,29 @@ type Agent struct {
 	agentManager    *AgentManager
 	personaMetadata *PersonaMetadata
 	systemGuidance  string // Hidden campaign/session briefing injected into system context
+	// turnUsage aggregates provider usage/cost across the tool loop of one turn.
+	lastTurnUsage llm.Usage
+	// sessionID is the stable per-adventure routing hint sent to OpenRouter.
+	sessionID string
 }
 
-// mainAgentContextTokenLimit is the local conversation-history budget for the main
-// DM agent. Opus 4.8 exposes a 1M-token context window at standard pricing (no
-// long-context premium), so we keep ~900K of live history before TruncateIfNeeded
-// drops the oldest turns — leaving headroom for the system prompt, tool schemas,
-// and output within the 1M window.
+// mainAgentContextTokenLimit is the local estimated-history budget for the main
+// DM agent (Sonnet 5 default). This is a local character-based estimate, not
+// provider tokens; TruncateIfNeeded drops the oldest turns to stay under it.
 const mainAgentContextTokenLimit = 900000
 
-// New creates a new agent with the given configuration.
-func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHandler) (*Agent, error) {
-	if apiKey == "" {
-		return nil, fmt.Errorf("API key is required")
-	}
+// mainAgentMaxOutputTokens is the per-request output budget for the main DM.
+const mainAgentMaxOutputTokens = 32000
+
+// mainAgentMaxToolIterations bounds the streamed tool loop per user turn so a
+// model that keeps requesting tools cannot loop forever.
+const mainAgentMaxToolIterations = 40
+
+// New creates a new agent from the shared OpenRouter configuration.
+// The DM model comes from cfg.ModelDM (Sonnet 5 default; OPENROUTER_MODEL_DM
+// or a future CLI flag overrides it). The persona's legacy `model:` field is
+// metadata only on the migrated runtime and no longer selects the model.
+func New(cfg llm.Config, adventureCtx *AdventureContext, outputHandler OutputHandler) (*Agent, error) {
 	if adventureCtx == nil {
 		return nil, fmt.Errorf("adventure context is required")
 	}
@@ -48,9 +54,27 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		return nil, fmt.Errorf("output handler is required")
 	}
 
-	client := anthropic.NewClient(
-		option.WithAPIKey(apiKey),
-	)
+	client, err := llm.NewOpenRouterClient(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create OpenRouter client: %w", err)
+	}
+	return newWithClient(client, cfg, adventureCtx, outputHandler)
+}
+
+// NewWithClient creates an agent backed by an existing llm.Client (tests inject
+// a fake here). cfg provides the resolved DM model.
+func NewWithClient(client llm.Client, cfg llm.Config, adventureCtx *AdventureContext, outputHandler OutputHandler) (*Agent, error) {
+	if client == nil {
+		return nil, fmt.Errorf("llm client is required")
+	}
+	return newWithClient(client, cfg, adventureCtx, outputHandler)
+}
+
+func newWithClient(client llm.Client, cfg llm.Config, adventureCtx *AdventureContext, outputHandler OutputHandler) (*Agent, error) {
+	model := cfg.ModelDM
+	if model == "" {
+		model = llm.DefaultModelDM
+	}
 
 	// Initialize persona loader
 	personaLoader := NewPersonaLoader()
@@ -68,8 +92,9 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		fmt.Printf("Warning: Could not create logger: %v\n", err)
 	}
 
-	// Initialize agent manager
-	agentManager := NewAgentManager(apiKey, adventureCtx, logger, outputHandler, personaLoader)
+	// Initialize agent manager: nested agents share the main agent's neutral
+	// client and per-agent model resolution from the same config.
+	agentManager := NewAgentManager(client, cfg, adventureCtx, logger, outputHandler, personaLoader)
 
 	// Initialize tool registry with adventure context
 	toolRegistry := NewToolRegistry(adventureCtx)
@@ -85,10 +110,8 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 	conversationCtx := NewConversationContextWithLimit(mainAgentContextTokenLimit)
 
 	agent := &Agent{
-		client: client,
-		// Honor the persona's declared model (dungeon-master = "opus" → Opus 4.8)
-		// rather than hardcoding Sonnet. SetModel can still override at runtime.
-		model:           MapPersonaModelToAnthropic(personaMetadata.Model),
+		client:          client,
+		model:           model,
 		toolRegistry:    toolRegistry,
 		conversationCtx: conversationCtx,
 		adventureCtx:    adventureCtx,
@@ -97,6 +120,7 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 		personaLoader:   personaLoader,
 		agentManager:    agentManager,
 		personaMetadata: personaMetadata,
+		sessionID:       fmt.Sprintf("sw-dm-%s", adventureCtx.Adventure.Slug),
 	}
 
 	// Load agent states from previous sessions
@@ -111,6 +135,12 @@ func New(apiKey string, adventureCtx *AdventureContext, outputHandler OutputHand
 
 // ProcessUserMessage processes a user message and returns the agent's response.
 func (a *Agent) ProcessUserMessage(message string) error {
+	return a.ProcessUserMessageContext(context.Background(), message)
+}
+
+// ProcessUserMessageContext processes a user message with cancellation support.
+// ctx bounds the whole turn: generation and every tool-loop iteration.
+func (a *Agent) ProcessUserMessageContext(ctx context.Context, message string) error {
 	// Log user message
 	if a.logger != nil {
 		a.logger.LogUserMessage(message)
@@ -118,7 +148,7 @@ func (a *Agent) ProcessUserMessage(message string) error {
 
 	// === SESSION GUARD-RAIL ===
 	// A player message must never be processed outside an active session, or its
-	// log_event entries leak into journal-session-0 (see CLAUDE.md). start_session
+	// log_event entries leak into journal-session-0 (see AGENTS.md). start_session
 	// is otherwise purely LLM-discretionary, and the DM may skip it on resume — so
 	// we enforce it deterministically here, at the common chokepoint for sw-web and
 	// sw-dm. This reuses the exact start_session tool logic (StartSession + coherence
@@ -134,37 +164,60 @@ func (a *Agent) ProcessUserMessage(message string) error {
 		return fmt.Errorf("failed to build system prompt: %w", err)
 	}
 
-	// Prepare messages for API call
-	messages := a.conversationCtx.GetMessages()
-
-	// Temporary wire conversion until Phase 4 switches the main loop to llm.Client.
 	definitions, err := a.toolRegistry.ToolDefinitions()
 	if err != nil {
 		return fmt.Errorf("prepare tool definitions: %w", err)
 	}
-	toolsParam, err := llm.LegacyAnthropicToolParams(definitions)
-	if err != nil {
-		return fmt.Errorf("prepare Anthropic tool compatibility: %w", err)
-	}
 
-	// Call API with streaming and tools in a loop
-	for {
-		toolUses, assistantContent, err := a.callAnthropicAPI(systemPrompt, messages, toolsParam)
+	// Bounded streamed tool loop.
+	for iteration := 0; iteration < mainAgentMaxToolIterations; iteration++ {
+		resp, err := a.callLLM(ctx, systemPrompt, definitions)
 		if err != nil {
 			if a.logger != nil {
 				a.logger.LogError("API call", err)
 			}
+			// Do not commit partial assistant/tool-call history and never retry
+			// after observable output: side effects of executed tools are kept,
+			// but this turn is not replayed automatically.
 			return fmt.Errorf("API call failed: %w", err)
 		}
+		a.aggregateUsage(resp)
+
+		assistantContent := resp.Message.Text
+		toolUses := toolUsesFromCalls(resp.Message.ToolCalls)
 
 		// Log assistant content if present
 		if a.logger != nil && assistantContent != "" {
 			a.logger.LogAssistantResponse(assistantContent)
 		}
 
-		// If no tool uses, we're done
+		// Handle every finish reason explicitly. Incomplete finishes end the
+		// turn without committing partial assistant history.
+		switch resp.FinishReason {
+		case llm.FinishLength, llm.FinishContentFilter, llm.FinishError:
+			err := fmt.Errorf("generation ended with finish reason %q", resp.FinishReason)
+			if a.logger != nil {
+				a.logger.LogError("API call", err)
+			}
+			a.outputHandler.OnError(err)
+			a.outputHandler.OnComplete()
+			a.saveAgentStates()
+			return nil
+		case llm.FinishStop, llm.FinishToolCalls, llm.FinishNone:
+			// Normal completion paths, handled below.
+		default:
+			err := fmt.Errorf("generation ended with unexpected finish reason %q", resp.FinishReason)
+			if a.logger != nil {
+				a.logger.LogError("API call", err)
+			}
+			a.outputHandler.OnError(err)
+			a.outputHandler.OnComplete()
+			a.saveAgentStates()
+			return nil
+		}
+
+		// No tool calls: the turn is complete.
 		if len(toolUses) == 0 {
-			// Add assistant response to conversation history
 			a.conversationCtx.AddAssistantMessage(assistantContent)
 			a.outputHandler.OnComplete()
 
@@ -183,11 +236,61 @@ func (a *Agent) ProcessUserMessage(message string) error {
 		// Add tool results to conversation
 		a.conversationCtx.AddToolResults(toolResults)
 
-		// Update messages for next iteration
-		messages = a.conversationCtx.GetMessages()
-
 		// Continue loop to get final response with tool results
 	}
+
+	err = fmt.Errorf("tool loop exceeded %d iterations", mainAgentMaxToolIterations)
+	if a.logger != nil {
+		a.logger.LogError("API call", err)
+	}
+	a.outputHandler.OnError(err)
+	a.outputHandler.OnComplete()
+	return nil
+}
+
+// toolUsesFromCalls converts neutral streamed tool calls to executable ToolUses.
+func toolUsesFromCalls(calls []llm.ToolCall) []ToolUse {
+	if len(calls) == 0 {
+		return nil
+	}
+	toolUses := make([]ToolUse, 0, len(calls))
+	for _, call := range calls {
+		var input map[string]interface{}
+		if len(call.Arguments) > 0 {
+			if err := json.Unmarshal(call.Arguments, &input); err != nil {
+				input = map[string]interface{}{}
+			}
+		}
+		toolUses = append(toolUses, ToolUse{ID: call.ID, Name: call.Name, Input: input})
+	}
+	return toolUses
+}
+
+// aggregateUsage accumulates provider usage/cost across the tool loop of a turn.
+func (a *Agent) aggregateUsage(resp llm.Response) {
+	u := resp.Usage
+	if !u.Present {
+		return
+	}
+	a.lastTurnUsage.PromptTokens += u.PromptTokens
+	a.lastTurnUsage.CompletionTokens += u.CompletionTokens
+	a.lastTurnUsage.TotalTokens += u.TotalTokens
+	a.lastTurnUsage.CachedTokens += u.CachedTokens
+	a.lastTurnUsage.CacheWriteTokens += u.CacheWriteTokens
+	a.lastTurnUsage.ReasoningTokens += u.ReasoningTokens
+	a.lastTurnUsage.Cost += u.Cost
+	a.lastTurnUsage.Present = true
+	if a.logger != nil {
+		a.logger.LogInfo(fmt.Sprintf(
+			"turn usage so far: prompt=%d completion=%d cached=%d cost=%.6f (routed model=%s, generation=%s)",
+			a.lastTurnUsage.PromptTokens, a.lastTurnUsage.CompletionTokens, a.lastTurnUsage.CachedTokens,
+			a.lastTurnUsage.Cost, resp.Model, resp.ID))
+	}
+}
+
+// LastTurnUsage returns aggregated usage for the most recent turn.
+func (a *Agent) LastTurnUsage() llm.Usage {
+	return a.lastTurnUsage
 }
 
 // ensureSessionStarted is the deterministic session guard-rail. If no game session
@@ -366,10 +469,19 @@ func (a *Agent) ClearSystemGuidance() {
 	a.systemGuidance = ""
 }
 
-// callAnthropicAPI calls the Anthropic API with streaming and returns tool uses if any.
-func (a *Agent) callAnthropicAPI(systemPrompt string, messages []anthropic.MessageParam, tools []anthropic.ToolUnionParam) ([]ToolUse, string, error) {
+// dmStreamObserver forwards streamed text deltas to the output handler.
+type dmStreamObserver struct {
+	handler OutputHandler
+}
+
+func (o dmStreamObserver) OnTextDelta(text string) {
+	o.handler.OnTextChunk(text)
+}
+
+// callLLM performs one streamed provider turn over the neutral boundary.
+func (a *Agent) callLLM(ctx context.Context, systemPrompt string, definitions []llm.ToolDefinition) (llm.Response, error) {
 	// Log system prompt to file (only on first call)
-	if len(a.conversationCtx.GetMessages()) == 1 {
+	if len(a.conversationCtx.NeutralMessages()) == 1 {
 		if err := os.WriteFile("system-prompt.log", []byte(systemPrompt), 0644); err != nil {
 			// Non-fatal: just log to stderr
 			fmt.Fprintf(os.Stderr, "Warning: Could not write system prompt to log: %v\n", err)
@@ -378,31 +490,22 @@ func (a *Agent) callAnthropicAPI(systemPrompt string, messages []anthropic.Messa
 
 	// Log model being used for this API call
 	if a.logger != nil {
-		a.logger.LogInfo(fmt.Sprintf("API call using model: %s", GetModelDisplayName(a.model)))
+		a.logger.LogInfo(fmt.Sprintf("API call using model: %s", llm.DisplayName(a.model)))
 	}
 
-	// Create streaming message
-	stream := a.client.Messages.NewStreaming(context.Background(), anthropic.MessageNewParams{
-		Model:     a.model,
-		MaxTokens: 32000, // Opus 4.8 output budget (streaming; well under the 128K cap)
-		System: []anthropic.TextBlockParam{
-			{
-				Type: "text",
-				Text: systemPrompt,
-			},
-		},
-		Messages: messages,
-		Tools:    tools,
-	})
-
-	// Process streaming events
-	streamHandler := NewStreamHandler(a.outputHandler)
-	toolUses, assistantContent, err := streamHandler.ProcessStream(stream)
-	if err != nil {
-		return nil, "", fmt.Errorf("stream processing failed: %w", err)
+	req := llm.Request{
+		Model:               a.model,
+		System:              systemPrompt,
+		Messages:            a.conversationCtx.NeutralMessages(),
+		Tools:               definitions,
+		MaxCompletionTokens: mainAgentMaxOutputTokens,
+		SessionID:           a.sessionID,
+		// Tools must not be silently dropped by endpoints that do not support
+		// them; fail routing loudly instead.
+		RequireParameters: len(definitions) > 0,
 	}
 
-	return toolUses, assistantContent, nil
+	return a.client.Stream(ctx, req, dmStreamObserver{handler: a.outputHandler})
 }
 
 // executeTools executes all tool uses and returns the results.
@@ -620,17 +723,23 @@ func (a *Agent) saveAgentStates() {
 	}
 }
 
-// SetModel changes the model used by the agent for API calls.
-func (a *Agent) SetModel(model anthropic.Model) {
-	oldModel := a.model
-	a.model = model
-	if a.logger != nil {
-		a.logger.LogInfo(fmt.Sprintf("Model changed: %s -> %s", GetModelDisplayName(oldModel), GetModelDisplayName(model)))
+// SetModel changes the model used by the agent for API calls. The value must
+// be an OpenRouter model ID or a sonnet/haiku/opus alias.
+func (a *Agent) SetModel(model string) error {
+	resolved, err := llm.ParseModelChoice(model)
+	if err != nil {
+		return fmt.Errorf("invalid model selection: %w", err)
 	}
+	oldModel := a.model
+	a.model = resolved
+	if a.logger != nil {
+		a.logger.LogInfo(fmt.Sprintf("Model changed: %s -> %s", llm.DisplayName(oldModel), llm.DisplayName(resolved)))
+	}
+	return nil
 }
 
 // GetModel returns the current model used by the agent.
-func (a *Agent) GetModel() anthropic.Model {
+func (a *Agent) GetModel() string {
 	return a.model
 }
 

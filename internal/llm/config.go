@@ -172,8 +172,16 @@ func DefaultModels() Config {
 	return Config{
 		ModelDM:       DefaultModelDM,
 		ModelNested:   DefaultModelNested,
+		AgentModels:   make(map[string]string),
 		ModelFast:     DefaultModelFast,
 		ModelCampaign: DefaultModelCampaign,
 		ModelAdvisor:  DefaultModelAdvisor,
 	}
+}
+
+// LegacyAnthropicKey returns the pre-migration key for runtime paths that have
+// not been migrated to llm.Client yet (nested agents until Phase 5, utilities
+// until Phase 7). It must disappear with Phase 12.
+func (cfg Config) LegacyAnthropicKey() string {
+	return strings.TrimSpace(os.Getenv("ANTHROPIC_API_KEY"))
 }

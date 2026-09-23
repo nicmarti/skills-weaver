@@ -273,6 +273,32 @@ func TestComplete_SendsNeutralWireFormat(t *testing.T) {
 	}
 }
 
+func TestChatRequest_RequireParameters(t *testing.T) {
+	req, err := buildChatRequest(Request{
+		Model:             ModelSonnet5,
+		Messages:          []Message{UserMessage("test")},
+		RequireParameters: true,
+	}, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := json.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded map[string]interface{}
+	if err := json.Unmarshal(body, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	provider, ok := decoded["provider"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected provider field in request: %s", string(body))
+	}
+	if reqParam, ok := provider["require_parameters"].(bool); !ok || !reqParam {
+		t.Errorf("require_parameters = %v, want true", provider["require_parameters"])
+	}
+}
+
 func TestChatRequest_PersistedImageReferenceWithoutBytesIsTextOnly(t *testing.T) {
 	req, err := buildChatRequest(Request{
 		Model: ModelSonnet5,

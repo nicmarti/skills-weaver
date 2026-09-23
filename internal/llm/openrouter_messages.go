@@ -34,6 +34,11 @@ func buildChatRequest(req Request, stream bool) (components.ChatRequest, error) 
 	if req.SessionID != "" {
 		chatReq.SessionID = oropenrouter.String(req.SessionID)
 	}
+	if req.RequireParameters {
+		chatReq.Provider = optionalnullable.From(oropenrouter.Pointer(components.ProviderPreferences{
+			RequireParameters: optionalnullable.From(oropenrouter.Bool(true)),
+		}))
+	}
 
 	tools := toolsToChat(req)
 	if len(tools) > 0 {

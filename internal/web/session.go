@@ -8,6 +8,7 @@ import (
 
 	"dungeons/internal/agent"
 	"dungeons/internal/ambient"
+	"dungeons/internal/llm"
 )
 
 const (
@@ -137,6 +138,10 @@ type Session struct {
 	LastActivity   time.Time
 	mu             sync.Mutex
 	processing     bool
+	// turnCtx bounds the in-flight DM turn; cancelled when the session is
+	// removed so provider streaming stops instead of running to completion.
+	turnCtx    context.Context
+	cancelTurn context.CancelFunc
 }
 
 // SessionManager manages game sessions, one per adventure.
@@ -144,16 +149,16 @@ type SessionManager struct {
 	sessions map[string]*Session
 	mu       sync.RWMutex
 	ttl      time.Duration
-	apiKey   string
+	llmCfg   llm.Config
 	stopCh   chan struct{}
 }
 
 // NewSessionManager creates a new session manager.
-func NewSessionManager(apiKey string) *SessionManager {
+func NewSessionManager(llmCfg llm.Config) *SessionManager {
 	sm := &SessionManager{
 		sessions: make(map[string]*Session),
 		ttl:      SessionTTL,
-		apiKey:   apiKey,
+		llmCfg:   llmCfg,
 		stopCh:   make(chan struct{}),
 	}
 	go sm.cleanupLoop()
@@ -193,7 +198,7 @@ func (sm *SessionManager) createSession(slug string) (*Session, error) {
 	outputRedirect := NewOutputRedirector()
 
 	// Create agent with the redirector as output handler
-	dmAgent, err := agent.New(sm.apiKey, adventureCtx, outputRedirect)
+	dmAgent, err := agent.New(sm.llmCfg, adventureCtx, outputRedirect)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create agent: %w", err)
 	}
@@ -204,6 +209,7 @@ func (sm *SessionManager) createSession(slug string) (*Session, error) {
 		AdventureCtx:   adventureCtx,
 		outputRedirect: outputRedirect,
 		LastActivity:   time.Now(),
+		turnCtx:        context.Background(),
 	}, nil
 }
 
@@ -223,12 +229,7 @@ func (sm *SessionManager) RemoveSession(slug string) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	if session, exists := sm.sessions[slug]; exists {
-		if output := session.outputRedirect.GetTarget(); output != nil {
-			output.Close()
-		}
-		if session.LyriaManager != nil {
-			session.LyriaManager.Stop()
-		}
+		sm.disposeSession(session)
 		delete(sm.sessions, slug)
 	}
 }
@@ -256,15 +257,26 @@ func (sm *SessionManager) cleanupExpired() {
 	now := time.Now()
 	for slug, session := range sm.sessions {
 		if now.Sub(session.LastActivity) > sm.ttl {
-			if output := session.outputRedirect.GetTarget(); output != nil {
-				output.Close()
-			}
-			if session.LyriaManager != nil {
-				session.LyriaManager.Stop()
-			}
+			sm.disposeSession(session)
 			delete(sm.sessions, slug)
 		}
 	}
+}
+
+// disposeSession releases a session's resources: closes the SSE output, stops
+// ambient music and cancels any in-flight DM turn. Callers hold sm.mu.
+func (sm *SessionManager) disposeSession(session *Session) {
+	if output := session.outputRedirect.GetTarget(); output != nil {
+		output.Close()
+	}
+	if session.LyriaManager != nil {
+		session.LyriaManager.Stop()
+	}
+	session.mu.Lock()
+	if session.cancelTurn != nil {
+		session.cancelTurn()
+	}
+	session.mu.Unlock()
 }
 
 // Stop stops the session manager cleanup loop.
@@ -352,6 +364,12 @@ func (s *Session) ProcessMessage(message string) (*WebOutput, error) {
 	// Create new WebOutput for this message
 	output := NewWebOutput()
 	s.outputRedirect.SetTarget(output)
+
+	// The turn context is independent from the POST request (which returns
+	// before generation finishes) and is cancelled by RemoveSession.
+	ctx, cancel := context.WithCancel(context.Background())
+	s.turnCtx = ctx
+	s.cancelTurn = cancel
 	s.mu.Unlock()
 
 	// Process in goroutine so caller can start reading events immediately
@@ -359,10 +377,12 @@ func (s *Session) ProcessMessage(message string) (*WebOutput, error) {
 		defer func() {
 			s.mu.Lock()
 			s.processing = false
+			s.cancelTurn = nil
 			s.mu.Unlock()
+			cancel()
 		}()
 
-		if err := s.Agent.ProcessUserMessage(message); err != nil {
+		if err := s.Agent.ProcessUserMessageContext(ctx, message); err != nil {
 			output.OnError(err)
 		}
 		// Output.OnComplete() is called by the agent

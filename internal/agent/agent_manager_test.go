@@ -8,6 +8,7 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
+	"dungeons/internal/llm"
 )
 
 // TestAgentManager_ValidAgentNames tests that only valid agents are accepted.
@@ -404,7 +405,8 @@ func setupAgentManagerWithDir(t *testing.T, tmpDir string) (*AgentManager, func(
 	personaLoader := NewPersonaLoader()
 
 	am := NewAgentManager(
-		"test-api-key",
+		newNestedFakeClient(),
+		llm.DefaultModels(),
 		adventureCtx,
 		nil, // no logger
 		nil, // no output handler

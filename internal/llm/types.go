@@ -108,6 +108,7 @@ type Request struct {
 	Temperature         *float64
 	SessionID           string
 	Advisor             *AdvisorConfig
+	RequireParameters   bool
 }
 
 // FinishReason classifies why a generation ended.

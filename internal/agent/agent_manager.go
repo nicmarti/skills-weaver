@@ -1,70 +1,29 @@
-// Package agent implements the Dungeon Master agent loop using Anthropic API.
+// Package agent implements the Dungeon Master agent and nested-agent orchestration.
 package agent
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
 	"time"
 
 	"dungeons/internal/llm"
-
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
-// ClientFactory is a function type that creates an Anthropic client.
-// This allows for dependency injection of mock clients in tests.
-type ClientFactory func(apiKey string) anthropicClient
-
-// anthropicClient is an interface that matches the Anthropic client's Messages service.
-type anthropicClient interface {
-	GetMessages() messagesService
-}
-
-// messagesService is an interface for the Messages.New method.
-// NewBeta exposes the beta Messages API, required for the Advisor tool.
-type messagesService interface {
-	New(ctx context.Context, params anthropic.MessageNewParams, opts ...option.RequestOption) (*anthropic.Message, error)
-	NewBeta(ctx context.Context, params anthropic.BetaMessageNewParams, opts ...option.RequestOption) (*anthropic.BetaMessage, error)
-}
-
-// realAnthropicClient wraps the real Anthropic SDK client.
-type realAnthropicClient struct {
-	client anthropic.Client
-}
-
-func (r *realAnthropicClient) GetMessages() messagesService {
-	return &realMessagesService{client: r.client}
-}
-
-// realMessagesService bridges the standard and beta Messages APIs behind the
-// messagesService interface so nested agents can opt into the Advisor tool.
-type realMessagesService struct {
-	client anthropic.Client
-}
-
-func (s *realMessagesService) New(ctx context.Context, params anthropic.MessageNewParams, opts ...option.RequestOption) (*anthropic.Message, error) {
-	return s.client.Messages.New(ctx, params, opts...)
-}
-
-func (s *realMessagesService) NewBeta(ctx context.Context, params anthropic.BetaMessageNewParams, opts ...option.RequestOption) (*anthropic.BetaMessage, error) {
-	return s.client.Beta.Messages.New(ctx, params, opts...)
-}
-
 // AgentManager manages multiple nested agent instances with stateful conversation contexts.
+// All nested agents run on the shared provider-neutral llm.Client (OpenRouter
+// Chat); per-agent models resolve from llm.Config.ModelForAgent.
 type AgentManager struct {
 	nestedAgents     map[string]*NestedAgentState
-	anthropicKey     string
+	client           llm.Client
+	llmCfg           llm.Config
 	adventureCtx     *AdventureContext
 	logger           *Logger
 	outputHandler    OutputHandler
 	personaLoader    *PersonaLoader
 	mainToolRegistry *ToolRegistry   // Main agent's tool registry, used to create filtered registries
 	maxDepth         int             // Maximum nesting depth (always 1 for now)
-	clientFactory    ClientFactory   // Factory for creating Anthropic clients (allows mocking)
 	worldResources   *WorldResources // World map description + image for world-keeper
 }
 
@@ -77,15 +36,12 @@ type NestedAgentState struct {
 	conversationCtx *ConversationContext
 	lastInvoked     time.Time
 	invocationCount int
-	client          anthropicClient // Changed to interface for testability
+	client          llm.Client
 	tokenLimit      int
 	metrics         *AgentMetrics
-	model           anthropic.Model                        // Model to use for this agent (from persona)
-	toolRegistry    *ToolRegistry                          // Filtered tool registry for this agent
-	toolPolicy      *ToolAccessPolicy                      // Tool access policy for this agent
-	advisorModel    anthropic.Model                        // Advisor model (empty = advisor disabled)
-	advisorMaxUses  int                                    // Max advisor calls per request
-	advisorCaching  anthropic.BetaCacheControlEphemeralTTL // Advisor prompt cache TTL ("" = off)
+	model           string           // Resolved OpenRouter model ID for this agent
+	toolRegistry    *ToolRegistry    // Filtered tool registry for this agent
+	toolPolicy      *ToolAccessPolicy // Tool access policy for this agent
 }
 
 // AgentMetrics tracks performance metrics for an agent.
@@ -99,25 +55,30 @@ type AgentMetrics struct {
 	ModelUsed            string        `json:"model_used"`
 	LastCallTokens       int64         `json:"last_call_tokens"`
 	LastCallDuration     time.Duration `json:"last_call_duration"`
-	// Advisor tool metrics (billed at the advisor model's rates, tracked
-	// separately from executor tokens above).
+	// Advisor tool metrics from the pre-migration Anthropic beta runtime
+	// (historical values stay readable from old agent-states.json files).
 	AdvisorCalls               int64  `json:"advisor_calls,omitempty"`
 	AdvisorInputTokens         int64  `json:"advisor_input_tokens,omitempty"`
 	AdvisorOutputTokens        int64  `json:"advisor_output_tokens,omitempty"`
 	AdvisorCacheCreationTokens int64  `json:"advisor_cache_creation_tokens,omitempty"`
 	AdvisorCacheReadTokens     int64  `json:"advisor_cache_read_tokens,omitempty"`
 	AdvisorModelUsed           string `json:"advisor_model_used,omitempty"`
+	// OpenRouter aggregate metrics (new in Phase 5). These are aggregate
+	// request-scoped values; provider sub-calls such as server tools are not
+	// separable here, unlike the historical Advisor fields above.
+	RequestedModel   string  `json:"requested_model,omitempty"`
+	RoutedModel      string  `json:"routed_model,omitempty"`
+	TotalCost        float64 `json:"total_cost,omitempty"`
+	CachedTokens     int64   `json:"cached_tokens,omitempty"`
+	CacheWriteTokens int64   `json:"cache_write_tokens,omitempty"`
+	ReasoningTokens  int64   `json:"reasoning_tokens,omitempty"`
 }
 
-// defaultClientFactory creates a real Anthropic client.
-func defaultClientFactory(apiKey string) anthropicClient {
-	client := anthropic.NewClient(option.WithAPIKey(apiKey))
-	return &realAnthropicClient{client: client}
-}
-
-// NewAgentManager creates a new AgentManager for managing nested agents.
+// NewAgentManager creates a new AgentManager for managing nested agents on the
+// given shared neutral client. cfg provides per-agent model resolution.
 func NewAgentManager(
-	apiKey string,
+	client llm.Client,
+	cfg llm.Config,
 	adventureCtx *AdventureContext,
 	logger *Logger,
 	outputHandler OutputHandler,
@@ -125,14 +86,14 @@ func NewAgentManager(
 ) *AgentManager {
 	return &AgentManager{
 		nestedAgents:     make(map[string]*NestedAgentState),
-		anthropicKey:     apiKey,
+		client:           client,
+		llmCfg:           cfg,
 		adventureCtx:     adventureCtx,
 		logger:           logger,
 		outputHandler:    outputHandler,
 		personaLoader:    personaLoader,
-		mainToolRegistry: nil,                  // Will be set via SetMainToolRegistry
-		maxDepth:         1,                    // Nested agents cannot invoke other agents
-		clientFactory:    defaultClientFactory, // Use real client by default
+		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
+		maxDepth:         1,   // Nested agents cannot invoke other agents
 		worldResources:   LoadWorldResources(),
 	}
 }
@@ -147,9 +108,13 @@ func (am *AgentManager) SetMainToolRegistry(registry *ToolRegistry) {
 // wired, so nested agents get their policy-filtered read-only tools (the same
 // setup the main DM loop uses). Useful for tooling that invokes a nested agent
 // outside the main loop (e.g. the advisor A/B harness).
-func NewAgentManagerWithTools(apiKey string, adventureCtx *AdventureContext, logger *Logger, outputHandler OutputHandler) (*AgentManager, error) {
+func NewAgentManagerWithTools(cfg llm.Config, adventureCtx *AdventureContext, logger *Logger, outputHandler OutputHandler) (*AgentManager, error) {
+	client, err := llm.NewOpenRouterClient(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create OpenRouter client: %w", err)
+	}
 	personaLoader := NewPersonaLoader()
-	am := NewAgentManager(apiKey, adventureCtx, logger, outputHandler, personaLoader)
+	am := NewAgentManager(client, cfg, adventureCtx, logger, outputHandler, personaLoader)
 	registry := NewToolRegistry(adventureCtx)
 	if err := registerAllTools(registry, "data", adventureCtx.Adventure, am, outputHandler); err != nil {
 		return nil, fmt.Errorf("failed to register tools: %w", err)
@@ -158,33 +123,51 @@ func NewAgentManagerWithTools(apiKey string, adventureCtx *AdventureContext, log
 	return am, nil
 }
 
-// NewAgentManagerWithClientFactory creates an AgentManager with a custom client factory.
-// This is primarily used for testing with mock clients.
-func NewAgentManagerWithClientFactory(
-	apiKey string,
-	adventureCtx *AdventureContext,
-	logger *Logger,
-	outputHandler OutputHandler,
-	personaLoader *PersonaLoader,
-	clientFactory ClientFactory,
-) *AgentManager {
-	return &AgentManager{
-		nestedAgents:     make(map[string]*NestedAgentState),
-		anthropicKey:     apiKey,
-		adventureCtx:     adventureCtx,
-		logger:           logger,
-		outputHandler:    outputHandler,
-		personaLoader:    personaLoader,
-		mainToolRegistry: nil, // Will be set via SetMainToolRegistry
-		maxDepth:         1,
-		clientFactory:    clientFactory,
-		worldResources:   LoadWorldResources(),
+// nestedAgentTokenLimit is the live estimated-history budget per nested agent.
+const nestedAgentTokenLimit = 20000
+
+// nestedAgentMaxOutputTokens bounds each nested provider call's output.
+const nestedAgentMaxOutputTokens = 4096
+
+// nestedSupportsImageInput reports whether the resolved model is known to
+// accept image input. The check is deliberately conservative: Claude-family
+// OpenRouter models are known-good; any other provider/model is assumed
+// text-only so World Keeper degrades to its text map description rather than
+// sending an invalid image payload. The model is never silently swapped.
+func nestedSupportsImageInput(model string) bool {
+	return strings.HasPrefix(strings.ToLower(model), "anthropic/") ||
+		strings.EqualFold(model, "openrouter/auto")
+}
+
+// stripImages returns the messages without base64 image payloads, preserving
+// text (the text-only-map fallback for image-incapable models).
+func stripImages(messages []llm.Message) []llm.Message {
+	stripped := make([]llm.Message, 0, len(messages))
+	changed := false
+	for _, msg := range messages {
+		if len(msg.Images) == 0 {
+			stripped = append(stripped, msg)
+			continue
+		}
+		if msg.Text == "" {
+			// Nothing textual remains; skip the image-only message entirely.
+			changed = true
+			continue
+		}
+		clone := msg
+		clone.Images = nil
+		stripped = append(stripped, clone)
+		changed = true
 	}
+	if !changed {
+		return messages
+	}
+	return stripped
 }
 
 // InvokeAgent invokes a specialized agent with a question and optional context.
-// The agent runs with its own tool loop (up to MaxIterations from policy) and
-// uses the model specified in its persona.
+// The agent runs its own bounded tool loop (up to MaxIterations from policy) on
+// the shared neutral client, with its model resolved from llm.Config.
 // Returns the agent's response or an error.
 func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, depth int) (string, error) {
 	startTime := time.Now()
@@ -239,137 +222,63 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 		maxIterations = nestedAgent.toolPolicy.MaxIterations
 	}
 
-	// Prepare tools (may be nil if agent has no tools)
-	var toolsParam []anthropic.ToolUnionParam
-	hasTools := nestedAgent.toolRegistry != nil && nestedAgent.toolRegistry.Count() > 0
+	// Prepare filtered read-only tools
 	var definitions []llm.ToolDefinition
+	hasTools := nestedAgent.toolRegistry != nil && nestedAgent.toolRegistry.Count() > 0
 	if hasTools {
 		definitions, err = nestedAgent.toolRegistry.ToolDefinitions()
 		if err != nil {
 			return "", fmt.Errorf("prepare %s tool definitions: %w", agentName, err)
 		}
-		toolsParam, err = llm.LegacyAnthropicToolParams(definitions)
-		if err != nil {
-			return "", fmt.Errorf("prepare %s Anthropic tools: %w", agentName, err)
-		}
 	}
 
-	// Advisor-enabled agents run the loop through the beta Messages API with the
-	// Advisor tool alongside their read-only tools.
-	useAdvisor := nestedAgent.advisorModel != ""
-	var betaToolsParam []anthropic.BetaToolUnionParam
-	if useAdvisor {
-		if hasTools {
-			betaToolsParam, err = llm.LegacyAnthropicBetaToolParams(definitions)
-			if err != nil {
-				return "", fmt.Errorf("prepare %s beta tools: %w", agentName, err)
-			}
-		}
-		betaToolsParam = append(betaToolsParam, advisorToolParam(nestedAgent))
-	}
-
-	// Create API call context with timeout
-	// Use 80 seconds (1m20s) to give nested agents more time for complex queries
+	// Create API call context with timeout (preserved from the pre-migration loop)
 	const invocationTimeout = 120 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 
 	var finalResponseText string
-	var totalInputTokens, totalOutputTokens int64
-	// Advisor accumulators (folded into metrics after the loop).
-	var advInTokens, advOutTokens, advisorCallCount int64
-	var advCacheCreate, advCacheRead int64
-	var advisorModelUsed string
+	var aggregate llm.Usage
+	aggregate.Present = true
 
-	// Agent loop with tool execution
+	// Bounded agent loop with tool execution
 	for iteration := 0; iteration < maxIterations; iteration++ {
-		var textContent string
-		var toolUses []ToolUse
+		req := llm.Request{
+			Model:               nestedAgent.model,
+			System:              systemPrompt,
+			Messages:            nestedAgent.conversationCtx.NeutralMessages(),
+			MaxCompletionTokens: nestedAgentMaxOutputTokens,
+		}
+		if hasTools {
+			req.Tools = definitions
+			// Tools must not be silently dropped by endpoints that don't support them.
+			req.RequireParameters = true
+		}
+		req.Messages = am.adaptMessagesForModel(nestedAgent, req.Messages)
 
-		if useAdvisor {
-			// Beta path: Advisor tool resolves server-side; client tools loop.
-			res, callErr := am.doBetaCall(ctx, nestedAgent, systemPrompt, betaToolsParam)
-			if callErr != nil {
-				if ctx.Err() == context.DeadlineExceeded {
-					return "", &ErrAgentTimeout{AgentName: agentName, Timeout: invocationTimeout}
-				}
-				return "", &AgentError{AgentName: agentName, Operation: "API call (advisor)", Err: callErr}
+		resp, callErr := am.client.Complete(ctx, req)
+		if callErr != nil {
+			if ctx.Err() == context.DeadlineExceeded {
+				return "", &ErrAgentTimeout{AgentName: agentName, Timeout: invocationTimeout}
 			}
-			textContent = res.text
-			toolUses = res.toolUses
-			totalInputTokens += res.execInTokens
-			totalOutputTokens += res.execOutTokens
-			if res.advisorCalled {
-				advisorCallCount++
-				advInTokens += res.advInTokens
-				advOutTokens += res.advOutTokens
-				advCacheCreate += res.advCacheCreate
-				advCacheRead += res.advCacheRead
-				if res.advisorModel != "" {
-					advisorModelUsed = res.advisorModel
-				}
-			}
-			if res.advisorErr != "" && am.logger != nil {
-				am.logger.LogInfo(fmt.Sprintf("[%s] Advisor error (continuing): %s", agentName, res.advisorErr))
-			}
-		} else {
-			// Standard path.
-			params := anthropic.MessageNewParams{
-				Model:     nestedAgent.model,
-				MaxTokens: 4096,
-				System: []anthropic.TextBlockParam{
-					{
-						Type: "text",
-						Text: systemPrompt,
-					},
-				},
-				Messages: nestedAgent.conversationCtx.GetMessages(),
-			}
+			return "", &AgentError{AgentName: agentName, Operation: "API call", Err: callErr}
+		}
+		am.recordCallMetrics(nestedAgent, resp, &aggregate)
 
-			// Add tools if available
-			if hasTools {
-				params.Tools = toolsParam
-			}
-
-			// Call Anthropic API
-			response, callErr := nestedAgent.client.GetMessages().New(ctx, params)
-			if callErr != nil {
-				if ctx.Err() == context.DeadlineExceeded {
-					return "", &ErrAgentTimeout{
-						AgentName: agentName,
-						Timeout:   invocationTimeout,
-					}
-				}
-				return "", &AgentError{
-					AgentName: agentName,
-					Operation: "API call",
-					Err:       callErr,
-				}
-			}
-
-			// Track tokens
-			totalInputTokens += int64(response.Usage.InputTokens)
-			totalOutputTokens += int64(response.Usage.OutputTokens)
-
-			// Process response content
-			for _, block := range response.Content {
-				switch contentBlock := block.AsAny().(type) {
-				case anthropic.TextBlock:
-					textContent += contentBlock.Text
-				case anthropic.ToolUseBlock:
-					// Parse tool input
-					var input map[string]interface{}
-					if err := json.Unmarshal(contentBlock.Input, &input); err != nil {
-						input = make(map[string]interface{})
-					}
-					toolUses = append(toolUses, ToolUse{
-						ID:    contentBlock.ID,
-						Name:  contentBlock.Name,
-						Input: input,
-					})
-				}
+		// Incomplete finishes abort the invocation without committing partial history.
+		switch resp.FinishReason {
+		case llm.FinishStop, llm.FinishToolCalls, llm.FinishNone:
+			// Normal completion paths.
+		default:
+			return "", &AgentError{
+				AgentName: agentName,
+				Operation: fmt.Sprintf("API call (finish reason %q)", resp.FinishReason),
+				Err:       fmt.Errorf("generation ended with finish reason %q", resp.FinishReason),
 			}
 		}
+
+		toolUses := toolUsesFromCalls(resp.Message.ToolCalls)
+		textContent := resp.Message.Text
 
 		// If no tool uses, we're done
 		if len(toolUses) == 0 {
@@ -401,44 +310,13 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 		return "", fmt.Errorf("agent %s returned empty response after %d iterations", agentName, maxIterations)
 	}
 
-	// Calculate metrics
 	duration := time.Since(startTime)
-	totalTokens := totalInputTokens + totalOutputTokens
-
-	// Update agent state
-	nestedAgent.lastInvoked = time.Now()
-	nestedAgent.invocationCount++
-
-	// Update metrics
-	nestedAgent.metrics.TotalTokensUsed += totalTokens
-	nestedAgent.metrics.TotalInputTokens += totalInputTokens
-	nestedAgent.metrics.TotalOutputTokens += totalOutputTokens
-	nestedAgent.metrics.TotalResponseTime += duration
-	nestedAgent.metrics.LastCallTokens = totalTokens
-	nestedAgent.metrics.LastCallDuration = duration
-
-	// Fold advisor metrics (Opus-billed, tracked separately from executor tokens).
-	if advisorCallCount > 0 {
-		nestedAgent.metrics.AdvisorCalls += advisorCallCount
-		nestedAgent.metrics.AdvisorInputTokens += advInTokens
-		nestedAgent.metrics.AdvisorOutputTokens += advOutTokens
-		nestedAgent.metrics.AdvisorCacheCreationTokens += advCacheCreate
-		nestedAgent.metrics.AdvisorCacheReadTokens += advCacheRead
-		if advisorModelUsed != "" {
-			nestedAgent.metrics.AdvisorModelUsed = advisorModelUsed
-		}
-	}
-
-	// Calculate averages
-	if nestedAgent.invocationCount > 0 {
-		nestedAgent.metrics.AverageTokensPerCall = nestedAgent.metrics.TotalTokensUsed / int64(nestedAgent.invocationCount)
-		nestedAgent.metrics.AverageResponseTime = nestedAgent.metrics.TotalResponseTime / time.Duration(nestedAgent.invocationCount)
-	}
+	am.finalizeInvocationMetrics(nestedAgent, aggregate, duration)
 
 	// Log the invocation
 	if am.logger != nil {
 		invocationID := fmt.Sprintf("agent_%d", nestedAgent.invocationCount)
-		am.logger.LogAgentInvocation(agentName, invocationID, question, contextInfo, finalResponseText, duration, int(totalTokens))
+		am.logger.LogAgentInvocation(agentName, invocationID, question, contextInfo, finalResponseText, duration, int(aggregate.PromptTokens+aggregate.CompletionTokens))
 	}
 
 	// Notify output handler completion
@@ -447,6 +325,77 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 	}
 
 	return finalResponseText, nil
+}
+
+// adaptMessagesForModel applies the text-only-map fallback for image-incapable
+// models (World Keeper keeps its authoritative textual map description).
+func (am *AgentManager) adaptMessagesForModel(nestedAgent *NestedAgentState, messages []llm.Message) []llm.Message {
+	hasImages := false
+	for _, msg := range messages {
+		for _, img := range msg.Images {
+			if img.Base64 != "" {
+				hasImages = true
+				break
+			}
+		}
+	}
+	if !hasImages || nestedSupportsImageInput(nestedAgent.model) {
+		return messages
+	}
+	if am.logger != nil {
+		am.logger.LogInfo(fmt.Sprintf("[%s] model %q is not known to support images; falling back to the textual map description only",
+			nestedAgent.agentName, nestedAgent.model))
+	}
+	return stripImages(messages)
+}
+
+// recordCallMetrics folds one provider response's usage into the aggregate and
+// the persisted OpenRouter metric fields.
+func (am *AgentManager) recordCallMetrics(nestedAgent *NestedAgentState, resp llm.Response, aggregate *llm.Usage) {
+	if resp.Model != "" {
+		nestedAgent.metrics.RoutedModel = resp.Model
+	}
+	if !resp.Usage.Present {
+		return
+	}
+	aggregate.PromptTokens += resp.Usage.PromptTokens
+	aggregate.CompletionTokens += resp.Usage.CompletionTokens
+	aggregate.TotalTokens += resp.Usage.TotalTokens
+	aggregate.CachedTokens += resp.Usage.CachedTokens
+	aggregate.CacheWriteTokens += resp.Usage.CacheWriteTokens
+	aggregate.ReasoningTokens += resp.Usage.ReasoningTokens
+	aggregate.Cost += resp.Usage.Cost
+	aggregate.Present = true
+
+	nestedAgent.metrics.CachedTokens += resp.Usage.CachedTokens
+	nestedAgent.metrics.CacheWriteTokens += resp.Usage.CacheWriteTokens
+	nestedAgent.metrics.ReasoningTokens += resp.Usage.ReasoningTokens
+	nestedAgent.metrics.TotalCost += resp.Usage.Cost
+}
+
+// finalizeInvocationMetrics folds an invocation's aggregate usage into the
+// persisted metrics and refreshes averages.
+func (am *AgentManager) finalizeInvocationMetrics(nestedAgent *NestedAgentState, aggregate llm.Usage, duration time.Duration) {
+	nestedAgent.lastInvoked = time.Now()
+	nestedAgent.invocationCount++
+
+	if aggregate.Present {
+		totalTokens := aggregate.PromptTokens + aggregate.CompletionTokens
+		if aggregate.TotalTokens > 0 {
+			totalTokens = aggregate.TotalTokens
+		}
+		nestedAgent.metrics.TotalTokensUsed += totalTokens
+		nestedAgent.metrics.TotalInputTokens += aggregate.PromptTokens
+		nestedAgent.metrics.TotalOutputTokens += aggregate.CompletionTokens
+		nestedAgent.metrics.LastCallTokens = totalTokens
+	}
+	nestedAgent.metrics.TotalResponseTime += duration
+	nestedAgent.metrics.LastCallDuration = duration
+
+	if nestedAgent.invocationCount > 0 {
+		nestedAgent.metrics.AverageTokensPerCall = nestedAgent.metrics.TotalTokensUsed / int64(nestedAgent.invocationCount)
+		nestedAgent.metrics.AverageResponseTime = nestedAgent.metrics.TotalResponseTime / time.Duration(nestedAgent.invocationCount)
+	}
 }
 
 // executeNestedAgentTools executes tools for a nested agent and returns results.
@@ -514,7 +463,7 @@ func (am *AgentManager) executeNestedAgentTools(agent *NestedAgentState, toolUse
 // InvokeAgentSilent invokes a specialized agent and returns response without extensive logging.
 // This is used for pre-session briefings where the full response should not be visible to players.
 // The response is intended to be injected into system context only.
-// Unlike InvokeAgent, this version uses a single API call without tool loop for faster responses.
+// Unlike InvokeAgent, this version uses a single API call without tools for faster responses.
 func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int) (string, error) {
 	startTime := time.Now()
 
@@ -559,105 +508,40 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 	ctx, cancel := context.WithTimeout(context.Background(), invocationTimeout)
 	defer cancel()
 
-	var responseText string
-	var duration time.Duration
-
-	if nestedAgent.advisorModel != "" {
-		// Advisor-enabled path: single beta Messages call with the Advisor tool.
-		// The advisor resolves server-side within this one call.
-		res, callErr := am.callWithAdvisor(ctx, nestedAgent, systemPrompt)
-		if callErr != nil {
-			if ctx.Err() == context.DeadlineExceeded {
-				return "", &ErrAgentTimeout{AgentName: agentName, Timeout: invocationTimeout}
-			}
-			return "", &AgentError{AgentName: agentName, Operation: "API call (silent+advisor)", Err: callErr}
+	// Single neutral call with NO TOOLS (faster, simpler). The native
+	// OpenRouter advisor server tool is Phase 6 work and stays off here.
+	resp, callErr := am.client.Complete(ctx, llm.Request{
+		Model:               nestedAgent.model,
+		System:              systemPrompt,
+		Messages:            am.adaptMessagesForModel(nestedAgent, nestedAgent.conversationCtx.NeutralMessages()),
+		MaxCompletionTokens:  nestedAgentMaxOutputTokens,
+		RequireParameters:   false,
+	})
+	if callErr != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", &ErrAgentTimeout{AgentName: agentName, Timeout: invocationTimeout}
 		}
-		responseText = res.text
-		if responseText == "" {
-			return "", fmt.Errorf("agent %s returned empty response", agentName)
-		}
-		nestedAgent.conversationCtx.AddAssistantMessage(responseText)
-
-		duration = time.Since(startTime)
-		nestedAgent.lastInvoked = time.Now()
-		nestedAgent.invocationCount++
-		recordAdvisorMetrics(nestedAgent.metrics, res, duration)
-
-		if am.logger != nil {
-			if res.advisorErr != "" {
-				am.logger.LogInfo(fmt.Sprintf("[%s] Advisor error (continuing without advice): %s", agentName, res.advisorErr))
-			} else if res.advisorCalled {
-				am.logger.LogInfo(fmt.Sprintf("[%s] Advisor consulted (advisor tokens in=%d out=%d)", agentName, res.advInTokens, res.advOutTokens))
-			}
-		}
-	} else {
-		// Standard silent path: single call with NO TOOLS (faster, simpler).
-		response, callErr := nestedAgent.client.GetMessages().New(ctx, anthropic.MessageNewParams{
-			Model:     nestedAgent.model, // Use model from persona
-			MaxTokens: 4096,
-			System: []anthropic.TextBlockParam{
-				{
-					Type: "text",
-					Text: systemPrompt,
-				},
-			},
-			Messages: nestedAgent.conversationCtx.GetMessages(),
-			// Tools parameter intentionally omitted for silent mode
-		})
-
-		if callErr != nil {
-			if ctx.Err() == context.DeadlineExceeded {
-				return "", &ErrAgentTimeout{
-					AgentName: agentName,
-					Timeout:   invocationTimeout,
-				}
-			}
-			return "", &AgentError{
-				AgentName: agentName,
-				Operation: "API call (silent)",
-				Err:       callErr,
-			}
-		}
-
-		// Extract text content from response
-		for _, block := range response.Content {
-			switch contentBlock := block.AsAny().(type) {
-			case anthropic.TextBlock:
-				responseText += contentBlock.Text
-			}
-		}
-
-		if responseText == "" {
-			return "", fmt.Errorf("agent %s returned empty response", agentName)
-		}
-
-		// Add assistant response to conversation context
-		nestedAgent.conversationCtx.AddAssistantMessage(responseText)
-
-		// Calculate metrics
-		duration = time.Since(startTime)
-		inputTokens := int64(response.Usage.InputTokens)
-		outputTokens := int64(response.Usage.OutputTokens)
-		totalTokens := inputTokens + outputTokens
-
-		// Update agent state
-		nestedAgent.lastInvoked = time.Now()
-		nestedAgent.invocationCount++
-
-		// Update metrics
-		nestedAgent.metrics.TotalTokensUsed += totalTokens
-		nestedAgent.metrics.TotalInputTokens += inputTokens
-		nestedAgent.metrics.TotalOutputTokens += outputTokens
-		nestedAgent.metrics.TotalResponseTime += duration
-		nestedAgent.metrics.LastCallTokens = totalTokens
-		nestedAgent.metrics.LastCallDuration = duration
+		return "", &AgentError{AgentName: agentName, Operation: "API call (silent)", Err: callErr}
 	}
 
-	// Calculate averages
-	if nestedAgent.invocationCount > 0 {
-		nestedAgent.metrics.AverageTokensPerCall = nestedAgent.metrics.TotalTokensUsed / int64(nestedAgent.invocationCount)
-		nestedAgent.metrics.AverageResponseTime = nestedAgent.metrics.TotalResponseTime / time.Duration(nestedAgent.invocationCount)
+	responseText := resp.Message.Text
+	if responseText == "" {
+		return "", fmt.Errorf("agent %s returned empty response", agentName)
 	}
+
+	// Incomplete finishes still produce text; keep it but record the reason.
+	if resp.FinishReason != llm.FinishStop && resp.FinishReason != llm.FinishNone && am.logger != nil {
+		am.logger.LogInfo(fmt.Sprintf("[%s] silent invocation ended with finish reason %q", agentName, resp.FinishReason))
+	}
+
+	// Add assistant response to conversation context
+	nestedAgent.conversationCtx.AddAssistantMessage(responseText)
+
+	var aggregate llm.Usage
+	aggregate.Present = true
+	am.recordCallMetrics(nestedAgent, resp, &aggregate)
+	duration := time.Since(startTime)
+	am.finalizeInvocationMetrics(nestedAgent, aggregate, duration)
 
 	// Log the invocation (minimal logging for silent mode)
 	if am.logger != nil {
@@ -686,28 +570,16 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		return nil, fmt.Errorf("failed to load persona: %w", err)
 	}
 
-	// Create Anthropic client using factory (allows mocking in tests)
-	client := am.clientFactory(am.anthropicKey)
+	// Resolve the model from the shared config: per-agent environment/CLI
+	// override > nested default > Sonnet 5. The persona's `model:` field is
+	// metadata only — it must never silently override the user's selection.
+	model, err := am.llmCfg.ModelForAgent(agentName)
+	if err != nil {
+		return nil, fmt.Errorf("resolve model for %s: %w", agentName, err)
+	}
 
 	// Create conversation context with reduced token limit for nested agents
-	const nestedAgentTokenLimit = 20000 // Lower than main agent's 50K
 	conversationCtx := NewConversationContextWithLimit(nestedAgentTokenLimit)
-
-	// Map persona model to Anthropic model
-	// If persona doesn't specify a model, defaults to Sonnet
-	model := MapPersonaModelToAnthropic(metadata.Model)
-	modelDisplayName := GetModelDisplayName(model)
-
-	// Resolve optional Advisor tool config (feature-flagged, off by default).
-	advisorModel, advisorMaxUses, advisorCaching, advisorOK := resolveAdvisorConfig(metadata, model)
-	if advisorOK && am.logger != nil {
-		cachingDesc := "off"
-		if advisorCaching != "" {
-			cachingDesc = string(advisorCaching)
-		}
-		am.logger.LogInfo(fmt.Sprintf("[%s] Advisor tool enabled: executor=%s advisor=%s maxUses=%d caching=%s",
-			agentName, modelDisplayName, GetModelDisplayName(advisorModel), advisorMaxUses, cachingDesc))
-	}
 
 	// Get tool access policy for this agent
 	policy := GetPolicyForAgent(agentName)
@@ -735,16 +607,14 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		conversationCtx: conversationCtx,
 		lastInvoked:     time.Now(),
 		invocationCount: 0,
-		client:          client,
-		tokenLimit:      nestedAgentTokenLimit,
-		model:           model,
-		toolRegistry:    filteredRegistry,
-		toolPolicy:      policy,
-		advisorModel:    advisorModel,
-		advisorMaxUses:  advisorMaxUses,
-		advisorCaching:  advisorCaching,
+		client:           am.client,
+		tokenLimit:       nestedAgentTokenLimit,
+		model:            model,
+		toolRegistry:     filteredRegistry,
+		toolPolicy:       policy,
 		metrics: &AgentMetrics{
-			ModelUsed: modelDisplayName, // Use actual model from persona
+			ModelUsed:       model,
+			RequestedModel:  model,
 		},
 	}
 
@@ -759,12 +629,26 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		agent.conversationCtx.AddAssistantMessage(
 			"J'ai bien reçu la carte du monde des Quatre Royaumes. Je l'utiliserai comme référence pour assurer la cohérence géographique de l'aventure.",
 		)
+		// Non-vision models degrade to the textual map description only.
+		if !nestedSupportsImageInput(model) && am.logger != nil {
+			am.logger.LogInfo(fmt.Sprintf("[%s] model %q is not known to support images; the textual map description will be used instead",
+				agentName, model))
+		}
 	}
 
 	// Store in map
 	am.nestedAgents[agentName] = agent
 
 	return agent, nil
+}
+
+// LogInfo writes a diagnostic line to the adventure log when a logger is
+// available. It lets best-effort callers (e.g. the session-start briefing)
+// surface failures without exposing confidential content to players.
+func (am *AgentManager) LogInfo(message string) {
+	if am.logger != nil {
+		am.logger.LogInfo(message)
+	}
 }
 
 // buildNestedAgentSystemPrompt builds the system prompt for a nested agent.
@@ -842,7 +726,7 @@ func (am *AgentManager) GetStatistics() map[string]interface{} {
 		agentStats[name] = map[string]interface{}{
 			"invocation_count":         agent.invocationCount,
 			"last_invoked":             agent.lastInvoked.Format(time.RFC3339),
-			"message_count":            len(agent.conversationCtx.GetMessages()),
+			"message_count":            len(agent.conversationCtx.NeutralMessages()),
 			"token_estimate":           agent.conversationCtx.tokenEstimate,
 			"total_tokens_used":        agent.metrics.TotalTokensUsed,
 			"total_input_tokens":       agent.metrics.TotalInputTokens,
@@ -851,6 +735,9 @@ func (am *AgentManager) GetStatistics() map[string]interface{} {
 			"total_response_time_ms":   agent.metrics.TotalResponseTime.Milliseconds(),
 			"average_response_time_ms": agent.metrics.AverageResponseTime.Milliseconds(),
 			"model_used":               agent.metrics.ModelUsed,
+			"requested_model":          agent.metrics.RequestedModel,
+			"routed_model":             agent.metrics.RoutedModel,
+			"total_cost":               agent.metrics.TotalCost,
 			"last_call_tokens":         agent.metrics.LastCallTokens,
 			"last_call_duration_ms":    agent.metrics.LastCallDuration.Milliseconds(),
 		}

@@ -1,4 +1,4 @@
-// Package agent implements the Dungeon Master agent loop using Anthropic API.
+// Package agent implements the Dungeon Master agent and nested-agent orchestration.
 package agent
 
 import (
@@ -41,13 +41,22 @@ type SerializedMetrics struct {
 	ModelUsed             string `json:"model_used"`
 	LastCallTokens        int64  `json:"last_call_tokens"`
 	LastCallDurationMS    int64  `json:"last_call_duration_ms"`
-	// Advisor tool metrics (Opus-billed, tracked separately from executor tokens).
+	// Advisor tool metrics from the pre-migration Anthropic beta runtime
+	// (historical values stay readable and round-trip unchanged).
 	AdvisorCalls               int64  `json:"advisor_calls,omitempty"`
 	AdvisorInputTokens         int64  `json:"advisor_input_tokens,omitempty"`
 	AdvisorOutputTokens        int64  `json:"advisor_output_tokens,omitempty"`
 	AdvisorCacheCreationTokens int64  `json:"advisor_cache_creation_tokens,omitempty"`
 	AdvisorCacheReadTokens     int64  `json:"advisor_cache_read_tokens,omitempty"`
 	AdvisorModelUsed           string `json:"advisor_model_used,omitempty"`
+	// OpenRouter aggregate metrics (new in Phase 5). Optional so pre-migration
+	// state files load unchanged.
+	RequestedModel   string  `json:"requested_model,omitempty"`
+	RoutedModel      string  `json:"routed_model,omitempty"`
+	TotalCost        float64 `json:"total_cost,omitempty"`
+	CachedTokens     int64   `json:"cached_tokens,omitempty"`
+	CacheWriteTokens int64   `json:"cache_write_tokens,omitempty"`
+	ReasoningTokens  int64   `json:"reasoning_tokens,omitempty"`
 }
 
 // SaveAgentStates saves all nested agent states to a JSON file.
@@ -90,6 +99,12 @@ func (am *AgentManager) SaveAgentStates(filePath string) error {
 			AdvisorCacheCreationTokens: state.metrics.AdvisorCacheCreationTokens,
 			AdvisorCacheReadTokens:     state.metrics.AdvisorCacheReadTokens,
 			AdvisorModelUsed:           state.metrics.AdvisorModelUsed,
+			RequestedModel:             state.metrics.RequestedModel,
+			RoutedModel:                state.metrics.RoutedModel,
+			TotalCost:                  state.metrics.TotalCost,
+			CachedTokens:               state.metrics.CachedTokens,
+			CacheWriteTokens:           state.metrics.CacheWriteTokens,
+			ReasoningTokens:            state.metrics.ReasoningTokens,
 		}
 
 		storedTokens := 0
@@ -256,11 +271,17 @@ func (am *AgentManager) LoadAgentStates(filePath string) error {
 				AdvisorCacheCreationTokens: serialized.Metrics.AdvisorCacheCreationTokens,
 				AdvisorCacheReadTokens:     serialized.Metrics.AdvisorCacheReadTokens,
 				AdvisorModelUsed:           serialized.Metrics.AdvisorModelUsed,
+				RequestedModel:             serialized.Metrics.RequestedModel,
+				RoutedModel:                serialized.Metrics.RoutedModel,
+				TotalCost:                  serialized.Metrics.TotalCost,
+				CachedTokens:               serialized.Metrics.CachedTokens,
+				CacheWriteTokens:           serialized.Metrics.CacheWriteTokens,
+				ReasoningTokens:            serialized.Metrics.ReasoningTokens,
 			}
 		} else {
 			// Initialize empty metrics if not present (backward compatibility)
 			agent.metrics = &AgentMetrics{
-				ModelUsed: "claude-haiku-4-5",
+				ModelUsed: agent.model,
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"dungeons/internal/llm"
 	"dungeons/internal/web"
 )
 
@@ -16,25 +17,26 @@ func main() {
 	debug := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
 
-	// Check API key
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
-	if apiKey == "" {
-		fmt.Fprintln(os.Stderr, "Error: ANTHROPIC_API_KEY environment variable not set")
+	// Load OpenRouter configuration (OPENROUTER_API_KEY is required; the legacy
+	// ANTHROPIC_API_KEY is only consulted by the not-yet-migrated nested agents).
+	cfg, err := llm.LoadConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		fmt.Fprintln(os.Stderr, "Please set it in your .envrc file or export it")
 		os.Exit(1)
 	}
 
 	// Create server config
-	cfg := web.Config{
+	webCfg := web.Config{
 		Port:         *port,
-		APIKey:       apiKey,
+		LLMConfig:    cfg,
 		TemplatesDir: "web/templates",
 		StaticDir:    "web/static",
 		Debug:        *debug,
 	}
 
 	// Create and start server
-	server := web.NewServer(cfg)
+	server := web.NewServer(webCfg)
 
 	// Handle graceful shutdown
 	quit := make(chan os.Signal, 1)

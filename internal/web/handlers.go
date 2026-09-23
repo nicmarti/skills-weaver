@@ -21,6 +21,7 @@ import (
 	"dungeons/internal/agent"
 	"dungeons/internal/character"
 	"dungeons/internal/data"
+	"dungeons/internal/llm"
 	"dungeons/internal/npc"
 	"dungeons/internal/npcmanager"
 	"dungeons/internal/tarot"
@@ -164,15 +165,15 @@ func (s *Server) handleGame(c *gin.Context) {
 		activeSessionID = currentSession.ID
 	}
 
-	// Determine current model for the selector
-	// TODO : to be migrated to openrouter models like "anthropic/claude-sonnet-5" for now
-	currentModel := "sonnet" // default
+	// Determine current model for the selector (alias form for the legacy UI)
+	currentModel := "sonnet"
 	if session.Agent != nil {
-		modelStr := agent.GetModelDisplayName(session.Agent.GetModel())
-		switch {
-		case strings.Contains(modelStr, "opus"):
+		switch llm.ResolveModel(session.Agent.GetModel()) {
+		case llm.ModelOpus5:
 			currentModel = "opus"
-		case strings.Contains(modelStr, "sonnet"):
+		case llm.ModelHaiku45:
+			currentModel = "haiku"
+		default:
 			currentModel = "sonnet"
 		}
 	}
@@ -325,12 +326,16 @@ func (s *Server) handleAdventureInfo(c *gin.Context) {
 		return
 	}
 
-	// Determine current model for selector
+	// Determine current model for selector (alias form for the legacy UI)
 	currentModel := "sonnet"
 	if session.Agent != nil {
-		modelStr := agent.GetModelDisplayName(session.Agent.GetModel())
-		if strings.Contains(modelStr, "opus") {
+		switch llm.ResolveModel(session.Agent.GetModel()) {
+		case llm.ModelOpus5:
 			currentModel = "opus"
+		case llm.ModelHaiku45:
+			currentModel = "haiku"
+		default:
+			currentModel = "sonnet"
 		}
 	}
 	sonnetSelected := ""
@@ -1086,12 +1091,15 @@ func (s *Server) handleGetModel(c *gin.Context) {
 	}
 
 	model := session.Agent.GetModel()
-	displayName := agent.GetModelDisplayName(model)
+	displayName := llm.DisplayName(model)
 
-	// Map to short name
+	// Map to short alias for the legacy selector
 	shortName := "sonnet"
-	if strings.Contains(displayName, "opus") {
+	switch llm.ResolveModel(model) {
+	case llm.ModelOpus5:
 		shortName = "opus"
+	case llm.ModelHaiku45:
+		shortName = "haiku"
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -1105,9 +1113,9 @@ func (s *Server) handleSetModel(c *gin.Context) {
 	slug := c.Param("slug")
 	modelName := strings.TrimSpace(c.PostForm("model"))
 
-	// Validate: only sonnet or opus
-	if modelName != "sonnet" && modelName != "opus" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid model. Use 'sonnet' or 'opus'."})
+	// Validate: legacy UI aliases only for now (full selector lands in Phase 9)
+	if modelName != "sonnet" && modelName != "opus" && modelName != "haiku" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid model. Use 'sonnet', 'opus' or 'haiku'."})
 		return
 	}
 
@@ -1117,12 +1125,13 @@ func (s *Server) handleSetModel(c *gin.Context) {
 		return
 	}
 
-	// Map and apply
-	previousModel := agent.GetModelDisplayName(session.Agent.GetModel())
-	anthropicModel := agent.MapPersonaModelToAnthropic(modelName)
-	session.Agent.SetModel(anthropicModel)
+	previousModel := llm.DisplayName(session.Agent.GetModel())
+	if err := session.Agent.SetModel(modelName); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	displayName := agent.GetModelDisplayName(anthropicModel)
+	displayName := llm.DisplayName(session.Agent.GetModel())
 	fmt.Printf("[%s] Model changed: %s → %s\n", slug, previousModel, displayName)
 	c.JSON(http.StatusOK, gin.H{
 		"model":   modelName,

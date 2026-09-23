@@ -62,6 +62,16 @@ func NewStartSessionTool(adv *adventure.Adventure, agentManager AgentManager) *S
 				if err == nil && worldKeeperResponse != "" {
 					// Format system brief (hidden from player, for DM only)
 					systemBrief = formatSystemBrief(campaignPlan, currentAct, criticalForeshadows, worldKeeperResponse)
+				} else if agentManager != nil {
+					// Best-effort session behavior is preserved (the session still
+					// starts), but a missing confidential briefing must be
+					// observable in the adventure log without leaking its
+					// intended content to players.
+					if err != nil {
+						agentManager.LogInfo(fmt.Sprintf("start_session: world-keeper briefing failed (session %d): %v", session.ID, err))
+					} else {
+						agentManager.LogInfo(fmt.Sprintf("start_session: world-keeper returned an empty briefing (session %d)", session.ID))
+					}
 				}
 			}
 

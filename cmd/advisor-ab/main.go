@@ -5,7 +5,12 @@
 //
 // It toggles only one variable — SW_ADVISOR_ENABLED — across two arms:
 //   - control:  advisor OFF (standard path)
-//   - treatment: advisor ON (beta path with the Advisor tool)
+//   - treatment: advisor ON
+//
+// NOTE (Phase 5 of the OpenRouter migration): the Anthropic beta Advisor path
+// was removed from the nested runtime; both arms currently run the identical
+// neutral OpenRouter path until Phase 6 re-introduces the native
+// openrouter:advisor server tool behind the same flag.
 //
 // Each trial uses a FRESH AgentManager so metrics reflect that single
 // invocation (agent-states.json accumulates otherwise). The real adventure is
@@ -16,8 +21,7 @@
 //
 //	go run ./cmd/advisor-ab -adventure le-voyageur-de-tuncmor -trials 3 -out advisor-ab-out
 //
-// Requires ANTHROPIC_API_KEY. The target agent's persona must declare an
-// advisor (e.g. world-keeper) for the treatment arm to actually consult it.
+// Requires OPENROUTER_API_KEY.
 package main
 
 import (
@@ -33,6 +37,7 @@ import (
 	"time"
 
 	"dungeons/internal/agent"
+	"dungeons/internal/llm"
 )
 
 const defaultPrompt = "Brief stratégique pour la prochaine session de jeu. " +
@@ -91,8 +96,9 @@ func main() {
 	)
 	flag.Parse()
 
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		fmt.Fprintln(os.Stderr, "ANTHROPIC_API_KEY not set")
+	cfg, err := llm.LoadConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
@@ -117,7 +123,6 @@ func main() {
 		}
 	}
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
 	var runs []runMetrics
 
 	arms := []struct{ name, flag string }{
@@ -130,7 +135,7 @@ func main() {
 		for trial := 1; trial <= *trials; trial++ {
 			fmt.Printf("[%s] trial %d/%d ...\n", arm.name, trial, *trials)
 
-			m, err := runOnce(apiKey, *adventure, *agentName, prompt, logDir)
+			m, err := runOnce(cfg, *adventure, *agentName, prompt, logDir)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "[%s trial %d] error: %v\n", arm.name, trial, err)
 				continue
@@ -172,7 +177,7 @@ func main() {
 
 // runOnce loads a fresh adventure context + AgentManager and invokes the agent's
 // silent briefing path once, returning parsed metrics.
-func runOnce(apiKey, adventureSlug, agentName, prompt, logDir string) (runMetrics, error) {
+func runOnce(cfg llm.Config, adventureSlug, agentName, prompt, logDir string) (runMetrics, error) {
 	var m runMetrics
 
 	adventureCtx, err := agent.LoadAdventureContext("data/adventures", adventureSlug)
@@ -186,8 +191,8 @@ func runOnce(apiKey, adventureSlug, agentName, prompt, logDir string) (runMetric
 	// Wire the full tool registry so world-keeper gets its read-only tools
 	// (get_session_info, get_campaign_plan, list_foreshadows, ...) in BOTH arms.
 	// The non-silent InvokeAgent path lets the executor actually call those
-	// tools (and, in the treatment arm, the advisor) before writing the briefing.
-	am, err := agent.NewAgentManagerWithTools(apiKey, adventureCtx, logger, nil)
+	// tools before writing the briefing.
+	am, err := agent.NewAgentManagerWithTools(cfg, adventureCtx, logger, nil)
 	if err != nil {
 		return m, fmt.Errorf("agent manager: %w", err)
 	}

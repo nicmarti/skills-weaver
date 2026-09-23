@@ -1,4 +1,4 @@
-// Package agent implements the Dungeon Master agent loop using Anthropic API.
+// Package agent implements the Dungeon Master agent and nested-agent orchestration.
 package agent
 
 import (

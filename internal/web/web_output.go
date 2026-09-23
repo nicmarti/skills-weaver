@@ -25,7 +25,7 @@ type WebOutput struct {
 // NewWebOutput creates a new WebOutput with a buffered event channel.
 func NewWebOutput() *WebOutput {
 	return &WebOutput{
-		eventChan: make(chan SSEEvent, 100),
+		eventChan: make(chan SSEEvent, 1000),
 		closed:    false,
 	}
 }
@@ -52,7 +52,9 @@ func (w *WebOutput) IsClosed() bool {
 	return w.closed
 }
 
-// sendEvent safely sends an event to the channel.
+// sendEvent safely sends an event to the channel. If the channel buffer is
+// full, it waits briefly before giving up to prevent dropping text or lifecycle
+// events under burst streaming.
 func (w *WebOutput) sendEvent(event SSEEvent) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -60,7 +62,14 @@ func (w *WebOutput) sendEvent(event SSEEvent) {
 		select {
 		case w.eventChan <- event:
 		default:
-			// Channel full, drop event
+			// Buffer full: try with a short timeout rather than dropping immediately.
+			timer := time.NewTimer(500 * time.Millisecond)
+			defer timer.Stop()
+			select {
+			case w.eventChan <- event:
+			case <-timer.C:
+				// Dropped after timeout to prevent permanently blocking the agent loop.
+			}
 		}
 	}
 }
@@ -188,7 +197,8 @@ func (w *WebOutput) OnAgentInvocationComplete(agentName string, duration time.Du
 	})
 }
 
-// OnError is called when an error occurs.
+// OnError is called when an error occurs. Emits error followed by complete
+// so web consumers always receive a terminal lifecycle event.
 func (w *WebOutput) OnError(err error) {
 	data := map[string]string{
 		"error": err.Error(),
@@ -198,6 +208,7 @@ func (w *WebOutput) OnError(err error) {
 		Event: "error",
 		Data:  string(jsonData),
 	})
+	w.OnComplete()
 }
 
 // OnComplete is called when the agent finishes processing.

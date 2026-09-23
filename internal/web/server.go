@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
+
+	"dungeons/internal/llm"
 )
 
 // markdownConverter renders Markdown to HTML. Raw HTML in the source is escaped
@@ -33,14 +35,15 @@ type Server struct {
 	templatesDir   string
 	staticDir      string
 	port           int
-	apiKey         string // Anthropic API key for campaign plan generation
-	geminiKey      string // Google Gemini API key for Lyria ambient music
+	llmCfg         llm.Config // OpenRouter configuration for the DM agent
+	apiKey         string     // Legacy Anthropic key for not-yet-migrated utility paths
+	geminiKey      string     // Google Gemini API key for Lyria ambient music
 }
 
 // Config holds server configuration.
 type Config struct {
 	Port         int
-	APIKey       string
+	LLMConfig    llm.Config
 	TemplatesDir string
 	StaticDir    string
 	Debug        bool
@@ -66,11 +69,12 @@ func NewServer(cfg Config) *Server {
 
 	server := &Server{
 		engine:         engine,
-		sessionManager: NewSessionManager(cfg.APIKey),
+		sessionManager: NewSessionManager(cfg.LLMConfig),
 		templatesDir:   cfg.TemplatesDir,
 		staticDir:      cfg.StaticDir,
 		port:           cfg.Port,
-		apiKey:         cfg.APIKey,
+		llmCfg:         cfg.LLMConfig,
+		apiKey:         cfg.LLMConfig.LegacyAnthropicKey(),
 		geminiKey:      geminiKey,
 	}
 

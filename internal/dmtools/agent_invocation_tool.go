@@ -9,6 +9,9 @@ import (
 type AgentManager interface {
 	InvokeAgent(agentName, question, contextInfo string, depth int) (string, error)
 	InvokeAgentSilent(agentName, question string, depth int) (string, error)
+	// LogInfo writes a diagnostic line to the adventure log so best-effort
+	// callers can surface failures without exposing content to players.
+	LogInfo(message string)
 }
 
 // NewInvokeAgentTool creates a tool to invoke specialized nested agents.

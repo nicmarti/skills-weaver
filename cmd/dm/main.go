@@ -11,6 +11,7 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/agent"
+	"dungeons/internal/llm"
 	"dungeons/internal/ui"
 )
 
@@ -26,10 +27,11 @@ func main() {
 	// Initial title (will be replaced by banner after adventure selection)
 	fmt.Println(ui.SubtitleStyle.Render("SkillsWeaver - Sélection d'aventure"))
 
-	// Check API key
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
-	if apiKey == "" {
-		fmt.Fprintln(os.Stderr, "Error: ANTHROPIC_API_KEY environment variable not set")
+	// Load OpenRouter configuration (OPENROUTER_API_KEY is required; the legacy
+	// ANTHROPIC_API_KEY is only consulted by the not-yet-migrated nested agents).
+	cfg, err := llm.LoadConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		fmt.Fprintln(os.Stderr, "Please set it in your .envrc file or export it")
 		os.Exit(1)
 	}
@@ -69,7 +71,7 @@ func main() {
 	terminalOutput := NewTerminalOutput()
 
 	// Create agent (tools are registered automatically in New)
-	dmAgent, err := agent.New(apiKey, adventureCtx, terminalOutput)
+	dmAgent, err := agent.New(cfg, adventureCtx, terminalOutput)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating agent: %v\n", err)
 		os.Exit(1)

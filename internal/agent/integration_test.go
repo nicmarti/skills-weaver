@@ -8,6 +8,7 @@ import (
 
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
+	"dungeons/internal/llm"
 )
 
 // TestIntegration_AgentInvocationFlow tests the complete agent invocation flow with mock client.
@@ -17,19 +18,15 @@ func TestIntegration_AgentInvocationFlow(t *testing.T) {
 
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	// Create mock client
-	mockClient := NewMockAnthropicClient()
-	mockService := mockClient.GetMockMessagesService()
-	mockService.SetResponse("What is the armor class formula?", "Armor Class (AC) is 10 + Dexterity modifier + armor bonus.")
-	mockService.SetResponse("What about saving throws?", "Saving throws are d20 + ability modifier + proficiency bonus if proficient.")
+	// Create fake neutral client with canned responses
+	fake := newNestedFakeClient()
+	fake.SetResponse("What is the armor class formula?", "Armor Class (AC) is 10 + Dexterity modifier + armor bonus.")
+	fake.SetResponse("What about saving throws?", "Saving throws are d20 + ability modifier + proficiency bonus if proficient.")
 
-	// Create agent manager with mock client
+	// Create agent manager with the fake client
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	clientFactory := func(apiKey string) anthropicClient {
-		return mockClient
-	}
-	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	am := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 	// Create test personas
 	createTestPersonas(t, am)
@@ -71,7 +68,7 @@ func TestIntegration_AgentInvocationFlow(t *testing.T) {
 	}
 
 	// Verify conversation history was maintained
-	messages := state2.conversationCtx.GetMessages()
+	messages := state2.conversationCtx.NeutralMessages()
 	if len(messages) < 4 { // 2 user + 2 assistant messages
 		t.Errorf("Expected at least 4 messages in history, got: %d", len(messages))
 	}
@@ -84,14 +81,11 @@ func TestIntegration_MultipleAgents(t *testing.T) {
 
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	// Create mock client with generic responses
-	mockClient := NewMockAnthropicClient()
+	// Create fake neutral client with generic responses
+	fake := newNestedFakeClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	clientFactory := func(apiKey string) anthropicClient {
-		return mockClient
-	}
-	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	am := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 	createTestPersonas(t, am)
 
@@ -124,17 +118,14 @@ func TestIntegration_StatePersistenceAcrossSessions(t *testing.T) {
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 	statesPath := filepath.Join(tmpDir, "agent-states.json")
 
-	// Create shared mock client
-	mockClient := NewMockAnthropicClient()
-	clientFactory := func(apiKey string) anthropicClient {
-		return mockClient
-	}
+	// Shared fake neutral client
+	fake := newNestedFakeClient()
 
 	// Session 1: Create agent and invoke it
 	{
 		personaLoader := NewPersonaLoader()
 		logger, _ := NewLogger(tmpDir)
-		am1 := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+		am1 := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 		createTestPersonas(t, am1)
 
@@ -159,7 +150,7 @@ func TestIntegration_StatePersistenceAcrossSessions(t *testing.T) {
 	{
 		personaLoader := NewPersonaLoader()
 		logger, _ := NewLogger(tmpDir)
-		am2 := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+		am2 := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 		createTestPersonas(t, am2)
 
@@ -202,11 +193,10 @@ func TestIntegration_RecursionPrevention(t *testing.T) {
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := "test-key"
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
 	personaLoader := NewPersonaLoader()
-	am := NewAgentManager(apiKey, adventureCtx, nil, nil, personaLoader)
+	am := NewAgentManager(newNestedFakeClient(), llm.DefaultModels(), adventureCtx, nil, nil, personaLoader)
 
 	// Attempt to invoke at depth 2 (nested agent trying to invoke another)
 	_, err := am.InvokeAgent("rules-keeper", "Test", "", 2)
@@ -238,11 +228,10 @@ func TestIntegration_InvalidAgentHandling(t *testing.T) {
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := "test-key"
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
 	personaLoader := NewPersonaLoader()
-	am := NewAgentManager(apiKey, adventureCtx, nil, nil, personaLoader)
+	am := NewAgentManager(newNestedFakeClient(), llm.DefaultModels(), adventureCtx, nil, nil, personaLoader)
 
 	// Try to invoke dungeon-master (not allowed as nested agent)
 	_, err := am.InvokeAgent("dungeon-master", "Test", "", 1)
@@ -281,13 +270,10 @@ func TestIntegration_AgentStatistics(t *testing.T) {
 
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	mockClient := NewMockAnthropicClient()
+	fake := newNestedFakeClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	clientFactory := func(apiKey string) anthropicClient {
-		return mockClient
-	}
-	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	am := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 	createTestPersonas(t, am)
 
@@ -339,13 +325,10 @@ func TestIntegration_AgentClearing(t *testing.T) {
 
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	mockClient := NewMockAnthropicClient()
+	fake := newNestedFakeClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	clientFactory := func(apiKey string) anthropicClient {
-		return mockClient
-	}
-	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	am := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 	createTestPersonas(t, am)
 
@@ -387,13 +370,10 @@ func TestIntegration_LoggingOfInvocations(t *testing.T) {
 
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	mockClient := NewMockAnthropicClient()
+	fake := newNestedFakeClient()
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	clientFactory := func(apiKey string) anthropicClient {
-		return mockClient
-	}
-	am := NewAgentManagerWithClientFactory("test-key", adventureCtx, logger, nil, personaLoader, clientFactory)
+	am := NewAgentManager(fake, llm.DefaultModels(), adventureCtx, logger, nil, personaLoader)
 
 	createTestPersonas(t, am)
 
@@ -480,12 +460,12 @@ func createTestAdventureContext(t *testing.T, basePath string) *AdventureContext
 	}
 }
 
-// TestIntegration_RealAPI_Optional is an optional test that verifies real Anthropic API integration.
-// This test only runs when ANTHROPIC_API_KEY is set and can be slow.
-// Use it to verify that the real API integration still works correctly.
+// TestIntegration_RealAPI_Optional is an optional test that verifies real
+// OpenRouter integration for nested agents. This test only runs when
+// OPENROUTER_API_KEY is set and RUN_REAL_API_TESTS=1, and can be slow.
 func TestIntegration_RealAPI_Optional(t *testing.T) {
-	if os.Getenv("ANTHROPIC_API_KEY") == "" {
-		t.Skip("Skipping real API test: ANTHROPIC_API_KEY not set (this is optional)")
+	if os.Getenv("OPENROUTER_API_KEY") == "" {
+		t.Skip("Skipping real API test: OPENROUTER_API_KEY not set (this is optional)")
 	}
 
 	// Only run this test if explicitly requested
@@ -496,13 +476,20 @@ func TestIntegration_RealAPI_Optional(t *testing.T) {
 	tmpDir, cleanup := setupIntegrationTest(t)
 	defer cleanup()
 
-	apiKey := os.Getenv("ANTHROPIC_API_KEY")
+	cfg, err := llm.LoadConfig()
+	if err != nil {
+		t.Fatalf("llm.LoadConfig: %v", err)
+	}
+	client, err := llm.NewOpenRouterClient(cfg)
+	if err != nil {
+		t.Fatalf("NewOpenRouterClient: %v", err)
+	}
 	adventureCtx := createTestAdventureContext(t, tmpDir)
 
-	// Create agent manager with real API client
+	// Create agent manager with the real neutral client
 	personaLoader := NewPersonaLoader()
 	logger, _ := NewLogger(tmpDir)
-	am := NewAgentManager(apiKey, adventureCtx, logger, nil, personaLoader)
+	am := NewAgentManager(client, cfg, adventureCtx, logger, nil, personaLoader)
 
 	// Create test personas
 	createTestPersonas(t, am)

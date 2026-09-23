@@ -117,9 +117,6 @@ func assertLegacyRestored(t *testing.T, state *NestedAgentState) {
 	if state.metrics.ModelUsed != "claude-sonnet-4-6" || state.metrics.AdvisorModelUsed != "claude-opus-4-7" || state.metrics.AdvisorCalls != 2 || state.metrics.AdvisorCacheReadTokens != 120 || state.metrics.AdvisorCacheCreationTokens != 340 {
 		t.Fatalf("historical metrics changed: %+v", state.metrics)
 	}
-	if len(state.conversationCtx.GetMessages()) != 5 {
-		t.Fatal("temporary Anthropic runtime conversion dropped restored messages")
-	}
 }
 
 func TestIncompleteLegacyExchangeDroppedAtomically(t *testing.T) {

@@ -7,8 +7,6 @@ import (
 	"dungeons/internal/adventure"
 	"dungeons/internal/character"
 	"dungeons/internal/llm"
-
-	"github.com/anthropics/anthropic-sdk-go"
 )
 
 // ConversationContext stores provider-neutral conversation history.
@@ -102,47 +100,6 @@ func (ctx *ConversationContext) AddToolResults(results []ToolResultMessage) {
 // NeutralMessages returns the provider-independent conversation.
 func (ctx *ConversationContext) NeutralMessages() []llm.Message {
 	return ctx.messages
-}
-
-// GetMessages is a temporary Anthropic wire adapter for the still-unmigrated
-// main and nested-agent loops. Phases 4/5 replace these callers with llm.Client.
-func (ctx *ConversationContext) GetMessages() []anthropic.MessageParam {
-	messages := make([]anthropic.MessageParam, 0, len(ctx.messages))
-	for _, msg := range ctx.messages {
-		switch msg.Role {
-		case llm.RoleUser:
-			blocks := []anthropic.ContentBlockParamUnion{}
-			if msg.Text != "" {
-				blocks = append(blocks, anthropic.NewTextBlock(msg.Text))
-			}
-			for _, img := range msg.Images {
-				if img.Base64 != "" {
-					blocks = append(blocks, anthropic.NewImageBlockBase64(img.MediaType, img.Base64))
-				}
-			}
-			messages = append(messages, anthropic.NewUserMessage(blocks...))
-		case llm.RoleAssistant:
-			blocks := []anthropic.ContentBlockParamUnion{}
-			if msg.Text != "" {
-				blocks = append(blocks, anthropic.NewTextBlock(msg.Text))
-			}
-			for _, call := range msg.ToolCalls {
-				var args map[string]interface{}
-				if err := json.Unmarshal(call.Arguments, &args); err != nil {
-					args = map[string]interface{}{}
-				}
-				blocks = append(blocks, anthropic.NewToolUseBlock(call.ID, args, call.Name))
-			}
-			messages = append(messages, anthropic.NewAssistantMessage(blocks...))
-		case llm.RoleTool:
-			blocks := make([]anthropic.ContentBlockParamUnion, 0, len(msg.ToolResults))
-			for _, result := range msg.ToolResults {
-				blocks = append(blocks, anthropic.NewToolResultBlock(result.ToolCallID, result.Content, result.IsError))
-			}
-			messages = append(messages, anthropic.NewUserMessage(blocks...))
-		}
-	}
-	return messages
 }
 
 func estimateMessage(msg llm.Message) int {

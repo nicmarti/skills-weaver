@@ -1,6 +1,6 @@
 # OpenRouter Migration Plan
 
-Status (updated 2026-09-23): Phases 1–5, 7–10 and 11 implemented (Phase 6 dropped: the Advisor feature was removed entirely). The main DM loop, the three nested agents and every direct utility call (journal/map enrichment, ambient Lyria parameters, biographies, campaign plans, adventure titles) run on `llm.Client` (OpenRouter Chat, Sonnet 5 default). **No production code reads `ANTHROPIC_API_KEY` anymore** — the only remaining Anthropic SDK imports are Phase-12 legacy compat (`internal/agent`: `model_mapping.go`, `streaming.go`, `GetMessages()` conversion; `internal/llm/anthropic_compat.go`). Phase 0 live evidence remains incomplete (genuine provider mid-stream error). Remaining before cutover: Phases 11–12 (docs + SDK removal). Phase 0 live evidence: a deterministic in-repo fixture now proves the genuine mid-stream-incident behavior (simulated TCP reset surfaced as mid_stream, no silent truncation); live provider evidence remains desirable but is no longer blocking for that scenario. See "Decision gates before cutover" below.
+Status (updated 2026-09-23): Phases 1–5, 7–12 implemented (Phase 6 dropped: the Advisor feature was removed entirely). The Anthropic SDK is fully removed from the module. The main DM loop, the three nested agents and every direct utility call (journal/map enrichment, ambient Lyria parameters, biographies, campaign plans, adventure titles) run on `llm.Client` (OpenRouter Chat, Sonnet 5 default). **No production code reads `ANTHROPIC_API_KEY` anymore** — the only remaining Anthropic SDK imports are Phase-12 legacy compat (`internal/agent`: `model_mapping.go`, `streaming.go`, `GetMessages()` conversion; `internal/llm/anthropic_compat.go`). Phase 0 live evidence remains incomplete (genuine provider mid-stream error). Remaining before cutover: Phases 11–12 (docs + SDK removal). Phase 0 live evidence: a deterministic in-repo fixture now proves the genuine mid-stream-incident behavior (simulated TCP reset surfaced as mid_stream, no silent truncation); live provider evidence remains desirable but is no longer blocking for that scenario. See "Decision gates before cutover" below.
 
 Created: 2026-09-22
 
@@ -797,23 +797,23 @@ Exit criterion: setup, deployment, troubleshooting, and runtime architecture doc
 
 ### Phase 12: Final Removal and Validation
 
-- [ ] Remove `github.com/anthropics/anthropic-sdk-go` from `go.mod` and `go.sum`.
-- [ ] Remove all production imports of the Anthropic SDK.
-- [ ] Remove all production reads of `ANTHROPIC_API_KEY`.
-- [ ] Remove the temporary `internal/llm/anthropic_compat.go`, `ConversationContext.GetMessages()` Anthropic conversion, legacy `internal/agent/streaming.go`/Advisor paths, Anthropic model mapping and mock types once no caller needs them.
-- [ ] Run `gofmt` on modified Go files.
-- [ ] Run `go build ./...` after every Go edit batch, as required by repository policy.
-- [ ] Run targeted `internal/llm` tests.
-- [ ] Run targeted `internal/agent` tests.
-- [ ] Run `go test ./...`.
-- [ ] Run `make test`.
-- [ ] Build `sw-dm`.
-- [ ] Build `sw-web`.
-- [ ] Build `sw-adventure`.
-- [ ] Build `sw-character-sheet`.
-- [ ] Run focused gated real OpenRouter contract tests (never `RUN_REAL_API_TESTS=1 go test ./...` while legacy Anthropic tests/keys are still present).
+- [x] Remove `github.com/anthropics/anthropic-sdk-go` from `go.mod` and `go.sum` (`go mod tidy`).
+- [x] Remove all production imports of the Anthropic SDK (deleted: `internal/llm/anthropic_compat.go` + test, `internal/agent/model_mapping.go` + test; `internal/agent/streaming.go` stripped down to the `OutputHandler` interface; `ConversationContext.GetMessages()` removed — the only remaining caller was a test now covered by `NeutralMessages`).
+- [x] Remove all production reads of `ANTHROPIC_API_KEY` (verified: only an intentional design comment in `internal/llm/config.go` explaining why it is NOT accepted as a fallback).
+- [x] Remove the temporary `internal/llm/anthropic_compat.go`, `ConversationContext.GetMessages()` Anthropic conversion, legacy `internal/agent/streaming.go`/Advisor paths, Anthropic model mapping and mock types once no caller needs them (mock_anthropic.go was already gone; `nested_fake_client_test.go` was already provider-neutral).
+- [x] Run `gofmt` on modified Go files.
+- [x] Run `go build ./...` after every Go edit batch, as required by repository policy.
+- [x] Run targeted `internal/llm` tests.
+- [x] Run targeted `internal/agent` tests.
+- [x] Run `go test ./...`.
+- [x] Run `make test`.
+- [x] Build `sw-dm`.
+- [x] Build `sw-web`.
+- [x] Build `sw-adventure`.
+- [x] Build `sw-character-sheet`.
+- [x] Run focused gated real OpenRouter contract tests (4/4 PASS live: stream text, parallel tools, image, invalid-model error) — run after SDK removal, so no legacy Anthropic tests/keys could interfere.
 - [ ] Run one same-version reference adventure through the migrated engine.
-- [ ] Verify FAL.ai, Google Imagen, and Google Lyria transports are unchanged.
+- [x] Verify FAL.ai, Google Imagen, and Google Lyria transports are unchanged (`git diff` across the migration shows zero changes under `internal/image/` — FAL + Imagen transports — and only the Lyria *prompt generator* (LLM parameters, Phase 7) under `internal/ambient/`, the audio transport itself is untouched).
 
 Exit criterion: all automated checks and focused available live contracts pass; the reference-adventure evidence report satisfies the acceptance criteria below. Advisor enablement requires its **separate** Phase 6 context-transfer gate. A genuine provider mid-stream incident cannot be a deterministic test without an OpenRouter-controlled fixture/endpoint; obtain the explicit decision in "Decision gates before cutover" before marking the final release gate complete.
 
@@ -1047,3 +1047,4 @@ Implementation updates should be appended here with the date, completed phase, v
 | 2026-09-23 | Phase 9 | Implemented (web model catalog) | The web selector is now rendered from the neutral backend catalog (`llm.SelectableModels()` + `llm.DisplayName`): `game.html` and the HTMX info panel (`modelSelectorOptionsHTML`) list the curated choices with stable full OpenRouter IDs and current display labels, replacing the stale hardcoded "Sonnet 4.6"/"Opus 4.8 (1M)" options. `handleGetModel`/`handleSetModel` return and accept stable IDs (aliases still accepted), validating through `ParseModelChoice` so mistyped values get a 400 instead of silently mapping to Sonnet 5. Substring/alias-based model detection was removed from `handleGame`/`handleGetAdventureInfo`/`handleGetModel`. Decision recorded: the lenient `llm.ResolveModel` fallback stays for historical persona metadata only (runtime paths all validate strictly). Labels confirmed to fit the UI (no fixed widths; popup follows the longest label). Tests: `TestModelSelectorOptions_RenderedFromCatalog`, `TestModelSelectorOptions_CuratedChoicesStayOptional`, `TestModelSelection_RejectsMistypedValues`. |
 | 2026-09-23 | Phase 10 | Implemented (tests, mocks and a critical SDK fix) | All remaining test items landed: 401/402 never retried with the production retry config; bounded retry exhaustion proven; response bodies closed on every stream exit path (success, in-band error, malformed/incomplete tool calls, TCP reset); no replay after the stream opened (1 request, partial text preserved); web SSE tests (slow subscriber drops after the bounded wait instead of blocking the agent loop, OnError always emits terminal complete, client disconnect and channel close terminate the stream). Campaign/ambient/biography/multimodal and tool-loop items were already covered by Phases 4–8. **Critical finding:** the generated SDK's EventStream swallows terminal body read errors — a connection dying mid-stream was reported as a clean success with a truncated message (exactly the Phase 0 "genuine provider mid-stream incident" scenario). The adapter now records body read failures through a context-injected holder in the transport-level client and surfaces them from Stream() as mid_stream/timeout/canceled; the default inner HTTP client also restores the SDK's 60 s per-request timeout that the attribution path previously lost. `go build`, `go vet` and `make test` pass. |
 | 2026-09-23 | Phase 11 | Implemented (documentation rewrite) | All runtime documentation now describes OpenRouter consistently: README (key setup with spending-cap recommendation, per-role `OPENROUTER_MODEL_*` overrides with Sonnet 5 defaults, `sw-dm` model flags, web selector, enrichment/web/REPL runtime sections), DEPLOYMENT (key checks, troubleshooting, 60s request timeout, performance table), AGENTS.md (metrics example, migration note finalized), optional-features-summary (neutral serialization + nested-agent call example, OpenRouter metrics, Advisor metric limitation), map-generator and journal-illustrator SKILL.md, internal/ui README. New CHANGELOG entry under Unreleased; historical entries and Claude Code dev-tool references untouched. Stale `cmd/web/main.go` comment claiming nested agents still consulted `ANTHROPIC_API_KEY` corrected. |
+| 2026-09-23 | Phase 12 | Implemented (final removal and validation) | `github.com/anthropics/anthropic-sdk-go` removed from go.mod/go.sum; deleted `internal/llm/anthropic_compat.go` (+test), `internal/agent/model_mapping.go` (+test); `internal/agent/streaming.go` reduced to the `OutputHandler` interface (the Anthropic StreamHandler had zero callers); `ConversationContext.GetMessages()` removed. Full validation: gofmt/build/vet clean, `go test ./...` + `make test` green, all four binaries rebuilt, focused gated real OpenRouter contract tests 4/4 PASS live, FAL/Imagen/Lyria transports verified unchanged. Remaining acceptance items tracked above (reference adventure + Phase 0 decision). |

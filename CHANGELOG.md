@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Web model selector** - Rendered from the neutral catalog (`llm.SelectableModels`); stable IDs, server-side validation
 - **Stream robustness** - Mid-stream network failures are surfaced as explicit `mid_stream`/`timeout`/`canceled` errors instead of being reported as truncated successes (works around a generated-SDK EventStream defect); 60s per-request HTTP timeout restored on all configurations
 - **Removed** - Advisor feature (Anthropic beta tool and planned native advisor) removed entirely; legacy `advisor_*` metrics remain readable in pre-migration `agent-states.json` files but are no longer populated
+- **Removed** - Anthropic SDK (`github.com/anthropics/anthropic-sdk-go`) fully removed from the module (Phase 12); no imports and no `ANTHROPIC_API_KEY` reads remain
 
 ### Added - Web Interface & Campaign Planning (February 2026)
 

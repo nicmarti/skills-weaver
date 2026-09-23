@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -200,13 +201,14 @@ func setupMainLoopTest(t *testing.T, responses []llm.Response) (*Agent, *fakeLLM
 
 	agent := &Agent{
 		client:          fake,
-		model:           llm.DefaultModelDM,
 		toolRegistry:    registry,
 		conversationCtx: NewConversationContextWithLimit(mainAgentContextTokenLimit),
 		adventureCtx:    actx,
 		outputHandler:   out,
 		personaLoader:   NewPersonaLoader(),
 	}
+	defaultModel := llm.DefaultModelDM
+	agent.model.Store(&defaultModel)
 	return agent, fake, out, probe, sessionStub, cleanup
 }
 
@@ -367,7 +369,7 @@ func TestMainLoop_IncompleteFinishReason(t *testing.T) {
 			agent, _, out, _, _, cleanup := setupMainLoopTest(t, []llm.Response{
 				{
 					FinishReason: reason,
-					Message:     llm.AssistantMessage("partial text that must not be committed"),
+					Message:      llm.AssistantMessage("partial text that must not be committed"),
 				},
 			})
 			defer cleanup()
@@ -414,4 +416,69 @@ func TestMainLoop_SetModelValidation(t *testing.T) {
 	if agent.GetModel() != "openai/gpt-6" {
 		t.Errorf("provider-qualified ID resolved to %q", agent.GetModel())
 	}
+}
+
+// TestMainLoop_SetModelRaceWithStreamingTurn proves the web model selector (an
+// HTTP handler goroutine) can change the model while the agent loop is
+// streaming a turn without a data race on Agent.model. Run with -race: the
+// writer goroutine alternates SetModel/GetModel from turn start to turn end
+// while every callLLM iteration re-reads the model.
+func TestMainLoop_SetModelRaceWithStreamingTurn(t *testing.T) {
+	scripted := make([]llm.Response, 0, 12)
+	for i := 0; i < 11; i++ {
+		scripted = append(scripted, toolCallResp(llm.ToolCall{
+			ID: fmt.Sprintf("call-%d", i), Name: "probe", Arguments: json.RawMessage(`{"value":1}`),
+		}))
+	}
+	scripted = append(scripted, textResp("done", llm.Usage{Present: true}))
+
+	agent, fake, _, _, _, cleanup := setupMainLoopTest(t, scripted)
+	defer cleanup()
+
+	// Stall the turn inside its first Stream call so the writer goroutine is
+	// guaranteed to interleave its SetModel/GetModel accesses with the model
+	// reads of every callLLM iteration.
+	release := make(chan struct{})
+	fake.block = release
+
+	turnDone := make(chan error, 1)
+	go func() {
+		turnDone <- agent.ProcessUserMessage("race")
+	}()
+
+	stop := make(chan struct{})
+	writerDone := make(chan struct{})
+	go func() {
+		defer close(writerDone)
+		for i := 0; ; i++ {
+			select {
+			case <-stop:
+				return
+			default:
+			}
+			choice := []string{"haiku", "opus"}[i%2]
+			if err := agent.SetModel(choice); err != nil {
+				return
+			}
+			_ = agent.GetModel()
+			runtime.Gosched()
+		}
+	}()
+
+	// Give the writer time to run against the stalled turn, then let the
+	// turn finish while the writer keeps switching models.
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+
+	select {
+	case err := <-turnDone:
+		if err != nil {
+			t.Fatalf("turn failed under concurrent model switches: %v", err)
+		}
+	case <-time.After(10 * time.Second):
+		close(stop)
+		t.Fatal("turn did not finish under concurrent model switches")
+	}
+	close(stop)
+	<-writerDone
 }

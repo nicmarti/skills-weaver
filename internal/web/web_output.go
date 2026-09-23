@@ -14,19 +14,33 @@ type SSEEvent struct {
 	Data  string `json:"data"`  // HTML fragment or text content
 }
 
+// sseDetachGrace is how long a disconnected subscriber's output stays open,
+// waiting for the client to re-attach before it is closed for good. It must
+// comfortably cover a page reload (the front end re-attaches to a running
+// turn after a 409 on POST /message).
+const sseDetachGrace = 3 * time.Second
+
 // WebOutput implements the OutputHandler interface for SSE streaming.
 // It sends events through a channel that the SSE handler reads from.
+//
+// The event channel is never closed: lifecycle is signaled through the
+// separate done channel, so a producer blocked in a grace-period send can
+// never race a channel close (which would panic). Close is idempotent.
 type WebOutput struct {
 	eventChan chan SSEEvent
-	mu        sync.Mutex
-	closed    bool
+	done      chan struct{}
+	closeOnce sync.Once
+
+	// detachTimer schedules closure after the last subscriber goes away.
+	mu          sync.Mutex
+	detachTimer *time.Timer
 }
 
 // NewWebOutput creates a new WebOutput with a buffered event channel.
 func NewWebOutput() *WebOutput {
 	return &WebOutput{
 		eventChan: make(chan SSEEvent, 1000),
-		closed:    false,
+		done:      make(chan struct{}),
 	}
 }
 
@@ -35,42 +49,86 @@ func (w *WebOutput) Events() <-chan SSEEvent {
 	return w.eventChan
 }
 
-// Close closes the event channel.
+// Done is closed exactly once when the output is closed.
+func (w *WebOutput) Done() <-chan struct{} {
+	return w.done
+}
+
+// Close closes the output. All subsequent sends become no-ops; safe to call
+// more than once and safe to call concurrently with an in-flight send.
 func (w *WebOutput) Close() {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	if !w.closed {
-		w.closed = true
-		close(w.eventChan)
+	w.closeOnce.Do(func() {
+		w.mu.Lock()
+		if w.detachTimer != nil {
+			w.detachTimer.Stop()
+			w.detachTimer = nil
+		}
+		w.mu.Unlock()
+		close(w.done)
+	})
+}
+
+// IsClosed returns whether the output has been closed.
+func (w *WebOutput) IsClosed() bool {
+	select {
+	case <-w.done:
+		return true
+	default:
+		return false
 	}
 }
 
-// IsClosed returns whether the output channel is closed.
-func (w *WebOutput) IsClosed() bool {
+// Attach marks a subscriber as present, cancelling any pending detach timer.
+func (w *WebOutput) Attach() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	return w.closed
+	if w.detachTimer != nil {
+		w.detachTimer.Stop()
+		w.detachTimer = nil
+	}
 }
 
-// sendEvent safely sends an event to the channel. If the channel buffer is
-// full, it waits briefly before giving up to prevent dropping text or lifecycle
-// events under burst streaming.
-func (w *WebOutput) sendEvent(event SSEEvent) {
+// Detach schedules the output for closure: if no subscriber re-attaches
+// within the grace period, Close runs and the producer's sends become
+// immediate no-ops. Without this, a disconnected browser would let the event
+// buffer fill up and every subsequent send would pay the full grace-period
+// wait, slowing the agent loop down to one event per 500ms.
+func (w *WebOutput) Detach(grace time.Duration) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	if !w.closed {
-		select {
-		case w.eventChan <- event:
-		default:
-			// Buffer full: try with a short timeout rather than dropping immediately.
-			timer := time.NewTimer(500 * time.Millisecond)
-			defer timer.Stop()
-			select {
-			case w.eventChan <- event:
-			case <-timer.C:
-				// Dropped after timeout to prevent permanently blocking the agent loop.
-			}
-		}
+	if w.detachTimer != nil {
+		return // already detaching
+	}
+	w.detachTimer = time.AfterFunc(grace, w.Close)
+}
+
+// sendEvent queues an event for the SSE subscriber. If the channel buffer is
+// full, it waits briefly before giving up to prevent dropping text or
+// lifecycle events under burst streaming. No lock is held while waiting.
+func (w *WebOutput) sendEvent(event SSEEvent) {
+	// Fast path: a closed output drops events without waiting at all.
+	select {
+	case <-w.done:
+		return
+	default:
+	}
+
+	select {
+	case w.eventChan <- event:
+		return
+	default:
+	}
+
+	// Slow path: buffer full — give a slow-but-alive subscriber a bounded
+	// grace period, then drop. The done channel aborts the wait as soon as
+	// the output closes.
+	timer := time.NewTimer(500 * time.Millisecond)
+	defer timer.Stop()
+	select {
+	case w.eventChan <- event:
+	case <-timer.C:
+		// Dropped after timeout to prevent permanently blocking the agent loop.
+	case <-w.done:
 	}
 }
 

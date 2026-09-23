@@ -168,6 +168,93 @@ func TestHandleStream_ChannelCloseSendsDone(t *testing.T) {
 	}
 }
 
+// TestWebOutput_DetachClosesAfterGrace proves a detached output (subscriber
+// gone, nobody re-attached) closes itself after the grace period, so the
+// producer's sends become immediate no-ops instead of paying the full-buffer
+// 500ms wait on every event.
+func TestWebOutput_DetachClosesAfterGrace(t *testing.T) {
+	output := NewWebOutput()
+	defer output.Close()
+
+	output.Detach(10 * time.Millisecond)
+	select {
+	case <-output.Done():
+	case <-time.After(2 * time.Second):
+		t.Fatal("detached output never closed after the grace period")
+	}
+	if !output.IsClosed() {
+		t.Fatal("IsClosed must report true after the detach timer fired")
+	}
+
+	// Sends on a closed output must not block and must not queue anything.
+	done := make(chan struct{})
+	go func() {
+		output.OnTextChunk("tombé à l'eau")
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("send blocked on a closed output")
+	}
+	if got := len(output.eventChan); got != 0 {
+		t.Errorf("closed output queued %d events, want 0", got)
+	}
+}
+
+// TestWebOutput_AttachCancelsDetach proves a subscriber re-attaching within
+// the grace period keeps the output alive: a page reload mid-turn must not
+// lose the rest of the stream.
+func TestWebOutput_AttachCancelsDetach(t *testing.T) {
+	output := NewWebOutput()
+	defer output.Close()
+
+	output.Detach(30 * time.Millisecond)
+	output.Attach()
+	time.Sleep(80 * time.Millisecond)
+	if output.IsClosed() {
+		t.Fatal("attach must cancel a pending detach timer")
+	}
+
+	// A second Detach after re-attach starts a new countdown (idempotent per
+	// pending timer only).
+	output.Detach(30 * time.Millisecond)
+	output.Attach()
+	output.Detach(30 * time.Millisecond)
+	select {
+	case <-output.Done():
+	case <-time.After(2 * time.Second):
+		t.Fatal("second detach never closed the output")
+	}
+}
+
+// TestWebOutput_SendNeverBlocksForeverOnClosedOutput proves the slow path
+// (full buffer) unblocks when the output closes mid-wait: no mutex is held
+// and no channel-close race can panic.
+func TestWebOutput_SendNeverBlocksForeverOnClosedOutput(t *testing.T) {
+	output := NewWebOutput()
+
+	for i := 0; i < 1000; i++ {
+		output.OnTextChunk("x")
+	}
+
+	done := make(chan struct{})
+	go func() {
+		output.OnTextChunk("bloqué")
+		close(done)
+	}()
+
+	// Give the slow-path send time to reach its grace-period wait, then close.
+	time.Sleep(50 * time.Millisecond)
+	output.Close()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("full-buffer send did not unblock after Close")
+	}
+}
+
 func contains(haystack []byte, needle string) bool {
 	return len(needle) == 0 || indexOf(haystack, needle) >= 0
 }

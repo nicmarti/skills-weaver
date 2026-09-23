@@ -251,19 +251,37 @@ func (s *Server) handleStream(c *gin.Context) {
 	// Setup SSE
 	SetupSSE(c)
 
+	// A live subscriber cancels any pending detach scheduled by a previous
+	// connection that went away.
+	output.Attach()
+
 	// Stream events
 	clientGone := c.Request.Context().Done()
 	for {
 		select {
 		case <-clientGone:
+			// The subscriber left. Keep the output open for a grace period
+			// (page reload re-attaches to a running turn); after that, Close
+			// turns the producer's sends into no-ops instead of letting every
+			// full-buffer send wait out its grace period.
+			output.Detach(sseDetachGrace)
+			return
+		case <-output.Done():
+			// Producer finished: terminal event, then end the response.
+			WriteSSE(c.Writer, SSEEvent{Event: "done", Data: "{}"})
+			c.Writer.Flush()
 			return
 		case event, ok := <-output.Events():
 			if !ok {
-				// Channel closed, send final event
+				// Defensive: the channel is never closed by design, but a
+				// closed channel must still terminate the stream cleanly.
 				WriteSSE(c.Writer, SSEEvent{Event: "done", Data: "{}"})
 				c.Writer.Flush()
 				return
 			}
+			// Receiving proves this subscriber is live and keeps any pending
+			// detach timer from closing the output out from under it.
+			output.Attach()
 			WriteSSE(c.Writer, event)
 			c.Writer.Flush()
 		}

@@ -7,14 +7,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync/atomic"
 
 	"dungeons/internal/llm"
 )
 
 // Agent orchestrates the Dungeon Master agent loop.
 type Agent struct {
-	client          llm.Client
-	model           string // resolved OpenRouter model ID (Sonnet 5 default)
+	client llm.Client
+	// model is the resolved OpenRouter model ID (Sonnet 5 default). Atomic:
+	// written by the web model selector (HTTP goroutine) while the agent
+	// loop reads it mid-turn.
+	model           atomic.Pointer[string]
 	toolRegistry    *ToolRegistry
 	conversationCtx *ConversationContext
 	adventureCtx    *AdventureContext
@@ -111,7 +115,6 @@ func newWithClient(client llm.Client, cfg llm.Config, adventureCtx *AdventureCon
 
 	agent := &Agent{
 		client:          client,
-		model:           model,
 		toolRegistry:    toolRegistry,
 		conversationCtx: conversationCtx,
 		adventureCtx:    adventureCtx,
@@ -122,6 +125,7 @@ func newWithClient(client llm.Client, cfg llm.Config, adventureCtx *AdventureCon
 		personaMetadata: personaMetadata,
 		sessionID:       fmt.Sprintf("sw-dm-%s", adventureCtx.Adventure.Slug),
 	}
+	agent.model.Store(&model)
 
 	// Load agent states from previous sessions
 	statesPath := fmt.Sprintf("%s/agent-states.json", adventureCtx.BasePath())
@@ -489,12 +493,13 @@ func (a *Agent) callLLM(ctx context.Context, systemPrompt string, definitions []
 	}
 
 	// Log model being used for this API call
+	model := a.currentModel()
 	if a.logger != nil {
-		a.logger.LogInfo(fmt.Sprintf("API call using model: %s", llm.DisplayName(a.model)))
+		a.logger.LogInfo(fmt.Sprintf("API call using model: %s", llm.DisplayName(model)))
 	}
 
 	req := llm.Request{
-		Model:               a.model,
+		Model:               model,
 		System:              systemPrompt,
 		Messages:            a.conversationCtx.NeutralMessages(),
 		Tools:               definitions,
@@ -724,14 +729,16 @@ func (a *Agent) saveAgentStates() {
 }
 
 // SetModel changes the model used by the agent for API calls. The value must
-// be an OpenRouter model ID or a sonnet/haiku/opus alias.
+// be an OpenRouter model ID or a sonnet/haiku/opus alias. Safe to call while
+// a turn is streaming: the web model selector writes it from an HTTP handler
+// goroutine while the agent loop reads it.
 func (a *Agent) SetModel(model string) error {
 	resolved, err := llm.ParseModelChoice(model)
 	if err != nil {
 		return fmt.Errorf("invalid model selection: %w", err)
 	}
-	oldModel := a.model
-	a.model = resolved
+	oldModel := a.currentModel()
+	a.model.Store(&resolved)
 	if a.logger != nil {
 		a.logger.LogInfo(fmt.Sprintf("Model changed: %s -> %s", llm.DisplayName(oldModel), llm.DisplayName(resolved)))
 	}
@@ -740,7 +747,16 @@ func (a *Agent) SetModel(model string) error {
 
 // GetModel returns the current model used by the agent.
 func (a *Agent) GetModel() string {
-	return a.model
+	return a.currentModel()
+}
+
+// currentModel loads the resolved model ID atomically; Agent embeds an
+// atomic value and must not be copied.
+func (a *Agent) currentModel() string {
+	if m := a.model.Load(); m != nil {
+		return *m
+	}
+	return llm.DefaultModelDM
 }
 
 // GetPersonaVersion returns the version of the loaded persona.

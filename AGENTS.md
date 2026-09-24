@@ -784,5 +784,5 @@ If an instruction proves false during normal work — a command fails, a path mo
 
 ---
 
-**Version** : 2.1 (Septembre 2026)
-**Dernière mise à jour** : Migration CLAUDE.md → AGENTS.md (contenu canonique français préservé), ajout Quick Reference en anglais, boundary provider-neutre `internal/llm`, plan de migration OpenRouter dans `docs/openrouter-migration-plan.md`
+**Version** : 2.2 (Septembre 2026)
+**Dernière mise à jour** : Fixes de concurrence web (sélection de modèle atomique dans `internal/agent/agent.go`, sortie SSE `internal/web/web_output.go` sans verrou pendant l'envoi, détachement SSE avec grâce de 3s) ; migration OpenRouter Phases 1–12 terminée, SDK Anthropic retiré du module

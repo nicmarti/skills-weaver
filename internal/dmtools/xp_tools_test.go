@@ -51,7 +51,7 @@ func TestXPForLevel(t *testing.T) {
 		{5, 6500},
 		{10, 64000},
 		{20, 355000},
-		{0, 0},   // Below min
+		{0, 0},       // Below min
 		{21, 355000}, // Above max
 	}
 
@@ -70,12 +70,12 @@ func TestXPToNextLevel(t *testing.T) {
 		currentXP  int
 		expectedXP int
 	}{
-		{0, 300},      // Level 1 → 2 needs 300
-		{150, 150},    // Level 1 with 150 XP → needs 150 more
-		{300, 600},    // Level 2 → 3 needs 600 more
-		{500, 400},    // Level 2 with 500 XP → needs 400 more to reach 900
-		{355000, 0},   // Max level
-		{400000, 0},   // Beyond max level
+		{0, 300},    // Level 1 → 2 needs 300
+		{150, 150},  // Level 1 with 150 XP → needs 150 more
+		{300, 600},  // Level 2 → 3 needs 600 more
+		{500, 400},  // Level 2 with 500 XP → needs 400 more to reach 900
+		{355000, 0}, // Max level
+		{400000, 0}, // Beyond max level
 	}
 
 	for _, tt := range tests {

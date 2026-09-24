@@ -25,7 +25,7 @@ func NewGetSpellTool(manager *spell.Manager) *SimpleTool {
 					"description": "Optional: Search term to find spells by partial name match.",
 				},
 				"class": map[string]interface{}{
-					"type": "string",
+					"type":        "string",
 					"description": "Optional: Filter by class. Valid classes: wizard, sorcerer, cleric, druid, bard, warlock, paladin, ranger, fighter, rogue.",
 					"enum": []string{
 						"wizard", "magicien",
@@ -185,20 +185,20 @@ func formatResults(results []*data.Spell5e) (interface{}, error) {
 }
 
 // formatSpell5e converts a D&D 5e spell to a map.
-func formatSpell5e(s *data.Spell5e) map[string]interface{}{
+func formatSpell5e(s *data.Spell5e) map[string]interface{} {
 	result := map[string]interface{}{
-		"id":           s.ID,
-		"name":         s.Name,
-		"level":        s.Level,
-		"school":       s.School,
-		"casting_time": s.CastingTime,
-		"range":        s.Range,
-		"components":   s.Components,
-		"duration":     s.Duration,
+		"id":            s.ID,
+		"name":          s.Name,
+		"level":         s.Level,
+		"school":        s.School,
+		"casting_time":  s.CastingTime,
+		"range":         s.Range,
+		"components":    s.Components,
+		"duration":      s.Duration,
 		"concentration": s.Concentration,
-		"ritual":       s.Ritual,
-		"classes":      s.Classes,
-		"description":  s.DescriptionFR,
+		"ritual":        s.Ritual,
+		"classes":       s.Classes,
+		"description":   s.DescriptionFR,
 	}
 
 	if s.Material != "" {

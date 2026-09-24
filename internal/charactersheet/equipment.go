@@ -8,22 +8,22 @@ import (
 
 // EquipmentSummary consolidates all equipment
 type EquipmentSummary struct {
-	Items       []EquipmentItem  // Personal equipment
-	SharedItems []EquipmentItem  // Adventure inventory
-	SharedGold  int              // Shared gold
-	Empty       bool             // True if no equipment
+	Items       []EquipmentItem // Personal equipment
+	SharedItems []EquipmentItem // Adventure inventory
+	SharedGold  int             // Shared gold
+	Empty       bool            // True if no equipment
 }
 
 // EquipmentItem represents a piece of equipment
 type EquipmentItem struct {
 	ID       string
 	Name     string
-	Category string  // "weapon", "armor", "gear", "magic"
+	Category string // "weapon", "armor", "gear", "magic"
 	Quantity int
 	Weight   float64
-	Source   string  // "character", "adventure"
-	Details  string  // e.g., "1d8 damage, versatile"
-	Icon     string  // Optional icon path
+	Source   string // "character", "adventure"
+	Details  string // e.g., "1d8 damage, versatile"
+	Icon     string // Optional icon path
 }
 
 // EquipmentExtractor pulls equipment from multiple sources

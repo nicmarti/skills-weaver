@@ -29,7 +29,7 @@ type AbilityScores struct {
 type Character struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
-	Species      string        `json:"species"`      // Replaces "Race" in D&D 5e
+	Species      string        `json:"species"` // Replaces "Race" in D&D 5e
 	Class        string        `json:"class"`
 	Level        int           `json:"level"`
 	XP           int           `json:"xp"`
@@ -42,23 +42,23 @@ type Character struct {
 	Equipment    []string      `json:"equipment"`
 
 	// D&D 5e specific fields
-	Background       string          `json:"background,omitempty"`        // Character background
-	ProficiencyBonus int             `json:"proficiency_bonus"`           // +2 to +6 based on level
-	Skills           map[string]bool `json:"skills,omitempty"`            // Proficient skills
+	Background       string          `json:"background,omitempty"`         // Character background
+	ProficiencyBonus int             `json:"proficiency_bonus"`            // +2 to +6 based on level
+	Skills           map[string]bool `json:"skills,omitempty"`             // Proficient skills
 	SavingThrowProfs map[string]bool `json:"saving_throw_profs,omitempty"` // Proficient saving throws
-	Inspiration      bool            `json:"inspiration,omitempty"`       // Inspiration point
-	TempHitPoints    int             `json:"temp_hit_points,omitempty"`   // Temporary HP
-	HitDice          int             `json:"hit_dice,omitempty"`          // Remaining hit dice
-	MaxHitDice       int             `json:"max_hit_dice,omitempty"`      // Maximum hit dice (= level)
+	Inspiration      bool            `json:"inspiration,omitempty"`        // Inspiration point
+	TempHitPoints    int             `json:"temp_hit_points,omitempty"`    // Temporary HP
+	HitDice          int             `json:"hit_dice,omitempty"`           // Remaining hit dice
+	MaxHitDice       int             `json:"max_hit_dice,omitempty"`       // Maximum hit dice (= level)
 
 	// Class features (e.g., "Sursaut d'action", "Attaque sournoise 2d6")
 	ClassFeatures []string `json:"class_features,omitempty"`
 
 	// Spell system fields
-	SpellSaveDC      int        `json:"spell_save_dc,omitempty"`       // DC for spell saves
-	SpellAttackBonus int        `json:"spell_attack_bonus,omitempty"`  // Bonus for spell attacks
-	KnownSpells      []string   `json:"known_spells,omitempty"`        // Spell IDs known by the character
-	PreparedSpells   []string   `json:"prepared_spells,omitempty"`     // Spell IDs prepared for the day
+	SpellSaveDC      int         `json:"spell_save_dc,omitempty"`      // DC for spell saves
+	SpellAttackBonus int         `json:"spell_attack_bonus,omitempty"` // Bonus for spell attacks
+	KnownSpells      []string    `json:"known_spells,omitempty"`       // Spell IDs known by the character
+	PreparedSpells   []string    `json:"prepared_spells,omitempty"`    // Spell IDs prepared for the day
 	SpellSlots       map[int]int `json:"spell_slots,omitempty"`        // Available spell slots by level
 	SpellSlotsUsed   map[int]int `json:"spell_slots_used,omitempty"`   // Used spell slots by level
 
@@ -69,14 +69,14 @@ type Character struct {
 // CharacterAppearance stores visual description for image generation.
 type CharacterAppearance struct {
 	Age                int    `json:"age,omitempty"`
-	Gender             string `json:"gender,omitempty"`             // "male", "female", "non-binary"
-	Build              string `json:"build,omitempty"`              // "slender", "stocky", "muscular", "average"
-	Height             string `json:"height,omitempty"`             // "tall", "average", "short"
+	Gender             string `json:"gender,omitempty"` // "male", "female", "non-binary"
+	Build              string `json:"build,omitempty"`  // "slender", "stocky", "muscular", "average"
+	Height             string `json:"height,omitempty"` // "tall", "average", "short"
 	HairColor          string `json:"hair_color,omitempty"`
 	HairStyle          string `json:"hair_style,omitempty"`
 	EyeColor           string `json:"eye_color,omitempty"`
 	SkinTone           string `json:"skin_tone,omitempty"`
-	FacialFeature      string `json:"facial_feature,omitempty"`     // "bearded", "clean-shaven", "scarred"
+	FacialFeature      string `json:"facial_feature,omitempty"`      // "bearded", "clean-shaven", "scarred"
 	DistinctiveFeature string `json:"distinctive_feature,omitempty"` // "battle scar", "tattoo", "eye patch"
 	ArmorDescription   string `json:"armor_description,omitempty"`   // "plate armor", "leather vest"
 	WeaponDescription  string `json:"weapon_description,omitempty"`  // "longsword", "staff with crystal"

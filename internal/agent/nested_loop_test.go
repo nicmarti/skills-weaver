@@ -41,7 +41,7 @@ func setupNestedManager(t *testing.T, cfg llm.Config, client llm.Client) (*Agent
 		t.Fatal(err)
 	}
 	personas := map[string]string{
-		"rules-keeper":     "---\nname: rules-keeper\nmodel: haiku\n---\nYou are a D&D 5e rules expert.",
+		"rules-keeper":      "---\nname: rules-keeper\nmodel: haiku\n---\nYou are a D&D 5e rules expert.",
 		"character-creator": "---\nname: character-creator\nmodel: haiku\n---\nYou help create D&D characters.",
 		"world-keeper":      "---\nname: world-keeper\nmodel: haiku\n---\nYou maintain world consistency.",
 	}
@@ -280,7 +280,7 @@ func TestWorldKeeper_ImageSentToVisionModel_TextFallbackOtherwise(t *testing.T) 
 	withWorldResources := func(am *AgentManager) {
 		am.worldResources = &WorldResources{
 			MapDescription:    "Les Quatre Royaumes...",
-			MapImageBase64:     "QUJD",
+			MapImageBase64:    "QUJD",
 			MapImageMediaType: "image/png",
 		}
 	}

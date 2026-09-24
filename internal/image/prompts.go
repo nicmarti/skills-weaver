@@ -440,7 +440,7 @@ func IllustratableTypes() []string {
 	return []string{
 		"combat",
 		"exploration",
-		"story",    // Major story events
+		"story", // Major story events
 		"note",
 		"discovery",
 		"loot",

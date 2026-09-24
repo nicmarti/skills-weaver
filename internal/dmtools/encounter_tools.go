@@ -68,16 +68,16 @@ func NewGenerateEncounterTool(bestiary *monster.Bestiary) *SimpleTool {
 			monsters := make([]map[string]interface{}, 0, len(result.Monsters))
 			for i, inst := range result.Monsters {
 				monsters = append(monsters, map[string]interface{}{
-					"index":          i + 1,
-					"name":           inst.Monster.NameFR,
-					"id":             inst.Monster.ID,
-					"hp":             inst.HitPoints,
-					"max_hp":         inst.MaxHP,
-					"ac":             inst.Monster.ArmorClass,
-					"cr":             inst.Monster.ChallengeRating,
-					"attacks":        formatAttacks(inst.Monster.Attacks),
-					"xp":             inst.Monster.XP,
-					"treasure_type":  inst.Monster.TreasureType,
+					"index":         i + 1,
+					"name":          inst.Monster.NameFR,
+					"id":            inst.Monster.ID,
+					"hp":            inst.HitPoints,
+					"max_hp":        inst.MaxHP,
+					"ac":            inst.Monster.ArmorClass,
+					"cr":            inst.Monster.ChallengeRating,
+					"attacks":       formatAttacks(inst.Monster.Attacks),
+					"xp":            inst.Monster.XP,
+					"treasure_type": inst.Monster.TreasureType,
 				})
 			}
 
@@ -173,15 +173,15 @@ func NewRollMonsterHPTool(bestiary *monster.Bestiary) *SimpleTool {
 			return map[string]interface{}{
 				"success": true,
 				"monster": map[string]interface{}{
-					"id":                m.ID,
-					"name":              m.NameFR,
-					"ac":                m.ArmorClass,
-					"cr":                m.ChallengeRating,
-					"hit_dice":          m.HitDice,
-					"attacks":           formatAttacks(m.Attacks),
-					"special":           m.Special,
-					"treasure_type":     m.TreasureType,
-					"xp":                m.XP,
+					"id":            m.ID,
+					"name":          m.NameFR,
+					"ac":            m.ArmorClass,
+					"cr":            m.ChallengeRating,
+					"hit_dice":      m.HitDice,
+					"attacks":       formatAttacks(m.Attacks),
+					"special":       m.Special,
+					"treasure_type": m.TreasureType,
+					"xp":            m.XP,
 				},
 				"instances": instances,
 				"total_xp":  totalXP,

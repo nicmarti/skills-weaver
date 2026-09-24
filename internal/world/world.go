@@ -53,7 +53,7 @@ type Frontier struct {
 
 // Factions contains all kingdom/faction data.
 type Factions struct {
-	Kingdoms     []Kingdom     `json:"kingdoms"`
+	Kingdoms      []Kingdom      `json:"kingdoms"`
 	Organizations []Organization `json:"organizations,omitempty"`
 }
 
@@ -100,14 +100,14 @@ type Military struct {
 
 // Organization represents a secret organization or guild.
 type Organization struct {
-	Name        string   `json:"name"`
-	Type        string   `json:"type"` // "guild", "secret", "religious", etc.
-	Founded     string   `json:"founded,omitempty"`
+	Name         string   `json:"name"`
+	Type         string   `json:"type"` // "guild", "secret", "religious", etc.
+	Founded      string   `json:"founded,omitempty"`
 	Headquarters string   `json:"headquarters,omitempty"`
-	Activities  []string `json:"activities,omitempty"`
-	Members     []string `json:"members,omitempty"`
-	Influence   []string `json:"influence,omitempty"`
-	Notes       string   `json:"notes,omitempty"`
+	Activities   []string `json:"activities,omitempty"`
+	Members      []string `json:"members,omitempty"`
+	Influence    []string `json:"influence,omitempty"`
+	Notes        string   `json:"notes,omitempty"`
 }
 
 // LocationNames contains naming conventions for all kingdoms.

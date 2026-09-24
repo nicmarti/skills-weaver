@@ -143,10 +143,10 @@ func GenerateNameSuggestions(locationType, kingdomID string, names *LocationName
 // GetKingdomNamingStyle returns a descriptive string of a kingdom's naming style.
 func GetKingdomNamingStyle(kingdomID string) string {
 	styles := map[string]string{
-		"valdorine":  "Maritime (Italian-inspired with water-themed names)",
-		"karvath":    "Militaristic (German-inspired with martial names)",
-		"lumenciel":  "Religious (Latin-inspired with sacred names)",
-		"astrene":    "Melancholic (Nordic-inspired with somber names)",
+		"valdorine": "Maritime (Italian-inspired with water-themed names)",
+		"karvath":   "Militaristic (German-inspired with martial names)",
+		"lumenciel": "Religious (Latin-inspired with sacred names)",
+		"astrene":   "Melancholic (Nordic-inspired with somber names)",
 	}
 
 	if style, ok := styles[strings.ToLower(kingdomID)]; ok {

@@ -30,13 +30,13 @@ type TemplateData struct {
 
 // CharacterDisplay wraps character for template display
 type CharacterDisplay struct {
-	Name          string
-	Level         int
-	XP            int
-	HitPoints     int
-	MaxHitPoints  int
-	ArmorClass    int
-	Appearance    *AppearanceDisplay
+	Name         string
+	Level        int
+	XP           int
+	HitPoints    int
+	MaxHitPoints int
+	ArmorClass   int
+	Appearance   *AppearanceDisplay
 }
 
 // AppearanceDisplay wraps appearance for template

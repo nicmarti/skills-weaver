@@ -34,15 +34,15 @@ type SheetOptions struct {
 
 // Sheet represents a complete character sheet
 type Sheet struct {
-	Character    *character.Character
-	Biography    *Biography
-	Equipment    *EquipmentSummary
-	Adventure    *AdventureContext
-	RaceName     string
-	ClassName    string
-	Gold         int
-	ClassBanner  string
-	GeneratedAt  string
+	Character   *character.Character
+	Biography   *Biography
+	Equipment   *EquipmentSummary
+	Adventure   *AdventureContext
+	RaceName    string
+	ClassName   string
+	Gold        int
+	ClassBanner string
+	GeneratedAt string
 }
 
 // AdventureContext provides adventure-specific data

@@ -32,19 +32,19 @@ type VillageParts struct {
 
 // RegionTemplates holds templates for region names.
 type RegionTemplates struct {
-	Templates         []string `json:"templates"`
-	Names             []string `json:"names"`
-	Adjectives        []string `json:"adjectives"`
-	AdjectivesPlural  []string `json:"adjectives_plural"`
-	Nouns             []string `json:"nouns"`
+	Templates        []string `json:"templates"`
+	Names            []string `json:"names"`
+	Adjectives       []string `json:"adjectives"`
+	AdjectivesPlural []string `json:"adjectives_plural"`
+	Nouns            []string `json:"nouns"`
 }
 
 // KingdomNames holds all naming data for a kingdom.
 type KingdomNames struct {
-	Cities  CityParts       `json:"cities"`
-	Towns   TownParts       `json:"towns"`
-	Villages VillageParts   `json:"villages"`
-	Regions RegionTemplates `json:"regions"`
+	Cities   CityParts       `json:"cities"`
+	Towns    TownParts       `json:"towns"`
+	Villages VillageParts    `json:"villages"`
+	Regions  RegionTemplates `json:"regions"`
 }
 
 // LocationData holds all location naming data.

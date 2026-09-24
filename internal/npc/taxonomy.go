@@ -78,7 +78,7 @@ var roleAliases = map[string]Role{
 	"donneur_de_quete": RoleDonneurDeQuete, "quest_giver": RoleDonneurDeQuete,
 	"antagoniste": RoleAntagoniste, "antagonist": RoleAntagoniste,
 	"allie": RoleAllie, "ally": RoleAllie,
-	"rival": RoleRival,
+	"rival":       RoleRival,
 	"informateur": RoleInformateur, "informant": RoleInformateur,
 }
 

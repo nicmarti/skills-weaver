@@ -57,8 +57,8 @@ func TestGenerateOccupationCategory(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		category   string
+		name             string
+		category         string
 		validOccupations []string
 	}{
 		{

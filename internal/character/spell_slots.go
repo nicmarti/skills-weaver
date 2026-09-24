@@ -35,7 +35,7 @@ var fullCasterSlots = map[int]SpellSlotTable{
 // Classes: Paladin, Ranger
 // These classes start getting spell slots at level 2 with slower progression.
 var halfCasterSlots = map[int]SpellSlotTable{
-	1:  {},                 // No spells at level 1
+	1:  {}, // No spells at level 1
 	2:  {1: 2},
 	3:  {1: 3},
 	4:  {1: 3},
@@ -61,23 +61,23 @@ var halfCasterSlots = map[int]SpellSlotTable{
 // Warlock slots are different: all slots are of the same level (Pact slot level).
 // They restore on short rest instead of long rest.
 var warlockSlots = map[int]SpellSlotTable{
-	1:  {1: 1},  // 1 slot, max spell level 1
-	2:  {1: 2},  // 2 slots, max spell level 1
-	3:  {2: 2},  // 2 slots, max spell level 2 (pact slots upgrade)
+	1:  {1: 1}, // 1 slot, max spell level 1
+	2:  {1: 2}, // 2 slots, max spell level 1
+	3:  {2: 2}, // 2 slots, max spell level 2 (pact slots upgrade)
 	4:  {2: 2},
-	5:  {3: 2},  // 2 slots, max spell level 3
+	5:  {3: 2}, // 2 slots, max spell level 3
 	6:  {3: 2},
-	7:  {4: 2},  // 2 slots, max spell level 4
+	7:  {4: 2}, // 2 slots, max spell level 4
 	8:  {4: 2},
-	9:  {5: 2},  // 2 slots, max spell level 5
+	9:  {5: 2}, // 2 slots, max spell level 5
 	10: {5: 2},
-	11: {5: 3},  // 3 slots, max spell level 5
+	11: {5: 3}, // 3 slots, max spell level 5
 	12: {5: 3},
 	13: {5: 3},
 	14: {5: 3},
 	15: {5: 3},
 	16: {5: 3},
-	17: {5: 4},  // 4 slots, max spell level 5
+	17: {5: 4}, // 4 slots, max spell level 5
 	18: {5: 4},
 	19: {5: 4},
 	20: {5: 4},
@@ -87,8 +87,8 @@ var warlockSlots = map[int]SpellSlotTable{
 // Subclasses: Eldritch Knight (Fighter), Arcane Trickster (Rogue)
 // These start getting spells at level 3 with very slow progression.
 var thirdCasterSlots = map[int]SpellSlotTable{
-	1:  {},                 // No spells
-	2:  {},                 // No spells
+	1:  {}, // No spells
+	2:  {}, // No spells
 	3:  {1: 2},
 	4:  {1: 3},
 	5:  {1: 3},

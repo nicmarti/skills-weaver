@@ -20,8 +20,8 @@ func NewUpdateNPCImportanceTool(adv *adventure.Adventure) *SimpleTool {
 					"description": "The exact name of the NPC to update",
 				},
 				"importance": map[string]interface{}{
-					"type": "string",
-					"enum": []string{"mentioned", "interacted", "recurring", "key"},
+					"type":        "string",
+					"enum":        []string{"mentioned", "interacted", "recurring", "key"},
 					"description": "New importance level. mentioned < interacted < recurring < key. Only increases, never decreases.",
 				},
 				"note": map[string]interface{}{

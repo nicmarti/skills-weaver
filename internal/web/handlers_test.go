@@ -115,7 +115,7 @@ func TestApplyCampaignPlanNPCOverrides(t *testing.T) {
 func testGameData() *data.GameData {
 	return &data.GameData{
 		Species: map[string]*data.Species{
-			"human": {ID: "human", Name: "Humain", Speed: 30},
+			"human":    {ID: "human", Name: "Humain", Speed: 30},
 			"halfling": {ID: "halfling", Name: "Halfelin", Speed: 25},
 		},
 		Classes: map[string]*data.Class{

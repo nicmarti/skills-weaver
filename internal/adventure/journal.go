@@ -43,8 +43,8 @@ type Journal struct {
 
 // JournalMetadata tracks global journal state across all sessions.
 type JournalMetadata struct {
-	NextID     int       `json:"next_id"`      // Global ID counter
-	Categories []string  `json:"categories"`   // Available entry types
+	NextID     int       `json:"next_id"`     // Global ID counter
+	Categories []string  `json:"categories"`  // Available entry types
 	LastUpdate time.Time `json:"last_update"` // Last modification time
 }
 
@@ -56,21 +56,21 @@ type SessionJournal struct {
 
 // Default journal categories
 var defaultCategories = []string{
-	"combat",     // Combat encounters
-	"loot",       // Treasure and items found
-	"story",      // Story progression
-	"note",       // General notes
-	"quest",      // Quest updates
-	"npc",        // NPC interactions
-	"location",   // Location discoveries
-	"rest",       // Resting and recovery
-	"death",      // Character death
-	"levelup",    // Level advancement
-	"session",    // Session markers
-	"party",      // Party changes
-	"xp",         // XP awards
-	"expense",    // Gold spent
-	"use",        // Item usage
+	"combat",   // Combat encounters
+	"loot",     // Treasure and items found
+	"story",    // Story progression
+	"note",     // General notes
+	"quest",    // Quest updates
+	"npc",      // NPC interactions
+	"location", // Location discoveries
+	"rest",     // Resting and recovery
+	"death",    // Character death
+	"levelup",  // Level advancement
+	"session",  // Session markers
+	"party",    // Party changes
+	"xp",       // XP awards
+	"expense",  // Gold spent
+	"use",      // Item usage
 }
 
 // LoadJournal loads the adventure journal by aggregating all session journals.

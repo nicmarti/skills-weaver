@@ -25,8 +25,8 @@ type SimpleTool struct {
 	execute     func(map[string]interface{}) (interface{}, error)
 }
 
-func (t *SimpleTool) Name() string        { return t.name }
-func (t *SimpleTool) Description() string { return t.description }
+func (t *SimpleTool) Name() string                        { return t.name }
+func (t *SimpleTool) Description() string                 { return t.description }
 func (t *SimpleTool) InputSchema() map[string]interface{} { return t.schema }
 func (t *SimpleTool) Execute(params map[string]interface{}) (interface{}, error) {
 	return t.execute(params)

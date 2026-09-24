@@ -74,7 +74,7 @@ func (f *nestedFakeClient) Complete(ctx context.Context, req llm.Request) (llm.R
 	return llm.Response{
 		ID:           fmt.Sprintf("fake-gen-%d", f.callCount()),
 		Model:        req.Model,
-		FinishReason:  llm.FinishStop,
+		FinishReason: llm.FinishStop,
 		Message:      llm.AssistantMessage(fakeNestedResponse(question, responses)),
 		Usage:        usage,
 	}, nil

@@ -71,11 +71,11 @@ func NewAddItemTool(adv *adventure.Adventure) *SimpleTool {
 			inv, _ := adv.LoadInventory()
 
 			return map[string]interface{}{
-				"success":  true,
-				"added":    name,
-				"quantity": quantity,
-				"message":  fmt.Sprintf("Ajouté %d× %s à l'inventaire", quantity, name),
-				"inventory_gold": inv.Gold,
+				"success":         true,
+				"added":           name,
+				"quantity":        quantity,
+				"message":         fmt.Sprintf("Ajouté %d× %s à l'inventaire", quantity, name),
+				"inventory_gold":  inv.Gold,
 				"inventory_items": len(inv.Items),
 			}, nil
 		},
@@ -137,11 +137,11 @@ func NewRemoveItemTool(adv *adventure.Adventure) *SimpleTool {
 			inv, _ := adv.LoadInventory()
 
 			return map[string]interface{}{
-				"success":  true,
-				"removed":  name,
-				"quantity": quantity,
-				"message":  fmt.Sprintf("Retiré %d× %s de l'inventaire", quantity, name),
-				"inventory_gold": inv.Gold,
+				"success":         true,
+				"removed":         name,
+				"quantity":        quantity,
+				"message":         fmt.Sprintf("Retiré %d× %s de l'inventaire", quantity, name),
+				"inventory_gold":  inv.Gold,
 				"inventory_items": len(inv.Items),
 			}, nil
 		},

@@ -41,12 +41,12 @@ type EncounterMultiplier struct {
 
 // encounterMultipliers for groups of monsters (D&D 5e DMG p.82).
 var encounterMultipliers = []EncounterMultiplier{
-	{1, 1, 1.0},      // 1 monster
-	{2, 2, 1.5},      // 2 monsters
-	{3, 6, 2.0},      // 3-6 monsters
-	{7, 10, 2.5},     // 7-10 monsters
-	{11, 14, 3.0},    // 11-14 monsters
-	{15, 999, 4.0},   // 15+ monsters
+	{1, 1, 1.0},    // 1 monster
+	{2, 2, 1.5},    // 2 monsters
+	{3, 6, 2.0},    // 3-6 monsters
+	{7, 10, 2.5},   // 7-10 monsters
+	{11, 14, 3.0},  // 11-14 monsters
+	{15, 999, 4.0}, // 15+ monsters
 }
 
 // GetXPThreshold returns the XP threshold for a given level and difficulty.
@@ -97,11 +97,11 @@ func CalculateAdjustedXP(totalXP int, numMonsters int) int {
 
 // EncounterDifficulty represents the calculated difficulty of an encounter.
 type EncounterDifficulty struct {
-	TotalXP        int    // Raw XP from all monsters
-	AdjustedXP     int    // XP adjusted for number of monsters
-	PartyBudget    int    // XP budget for the party
-	Difficulty     string // "trivial", "easy", "medium", "hard", "deadly"
-	IsBalanced     bool   // True if within party budget
+	TotalXP     int    // Raw XP from all monsters
+	AdjustedXP  int    // XP adjusted for number of monsters
+	PartyBudget int    // XP budget for the party
+	Difficulty  string // "trivial", "easy", "medium", "hard", "deadly"
+	IsBalanced  bool   // True if within party budget
 }
 
 // EvaluateEncounter evaluates an encounter's difficulty against a party (D&D 5e).

@@ -344,9 +344,9 @@ func NewUseSpellSlotTool(adv *adventure.Adventure) *SimpleTool {
 			// Use the spell slot (this checks availability internally)
 			if err := char.UseSpellSlot(level); err != nil {
 				return map[string]interface{}{
-					"success":          false,
-					"error":            fmt.Sprintf("Impossible d'utiliser l'emplacement: %v", err),
-					"available_slots":  formatAvailableSlotsFromMaps(char.SpellSlots, char.SpellSlotsUsed),
+					"success":         false,
+					"error":           fmt.Sprintf("Impossible d'utiliser l'emplacement: %v", err),
+					"available_slots": formatAvailableSlotsFromMaps(char.SpellSlots, char.SpellSlotsUsed),
 				}, nil
 			}
 
@@ -376,15 +376,15 @@ func NewUseSpellSlotTool(adv *adventure.Adventure) *SimpleTool {
 			adv.LogEvent("combat", logContent)
 
 			return map[string]interface{}{
-				"success":          true,
-				"character_name":   char.Name,
-				"spell_level":      level,
-				"spell_name":       spellName,
-				"slots_before":     availableBefore,
-				"slots_after":      availableAfter,
-				"max_slots":        maxSlots,
-				"all_slots":        formatAvailableSlotsFromMaps(char.SpellSlots, char.SpellSlotsUsed),
-				"display":          display,
+				"success":        true,
+				"character_name": char.Name,
+				"spell_level":    level,
+				"spell_name":     spellName,
+				"slots_before":   availableBefore,
+				"slots_after":    availableAfter,
+				"max_slots":      maxSlots,
+				"all_slots":      formatAvailableSlotsFromMaps(char.SpellSlots, char.SpellSlotsUsed),
+				"display":        display,
 			}, nil
 		},
 	}

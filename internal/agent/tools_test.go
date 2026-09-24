@@ -11,9 +11,9 @@ type mockTool struct {
 	schema      map[string]interface{}
 }
 
-func (t *mockTool) Name() string                                        { return t.name }
-func (t *mockTool) Description() string                                 { return t.description }
-func (t *mockTool) InputSchema() map[string]interface{}                 { return t.schema }
+func (t *mockTool) Name() string                                               { return t.name }
+func (t *mockTool) Description() string                                        { return t.description }
+func (t *mockTool) InputSchema() map[string]interface{}                        { return t.schema }
 func (t *mockTool) Execute(params map[string]interface{}) (interface{}, error) { return nil, nil }
 
 func newMockTool(name string) *mockTool {
@@ -37,44 +37,44 @@ func TestToolRegistry_CreateFilteredRegistry(t *testing.T) {
 	registry.Register(newMockTool("get_spell"))
 
 	tests := []struct {
-		name       string
-		allowed    []string
-		forbidden  []string
-		wantCount  int
-		wantTools  []string
-		dontWant   []string
+		name      string
+		allowed   []string
+		forbidden []string
+		wantCount int
+		wantTools []string
+		dontWant  []string
 	}{
 		{
-			name:       "filter by allowed list only",
-			allowed:    []string{"roll_dice", "get_monster"},
-			forbidden:  []string{},
-			wantCount:  2,
-			wantTools:  []string{"roll_dice", "get_monster"},
-			dontWant:   []string{"invoke_agent", "log_event", "get_spell"},
+			name:      "filter by allowed list only",
+			allowed:   []string{"roll_dice", "get_monster"},
+			forbidden: []string{},
+			wantCount: 2,
+			wantTools: []string{"roll_dice", "get_monster"},
+			dontWant:  []string{"invoke_agent", "log_event", "get_spell"},
 		},
 		{
-			name:       "forbidden takes precedence",
-			allowed:    []string{"roll_dice", "get_monster", "invoke_agent"},
-			forbidden:  []string{"invoke_agent"},
-			wantCount:  2,
-			wantTools:  []string{"roll_dice", "get_monster"},
-			dontWant:   []string{"invoke_agent"},
+			name:      "forbidden takes precedence",
+			allowed:   []string{"roll_dice", "get_monster", "invoke_agent"},
+			forbidden: []string{"invoke_agent"},
+			wantCount: 2,
+			wantTools: []string{"roll_dice", "get_monster"},
+			dontWant:  []string{"invoke_agent"},
 		},
 		{
-			name:       "empty allowed list with forbidden",
-			allowed:    []string{},
-			forbidden:  []string{"invoke_agent", "log_event"},
-			wantCount:  3,
-			wantTools:  []string{"roll_dice", "get_monster", "get_spell"},
-			dontWant:   []string{"invoke_agent", "log_event"},
+			name:      "empty allowed list with forbidden",
+			allowed:   []string{},
+			forbidden: []string{"invoke_agent", "log_event"},
+			wantCount: 3,
+			wantTools: []string{"roll_dice", "get_monster", "get_spell"},
+			dontWant:  []string{"invoke_agent", "log_event"},
 		},
 		{
-			name:       "empty both lists returns all",
-			allowed:    []string{},
-			forbidden:  []string{},
-			wantCount:  5,
-			wantTools:  []string{"roll_dice", "get_monster", "invoke_agent", "log_event", "get_spell"},
-			dontWant:   []string{},
+			name:      "empty both lists returns all",
+			allowed:   []string{},
+			forbidden: []string{},
+			wantCount: 5,
+			wantTools: []string{"roll_dice", "get_monster", "invoke_agent", "log_event", "get_spell"},
+			dontWant:  []string{},
 		},
 	}
 

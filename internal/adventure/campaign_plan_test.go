@@ -38,10 +38,10 @@ func TestSaveAndLoadCampaignPlan(t *testing.T) {
 			Hook:      "A mysterious stranger arrives",
 			Acts: []Act{
 				{
-					Number:      1,
-					Title:       "Act I",
-					Description: "The Beginning",
-					Status:      "in_progress",
+					Number:         1,
+					Title:          "Act I",
+					Description:    "The Beginning",
+					Status:         "in_progress",
 					TargetSessions: []int{1, 2, 3},
 				},
 			},

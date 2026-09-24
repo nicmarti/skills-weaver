@@ -39,8 +39,8 @@ type NestedAgentState struct {
 	client          llm.Client
 	tokenLimit      int
 	metrics         *AgentMetrics
-	model           string           // Resolved OpenRouter model ID for this agent
-	toolRegistry    *ToolRegistry    // Filtered tool registry for this agent
+	model           string            // Resolved OpenRouter model ID for this agent
+	toolRegistry    *ToolRegistry     // Filtered tool registry for this agent
 	toolPolicy      *ToolAccessPolicy // Tool access policy for this agent
 }
 
@@ -514,7 +514,7 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 		Model:               nestedAgent.model,
 		System:              systemPrompt,
 		Messages:            am.adaptMessagesForModel(nestedAgent, nestedAgent.conversationCtx.NeutralMessages()),
-		MaxCompletionTokens:  nestedAgentMaxOutputTokens,
+		MaxCompletionTokens: nestedAgentMaxOutputTokens,
 		RequireParameters:   false,
 	})
 	if callErr != nil {
@@ -607,14 +607,14 @@ func (am *AgentManager) getOrCreateNestedAgent(agentName string) (*NestedAgentSt
 		conversationCtx: conversationCtx,
 		lastInvoked:     time.Now(),
 		invocationCount: 0,
-		client:           am.client,
-		tokenLimit:       nestedAgentTokenLimit,
-		model:            model,
-		toolRegistry:     filteredRegistry,
-		toolPolicy:       policy,
+		client:          am.client,
+		tokenLimit:      nestedAgentTokenLimit,
+		model:           model,
+		toolRegistry:    filteredRegistry,
+		toolPolicy:      policy,
 		metrics: &AgentMetrics{
-			ModelUsed:       model,
-			RequestedModel:  model,
+			ModelUsed:      model,
+			RequestedModel: model,
 		},
 	}
 

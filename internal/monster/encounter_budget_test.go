@@ -40,12 +40,12 @@ func TestCalculatePartyBudget(t *testing.T) {
 		difficulty string
 		wantBudget int
 	}{
-		{1, 4, "easy", 100},    // 25 * 4
-		{1, 4, "medium", 200},  // 50 * 4
-		{1, 4, "hard", 300},    // 75 * 4
-		{1, 4, "deadly", 400},  // 100 * 4
-		{3, 5, "medium", 750},  // 150 * 5
-		{5, 4, "hard", 3000},   // 750 * 4
+		{1, 4, "easy", 100},      // 25 * 4
+		{1, 4, "medium", 200},    // 50 * 4
+		{1, 4, "hard", 300},      // 75 * 4
+		{1, 4, "deadly", 400},    // 100 * 4
+		{3, 5, "medium", 750},    // 150 * 5
+		{5, 4, "hard", 3000},     // 750 * 4
 		{10, 6, "deadly", 16800}, // 2800 * 6
 	}
 
@@ -97,14 +97,14 @@ func TestCalculateAdjustedXP(t *testing.T) {
 		numMonsters int
 		wantAdjXP   int
 	}{
-		{100, 1, 100},   // 100 * 1.0
-		{100, 2, 150},   // 100 * 1.5
-		{100, 4, 200},   // 100 * 2.0
-		{100, 8, 250},   // 100 * 2.5
-		{100, 12, 300},  // 100 * 3.0
-		{100, 20, 400},  // 100 * 4.0
-		{200, 3, 400},   // 200 * 2.0
-		{450, 2, 675},   // 450 * 1.5
+		{100, 1, 100},  // 100 * 1.0
+		{100, 2, 150},  // 100 * 1.5
+		{100, 4, 200},  // 100 * 2.0
+		{100, 8, 250},  // 100 * 2.5
+		{100, 12, 300}, // 100 * 3.0
+		{100, 20, 400}, // 100 * 4.0
+		{200, 3, 400},  // 200 * 2.0
+		{450, 2, 675},  // 450 * 1.5
 	}
 
 	for _, tt := range tests {
@@ -128,7 +128,7 @@ func TestEvaluateEncounter(t *testing.T) {
 	}{
 		{
 			name:        "4 goblins (CR 1/4) vs level 1 party of 4",
-			totalXP:     200,  // 4 * 50 XP
+			totalXP:     200, // 4 * 50 XP
 			numMonsters: 4,
 			partyLevel:  1,
 			partySize:   4,
@@ -146,7 +146,7 @@ func TestEvaluateEncounter(t *testing.T) {
 		},
 		{
 			name:        "2 orcs (CR 1/2) vs level 2 party of 4",
-			totalXP:     200,  // 2 * 100 XP
+			totalXP:     200, // 2 * 100 XP
 			numMonsters: 2,
 			partyLevel:  2,
 			partySize:   4,
@@ -164,7 +164,7 @@ func TestEvaluateEncounter(t *testing.T) {
 		},
 		{
 			name:        "8 skeletons (CR 1/4) vs level 2 party of 4",
-			totalXP:     400,  // 8 * 50 XP
+			totalXP:     400, // 8 * 50 XP
 			numMonsters: 8,
 			partyLevel:  2,
 			partySize:   4,

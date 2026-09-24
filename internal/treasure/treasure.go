@@ -100,7 +100,7 @@ type CoinEntry struct {
 
 // TreasureComponent represents gems, jewelry, or magic entries.
 type TreasureComponent struct {
-	Chance    int  `json:"chance"`
+	Chance    int    `json:"chance"`
 	Amount    string `json:"amount,omitempty"`
 	Items     int    `json:"items,omitempty"`
 	NoWeapons bool   `json:"no_weapons,omitempty"`
@@ -119,24 +119,24 @@ type TreasureType struct {
 
 // TreasureData holds all treasure data from JSON.
 type TreasureData struct {
-	CoinTypes      []CoinType              `json:"coin_types"`
-	GemValues      []GemValue              `json:"gem_values"`
-	JewelryValues  []JewelryValue          `json:"jewelry_values"`
-	Potions        []Potion                `json:"potions"`
-	Scrolls        []Scroll                `json:"scrolls"`
-	Rings          []Ring                  `json:"rings"`
-	Weapons        []Weapon                `json:"weapons"`
-	Armor          []Armor                 `json:"armor"`
-	Wands          []Wand                  `json:"wands"`
-	MiscItems      []MiscItem              `json:"misc_items"`
-	TreasureTypes  map[string]TreasureType `json:"treasure_types"`
+	CoinTypes     []CoinType              `json:"coin_types"`
+	GemValues     []GemValue              `json:"gem_values"`
+	JewelryValues []JewelryValue          `json:"jewelry_values"`
+	Potions       []Potion                `json:"potions"`
+	Scrolls       []Scroll                `json:"scrolls"`
+	Rings         []Ring                  `json:"rings"`
+	Weapons       []Weapon                `json:"weapons"`
+	Armor         []Armor                 `json:"armor"`
+	Wands         []Wand                  `json:"wands"`
+	MiscItems     []MiscItem              `json:"misc_items"`
+	TreasureTypes map[string]TreasureType `json:"treasure_types"`
 }
 
 // GeneratedCoin represents coins in generated treasure.
 type GeneratedCoin struct {
-	Type   string
-	NameFR string
-	Amount int
+	Type    string
+	NameFR  string
+	Amount  int
 	ValueGP int // Total value in gold pieces
 }
 

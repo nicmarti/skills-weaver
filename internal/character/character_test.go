@@ -98,10 +98,10 @@ func TestApplyRacialModifiers(t *testing.T) {
 		checkDEX int // Expected change to DEX (D&D 5e)
 		checkCON int // Expected change to CON (D&D 5e)
 	}{
-		{"human", 0, 0},      // No modifiers (variant human)
-		{"elf", 2, 0},        // +2 DEX (D&D 5e, no penalties)
-		{"dwarf", 0, 2},      // +2 CON (D&D 5e, no penalties)
-		{"halfling", 2, 0},   // +2 DEX (D&D 5e, no penalties)
+		{"human", 0, 0},    // No modifiers (variant human)
+		{"elf", 2, 0},      // +2 DEX (D&D 5e, no penalties)
+		{"dwarf", 0, 2},    // +2 CON (D&D 5e, no penalties)
+		{"halfling", 2, 0}, // +2 DEX (D&D 5e, no penalties)
 	}
 
 	for _, tt := range tests {
@@ -136,22 +136,22 @@ func TestCalculateModifiers(t *testing.T) {
 		want  int
 	}{
 		// D&D 5e formula: (score - 10) / 2 (integer division in Go)
-		{3, -3},  // (3-10)/2 = -7/2 = -3
-		{4, -3},  // (4-10)/2 = -6/2 = -3
-		{5, -2},  // (5-10)/2 = -5/2 = -2
-		{6, -2},  // (6-10)/2 = -4/2 = -2
-		{7, -1},  // (7-10)/2 = -3/2 = -1
-		{8, -1},  // (8-10)/2 = -2/2 = -1
-		{9, 0},   // (9-10)/2 = -1/2 = 0
-		{10, 0},  // (10-10)/2 = 0/2 = 0
-		{11, 0},  // (11-10)/2 = 1/2 = 0
-		{12, 1},  // (12-10)/2 = 2/2 = 1
-		{13, 1},  // (13-10)/2 = 3/2 = 1
-		{14, 2},  // (14-10)/2 = 4/2 = 2
-		{15, 2},  // (15-10)/2 = 5/2 = 2
-		{16, 3},  // (16-10)/2 = 6/2 = 3
-		{17, 3},  // (17-10)/2 = 7/2 = 3
-		{18, 4},  // (18-10)/2 = 8/2 = 4
+		{3, -3}, // (3-10)/2 = -7/2 = -3
+		{4, -3}, // (4-10)/2 = -6/2 = -3
+		{5, -2}, // (5-10)/2 = -5/2 = -2
+		{6, -2}, // (6-10)/2 = -4/2 = -2
+		{7, -1}, // (7-10)/2 = -3/2 = -1
+		{8, -1}, // (8-10)/2 = -2/2 = -1
+		{9, 0},  // (9-10)/2 = -1/2 = 0
+		{10, 0}, // (10-10)/2 = 0/2 = 0
+		{11, 0}, // (11-10)/2 = 1/2 = 0
+		{12, 1}, // (12-10)/2 = 2/2 = 1
+		{13, 1}, // (13-10)/2 = 3/2 = 1
+		{14, 2}, // (14-10)/2 = 4/2 = 2
+		{15, 2}, // (15-10)/2 = 5/2 = 2
+		{16, 3}, // (16-10)/2 = 6/2 = 3
+		{17, 3}, // (17-10)/2 = 7/2 = 3
+		{18, 4}, // (18-10)/2 = 8/2 = 4
 	}
 
 	for _, tt := range tests {
@@ -171,13 +171,13 @@ func TestRollHitPointsMaxHP(t *testing.T) {
 	gd := loadTestGameData(t)
 
 	tests := []struct {
-		class  string
-		maxHP  int // Max possible HP at level 1 (D&D 5e)
+		class string
+		maxHP int // Max possible HP at level 1 (D&D 5e)
 	}{
-		{"fighter", 10},  // d10
-		{"cleric", 8},    // d8
-		{"wizard", 6},    // d6
-		{"rogue", 8},     // d8
+		{"fighter", 10}, // d10
+		{"cleric", 8},   // d8
+		{"wizard", 6},   // d6
+		{"rogue", 8},    // d8
 	}
 
 	for _, tt := range tests {
@@ -209,10 +209,10 @@ func TestRollHitPointsRandomRoll(t *testing.T) {
 		minHP int // Minimum HP (1 on die + 0 CON)
 		maxHP int // Maximum HP (max die + 0 CON)
 	}{
-		{"fighter", 1, 10},  // d10: 1-10 (D&D 5e)
-		{"cleric", 1, 8},    // d8: 1-8 (D&D 5e)
-		{"wizard", 1, 6},    // d6: 1-6 (D&D 5e)
-		{"rogue", 1, 8},     // d8: 1-8 (D&D 5e)
+		{"fighter", 1, 10}, // d10: 1-10 (D&D 5e)
+		{"cleric", 1, 8},   // d8: 1-8 (D&D 5e)
+		{"wizard", 1, 6},   // d6: 1-6 (D&D 5e)
+		{"rogue", 1, 8},    // d8: 1-8 (D&D 5e)
 	}
 
 	for _, tt := range tests {
@@ -308,14 +308,14 @@ func TestValidate(t *testing.T) {
 		{"Valid human fighter", "human", "fighter", false},
 		{"Valid elf wizard", "elf", "wizard", false},
 		{"Valid dwarf cleric", "dwarf", "cleric", false},
-		{"Valid elf cleric", "elf", "cleric", false},      // Valid in D&D 5e
-		{"Valid dwarf wizard", "dwarf", "wizard", false}, // Valid in D&D 5e
+		{"Valid elf cleric", "elf", "cleric", false},           // Valid in D&D 5e
+		{"Valid dwarf wizard", "dwarf", "wizard", false},       // Valid in D&D 5e
 		{"Valid halfling cleric", "halfling", "cleric", false}, // Valid in D&D 5e
-		{"Valid orc fighter", "orc", "fighter", false},    // Orc is a valid species in D&D 5e
-		{"Valid human paladin", "human", "paladin", false}, // Paladin exists in D&D 5e
-		{"Unknown species", "drow", "fighter", true},      // Drow not in our 9 species
-		{"Unknown class", "human", "artificer", true},     // Artificer not in our 12 classes
-		{"Empty name", "", "human", true}, // Will be tested separately
+		{"Valid orc fighter", "orc", "fighter", false},         // Orc is a valid species in D&D 5e
+		{"Valid human paladin", "human", "paladin", false},     // Paladin exists in D&D 5e
+		{"Unknown species", "drow", "fighter", true},           // Drow not in our 9 species
+		{"Unknown class", "human", "artificer", true},          // Artificer not in our 12 classes
+		{"Empty name", "", "human", true},                      // Will be tested separately
 	}
 
 	for _, tt := range tests {

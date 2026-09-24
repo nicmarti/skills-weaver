@@ -35,9 +35,9 @@ type Server struct {
 	templatesDir   string
 	staticDir      string
 	port           int
-	llmCfg         llm.Config    // OpenRouter configuration for DM + utility roles
-	llmClient      llm.Client    // Shared neutral client (DM sessions, campaign/title generation)
-	geminiKey      string        // Google Gemini API key for Lyria ambient music
+	llmCfg         llm.Config // OpenRouter configuration for DM + utility roles
+	llmClient      llm.Client // Shared neutral client (DM sessions, campaign/title generation)
+	geminiKey      string     // Google Gemini API key for Lyria ambient music
 }
 
 // Config holds server configuration.

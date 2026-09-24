@@ -1770,22 +1770,22 @@ func cmdInspectSessions(args []string) error {
 
 	// Initialize with session 0 (out-of-session)
 	sessionStats[0] = &SessionStats{
-		ID: 0,
-		Name: "Hors session",
+		ID:         0,
+		Name:       "Hors session",
 		EntryCount: 0,
-		Types: make(map[string]int),
+		Types:      make(map[string]int),
 	}
 
 	// Initialize from sessions.json
 	for _, s := range sessions {
 		sessionStats[s.ID] = &SessionStats{
-			ID: s.ID,
-			Name: fmt.Sprintf("Session %d", s.ID),
-			StartedAt: s.StartedAt,
-			EndedAt: s.EndedAt,
-			Summary: s.Summary,
+			ID:         s.ID,
+			Name:       fmt.Sprintf("Session %d", s.ID),
+			StartedAt:  s.StartedAt,
+			EndedAt:    s.EndedAt,
+			Summary:    s.Summary,
 			EntryCount: 0,
-			Types: make(map[string]int),
+			Types:      make(map[string]int),
 		}
 	}
 
@@ -1805,13 +1805,13 @@ func cmdInspectSessions(args []string) error {
 		} else {
 			// Session exists in journal but not in sessions.json
 			sessionStats[entry.SessionID] = &SessionStats{
-				ID: entry.SessionID,
-				Name: fmt.Sprintf("Session %d", entry.SessionID),
+				ID:         entry.SessionID,
+				Name:       fmt.Sprintf("Session %d", entry.SessionID),
 				EntryCount: 1,
-				Types: map[string]int{entry.Type: 1},
+				Types:      map[string]int{entry.Type: 1},
 				FirstEntry: entry.Timestamp,
-				LastEntry: entry.Timestamp,
-				Orphaned: true,
+				LastEntry:  entry.Timestamp,
+				Orphaned:   true,
 			}
 		}
 	}
@@ -1951,14 +1951,14 @@ func cmdInspectSessions(args []string) error {
 
 // SessionStats holds statistics about a session.
 type SessionStats struct {
-	ID          int
-	Name        string
-	StartedAt   time.Time
-	EndedAt     time.Time
-	Summary     string
-	EntryCount  int
-	Types       map[string]int
-	FirstEntry  time.Time
-	LastEntry   time.Time
-	Orphaned    bool // Session in journal but not in sessions.json
+	ID         int
+	Name       string
+	StartedAt  time.Time
+	EndedAt    time.Time
+	Summary    string
+	EntryCount int
+	Types      map[string]int
+	FirstEntry time.Time
+	LastEntry  time.Time
+	Orphaned   bool // Session in journal but not in sessions.json
 }

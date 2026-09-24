@@ -34,10 +34,10 @@ func (f *fakeBioClient) Stream(ctx context.Context, req llm.Request, obs llm.Str
 
 func testCharacter() *character.Character {
 	return &character.Character{
-		Name:  "Aldric",
-		Species: "human",
-		Class: "fighter",
-		Level: 3,
+		Name:      "Aldric",
+		Species:   "human",
+		Class:     "fighter",
+		Level:     3,
 		Abilities: character.AbilityScores{Strength: 16, Dexterity: 12, Constitution: 14, Intelligence: 10, Wisdom: 11, Charisma: 9},
 	}
 }

@@ -148,9 +148,9 @@ func TestGetCantripsKnown(t *testing.T) {
 	}{
 		// Wizard progression
 		{"wizard", 1, 3},
-		{"wizard", 3, 3}, // Still 3
-		{"wizard", 4, 4}, // Increases to 4
-		{"wizard", 9, 4}, // Still 4
+		{"wizard", 3, 3},  // Still 3
+		{"wizard", 4, 4},  // Increases to 4
+		{"wizard", 9, 4},  // Still 4
 		{"wizard", 10, 5}, // Increases to 5
 		{"wizard", 20, 5}, // Stays at 5
 

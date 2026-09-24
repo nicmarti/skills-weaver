@@ -42,20 +42,20 @@ const (
 
 // Foreshadow represents a narrative seed planted for future payoff.
 type Foreshadow struct {
-	ID              string             `json:"id"`
-	Description     string             `json:"description"`
-	PlantedAt       time.Time          `json:"planted_at"`
-	PlantedSession  int                `json:"planted_session"`
-	Importance      Importance         `json:"importance"`
-	Status          ForeshadowStatus   `json:"status"`
-	Category        ForeshadowCategory `json:"category"`
-	Tags            []string           `json:"tags,omitempty"`
-	Context         string             `json:"context,omitempty"`
-	PayoffSession   *int               `json:"payoff_session,omitempty"`
-	ResolvedAt      *time.Time         `json:"resolved_at,omitempty"`
-	ResolutionNotes string             `json:"resolution_notes,omitempty"`
-	RelatedNPCs     []string           `json:"related_npcs,omitempty"`
-	RelatedLocations []string          `json:"related_locations,omitempty"`
+	ID               string             `json:"id"`
+	Description      string             `json:"description"`
+	PlantedAt        time.Time          `json:"planted_at"`
+	PlantedSession   int                `json:"planted_session"`
+	Importance       Importance         `json:"importance"`
+	Status           ForeshadowStatus   `json:"status"`
+	Category         ForeshadowCategory `json:"category"`
+	Tags             []string           `json:"tags,omitempty"`
+	Context          string             `json:"context,omitempty"`
+	PayoffSession    *int               `json:"payoff_session,omitempty"`
+	ResolvedAt       *time.Time         `json:"resolved_at,omitempty"`
+	ResolutionNotes  string             `json:"resolution_notes,omitempty"`
+	RelatedNPCs      []string           `json:"related_npcs,omitempty"`
+	RelatedLocations []string           `json:"related_locations,omitempty"`
 }
 
 // ForeshadowHistory holds all foreshadows for an adventure.

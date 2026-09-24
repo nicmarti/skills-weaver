@@ -333,7 +333,7 @@ func TestGetCLIPrefix(t *testing.T) {
 		{"spell-reference", "sw-spell"},
 		{"map-generator", "sw-map"},
 		{"name-location-generator", "sw-location-names"},
-		{"custom-skill", "sw-custom-skill"}, // Default case
+		{"custom-skill", "sw-custom-skill"},   // Default case
 		{"another-skill", "sw-another-skill"}, // Default case
 	}
 

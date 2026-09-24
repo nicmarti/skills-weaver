@@ -132,9 +132,9 @@ func NewPlantForeshadowTool(adv *adventure.Adventure) *SimpleTool {
 			}
 
 			return map[string]interface{}{
-				"success":      true,
+				"success":       true,
 				"foreshadow_id": foreshadow.ID,
-				"display":      display,
+				"display":       display,
 			}, nil
 		},
 	}
@@ -406,11 +406,11 @@ func formatForeshadowsSummary(foreshadows []adventure.Foreshadow) []map[string]i
 	var result []map[string]interface{}
 	for _, f := range foreshadows {
 		result = append(result, map[string]interface{}{
-			"id":             f.ID,
-			"description":    f.Description,
-			"importance":     string(f.Importance),
-			"category":       string(f.Category),
-			"status":         string(f.Status),
+			"id":              f.ID,
+			"description":     f.Description,
+			"importance":      string(f.Importance),
+			"category":        string(f.Category),
+			"status":          string(f.Status),
 			"planted_session": f.PlantedSession,
 		})
 	}

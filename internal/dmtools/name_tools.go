@@ -59,8 +59,8 @@ func NewGenerateNameTool(generator *names.Generator) *SimpleTool {
 					name, err := generator.GenerateNPCName(npcType)
 					if err != nil {
 						return map[string]interface{}{
-							"success":        false,
-							"error":          err.Error(),
+							"success":         false,
+							"error":           err.Error(),
 							"available_types": generator.GetAvailableNPCTypes(),
 						}, nil
 					}
@@ -164,8 +164,8 @@ func NewGenerateLocationNameTool(generator *locations.Generator) *SimpleTool {
 			kingdom, ok := params["kingdom"].(string)
 			if !ok || kingdom == "" {
 				return map[string]interface{}{
-					"success":           false,
-					"error":             "Kingdom is required",
+					"success":            false,
+					"error":              "Kingdom is required",
 					"available_kingdoms": generator.GetAvailableKingdoms(),
 				}, nil
 			}
@@ -190,10 +190,10 @@ func NewGenerateLocationNameTool(generator *locations.Generator) *SimpleTool {
 			generatedNames, err := generator.GenerateMultiple(kingdom, locationType, count)
 			if err != nil {
 				return map[string]interface{}{
-					"success":           false,
-					"error":             err.Error(),
+					"success":            false,
+					"error":              err.Error(),
 					"available_kingdoms": generator.GetAvailableKingdoms(),
-					"available_types":   []string{"city", "town", "village", "region"},
+					"available_types":    []string{"city", "town", "village", "region"},
 				}, nil
 			}
 

@@ -193,9 +193,9 @@ func TestStreamingRenderer_NormalizesWhitespace(t *testing.T) {
 	chunks := []string{
 		"Points d'observation disponibles :\n",
 		"  - Façade principale\n",
-		"              - Ruelle latérale\n",  // 14 spaces!
-		"           - Café en face\n",        // 11 spaces!
-		"     - Angle de la place\n",         // 5 spaces
+		"              - Ruelle latérale\n", // 14 spaces!
+		"           - Café en face\n",       // 11 spaces!
+		"     - Angle de la place\n",        // 5 spaces
 	}
 
 	var output strings.Builder

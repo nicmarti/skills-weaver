@@ -165,16 +165,16 @@ func min(a, b, c int) int {
 // GetLocationTypeString returns a human-readable location type description.
 func GetLocationTypeString(locationType string) string {
 	typeMap := map[string]string{
-		"port majeur":          "Port Majeur",
-		"port industriel":      "Port Industriel",
-		"port financier":       "Port Financier",
-		"village":              "Village",
-		"forteresse capitale":  "Forteresse Capitale",
+		"port majeur":            "Port Majeur",
+		"port industriel":        "Port Industriel",
+		"port financier":         "Port Financier",
+		"village":                "Village",
+		"forteresse capitale":    "Forteresse Capitale",
 		"forteresse frontalière": "Forteresse Frontalière",
-		"cité industrielle":    "Cité Industrielle",
-		"ville sainte":         "Ville Sainte",
-		"capitale":             "Capitale",
-		"cité universitaire":   "Cité Universitaire",
+		"cité industrielle":      "Cité Industrielle",
+		"ville sainte":           "Ville Sainte",
+		"capitale":               "Capitale",
+		"cité universitaire":     "Cité Universitaire",
 	}
 
 	if readable, ok := typeMap[strings.ToLower(locationType)]; ok {

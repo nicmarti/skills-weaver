@@ -22,7 +22,7 @@ func (e *AgentError) Unwrap() error {
 
 // ErrAgentNotFound indicates that the requested agent does not exist.
 type ErrAgentNotFound struct {
-	AgentName      string
+	AgentName       string
 	AvailableAgents []string
 }
 
@@ -80,12 +80,12 @@ func (e *ErrSkillNotFound) Error() string {
 
 // ErrSkillExecution indicates that a skill execution failed.
 type ErrSkillExecution struct {
-	SkillName  string
-	Command    string
-	ExitCode   int
-	Stdout     string
-	Stderr     string
-	Err        error
+	SkillName string
+	Command   string
+	ExitCode  int
+	Stdout    string
+	Stderr    string
+	Err       error
 }
 
 func (e *ErrSkillExecution) Error() string {

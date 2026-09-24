@@ -10,14 +10,14 @@ type AdventureType struct {
 
 // AdventureDuration defines how long an adventure should last.
 type AdventureDuration struct {
-	ID          string `json:"id"`
-	NameFR      string `json:"name_fr"`
-	Acts        int    `json:"acts"`
-	MinSessions int    `json:"min_sessions"`
-	MaxSessions int    `json:"max_sessions"`
-	MaxNPCs     int    `json:"max_npcs"`
-	MaxLocations int   `json:"max_locations"`
-	MaxForeshadows int `json:"max_foreshadows"`
+	ID             string `json:"id"`
+	NameFR         string `json:"name_fr"`
+	Acts           int    `json:"acts"`
+	MinSessions    int    `json:"min_sessions"`
+	MaxSessions    int    `json:"max_sessions"`
+	MaxNPCs        int    `json:"max_npcs"`
+	MaxLocations   int    `json:"max_locations"`
+	MaxForeshadows int    `json:"max_foreshadows"`
 }
 
 // GetAdventureDurations returns the available duration options.

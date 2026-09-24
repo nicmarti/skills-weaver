@@ -23,7 +23,7 @@ type GoogleGenerator struct {
 
 // googleRequest represents the request body for Google Imagen API.
 type googleRequest struct {
-	Instances  []googleInstance  `json:"instances"`
+	Instances  []googleInstance `json:"instances"`
 	Parameters googleParameters `json:"parameters"`
 }
 

@@ -53,10 +53,10 @@ func NewGenerateMapTool(dataDir string, adv *adventure.Adventure, notifier MapGe
 	return &GenerateMapTool{
 		dataDir:   dataDir,
 		adventure: adv,
-		enricher: enricher,
+		enricher:  enricher,
 		geography: geo,
-		factions: factions,
-		notifier: notifier,
+		factions:  factions,
+		notifier:  notifier,
 	}, nil
 }
 

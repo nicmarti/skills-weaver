@@ -16,10 +16,10 @@ func TestGetCurrentSessionNumber(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	tests := []struct {
-		name         string
-		setupFunc    func(string) error
-		expectedNum  int
-		expectError  bool
+		name        string
+		setupFunc   func(string) error
+		expectedNum int
+		expectError bool
 	}{
 		{
 			name: "no sessions.json - returns 1",
@@ -33,7 +33,9 @@ func TestGetCurrentSessionNumber(t *testing.T) {
 		{
 			name: "empty sessions - returns 1",
 			setupFunc: func(dir string) error {
-				data := SessionsData{Sessions: []struct{ ID int `json:"id"` }{}}
+				data := SessionsData{Sessions: []struct {
+					ID int `json:"id"`
+				}{}}
 				bytes, _ := json.Marshal(data)
 				return os.WriteFile(filepath.Join(dir, "sessions.json"), bytes, 0644)
 			},
@@ -44,7 +46,9 @@ func TestGetCurrentSessionNumber(t *testing.T) {
 			name: "sessions with IDs 1,2,3 - returns 4",
 			setupFunc: func(dir string) error {
 				data := SessionsData{
-					Sessions: []struct{ ID int `json:"id"` }{
+					Sessions: []struct {
+						ID int `json:"id"`
+					}{
 						{ID: 1},
 						{ID: 2},
 						{ID: 3},
@@ -60,7 +64,9 @@ func TestGetCurrentSessionNumber(t *testing.T) {
 			name: "non-sequential IDs - returns max+1",
 			setupFunc: func(dir string) error {
 				data := SessionsData{
-					Sessions: []struct{ ID int `json:"id"` }{
+					Sessions: []struct {
+						ID int `json:"id"`
+					}{
 						{ID: 1},
 						{ID: 5},
 						{ID: 3},

@@ -10,14 +10,14 @@ import (
 
 // CampaignPlan represents the complete narrative structure of a campaign.
 type CampaignPlan struct {
-	Version            string             `json:"version"`
-	Metadata           CampaignMetadata   `json:"metadata"`
-	NarrativeStructure NarrativeStructure `json:"narrative_structure"`
-	PlotElements       PlotElements       `json:"plot_elements"`
+	Version            string               `json:"version"`
+	Metadata           CampaignMetadata     `json:"metadata"`
+	NarrativeStructure NarrativeStructure   `json:"narrative_structure"`
+	PlotElements       PlotElements         `json:"plot_elements"`
 	Foreshadows        ForeshadowsContainer `json:"foreshadows"`
-	Progression        Progression        `json:"progression"`
-	Pacing             Pacing             `json:"pacing"`
-	DMNotes            DMNotes            `json:"dm_notes"`
+	Progression        Progression          `json:"progression"`
+	Pacing             Pacing               `json:"pacing"`
+	DMNotes            DMNotes              `json:"dm_notes"`
 }
 
 // CampaignMetadata holds basic information about the campaign.
@@ -38,11 +38,11 @@ type TargetDuration struct {
 
 // NarrativeStructure defines the story arc.
 type NarrativeStructure struct {
-	Objective  string      `json:"objective"`
-	Hook       string      `json:"hook"`
-	Acts       []Act       `json:"acts"`
-	Climax     Climax      `json:"climax"`
-	Resolution Resolution  `json:"resolution"`
+	Objective  string     `json:"objective"`
+	Hook       string     `json:"hook"`
+	Acts       []Act      `json:"acts"`
+	Climax     Climax     `json:"climax"`
+	Resolution Resolution `json:"resolution"`
 }
 
 // Act represents a major story arc (typically 3 acts per campaign).
@@ -89,15 +89,15 @@ type PlotElements struct {
 
 // Character represents an NPC with a story arc.
 type Character struct {
-	Name                   string `json:"name"`
-	Role                   string `json:"role"` // primary|mastermind|ally|rival
-	Motivation             string `json:"motivation"`
-	IntroductionSession    int    `json:"introduction_session,omitempty"`
-	FinalConfrontationSession int `json:"final_confrontation_session,omitempty"`
-	Arc                    string `json:"arc,omitempty"`
-	Mystery                bool   `json:"mystery,omitempty"`
-	RevealSession          int    `json:"reveal_session,omitempty"`
-	KeySessions            []int  `json:"key_sessions,omitempty"`
+	Name                      string `json:"name"`
+	Role                      string `json:"role"` // primary|mastermind|ally|rival
+	Motivation                string `json:"motivation"`
+	IntroductionSession       int    `json:"introduction_session,omitempty"`
+	FinalConfrontationSession int    `json:"final_confrontation_session,omitempty"`
+	Arc                       string `json:"arc,omitempty"`
+	Mystery                   bool   `json:"mystery,omitempty"`
+	RevealSession             int    `json:"reveal_session,omitempty"`
+	KeySessions               []int  `json:"key_sessions,omitempty"`
 }
 
 // MacGuffin represents an important object or artifact.
@@ -170,18 +170,18 @@ type ForeshadowLinked struct {
 
 // Progression tracks the campaign's current state.
 type Progression struct {
-	CurrentAct           int      `json:"current_act"`
-	CurrentSession       int      `json:"current_session"`
-	CompletedPlotPoints  []string `json:"completed_plot_points"`
-	ActiveThreads        []string `json:"active_threads"`
-	PendingResolutions   []string `json:"pending_resolutions"` // Foreshadow IDs
+	CurrentAct          int      `json:"current_act"`
+	CurrentSession      int      `json:"current_session"`
+	CompletedPlotPoints []string `json:"completed_plot_points"`
+	ActiveThreads       []string `json:"active_threads"`
+	PendingResolutions  []string `json:"pending_resolutions"` // Foreshadow IDs
 }
 
 // Pacing tracks planned vs actual session counts.
 type Pacing struct {
-	SessionsPlayed           int                 `json:"sessions_played"`
-	SessionsRemainingEstimate int                `json:"sessions_remaining_estimate"`
-	ActBreakdown             map[string]ActPacing `json:"act_breakdown"`
+	SessionsPlayed            int                  `json:"sessions_played"`
+	SessionsRemainingEstimate int                  `json:"sessions_remaining_estimate"`
+	ActBreakdown              map[string]ActPacing `json:"act_breakdown"`
 }
 
 // ActPacing compares planned vs actual sessions for an act.

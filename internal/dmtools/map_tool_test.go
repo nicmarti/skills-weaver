@@ -55,11 +55,11 @@ func TestMapGenerationValidation(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
-		mapType        string
-		locationName   string
-		expectSuccess  bool
-		expectError    string
+		name          string
+		mapType       string
+		locationName  string
+		expectSuccess bool
+		expectError   string
 	}{
 		{
 			name:          "Region map with adventure-specific location (should succeed)",

@@ -15,10 +15,10 @@ type Species struct {
 	Name             string         `json:"name"`
 	NameEN           string         `json:"name_en"`
 	Description      string         `json:"description"`
-	Size             string         `json:"size"`             // "Small" or "Medium"
-	Speed            int            `json:"speed"`            // Usually 25 or 30 feet
-	Languages        []string       `json:"languages"`        // At least Common + 1-2 others
-	SpecialTraits    []string       `json:"special_traits"`   // Narrative descriptions
+	Size             string         `json:"size"`              // "Small" or "Medium"
+	Speed            int            `json:"speed"`             // Usually 25 or 30 feet
+	Languages        []string       `json:"languages"`         // At least Common + 1-2 others
+	SpecialTraits    []string       `json:"special_traits"`    // Narrative descriptions
 	AbilityModifiers map[string]int `json:"ability_modifiers"` // +2 DEX, +1 CON, etc.
 }
 
@@ -33,18 +33,18 @@ type Skill struct {
 
 // Class represents a playable class in D&D 5e.
 type Class struct {
-	ID                      string         `json:"id"`
-	Name                    string         `json:"name"`
-	NameEN                  string         `json:"name_en"`
-	HitDie                  string         `json:"hit_die"`                     // "d6", "d8", "d10", "d12"
-	HitDieSides             int            `json:"hit_die_sides"`               // 6, 8, 10, 12
-	PrimaryAbility          string         `json:"primary_ability"`             // "strength", "charisma", etc.
-	SavingThrowProfs        []string       `json:"saving_throw_proficiencies"`  // 2 abilities
-	SkillProfs              []string       `json:"skill_proficiencies"`         // Available skills
-	SkillChoiceCount        int            `json:"skill_choice_count"`          // How many to choose
-	ProficiencyBonus        map[string]int `json:"proficiency_bonus"`           // By level: "1": 2, "5": 3, etc.
-	SpellcastingAbility     string         `json:"spellcasting_ability"`        // Empty if non-caster
-	StartingEquipment       string         `json:"starting_equipment,omitempty"` // Brief description
+	ID                  string         `json:"id"`
+	Name                string         `json:"name"`
+	NameEN              string         `json:"name_en"`
+	HitDie              string         `json:"hit_die"`                      // "d6", "d8", "d10", "d12"
+	HitDieSides         int            `json:"hit_die_sides"`                // 6, 8, 10, 12
+	PrimaryAbility      string         `json:"primary_ability"`              // "strength", "charisma", etc.
+	SavingThrowProfs    []string       `json:"saving_throw_proficiencies"`   // 2 abilities
+	SkillProfs          []string       `json:"skill_proficiencies"`          // Available skills
+	SkillChoiceCount    int            `json:"skill_choice_count"`           // How many to choose
+	ProficiencyBonus    map[string]int `json:"proficiency_bonus"`            // By level: "1": 2, "5": 3, etc.
+	SpellcastingAbility string         `json:"spellcasting_ability"`         // Empty if non-caster
+	StartingEquipment   string         `json:"starting_equipment,omitempty"` // Brief description
 }
 
 // Weapon represents a weapon item.
@@ -85,16 +85,16 @@ type Spell5e struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`
 	NameEN        string   `json:"name_en"`
-	Level         int      `json:"level"`         // 0-9 (0 = cantrip)
-	School        string   `json:"school"`        // "evocation", "abjuration", etc.
-	CastingTime   string   `json:"casting_time"`  // "1 action", "1 bonus action", etc.
-	Range         string   `json:"range"`         // "9 m", "Contact", "Personnelle"
-	Components    []string `json:"components"`    // ["V", "S", "M"]
+	Level         int      `json:"level"`              // 0-9 (0 = cantrip)
+	School        string   `json:"school"`             // "evocation", "abjuration", etc.
+	CastingTime   string   `json:"casting_time"`       // "1 action", "1 bonus action", etc.
+	Range         string   `json:"range"`              // "9 m", "Contact", "Personnelle"
+	Components    []string `json:"components"`         // ["V", "S", "M"]
 	Material      string   `json:"material,omitempty"` // Required if M in components
-	Duration      string   `json:"duration"`      // "Instantanée", "1 heure", etc.
-	Concentration bool     `json:"concentration"` // True if requires concentration
-	Ritual        bool     `json:"ritual"`        // True if can be cast as ritual
-	Classes       []string `json:"classes"`       // Class IDs that can cast
+	Duration      string   `json:"duration"`           // "Instantanée", "1 heure", etc.
+	Concentration bool     `json:"concentration"`      // True if requires concentration
+	Ritual        bool     `json:"ritual"`             // True if can be cast as ritual
+	Classes       []string `json:"classes"`            // Class IDs that can cast
 	DescriptionFR string   `json:"description_fr"`
 	DescriptionEN string   `json:"description_en,omitempty"`
 	Upcast        string   `json:"upcast,omitempty"`  // Effect when cast at higher level

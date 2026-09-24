@@ -20,12 +20,12 @@ type Roller struct {
 
 // Result represents the outcome of a dice roll.
 type Result struct {
-	Expression   string // Original expression (e.g., "2d6+3")
-	Rolls        []int  // Individual die results
-	Kept         []int  // Dice kept after filtering (for kh/kl notation)
-	KeptIndices  []int  // Indices of kept dice in Rolls
-	Modifier     int    // Added/subtracted modifier
-	Total        int    // Final total
+	Expression  string // Original expression (e.g., "2d6+3")
+	Rolls       []int  // Individual die results
+	Kept        []int  // Dice kept after filtering (for kh/kl notation)
+	KeptIndices []int  // Indices of kept dice in Rolls
+	Modifier    int    // Added/subtracted modifier
+	Total       int    // Final total
 }
 
 // New creates a new Roller with a random seed.

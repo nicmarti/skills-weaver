@@ -179,7 +179,7 @@ func TestManager_ListNPCsForReview(t *testing.T) {
 	mgr.AddNPC(1, npc3, "Context3", "")
 
 	// Update importance
-	mgr.UpdateImportance("NPC1", ImportanceMentioned, "")   // Should NOT appear in review
+	mgr.UpdateImportance("NPC1", ImportanceMentioned, "")  // Should NOT appear in review
 	mgr.UpdateImportance("NPC2", ImportanceInteracted, "") // Should appear
 	mgr.UpdateImportance("NPC3", ImportanceRecurring, "")  // Should appear
 

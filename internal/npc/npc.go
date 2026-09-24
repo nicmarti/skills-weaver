@@ -104,10 +104,10 @@ type TraitsData struct {
 
 // Generator generates random NPCs.
 type Generator struct {
-	traits   *TraitsData
-	nameGen  *names.Generator
-	rng      *rand.Rand
-	dataDir  string
+	traits  *TraitsData
+	nameGen *names.Generator
+	rng     *rand.Rand
+	dataDir string
 }
 
 // NewGenerator creates a new NPC generator.

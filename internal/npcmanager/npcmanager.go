@@ -38,16 +38,16 @@ func importanceValue(level ImportanceLevel) int {
 
 // NPCRecord represents a generated NPC with metadata.
 type NPCRecord struct {
-	ID              string          `json:"id"`
-	GeneratedAt     time.Time       `json:"generated_at"`
-	SessionNumber   int             `json:"session_number"`
-	NPC             *npc.NPC        `json:"npc"`
-	Context         string          `json:"context"`          // Where/when encountered
-	Importance      ImportanceLevel `json:"importance"`
-	Notes           []string        `json:"notes"`            // DM notes added over time
-	Appearances     int             `json:"appearances"`      // Number of times appeared
-	PromotedToWorld bool            `json:"promoted_to_world"`
-	WorldKeeperNotes string         `json:"world_keeper_notes"` // Validation/enrichment from world-keeper
+	ID               string          `json:"id"`
+	GeneratedAt      time.Time       `json:"generated_at"`
+	SessionNumber    int             `json:"session_number"`
+	NPC              *npc.NPC        `json:"npc"`
+	Context          string          `json:"context"` // Where/when encountered
+	Importance       ImportanceLevel `json:"importance"`
+	Notes            []string        `json:"notes"`       // DM notes added over time
+	Appearances      int             `json:"appearances"` // Number of times appeared
+	PromotedToWorld  bool            `json:"promoted_to_world"`
+	WorldKeeperNotes string          `json:"world_keeper_notes"` // Validation/enrichment from world-keeper
 }
 
 // NPCDatabase holds all generated NPCs organized by session.

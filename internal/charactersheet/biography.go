@@ -15,23 +15,23 @@ import (
 
 // Biography represents character backstory
 type Biography struct {
-	CharacterName   string    `json:"character_name"`
-	Origin          string    `json:"origin"`
-	Background      string    `json:"background"`
-	Motivation      string    `json:"motivation"`
-	Personality     string    `json:"personality"`
-	Bonds           []Bond    `json:"bonds"`
-	Secrets         []string  `json:"secrets"`
-	GeneratedAt     time.Time `json:"generated_at"`
-	AdventureContext string   `json:"adventure_context"`
+	CharacterName    string    `json:"character_name"`
+	Origin           string    `json:"origin"`
+	Background       string    `json:"background"`
+	Motivation       string    `json:"motivation"`
+	Personality      string    `json:"personality"`
+	Bonds            []Bond    `json:"bonds"`
+	Secrets          []string  `json:"secrets"`
+	GeneratedAt      time.Time `json:"generated_at"`
+	AdventureContext string    `json:"adventure_context"`
 }
 
 // Bond represents a relationship
 type Bond struct {
-	Type        string `json:"type"`        // "person", "place", "faction"
+	Type        string `json:"type"` // "person", "place", "faction"
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Sentiment   string `json:"sentiment"`   // "ally", "enemy", "neutral", "complicated"
+	Sentiment   string `json:"sentiment"` // "ally", "enemy", "neutral", "complicated"
 }
 
 // biographyTimeout bounds the optional AI biography call.
@@ -45,15 +45,15 @@ type BiographyGenerator struct {
 
 // AIBiographyResponse holds the structured response from the model
 type AIBiographyResponse struct {
-	Origin       string   `json:"origin"`
-	Background   string   `json:"background"`
-	Motivation   string   `json:"motivation"`
-	Personality  string   `json:"personality"`
-	BondName     string   `json:"bond_name"`
-	BondDesc     string   `json:"bond_description"`
-	BondType     string   `json:"bond_type"`
-	BondSentiment string  `json:"bond_sentiment"`
-	Secrets      []string `json:"secrets"`
+	Origin        string   `json:"origin"`
+	Background    string   `json:"background"`
+	Motivation    string   `json:"motivation"`
+	Personality   string   `json:"personality"`
+	BondName      string   `json:"bond_name"`
+	BondDesc      string   `json:"bond_description"`
+	BondType      string   `json:"bond_type"`
+	BondSentiment string   `json:"bond_sentiment"`
+	Secrets       []string `json:"secrets"`
 }
 
 // NewBiographyGenerator creates a new biography generator. A nil client keeps
@@ -79,14 +79,14 @@ func (g *BiographyGenerator) Generate(c *character.Character, adventureName stri
 
 	// Fallback to template-based generation
 	bio := &Biography{
-		CharacterName:   c.Name,
-		Origin:          g.generateOrigin(c),
-		Background:      g.generateBackground(c),
-		Motivation:      g.generateMotivation(c),
-		Personality:     g.generatePersonality(c),
-		Bonds:           g.generateBonds(c, adventureName),
-		Secrets:         g.generateSecrets(c),
-		GeneratedAt:     time.Now(),
+		CharacterName:    c.Name,
+		Origin:           g.generateOrigin(c),
+		Background:       g.generateBackground(c),
+		Motivation:       g.generateMotivation(c),
+		Personality:      g.generatePersonality(c),
+		Bonds:            g.generateBonds(c, adventureName),
+		Secrets:          g.generateSecrets(c),
+		GeneratedAt:      time.Now(),
 		AdventureContext: adventureName,
 	}
 
@@ -169,15 +169,15 @@ func (g *BiographyGenerator) generateWithAI(c *character.Character, adventureNam
 			Schema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"origin":          map[string]interface{}{"type": "string"},
-					"background":      map[string]interface{}{"type": "string"},
-					"motivation":      map[string]interface{}{"type": "string"},
-					"personality":     map[string]interface{}{"type": "string"},
-					"bond_name":       map[string]interface{}{"type": "string"},
+					"origin":           map[string]interface{}{"type": "string"},
+					"background":       map[string]interface{}{"type": "string"},
+					"motivation":       map[string]interface{}{"type": "string"},
+					"personality":      map[string]interface{}{"type": "string"},
+					"bond_name":        map[string]interface{}{"type": "string"},
 					"bond_description": map[string]interface{}{"type": "string"},
-					"bond_type":       map[string]interface{}{"type": "string"},
-					"bond_sentiment":  map[string]interface{}{"type": "string"},
-					"secrets":         map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}},
+					"bond_type":        map[string]interface{}{"type": "string"},
+					"bond_sentiment":   map[string]interface{}{"type": "string"},
+					"secrets":          map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}},
 				},
 				"required": []string{"origin", "background", "motivation", "personality"},
 			},
@@ -531,10 +531,10 @@ func (g *BiographyGenerator) generateSecrets(c *character.Character) []string {
 
 	// Add class-specific secret
 	classSecrets := map[string]string{
-		"fighter": "Cache une peur secrète d'être considéré comme lâche",
-		"cleric":  "Doute parfois de la foi qu'il professe publiquement",
+		"fighter":    "Cache une peur secrète d'être considéré comme lâche",
+		"cleric":     "Doute parfois de la foi qu'il professe publiquement",
 		"magic-user": "Possède un grimoire volé qu'il ne devrait pas avoir",
-		"thief":   "Doit encore une dette importante à quelqu'un de dangereux",
+		"thief":      "Doit encore une dette importante à quelqu'un de dangereux",
 	}
 
 	if secret, ok := classSecrets[c.Class]; ok {

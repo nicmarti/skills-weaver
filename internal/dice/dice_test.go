@@ -261,10 +261,10 @@ func TestInitiative(t *testing.T) {
 		minVal int
 		maxVal int
 	}{
-		{0, 1, 20},   // 1d20 + 0 (D&D 5e)
-		{2, 3, 22},   // 1d20 + 2 (D&D 5e)
-		{-1, 0, 19},  // 1d20 - 1 (D&D 5e)
-		{3, 4, 23},   // 1d20 + 3 (D&D 5e)
+		{0, 1, 20},  // 1d20 + 0 (D&D 5e)
+		{2, 3, 22},  // 1d20 + 2 (D&D 5e)
+		{-1, 0, 19}, // 1d20 - 1 (D&D 5e)
+		{3, 4, 23},  // 1d20 + 3 (D&D 5e)
 	}
 
 	for _, tt := range tests {
@@ -301,10 +301,10 @@ func TestAttackRoll(t *testing.T) {
 		minVal int
 		maxVal int
 	}{
-		{0, 1, 20},    // d20 + 0
-		{5, 6, 25},    // d20 + 5
-		{-2, -1, 18},  // d20 - 2
-		{10, 11, 30},  // d20 + 10
+		{0, 1, 20},   // d20 + 0
+		{5, 6, 25},   // d20 + 5
+		{-2, -1, 18}, // d20 - 2
+		{10, 11, 30}, // d20 + 10
 	}
 
 	for _, tt := range tests {

@@ -28,31 +28,31 @@ type Abilities struct {
 type Attack struct {
 	Name       string `json:"name"`
 	NameFR     string `json:"name_fr"`
-	Bonus      int    `json:"bonus"`        // Attack bonus (to-hit modifier)
-	Damage     string `json:"damage"`       // Damage dice (e.g., "1d8+2")
-	DamageAvg  int    `json:"damage_avg"`   // Average damage
+	Bonus      int    `json:"bonus"`                 // Attack bonus (to-hit modifier)
+	Damage     string `json:"damage"`                // Damage dice (e.g., "1d8+2")
+	DamageAvg  int    `json:"damage_avg"`            // Average damage
 	DamageType string `json:"damage_type,omitempty"` // slashing, piercing, bludgeoning, etc. (D&D 5e)
-	Special    string `json:"special,omitempty"` // Special effects
+	Special    string `json:"special,omitempty"`     // Special effects
 }
 
 // Monster represents a creature in the game.
 type Monster struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name"`
-	NameFR        string   `json:"name_fr"`
-	Type          string   `json:"type"`
-	Size          string   `json:"size"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	NameFR string `json:"name_fr"`
+	Type   string `json:"type"`
+	Size   string `json:"size"`
 
 	// Legacy BFRPG fields (deprecated - D&D 5e only)
-	HitDice       string   `json:"hit_dice,omitempty"`       // Deprecated: use hit_points_avg
-	HitPointsAvg  int      `json:"hit_points_avg"`
-	SaveAs        string   `json:"save_as,omitempty"`        // Deprecated: D&D 5e uses proficiency bonus
-	Morale        int      `json:"morale,omitempty"`         // Deprecated: not used in D&D 5e
+	HitDice      string `json:"hit_dice,omitempty"` // Deprecated: use hit_points_avg
+	HitPointsAvg int    `json:"hit_points_avg"`
+	SaveAs       string `json:"save_as,omitempty"` // Deprecated: D&D 5e uses proficiency bonus
+	Morale       int    `json:"morale,omitempty"`  // Deprecated: not used in D&D 5e
 
 	// D&D 5e fields
-	ChallengeRating   string    `json:"challenge_rating,omitempty"` // "0", "1/8", "1/4", "1/2", "1", "2", etc.
-	ProficiencyBonus  int       `json:"proficiency_bonus,omitempty"` // +2 to +9
-	Abilities         *Abilities `json:"abilities,omitempty"` // Ability scores (D&D 5e)
+	ChallengeRating  string     `json:"challenge_rating,omitempty"`  // "0", "1/8", "1/4", "1/2", "1", "2", etc.
+	ProficiencyBonus int        `json:"proficiency_bonus,omitempty"` // +2 to +9
+	Abilities        *Abilities `json:"abilities,omitempty"`         // Ability scores (D&D 5e)
 
 	// Common fields
 	ArmorClass    int      `json:"armor_class"`
@@ -89,40 +89,40 @@ func (m *Monster) GetCRValue() float64 {
 // GetCRXP returns the XP value for a given CR (D&D 5e).
 func GetCRXP(cr string) int {
 	xpByCR := map[string]int{
-		"0":    10,
-		"1/8":  25,
-		"1/4":  50,
-		"1/2":  100,
-		"1":    200,
-		"2":    450,
-		"3":    700,
-		"4":    1100,
-		"5":    1800,
-		"6":    2300,
-		"7":    2900,
-		"8":    3900,
-		"9":    5000,
-		"10":   5900,
-		"11":   7200,
-		"12":   8400,
-		"13":   10000,
-		"14":   11500,
-		"15":   13000,
-		"16":   15000,
-		"17":   18000,
-		"18":   20000,
-		"19":   22000,
-		"20":   25000,
-		"21":   33000,
-		"22":   41000,
-		"23":   50000,
-		"24":   62000,
-		"25":   75000,
-		"26":   90000,
-		"27":   105000,
-		"28":   120000,
-		"29":   135000,
-		"30":   155000,
+		"0":   10,
+		"1/8": 25,
+		"1/4": 50,
+		"1/2": 100,
+		"1":   200,
+		"2":   450,
+		"3":   700,
+		"4":   1100,
+		"5":   1800,
+		"6":   2300,
+		"7":   2900,
+		"8":   3900,
+		"9":   5000,
+		"10":  5900,
+		"11":  7200,
+		"12":  8400,
+		"13":  10000,
+		"14":  11500,
+		"15":  13000,
+		"16":  15000,
+		"17":  18000,
+		"18":  20000,
+		"19":  22000,
+		"20":  25000,
+		"21":  33000,
+		"22":  41000,
+		"23":  50000,
+		"24":  62000,
+		"25":  75000,
+		"26":  90000,
+		"27":  105000,
+		"28":  120000,
+		"29":  135000,
+		"30":  155000,
 	}
 	if xp, ok := xpByCR[cr]; ok {
 		return xp
@@ -156,7 +156,7 @@ type EncounterTable struct {
 
 // MonstersData holds all monster data from JSON.
 type MonstersData struct {
-	Monsters        []Monster                  `json:"monsters"`
+	Monsters        []Monster                 `json:"monsters"`
 	EncounterTables map[string]EncounterTable `json:"encounter_tables"`
 }
 

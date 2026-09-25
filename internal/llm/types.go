@@ -53,6 +53,12 @@ type Message struct {
 	Images      []ImagePart
 	ToolCalls   []ToolCall
 	ToolResults []ToolResult
+	// CacheBreakpoint marks the message as a prompt-cache boundary: the
+	// prefix ending at this message becomes cacheable (Anthropic-style
+	// cache_control; OpenRouter converts for other providers). Meaningful
+	// for user messages in multi-turn conversations where later turns
+	// replay the same prefix.
+	CacheBreakpoint bool
 }
 
 // UserMessage creates a user text message.
@@ -63,6 +69,15 @@ func UserMessage(text string) Message {
 // UserMessageWithImage creates a user message with text and attached images.
 func UserMessageWithImage(text string, images ...ImagePart) Message {
 	return Message{Role: RoleUser, Text: text, Images: images}
+}
+
+// CachedUserMessage creates a user message marked as a prompt-cache
+// breakpoint. In multi-turn conversations, replaying this message in later
+// turns lets the provider serve the shared prefix from cache.
+func CachedUserMessage(text string, images ...ImagePart) Message {
+	m := UserMessageWithImage(text, images...)
+	m.CacheBreakpoint = true
+	return m
 }
 
 // AssistantMessage creates an assistant text message.
@@ -116,6 +131,10 @@ type Request struct {
 	RequireParameters   bool
 	// JSONResponse optionally switches the response to structured JSON output.
 	JSONResponse *JSONResponseFormat
+	// ReasoningEffort optionally constrains the thinking budget of reasoning
+	// models (OpenRouter reasoning.effort). Empty leaves the provider
+	// default. Accepted values: none|minimal|low|medium|high|xhigh|max.
+	ReasoningEffort string
 }
 
 // FinishReason classifies why a generation ended.

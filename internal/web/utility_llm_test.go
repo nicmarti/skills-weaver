@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"dungeons/internal/agent"
+	"dungeons/internal/campaign"
 	"dungeons/internal/llm"
 	"dungeons/internal/tarot"
 )
@@ -44,39 +45,50 @@ func TestCampaignLLMRequest_Multimodal(t *testing.T) {
 		MapImageMediaType: "image/png",
 	}
 
-	req := campaignLLMRequest(llm.DefaultModelCampaign, "persona DM", "Genère le plan", resources)
-	if req.Model != llm.DefaultModelCampaign {
-		t.Errorf("model = %q, want Campaign role default", req.Model)
+	req := &campaign.Request{
+		Model:          llm.DefaultModelCampaign,
+		System:         "persona DM",
+		Prompt:         "Genère le plan",
+		WorldResources: resources,
 	}
-	if len(req.Messages) != 1 {
-		t.Fatalf("messages = %d, want 1", len(req.Messages))
+	llmReq := req.LLMRequest()
+	if llmReq.Model != llm.DefaultModelCampaign {
+		t.Errorf("model = %q, want Campaign role default", llmReq.Model)
 	}
-	msg := req.Messages[0]
+	if len(llmReq.Messages) != 1 {
+		t.Fatalf("messages = %d, want 1", len(llmReq.Messages))
+	}
+	msg := llmReq.Messages[0]
 	if msg.Text != "Genère le plan" {
 		t.Errorf("prompt text lost: %q", msg.Text)
 	}
 	if len(msg.Images) != 1 || msg.Images[0].Base64 != "cXVhdHJl" || msg.Images[0].MediaType != "image/png" {
 		t.Fatalf("world-map image not attached: %+v", msg.Images)
 	}
-	if req.JSONResponse == nil || req.JSONResponse.Name != "campaign_plan" {
+	if llmReq.JSONResponse == nil || llmReq.JSONResponse.Name != "campaign_plan" {
 		t.Error("campaign plan must request structured JSON output")
 	}
-	if !req.RequireParameters {
+	if !llmReq.RequireParameters {
 		t.Error("structured-JSON campaign requests must require endpoint parameter support")
 	}
-	if req.MaxCompletionTokens != 8192 {
-		t.Errorf("max completion tokens = %d, want 8192", req.MaxCompletionTokens)
+	if llmReq.MaxCompletionTokens != campaign.MaxCompletionTokens {
+		t.Errorf("max completion tokens = %d, want %d", llmReq.MaxCompletionTokens, campaign.MaxCompletionTokens)
 	}
 }
 
 // TestCampaignLLMRequest_NoImage proves a missing map degrades to text-only.
 func TestCampaignLLMRequest_NoImage(t *testing.T) {
-	req := campaignLLMRequest(llm.DefaultModelCampaign, "persona", "prompt", nil)
-	if len(req.Messages) != 1 || len(req.Messages[0].Images) != 0 {
-		t.Fatalf("expected text-only message, got %+v", req.Messages)
+	req := &campaign.Request{
+		Model:  llm.DefaultModelCampaign,
+		System: "persona",
+		Prompt: "prompt",
 	}
-	if req.Messages[0].Text != "prompt" {
-		t.Errorf("prompt lost: %q", req.Messages[0].Text)
+	llmReq := req.LLMRequest()
+	if len(llmReq.Messages) != 1 || len(llmReq.Messages[0].Images) != 0 {
+		t.Fatalf("expected text-only message, got %+v", llmReq.Messages)
+	}
+	if llmReq.Messages[0].Text != "prompt" {
+		t.Errorf("prompt lost: %q", llmReq.Messages[0].Text)
 	}
 }
 

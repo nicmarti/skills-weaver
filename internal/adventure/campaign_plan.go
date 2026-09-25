@@ -1,6 +1,7 @@
 package adventure
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -100,6 +101,24 @@ type Character struct {
 	KeySessions               []int  `json:"key_sessions,omitempty"`
 }
 
+// UnmarshalJSON tolerates LLM-generated plans where supporting characters
+// are emitted as bare strings ("supporting_characters": ["Liara la herboriste"])
+// instead of objects: the string becomes the character name. Object form
+// parses identically to the default behavior.
+func (c *Character) UnmarshalJSON(data []byte) error {
+	trimmed := bytes.TrimSpace(data)
+	if len(trimmed) > 0 && trimmed[0] == '"' {
+		var name string
+		if err := json.Unmarshal(trimmed, &name); err != nil {
+			return err
+		}
+		c.Name = name
+		return nil
+	}
+	type characterAlias Character
+	return json.Unmarshal(trimmed, (*characterAlias)(c))
+}
+
 // MacGuffin represents an important object or artifact.
 type MacGuffin struct {
 	Name              string `json:"name"`
@@ -149,6 +168,13 @@ type ForeshadowsContainer struct {
 }
 
 // ForeshadowLinked extends Foreshadow with campaign plan linkage.
+//
+// Two field generations coexist: the original tags (planted_session,
+// linked_to_act, target_payoff_session...) kept for saved plans, and the
+// wizard trame tags (introduced_session, introduced_act, expected_payoff_act,
+// linked_element) that the campaign-plan prompt now requires explicitly —
+// without a sub-schema, models invented incompatible shapes (numeric ids,
+// ad-hoc fields).
 type ForeshadowLinked struct {
 	ID                  string             `json:"id"`
 	Description         string             `json:"description"`
@@ -166,6 +192,46 @@ type ForeshadowLinked struct {
 	PayoffType          string             `json:"payoff_type,omitempty"` // revelation|resolution|twist
 	ResolvedAt          *time.Time         `json:"resolved_at,omitempty"`
 	ResolutionNotes     string             `json:"resolution_notes,omitempty"`
+
+	// Wizard trame fields (docs/issues-2026-09-24.md): the explicit
+	// foreshadow sub-schema requested from the model.
+	IntroducedSession int    `json:"introduced_session,omitempty"`
+	IntroducedAct     int    `json:"introduced_act,omitempty"`
+	ExpectedPayoffAct int    `json:"expected_payoff_act,omitempty"`
+	LinkedElement     string `json:"linked_element,omitempty"`
+}
+
+// UnmarshalJSON tolerates LLM-generated plans where foreshadow ids are
+// emitted as numbers ("id": 1) instead of strings: the number becomes its
+// decimal string form. Object form parses identically to the default.
+func (f *ForeshadowLinked) UnmarshalJSON(data []byte) error {
+	type foreshadowLinkedAlias ForeshadowLinked
+	var alias foreshadowLinkedAlias
+	if err := json.Unmarshal(data, &alias); err == nil {
+		*f = ForeshadowLinked(alias)
+		return nil
+	}
+	// Strict decode failed: retry with the id coerced to a string.
+	var probe struct {
+		ID json.Number `json:"id"`
+	}
+	if err := json.Unmarshal(data, &probe); err != nil || probe.ID == "" {
+		return json.Unmarshal(data, &alias) // surface the original error
+	}
+	repaired := make(map[string]interface{})
+	if err := json.Unmarshal(data, &repaired); err != nil {
+		return err
+	}
+	repaired["id"] = probe.ID.String()
+	fixed, err := json.Marshal(repaired)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(fixed, &alias); err != nil {
+		return err
+	}
+	*f = ForeshadowLinked(alias)
+	return nil
 }
 
 // Progression tracks the campaign's current state.

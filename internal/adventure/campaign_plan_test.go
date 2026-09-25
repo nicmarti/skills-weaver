@@ -1,8 +1,10 @@
 package adventure
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -536,5 +538,128 @@ func TestAddMemorableMoment(t *testing.T) {
 
 	if plan.DMNotes.MemorableMoments[0] != "Epic dragon battle" {
 		t.Errorf("unexpected first moment: '%s'", plan.DMNotes.MemorableMoments[0])
+	}
+}
+
+// TestCharacterUnmarshalToleratesBareString guards the LLM-output tolerance:
+// models sometimes emit supporting characters as bare strings instead of
+// objects. Both forms must load; the string becomes the name.
+func TestCharacterUnmarshalToleratesBareString(t *testing.T) {
+	payload := `{
+      "antagonist": {"name": "Vaskir", "role": "primary"},
+      "supporting_characters": ["Liara la herboriste", {"name": "Maître Orin", "role": "ally"}],
+      "npcs": []
+    }`
+
+	var elements PlotElements
+	if err := json.Unmarshal([]byte(payload), &elements); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+
+	if elements.Antagonist.Name != "Vaskir" {
+		t.Errorf("antagonist name = %q", elements.Antagonist.Name)
+	}
+	if len(elements.SupportingCharacters) != 2 {
+		t.Fatalf("supporting characters = %d, want 2", len(elements.SupportingCharacters))
+	}
+	if elements.SupportingCharacters[0].Name != "Liara la herboriste" {
+		t.Errorf("bare string should become a name, got %q", elements.SupportingCharacters[0].Name)
+	}
+	if elements.SupportingCharacters[1].Name != "Maître Orin" || elements.SupportingCharacters[1].Role != "ally" {
+		t.Errorf("object form should parse normally, got %+v", elements.SupportingCharacters[1])
+	}
+}
+
+// TestCharacterMarshalRoundTrip: the tolerance is read-only — saving a plan
+// must keep writing the object form.
+func TestCharacterMarshalRoundTrip(t *testing.T) {
+	plan := CampaignPlan{
+		PlotElements: PlotElements{
+			Antagonist:           Character{Name: "Vaskir", Role: "primary"},
+			SupportingCharacters: []Character{{Name: "Liara"}},
+		},
+	}
+
+	data, err := json.Marshal(plan)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if !strings.Contains(string(data), `"name":"Liara"`) {
+		t.Errorf("marshaled plan lost the object form: %s", data)
+	}
+
+	var reloaded CampaignPlan
+	if err := json.Unmarshal(data, &reloaded); err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if reloaded.PlotElements.SupportingCharacters[0].Name != "Liara" {
+		t.Errorf("round trip lost name, got %+v", reloaded.PlotElements.SupportingCharacters)
+	}
+}
+
+// TestForeshadowLinkedUnmarshalToleratesNumericID guards the LLM-output
+// tolerance: generated plans sometimes carry numeric foreshadow ids.
+func TestForeshadowLinkedUnmarshalToleratesNumericID(t *testing.T) {
+	payload := `{
+      "active": [
+        {"id": 1, "description": "Un médaillon au blason inconnu", "planted_session": 3},
+        {"id": "fsh_002", "description": "Une lettre scellée", "planted_session": 5}
+      ],
+      "resolved": [],
+      "abandoned": [],
+      "next_id": 3
+    }`
+
+	var container ForeshadowsContainer
+	if err := json.Unmarshal([]byte(payload), &container); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+
+	if len(container.Active) != 2 {
+		t.Fatalf("active = %d, want 2", len(container.Active))
+	}
+	if container.Active[0].ID != "1" {
+		t.Errorf("numeric id should coerce to string, got %q", container.Active[0].ID)
+	}
+	if container.Active[1].ID != "fsh_002" {
+		t.Errorf("string id must parse unchanged, got %q", container.Active[1].ID)
+	}
+	if container.NextID != 3 {
+		t.Errorf("next_id = %d, want 3", container.NextID)
+	}
+}
+
+// TestForeshadowLinkedWizardTrame proves the explicit sub-schema requested in
+// the campaign prompt parses into the dedicated fields.
+func TestForeshadowLinkedWizardTrame(t *testing.T) {
+	payload := `{
+      "active": [
+        {
+          "id": "fsh_001",
+          "description": "Un médaillon au blason inconnu",
+          "introduced_session": 2,
+          "introduced_act": 1,
+          "expected_payoff_act": 3,
+          "linked_element": "l'antagoniste Vaskir"
+        }
+      ],
+      "resolved": [],
+      "abandoned": [],
+      "next_id": 2
+    }`
+
+	var container ForeshadowsContainer
+	if err := json.Unmarshal([]byte(payload), &container); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	f := container.Active[0]
+	if f.ID != "fsh_001" || f.IntroducedSession != 2 || f.IntroducedAct != 1 {
+		t.Errorf("trame core fields = %+v", f)
+	}
+	if f.ExpectedPayoffAct != 3 {
+		t.Errorf("expected_payoff_act = %d, want 3", f.ExpectedPayoffAct)
+	}
+	if f.LinkedElement != "l'antagoniste Vaskir" {
+		t.Errorf("linked_element = %q", f.LinkedElement)
 	}
 }

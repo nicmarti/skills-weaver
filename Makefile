@@ -8,7 +8,7 @@ BINARIES = $(BINARY_PREFIX)-dice $(BINARY_PREFIX)-character $(BINARY_PREFIX)-adv
            $(BINARY_PREFIX)-monster $(BINARY_PREFIX)-treasure $(BINARY_PREFIX)-dm \
            $(BINARY_PREFIX)-equipment $(BINARY_PREFIX)-spell $(BINARY_PREFIX)-rebuild-journal \
            $(BINARY_PREFIX)-location-names $(BINARY_PREFIX)-character-sheet $(BINARY_PREFIX)-map \
-           $(BINARY_PREFIX)-web
+           $(BINARY_PREFIX)-bench-campaign $(BINARY_PREFIX)-web
 
 # Go commands
 GOCMD = go
@@ -78,6 +78,9 @@ $(BINARY_PREFIX)-character-sheet: cmd/character-sheet/main.go internal/character
 
 $(BINARY_PREFIX)-map: cmd/map/main.go internal/map/*.go internal/world/*.go internal/ai/*.go internal/image/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/map
+
+$(BINARY_PREFIX)-bench-campaign: cmd/bench-campaign/main.go internal/campaign/*.go internal/adventure/*.go internal/agent/*.go internal/llm/*.go internal/npc/*.go internal/tarot/*.go
+	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/bench-campaign
 
 $(BINARY_PREFIX)-web: cmd/web/main.go internal/web/*.go internal/agent/*.go internal/adventure/*.go internal/coherence/*.go
 	$(GOBUILD) -ldflags "$(LDFLAGS)" -o $@ ./cmd/web

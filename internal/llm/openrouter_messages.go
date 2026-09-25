@@ -39,6 +39,15 @@ func buildChatRequest(req Request, stream bool) (components.ChatRequest, error) 
 			RequireParameters: optionalnullable.From(oropenrouter.Bool(true)),
 		}))
 	}
+	if req.ReasoningEffort != "" {
+		effort, ok := reasoningEffortToChat(req.ReasoningEffort)
+		if !ok {
+			return components.ChatRequest{}, fmt.Errorf("invalid reasoning effort %q (want none|minimal|low|medium|high|xhigh|max)", req.ReasoningEffort)
+		}
+		chatReq.Reasoning = &components.ChatRequestReasoning{
+			Effort: optionalnullable.From(oropenrouter.Pointer(effort)),
+		}
+	}
 	if req.JSONResponse != nil {
 		rf, err := jsonResponseFormatToChat(*req.JSONResponse)
 		if err != nil {
@@ -53,6 +62,29 @@ func buildChatRequest(req Request, stream bool) (components.ChatRequest, error) 
 	}
 
 	return chatReq, nil
+}
+
+// reasoningEffortToChat maps the neutral reasoning-effort control onto the
+// SDK enum; the second return reports whether the value is known.
+func reasoningEffortToChat(effort string) (components.ChatRequestEffort, bool) {
+	switch effort {
+	case "none":
+		return components.ChatRequestEffortNone, true
+	case "minimal":
+		return components.ChatRequestEffortMinimal, true
+	case "low":
+		return components.ChatRequestEffortLow, true
+	case "medium":
+		return components.ChatRequestEffortMedium, true
+	case "high":
+		return components.ChatRequestEffortHigh, true
+	case "xhigh":
+		return components.ChatRequestEffortXhigh, true
+	case "max":
+		return components.ChatRequestEffortMax, true
+	default:
+		return "", false
+	}
 }
 
 // jsonResponseFormatToChat maps the neutral JSON control onto the SDK union.
@@ -136,9 +168,37 @@ func userMessageToChat(msg Message) components.ChatMessages {
 			images = append(images, img)
 		}
 	}
-	if len(images) == 0 {
+
+	switch {
+	case len(images) == 0 && !msg.CacheBreakpoint:
 		content = components.CreateChatUserMessageContentStr(msg.Text)
-	} else {
+
+	case len(images) == 0:
+		// Text-only breakpoint: the single text part carries the marker.
+		items := []components.ChatContentItems{
+			components.CreateChatContentItemsText(components.ChatContentText{
+				Text:         msg.Text,
+				CacheControl: ephemeralCacheControl(),
+			}),
+		}
+		content = components.CreateChatUserMessageContentArrayOfChatContentItems(items)
+
+	case msg.CacheBreakpoint:
+		// With a breakpoint the text part must come LAST (it alone can
+		// carry cache_control), so the cached prefix covers the images too.
+		items := make([]components.ChatContentItems, 0, len(images)+1)
+		for _, img := range images {
+			items = append(items, components.CreateChatContentItemsImageURL(components.ChatContentImage{
+				ImageURL: components.ChatContentImageImageURL{URL: img.DataURL()},
+			}))
+		}
+		items = append(items, components.CreateChatContentItemsText(components.ChatContentText{
+			Text:         msg.Text,
+			CacheControl: ephemeralCacheControl(),
+		}))
+		content = components.CreateChatUserMessageContentArrayOfChatContentItems(items)
+
+	default:
 		items := []components.ChatContentItems{
 			components.CreateChatContentItemsText(components.ChatContentText{Text: msg.Text}),
 		}
@@ -155,6 +215,13 @@ func userMessageToChat(msg Message) components.ChatMessages {
 		Content: content,
 	}
 	return components.CreateChatMessagesUser(user)
+}
+
+// ephemeralCacheControl is the default cache breakpoint directive.
+func ephemeralCacheControl() *components.ChatContentCacheControl {
+	return &components.ChatContentCacheControl{
+		Type: components.ChatContentCacheControlTypeEphemeral,
+	}
 }
 
 func assistantMessageToChat(msg Message) (components.ChatMessages, error) {

@@ -12,16 +12,19 @@ const (
 	ModelHaiku45 = "anthropic/claude-haiku-4.5"
 	ModelSonnet5 = "anthropic/claude-sonnet-5"
 	ModelOpus5   = "anthropic/claude-opus-5"
+	ModelOpus55  = "anthropic/claude-opus-5.5"
 )
 
-// OpenRouter defaults: Sonnet 5 for every role. Alternative models remain
-// selectable explicitly; these defaults apply to the migrated runtime.
+// OpenRouter role defaults: Sonnet 5 everywhere except the Campaign role,
+// pinned to Opus 5.5 (decision 24/09/2026 — see docs/issues-2026-09-24.md:
+// Sonnet 5's reasoning exceeded the 5-minute generation budget too often).
+// Alternative models remain selectable explicitly.
 const (
 	DefaultModel         = ModelSonnet5
 	DefaultModelDM       = ModelSonnet5
 	DefaultModelNested   = ModelSonnet5
 	DefaultModelFast     = ModelSonnet5
-	DefaultModelCampaign = ModelSonnet5
+	DefaultModelCampaign = ModelOpus55
 )
 
 const (
@@ -104,6 +107,8 @@ func DisplayName(model string) string {
 		return "Claude Sonnet 5"
 	case ModelOpus5:
 		return "Claude Opus 5"
+	case ModelOpus55:
+		return "Claude Opus 5.5"
 	default:
 		return model
 	}

@@ -51,7 +51,7 @@ Real provider API tests are gated and never run by default:
 
 ---
 
-⚠️ **Note de migration (Anthropic → OpenRouter)** : le DM principal, les agents imbriqués (rules-keeper, character-creator, world-keeper) et tous les appels utilitaires (enrichissement, plans de campagne, titres, paramètres ambient, biographies) tournent désormais sur OpenRouter (`llm.Client`, Sonnet 5 par défaut, `OPENROUTER_API_KEY` — Phases 4–5, 7 et 8–12). La fonction Advisor a été **entièrement supprimée** (voir la section « Outil Advisor » ci-dessous). `ANTHROPIC_API_KEY` n'est plus lue par aucun code, et le SDK Anthropic a été retiré du module (Phase 12). Plan, décisions et journal de progression : `docs/openrouter-migration-plan.md`.
+⚠️ **Note de migration (Anthropic → OpenRouter)** : le DM principal, les agents imbriqués (rules-keeper, character-creator, world-keeper) et tous les appels utilitaires (enrichissement, plans de campagne, titres, paramètres ambient, biographies) tournent désormais sur OpenRouter (`llm.Client`, Sonnet 5 par défaut, `OPENROUTER_API_KEY` — Phases 4–5, 7 et 8–12). **Exception (24/09/2026) :** le rôle Campaign utilise **Opus 5.5** par défaut (`DefaultModelCampaign`, décision dans `docs/issues-2026-09-24.md` — la génération de plan de campagne est bornée à 10 min avec `reasoning.effort=medium` ; Sonnet 5 dépassait trop souvent le budget). La fonction Advisor a été **entièrement supprimée** (voir la section « Outil Advisor » ci-dessous). `ANTHROPIC_API_KEY` n'est plus lue par aucun code, et le SDK Anthropic a été retiré du module (Phase 12). Plan, décisions et journal de progression : `docs/openrouter-migration-plan.md`.
 
 ---
 
@@ -692,6 +692,7 @@ Lors de l'ajout d'un nouveau package dans `internal/` pour supporter une skill :
 |---------|-------------|-------|----------|
 | `agent` | `sw-dm`, `sw-web` | ✓ | ✓ |
 | `adventure` | `sw-adventure` | ✓ | ✓ |
+| `campaign` | `sw-web`, `sw-bench-campaign` | ✓ | ✓ |
 | `character` | `sw-character`, `sw-character-sheet` | ✓ | ✓ |
 | `dice` | `sw-dice`, `sw-monster`, `sw-treasure` | ✓ | ✓ |
 | `equipment` | `sw-equipment` | - | ✓ |

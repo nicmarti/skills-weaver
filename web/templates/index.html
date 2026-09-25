@@ -18,6 +18,11 @@
     </header>
 
     <main class="main-content">
+        {{if .Error}}
+        <div class="create-error" role="alert">
+            <strong>La création de l'aventure a échoué :</strong> {{.Error}}
+        </div>
+        {{end}}
         <section class="adventures-section">
             <div class="section-header">
                 <h2>Aventures</h2>

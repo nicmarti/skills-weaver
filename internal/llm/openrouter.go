@@ -122,6 +122,21 @@ func newOpenRouterClient(cfg Config, retries *retry.Config, serverURL string) (*
 	return newOpenRouterClientWithHTTP(cfg, retries, serverURL, nil)
 }
 
+// defaultResponseHeaderTimeout bounds how long a request may wait for the
+// server's response headers. It is the stuck-provider guard: a provider that
+// never starts responding fails after this budget instead of hanging a turn.
+const defaultResponseHeaderTimeout = 60 * time.Second
+
+// defaultHTTPClient builds the production HTTP client: no whole-request
+// timeout (streamed bodies may legitimately take minutes), but response
+// headers must arrive within defaultResponseHeaderTimeout. Callers bound the
+// total duration through their request context.
+func defaultHTTPClient() *http.Client {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.ResponseHeaderTimeout = defaultResponseHeaderTimeout
+	return &http.Client{Transport: transport}
+}
+
 // newOpenRouterClientWithHTTP is the test seam under newOpenRouterClient: it
 // lets tests observe the response-body lifecycle through a custom HTTP client.
 // The adapter always wraps the client with attribution + read-error recording.
@@ -142,11 +157,14 @@ func newOpenRouterClientWithHTTP(cfg Config, retries *retry.Config, serverURL st
 		opts = append(opts, oropenrouter.WithServerURL(serverURL))
 	}
 
-	// Mirror the SDK's default client (60s cap per request) instead of
-	// http.DefaultClient (no timeout): a stuck provider must not hang a
-	// turn forever. Mid-stream timeouts surface as ErrKindTimeout through the
-	// read-error holder below.
-	inner := oropenrouter.HTTPClient(&http.Client{Timeout: 60 * time.Second})
+	// The production default keeps the SDK's stuck-provider protection (60s
+	// without response headers fails the request) WITHOUT its streaming flaw:
+	// http.Client.Timeout also caps reading the response BODY, so any stream
+	// longer than 60s — e.g. a campaign plan taking minutes to generate —
+	// was killed mid-flight even while chunks kept arriving
+	// (docs/issues-2026-09-24.md). Total request duration is bounded by each
+	// caller's context instead; every Complete caller already sets one.
+	inner := oropenrouter.HTTPClient(defaultHTTPClient())
 	if httpClient != nil {
 		inner = httpClient
 	}

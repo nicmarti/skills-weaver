@@ -2536,6 +2536,17 @@ a:hover {
     margin-top: var(--space-sm);
 }
 
+/* Blocking error banner on the home page (adventure creation failures) */
+.create-error {
+    background: rgba(120, 20, 20, 0.25);
+    border: 1px solid var(--accent-red-light);
+    border-radius: var(--radius-md);
+    color: var(--accent-red-light);
+    font-family: var(--font-body);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
 /* Overlay + destiny card */
 .wizard-overlay {
     position: fixed;

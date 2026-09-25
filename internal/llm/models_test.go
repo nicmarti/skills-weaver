@@ -92,7 +92,7 @@ func TestDefaultModels(t *testing.T) {
 	if cfg.ModelNested != ModelSonnet5 {
 		t.Errorf("ModelNested = %q, want %q", cfg.ModelNested, ModelSonnet5)
 	}
-	if cfg.ModelCampaign != ModelSonnet5 {
-		t.Errorf("ModelCampaign = %q, want %q", cfg.ModelCampaign, ModelSonnet5)
+	if cfg.ModelCampaign != ModelOpus55 {
+		t.Errorf("ModelCampaign = %q, want %q (Opus 5.5 pinned for the 5-minute generation budget)", cfg.ModelCampaign, ModelOpus55)
 	}
 }

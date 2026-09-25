@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"dungeons/internal/adventure"
+	"dungeons/internal/campaign"
 	"dungeons/internal/character"
 	"dungeons/internal/image"
 	"dungeons/internal/llm"
@@ -236,32 +237,56 @@ func (s *Server) handleCreateAdventureWizard(c *gin.Context) {
 		return
 	}
 
-	// Create the adventure.
+	// Build the adventure in memory and generate the campaign plan BEFORE
+	// writing anything to disk: a failed generation is a blocking error and
+	// must not leave a playable adventure behind (docs/issues-2026-09-24.md).
+	// The wizard's whole purpose is weaving a destiny, so the plan is always
+	// required here (unlike the quick-create form).
 	adv := adventure.New(p.Name, strings.TrimSpace(p.Description))
+	if s.llmClient == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"error": "OPENROUTER_API_KEY n'est pas configuré : la voyante ne peut pas tisser le destin. Aucune aventure n'a été créée.",
+		})
+		return
+	}
+	theme := strings.TrimSpace(p.Theme)
+	plan, err := s.generateCampaignPlanWithBrief(adv, theme, p.Duration, p.AdventureType, &brief)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": campaign.FriendlyError(err)})
+		return
+	}
+
+	// The plan is ready: persist the adventure, then its plan.
 	if err := adv.Save(adventuresDir); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Création impossible: %v", err)})
 		return
 	}
+	if err := adv.SaveCampaignPlan(plan); err != nil {
+		_ = adventure.Delete(adventuresDir, adv.Slug)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("Échec de la sauvegarde du plan de campagne: %v. Aucune aventure n'a été créée.", err),
+		})
+		return
+	}
 
-	// Generate the campaign plan (blocking) when the LLM client is available.
-	if s.llmClient != nil {
-		theme := strings.TrimSpace(p.Theme)
-		if err := s.generateCampaignPlanWithBrief(adv, theme, p.Duration, p.AdventureType, &brief); err != nil {
-			fmt.Printf("Warning: wizard campaign plan generation failed: %v\n", err)
-		} else {
-			if err := s.generateAdventureNPCs(adv); err != nil {
-				fmt.Printf("Warning: wizard NPC generation failed: %v\n", err)
-			}
-			if plan, err := adv.LoadCampaignPlan(); err == nil {
-				result := adventure.ValidateCampaignPlan(plan)
-				if len(result.Errors) > 0 || len(result.Warnings) > 0 {
-					fmt.Printf("Wizard campaign plan validation for '%s': score=%d, errors=%d, warnings=%d\n",
-						adv.Name, result.Score, len(result.Errors), len(result.Warnings))
-				}
-				// Reveal the destiny card in the background.
-				go s.generateDestinyCard(adv, plan.Metadata.CampaignTitle, brief.Tone)
-			}
+	// NPCs from the plan are part of the adventure contract: blocking. Any
+	// failure here rolls the whole adventure back.
+	if err := s.generateAdventureNPCs(adv); err != nil {
+		_ = adventure.Delete(adventuresDir, adv.Slug)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("La génération des PNJ a échoué: %v. Aucune aventure n'a été créée.", err),
+		})
+		return
+	}
+
+	if savedPlan, err := adv.LoadCampaignPlan(); err == nil {
+		result := adventure.ValidateCampaignPlan(savedPlan)
+		if len(result.Errors) > 0 || len(result.Warnings) > 0 {
+			fmt.Printf("Wizard campaign plan validation for '%s': score=%d, errors=%d, warnings=%d\n",
+				adv.Name, result.Score, len(result.Errors), len(result.Warnings))
 		}
+		// Reveal the destiny card in the background.
+		go s.generateDestinyCard(adv, savedPlan.Metadata.CampaignTitle, brief.Tone)
 	}
 
 	// Copy only the selected heroes (nil/empty => all).
@@ -323,8 +348,8 @@ func (s *Server) respondWizardDebug(c *gin.Context, deck *tarot.Deck, p *wizardC
 		previewName = "Aventure (aperçu)"
 	}
 	tmpAdv := adventure.New(previewName, strings.TrimSpace(p.Description))
-	if pr, _, _, _, err := s.buildCampaignPlanRequest(tmpAdv, strings.TrimSpace(p.Theme), p.Duration, p.AdventureType, &brief); err == nil {
-		campaignPrompt = pr
+	if req, err := campaign.BuildRequest(tmpAdv, strings.TrimSpace(p.Theme), p.Duration, p.AdventureType, &brief); err == nil {
+		campaignPrompt = req.Prompt
 	}
 
 	c.JSON(http.StatusOK, gin.H{

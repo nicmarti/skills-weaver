@@ -286,8 +286,9 @@ func (a *Agent) aggregateUsage(resp llm.Response) {
 	a.lastTurnUsage.Present = true
 	if a.logger != nil {
 		a.logger.LogInfo(fmt.Sprintf(
-			"turn usage so far: prompt=%d completion=%d cached=%d cost=%.6f (routed model=%s, generation=%s)",
+			"turn usage so far: prompt=%d completion=%d cached=%d cache_write=%d cost=%.6f (routed model=%s, generation=%s)",
 			a.lastTurnUsage.PromptTokens, a.lastTurnUsage.CompletionTokens, a.lastTurnUsage.CachedTokens,
+			a.lastTurnUsage.CacheWriteTokens,
 			a.lastTurnUsage.Cost, resp.Model, resp.ID))
 	}
 }
@@ -508,6 +509,11 @@ func (a *Agent) callLLM(ctx context.Context, systemPrompt string, definitions []
 		// Tools must not be silently dropped by endpoints that do not support
 		// them; fail routing loudly instead.
 		RequireParameters: len(definitions) > 0,
+		// Conversational prompt caching: every iteration of the tool loop
+		// replays the whole growing prefix, so the final message carries the
+		// cache breakpoint and the next call reads the prefix at cache-read
+		// price instead of full input price.
+		CacheLastMessage: true,
 	}
 
 	return a.client.Stream(ctx, req, dmStreamObserver{handler: a.outputHandler})

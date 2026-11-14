@@ -785,5 +785,5 @@ If an instruction proves false during normal work — a command fails, a path mo
 
 ---
 
-**Version** : 2.2 (Septembre 2026)
-**Dernière mise à jour** : Fixes de concurrence web (sélection de modèle atomique dans `internal/agent/agent.go`, sortie SSE `internal/web/web_output.go` sans verrou pendant l'envoi, détachement SSE avec grâce de 3s) ; migration OpenRouter Phases 1–12 terminée, SDK Anthropic retiré du module
+**Version** : 2.3 (Novembre 2026)
+**Dernière mise à jour** : Cache de prompt conversationnel (`llm.Request.CacheLastMessage` pose un breakpoint `cache_control` sur le dernier message user/tool ; activé dans la boucle d'outils du DM et pour les agents imbriqués `InvokeAgent`/`InvokeAgentSilent`) — validé en réel via OpenRouter : appel suivant ~89 % moins cher sur un préfixe de ~11k tokens (`TestRealOpenRouterPromptCachingBeforeAfter`)

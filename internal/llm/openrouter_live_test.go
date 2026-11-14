@@ -6,10 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -156,4 +158,87 @@ func TestRealOpenRouterInvalidModelError(t *testing.T) {
 		t.Fatalf("expected classified invalid-model error, got %v", err)
 	}
 	t.Logf("invalid model classified as kind=%s status=%d", llmErr.Kind, llmErr.Status)
+}
+
+// TestRealOpenRouterPromptCachingBeforeAfter validates the conversational
+// prompt-caching fix end to end (see internal/agent loops): replaying the
+// same growing conversation prefix WITHOUT a cache breakpoint is served at
+// full input price (cached=0 — the pre-fix behavior), while with
+// Request.CacheLastMessage the follow-up call reads the prefix from cache
+// (cached>0) at a fraction of the input cost.
+func TestRealOpenRouterPromptCachingBeforeAfter(t *testing.T) {
+	client := realOpenRouterClient(t)
+	ctx := realRequestContext(t)
+
+	// Sonnet-class models cache only prompts over ~1024 tokens; build a
+	// deterministic context well above that threshold.
+	var b strings.Builder
+	for i := 1; i <= 100; i++ {
+		fmt.Fprintf(&b, "Chapitre %d : la caravane de Cordova franchit le col de Val-Brume ; les reliques murmurantes sifflent dans leurs coffrets d'anches, le Guet consigne chaque lanterne du port, et la Légate Iolanthe attend le traité de Lumenciel dans son hôtel pavoisé.\n", i)
+	}
+	bigContext := b.String()
+	system := "Tu es un archiviste de Cordova. Réponds en une seule phrase, très courte."
+	question1 := UserMessage("Résume le contexte ci-dessus en une phrase.")
+	question2 := UserMessage("Propose maintenant un titre court pour ce récit.")
+
+	cacheAware := func(messages []Message) Request {
+		return Request{
+			Model: ModelSonnet5, System: system, MaxCompletionTokens: 64,
+			Messages: messages, CacheLastMessage: true,
+		}
+	}
+	cacheBlind := func(messages []Message) Request {
+		return Request{
+			Model: ModelSonnet5, System: system, MaxCompletionTokens: 64,
+			Messages: messages,
+		}
+	}
+	logPhase := func(label string, resp Response) {
+		perK := 0.0
+		if resp.Usage.PromptTokens > 0 {
+			perK = resp.Usage.Cost / float64(resp.Usage.PromptTokens) * 1000
+		}
+		t.Logf("%s: prompt=%d completion=%d cached=%d cache_write=%d cost=%.6f (usd/1k prompt tokens=%.4f) generation=%s",
+			label, resp.Usage.PromptTokens, resp.Usage.CompletionTokens,
+			resp.Usage.CachedTokens, resp.Usage.CacheWriteTokens,
+			resp.Usage.Cost, perK, resp.ID)
+	}
+
+	// --- AVANT (pre-fix behavior): no cache breakpoint anywhere ---
+	first := []Message{UserMessage(bigContext + "\n\n" + question1.Text)}
+	avant1, err := client.Complete(ctx, cacheBlind(first))
+	if err != nil {
+		t.Fatalf("avant call 1: %v", err)
+	}
+	logPhase("AVANT appel 1", avant1)
+	avant2, err := client.Complete(ctx, cacheBlind([]Message{
+		first[0], avant1.Message, question2,
+	}))
+	if err != nil {
+		t.Fatalf("avant call 2: %v", err)
+	}
+	logPhase("AVANT appel 2", avant2)
+	if avant2.Usage.CachedTokens != 0 {
+		t.Errorf("AVANT (sans breakpoint) : cached=%d, attendu 0 — le fournisseur mettrait en cache sans directive ?",
+			avant2.Usage.CachedTokens)
+	}
+
+	// --- APRÈS (the fix): CacheLastMessage on every call ---
+	apres1, err := client.Complete(ctx, cacheAware([]Message{
+		UserMessage(bigContext + "\n\n" + question1.Text),
+	}))
+	if err != nil {
+		t.Fatalf("après call 1: %v", err)
+	}
+	logPhase("APRES appel 1 (écriture cache)", apres1)
+	apres2, err := client.Complete(ctx, cacheAware([]Message{
+		first[0], apres1.Message, question2,
+	}))
+	if err != nil {
+		t.Fatalf("après call 2: %v", err)
+	}
+	logPhase("APRES appel 2 (lecture cache)", apres2)
+	if apres2.Usage.CachedTokens <= 0 {
+		t.Errorf("APRES (avec breakpoint) : cached=%d, attendu > 0 — le cache n'a pas été lu (routage autre fournisseur ?)", apres2.Usage.CachedTokens)
+	}
 }

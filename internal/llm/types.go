@@ -135,6 +135,15 @@ type Request struct {
 	// models (OpenRouter reasoning.effort). Empty leaves the provider
 	// default. Accepted values: none|minimal|low|medium|high|xhigh|max.
 	ReasoningEffort string
+	// CacheLastMessage marks the final conversation message as an
+	// Anthropic-style prompt-cache breakpoint (conversational caching):
+	// the whole prefix — system, tools, prior history — becomes cacheable
+	// and the breakpoint advances as the conversation grows, so the next
+	// call in the loop reads the replayed prefix at the cache-read price
+	// instead of full input price. Enable only on call sites that replay a
+	// growing conversation (agent tool loops, persisted nested-agent chats);
+	// a one-shot call would pay the cache-write surcharge for nothing.
+	CacheLastMessage bool
 }
 
 // FinishReason classifies why a generation ended.

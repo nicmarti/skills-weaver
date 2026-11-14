@@ -248,6 +248,11 @@ func (am *AgentManager) InvokeAgent(agentName, question, contextInfo string, dep
 			System:              systemPrompt,
 			Messages:            nestedAgent.conversationCtx.NeutralMessages(),
 			MaxCompletionTokens: nestedAgentMaxOutputTokens,
+			// Conversational prompt caching: the nested loop replays the
+			// growing prefix across iterations and across invocations (the
+			// conversation persists in agent-states.json), so the final
+			// message carries the cache breakpoint.
+			CacheLastMessage: true,
 		}
 		if hasTools {
 			req.Tools = definitions
@@ -516,6 +521,10 @@ func (am *AgentManager) InvokeAgentSilent(agentName, question string, depth int)
 		Messages:            am.adaptMessagesForModel(nestedAgent, nestedAgent.conversationCtx.NeutralMessages()),
 		MaxCompletionTokens: nestedAgentMaxOutputTokens,
 		RequireParameters:   false,
+		// Conversational prompt caching: the silent agent's conversation
+		// persists across invocations, so the final message carries the
+		// cache breakpoint for the next call to read.
+		CacheLastMessage: true,
 	})
 	if callErr != nil {
 		if ctx.Err() == context.DeadlineExceeded {

@@ -14,6 +14,10 @@ import (
 func buildChatRequest(req Request, stream bool) (components.ChatRequest, error) {
 	model := ResolveModel(req.Model)
 
+	if req.CacheLastMessage {
+		req.Messages = markLastMessageBreakpoint(req.Messages)
+	}
+
 	messages, err := messagesToChat(req)
 	if err != nil {
 		return components.ChatRequest{}, err
@@ -113,6 +117,27 @@ func jsonResponseFormatToChat(fmtCfg JSONResponseFormat) (components.ResponseFor
 	}), nil
 }
 
+// markLastMessageBreakpoint returns a copy of messages with the final
+// message flagged as a prompt-cache breakpoint (conversational caching).
+// The input slice is never mutated: agent conversation contexts keep
+// appending to the same backing array across a whole session. Only user and
+// tool messages are marked — those are the roles a tool loop ends on (a
+// trailing assistant message completes the turn, so no follow-up call could
+// read the cache anyway).
+func markLastMessageBreakpoint(messages []Message) []Message {
+	if len(messages) == 0 {
+		return messages
+	}
+	last := len(messages) - 1
+	if role := messages[last].Role; role != RoleUser && role != RoleTool {
+		return messages
+	}
+	out := make([]Message, len(messages))
+	copy(out, messages)
+	out[last].CacheBreakpoint = true
+	return out
+}
+
 // messagesToChat converts neutral history into Chat wire messages. The system
 // prompt is prepended as the first message. A single neutral message can expand
 // into several wire messages (a tool-role message emits one message per result).
@@ -144,11 +169,23 @@ func messagesToChat(req Request) ([]components.ChatMessages, error) {
 			}
 			messages = append(messages, assistant)
 		case RoleTool:
-			for _, result := range msg.ToolResults {
+			for i, result := range msg.ToolResults {
 				tool := components.ChatToolMessage{
 					Role:       components.ChatToolMessageRoleTool,
 					ToolCallID: result.ToolCallID,
 					Content:    components.CreateChatToolMessageContentStr(result.Content),
+				}
+				// On a breakpoint message the directive must sit on the
+				// final content block of the message (Anthropic rule), so
+				// the last tool result switches to the content-items wire
+				// form to carry it.
+				if msg.CacheBreakpoint && i == len(msg.ToolResults)-1 {
+					tool.Content = components.CreateChatToolMessageContentArrayOfChatContentItems([]components.ChatContentItems{
+						components.CreateChatContentItemsText(components.ChatContentText{
+							Text:         result.Content,
+							CacheControl: ephemeralCacheControl(),
+						}),
+					})
 				}
 				messages = append(messages, components.CreateChatMessagesTool(tool))
 			}

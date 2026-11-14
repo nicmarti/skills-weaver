@@ -301,6 +301,37 @@ func TestMainLoop_StreamedTurnWithParallelTools(t *testing.T) {
 	}
 }
 
+// TestMainLoop_PromptCachingRequested proves the conversational prompt-caching
+// fix: every request of the tool loop (iteration 0 ending on the user message,
+// follow-ups ending on tool results) asks the boundary to mark the final
+// message as a cache breakpoint, while the stored conversation history never
+// leaks a persistent CacheBreakpoint flag.
+func TestMainLoop_PromptCachingRequested(t *testing.T) {
+	agent, fake, _, _, _, cleanup := setupMainLoopTest(t, []llm.Response{
+		toolCallResp(llm.ToolCall{ID: "call-a", Name: "probe", Arguments: json.RawMessage(`{"value":1}`)}),
+		textResp("Le groupe avance.", llm.Usage{PromptTokens: 100, CompletionTokens: 20, Present: true}),
+	})
+	defer cleanup()
+
+	if err := agent.ProcessUserMessage("j'avance"); err != nil {
+		t.Fatalf("ProcessUserMessage: %v", err)
+	}
+
+	if got := fake.requestCount(); got != 2 {
+		t.Fatalf("provider called %d times, want 2", got)
+	}
+	for i, req := range fake.requests {
+		if !req.CacheLastMessage {
+			t.Errorf("request %d does not ask for a cache breakpoint on the last message", i)
+		}
+	}
+	for i, msg := range agent.conversationCtx.NeutralMessages() {
+		if msg.CacheBreakpoint {
+			t.Errorf("conversation message %d leaked a persistent CacheBreakpoint flag", i)
+		}
+	}
+}
+
 // TestMainLoop_BoundedToolIterations proves the tool loop stops after
 // mainAgentMaxToolIterations instead of looping forever.
 func TestMainLoop_BoundedToolIterations(t *testing.T) {
